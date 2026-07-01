@@ -10,8 +10,8 @@ describe("landingContent", () => {
     expect(landingContent.supportLinks.map((link) => link.label)).toEqual([
       "Support",
       "Contact",
-      "Privacy"
+      "Policy",
+      "Terms"
     ]);
   });
 });
-

@@ -139,8 +139,8 @@ export const landingContent = {
   ] satisfies Faq[],
   supportLinks: [
     { label: "Support", href: "#faq" },
-    { label: "Contact", href: "mailto:support@velocityesim.com" },
-    { label: "Privacy", href: "#" }
+    { label: "Contact", href: "mailto:esim@uplisoft.com" },
+    { label: "Policy", href: "/policy" },
+    { label: "Terms", href: "/terms" }
   ] satisfies SupportLink[]
 } as const;
-
