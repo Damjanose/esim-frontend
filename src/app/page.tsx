@@ -8,12 +8,12 @@ import {
   MapPin,
   Plane,
   QrCode,
-  Search,
   ShieldCheck,
   Smartphone,
   Sparkles,
   Wifi
 } from "lucide-react";
+import { HeroPackageSearch } from "./HeroPackageSearch";
 import { landingContent } from "@/content/landing";
 
 const stepIcons = [MapPin, QrCode, Wifi];
@@ -84,22 +84,7 @@ function Hero() {
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
             {landingContent.hero.body}
           </p>
-          <div className="mt-9 max-w-2xl rounded-xl border border-cyan/20 bg-white/78 p-2 shadow-card backdrop-blur">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <label className="flex min-h-14 flex-1 items-center gap-3 rounded-lg bg-cloud px-4">
-                <Search aria-hidden="true" className="text-cyan" size={20} />
-                <span className="sr-only">Destination search</span>
-                <input
-                  className="w-full bg-transparent text-sm font-medium text-midnight outline-none placeholder:text-slate-400"
-                  placeholder="Where are you traveling to?"
-                  type="search"
-                />
-              </label>
-              <button className="inline-flex min-h-14 items-center justify-center rounded-lg bg-cyan px-6 text-sm font-black text-midnight transition hover:bg-aqua">
-                Search Plans
-              </button>
-            </div>
-          </div>
+          <HeroPackageSearch />
           <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
             <span className="font-semibold text-midnight">Popular:</span>
             {landingContent.hero.popular.map((item) => (
@@ -190,9 +175,14 @@ function Destinations() {
               className="group overflow-hidden rounded-xl border border-line bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-card"
               key={destination.country}
             >
-              <div className={`relative h-40 bg-gradient-to-br ${destination.palette}`}>
-                <div className="absolute inset-x-6 bottom-5 h-20 rounded-t-full border-x-4 border-t-4 border-white/70" />
-                <div className="absolute bottom-5 left-6 right-6 h-3 rounded-full bg-white/80" />
+              <div className={`relative h-40 overflow-hidden bg-gradient-to-br ${destination.palette}`}>
+                <img
+                  alt={destination.imageAlt}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                  src={destination.imageUrl}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-midnight/55 via-midnight/10 to-transparent" />
                 <span className="absolute left-5 top-5 rounded-full bg-white/82 px-3 py-1 text-xs font-black text-midnight">
                   {destination.landmark}
                 </span>

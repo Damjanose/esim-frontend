@@ -5,6 +5,8 @@ export type Destination = {
   badge?: string;
   palette: string;
   landmark: string;
+  imageUrl: string;
+  imageAlt: string;
 };
 
 export type LandingStep = {
@@ -49,21 +51,30 @@ export const landingContent = {
       price: "$4.50",
       badge: "5G ready",
       palette: "from-sky-200 via-cyan-100 to-slate-200",
-      landmark: "NYC"
+      landmark: "NYC",
+      imageUrl:
+        "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80",
+      imageAlt: "New York City skyline in the USA"
     },
     {
       country: "Japan",
       region: "Asia",
       price: "$5.20",
       palette: "from-rose-100 via-cyan-100 to-sky-200",
-      landmark: "Fuji"
+      landmark: "Fuji",
+      imageUrl:
+        "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&w=900&q=80",
+      imageAlt: "Mount Fuji landscape in Japan"
     },
     {
       country: "UK",
       region: "Europe",
       price: "$4.50",
       palette: "from-indigo-200 via-sky-100 to-cyan-100",
-      landmark: "London"
+      landmark: "London",
+      imageUrl:
+        "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80",
+      imageAlt: "London city view in the United Kingdom"
     },
     {
       country: "France",
@@ -71,14 +82,20 @@ export const landingContent = {
       price: "$4.50",
       badge: "Best seller",
       palette: "from-amber-100 via-slate-100 to-cyan-100",
-      landmark: "Paris"
+      landmark: "Paris",
+      imageUrl:
+        "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=80",
+      imageAlt: "Eiffel Tower view in Paris, France"
     },
     {
       country: "Turkey",
       region: "Asia/Europe",
       price: "$4.80",
       palette: "from-orange-100 via-cyan-100 to-slate-200",
-      landmark: "Istanbul"
+      landmark: "Istanbul",
+      imageUrl:
+        "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=900&q=80",
+      imageAlt: "Istanbul skyline in Turkey"
     }
   ] satisfies Destination[],
   steps: [
