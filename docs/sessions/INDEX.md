@@ -6,3 +6,4 @@
 | 2026-07-01 | [Legal pages and hydration](./2026-07-01_legal_pages_and_hydration.md) | Added public Policy and Terms pages, fixed footer legal links, and suppressed extension-injected root hydration warnings. |
 | 2026-07-02 | [Frontend update script](./2026-07-02_frontend_update_script.md) | Added the production `update.sh` deploy script for future frontend releases. |
 | 2026-07-02 | [Hero package API search](./2026-07-02_hero_package_api_search.md) | Replaced static hero package matches with API-backed package options. |
+| 2026-07-02 | [Frontend load check](./2026-07-02_frontend_load_check.md) | Diagnosed a stale duplicate Next dev server causing local website load trouble. |
