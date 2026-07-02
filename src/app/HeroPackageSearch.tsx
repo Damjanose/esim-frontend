@@ -2,12 +2,19 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Wifi } from "lucide-react";
-import { landingContent } from "@/content/landing";
+import {
+  fetchPackageOptions,
+  filterPackageOptions,
+  type HeroPackageOption
+} from "@/services/packages";
 
 export function HeroPackageSearch() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [packages, setPackages] = useState<HeroPackageOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -20,23 +27,32 @@ export function HeroPackageSearch() {
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadPackages() {
+      try {
+        setLoading(true);
+        setError(null);
+        const options = await fetchPackageOptions();
+        if (active) setPackages(options);
+      } catch {
+        if (active) setError("Packages are unavailable right now. Please try again soon.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadPackages();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const results = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    if (!normalizedQuery) return landingContent.destinations;
-
-    return landingContent.destinations.filter((destination) =>
-      [
-        destination.country,
-        destination.region,
-        destination.landmark,
-        destination.price
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery)
-    );
-  }, [query]);
+    return filterPackageOptions(packages, query);
+  }, [packages, query]);
 
   function handleSearchClick() {
     setIsOpen(true);
@@ -76,16 +92,22 @@ export function HeroPackageSearch() {
             </p>
           </div>
 
-          {results.length === 0 ? (
+          {loading ? (
+            <p className="px-4 py-4 text-sm font-semibold text-slate-500">
+              Loading packages...
+            </p>
+          ) : error ? (
+            <p className="px-4 py-4 text-sm font-semibold text-slate-500">{error}</p>
+          ) : results.length === 0 ? (
             <p className="px-4 py-4 text-sm font-semibold text-slate-500">
               No packages found. Try Japan, USA, France, UK, or Turkey.
             </p>
           ) : (
             <div className="max-h-80 overflow-y-auto p-2">
-              {results.map((destination) => (
+              {results.map((pkg) => (
                 <div
                   className="flex items-center justify-between gap-4 rounded-lg px-3 py-3 transition hover:bg-cloud"
-                  key={destination.country}
+                  key={pkg.id}
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-cyan/15 text-midnight">
@@ -93,16 +115,16 @@ export function HeroPackageSearch() {
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-black text-midnight">
-                        {destination.country}
+                        {pkg.title}
                       </p>
                       <p className="truncate text-xs font-semibold text-slate-500">
-                        {destination.region} · {destination.landmark}
+                        {pkg.subtitle} - {pkg.details}
                       </p>
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="font-display text-lg font-black text-midnight">
-                      {destination.price}
+                      {pkg.price}
                     </p>
                     <p className="text-[11px] font-bold uppercase text-slate-400">View only</p>
                   </div>
