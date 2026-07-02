@@ -31,7 +31,7 @@ systemctl restart "$SERVICE_NAME"
 
 echo "Waiting for local frontend..."
 for attempt in $(seq 1 60); do
-  if curl -fsS -o /dev/null "$LOCAL_FRONTEND_URL"; then
+  if curl -fsS -o /dev/null "$LOCAL_FRONTEND_URL" 2>/dev/null; then
     break
   fi
 
