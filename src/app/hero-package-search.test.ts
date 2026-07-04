@@ -14,4 +14,13 @@ describe("HeroPackageSearch", () => {
     expect(routeSource).toContain('"https://esim.uplisoft.com/api"');
     expect(routeSource).not.toContain('"http://localhost:4000/api"');
   });
+
+  it("keeps the mobile package results layered above the hero device mockup", () => {
+    const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
+    const componentSource = readFileSync(join(process.cwd(), "src/app/HeroPackageSearch.tsx"), "utf8");
+
+    expect(pageSource).toContain('className="relative z-20"');
+    expect(pageSource).toContain('className="relative z-0 mx-auto w-full max-w-[440px]"');
+    expect(componentSource).toContain("z-50 overflow-hidden");
+  });
 });

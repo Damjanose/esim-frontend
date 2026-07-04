@@ -73,7 +73,7 @@ function Hero() {
       <div className="hero-grid absolute inset-0 -z-10" />
       <div className="absolute left-1/2 top-24 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan/20 blur-3xl" />
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 md:grid-cols-[1.03fr_0.97fr] md:px-8 md:pb-28 md:pt-14">
-        <div>
+        <div className="relative z-20">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-white/70 px-4 py-2 text-xs font-bold uppercase text-midnight shadow-sm backdrop-blur">
             <span className="h-2 w-2 rounded-full bg-cyan" />
             {landingContent.hero.eyebrow}
@@ -106,7 +106,7 @@ function Hero() {
 
 function HeroDevice() {
   return (
-    <div className="relative mx-auto w-full max-w-[440px]">
+    <div className="relative z-0 mx-auto w-full max-w-[440px]">
       <div className="absolute -left-8 top-10 hidden rounded-xl border border-cyan/20 bg-white/80 p-4 shadow-card backdrop-blur sm:block">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-lg bg-cyan/15 text-midnight">

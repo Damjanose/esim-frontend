@@ -7,3 +7,4 @@
 | 2026-07-02 | [Frontend update script](./2026-07-02_frontend_update_script.md) | Added the production `update.sh` deploy script for future frontend releases. |
 | 2026-07-02 | [Hero package API search](./2026-07-02_hero_package_api_search.md) | Replaced static hero package matches with API-backed package options. |
 | 2026-07-02 | [Frontend load check](./2026-07-02_frontend_load_check.md) | Diagnosed a stale duplicate Next dev server causing local website load trouble. |
+| 2026-07-04 | [Hero search mobile layering](./2026-07-04_hero_search_mobile_layering.md) | Fixed the mobile hero package results panel so it layers above the device mockup. |

@@ -60,7 +60,7 @@ export function HeroPackageSearch() {
 
   return (
     <div
-      className="relative mt-9 max-w-2xl rounded-xl border border-cyan/20 bg-white/78 p-2 shadow-card backdrop-blur"
+      className="relative z-40 mt-9 max-w-2xl rounded-xl border border-cyan/20 bg-white/78 p-2 shadow-card backdrop-blur"
       ref={rootRef}
     >
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -85,7 +85,7 @@ export function HeroPackageSearch() {
       </div>
 
       {isOpen ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-30 overflow-hidden rounded-xl border border-line bg-white shadow-card">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-50 overflow-hidden rounded-xl border border-line bg-white shadow-card">
           <div className="border-b border-line px-4 py-3">
             <p className="text-xs font-black uppercase text-slate-500">
               {query.trim() ? "Matching packages" : "Popular packages"}
