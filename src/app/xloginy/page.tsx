@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { BarChart3, LockKeyhole, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { AdminNav } from "../AdminNav";
 
 type AdminLoginResponse = {
   status?: string;
@@ -241,6 +242,7 @@ export default function AdminDashboardPage() {
   return (
     <main className="min-h-screen bg-cloud text-ink">
       <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
+        <AdminNav />
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="flex items-center gap-2 text-sm font-black uppercase text-cyan">

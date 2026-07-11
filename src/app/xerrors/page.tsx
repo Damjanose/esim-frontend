@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { AdminNav } from "../AdminNav";
 
 type AdminLoginResponse = {
   status?: string;
@@ -253,6 +254,7 @@ export default function AdminErrorInboxPage() {
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950">
       <div className="mx-auto max-w-7xl">
+        <AdminNav />
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-black">Error Inbox</h1>

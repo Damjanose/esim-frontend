@@ -32,6 +32,19 @@ describe("hidden admin error inbox", () => {
     expect(errorInboxSource).toContain("Repair action");
   });
 
+  it("renders hidden admin navigation between error inbox and purchase dashboard", () => {
+    expect(existsSync("src/app/AdminNav.tsx")).toBe(true);
+
+    const errorInboxSource = readFileSync("src/app/xerrors/page.tsx", "utf8");
+    const navSource = readFileSync("src/app/AdminNav.tsx", "utf8");
+
+    expect(errorInboxSource).toContain("AdminNav");
+    expect(navSource).toContain("/xloginy");
+    expect(navSource).toContain("/xerrors");
+    expect(navSource).toContain("Purchase dashboard");
+    expect(navSource).toContain("Error Inbox");
+  });
+
   it("adds local admin API proxy routes for error inbox operations", () => {
     expect(existsSync("src/app/api/admin/errors/route.ts")).toBe(true);
     expect(existsSync("src/app/api/admin/errors/[id]/route.ts")).toBe(true);

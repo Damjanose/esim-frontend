@@ -40,6 +40,19 @@ describe("hidden admin purchase dashboard", () => {
     expect(dashboardSource).toContain("recentOtpRequests");
   });
 
+  it("renders hidden admin navigation between dashboard and error inbox", () => {
+    expect(existsSync("src/app/AdminNav.tsx")).toBe(true);
+
+    const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
+    const navSource = readFileSync("src/app/AdminNav.tsx", "utf8");
+
+    expect(dashboardSource).toContain("AdminNav");
+    expect(navSource).toContain("/xloginy");
+    expect(navSource).toContain("/xerrors");
+    expect(navSource).toContain("Purchase dashboard");
+    expect(navSource).toContain("Error Inbox");
+  });
+
   it("adds local admin API proxy routes for login and dashboard data", () => {
     expect(existsSync("src/app/api/admin/login/route.ts")).toBe(true);
     expect(existsSync("src/app/api/admin/dashboard/route.ts")).toBe(true);
