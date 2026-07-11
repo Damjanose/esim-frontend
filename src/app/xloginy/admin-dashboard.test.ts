@@ -28,6 +28,18 @@ describe("hidden admin purchase dashboard", () => {
     expect(dashboardSource).toContain("Purchased At");
   });
 
+  it("renders user tracking and recent OTP request sections", () => {
+    const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
+
+    expect(dashboardSource).toContain("Total users");
+    expect(dashboardSource).toContain("Users");
+    expect(dashboardSource).toContain("OTP requests");
+    expect(dashboardSource).toContain("Latest OTP");
+    expect(dashboardSource).toContain("Recent OTP requests");
+    expect(dashboardSource).toContain("userCount");
+    expect(dashboardSource).toContain("recentOtpRequests");
+  });
+
   it("adds local admin API proxy routes for login and dashboard data", () => {
     expect(existsSync("src/app/api/admin/login/route.ts")).toBe(true);
     expect(existsSync("src/app/api/admin/dashboard/route.ts")).toBe(true);

@@ -9,3 +9,4 @@
 | 2026-07-02 | [Frontend load check](./2026-07-02_frontend_load_check.md) | Diagnosed a stale duplicate Next dev server causing local website load trouble. |
 | 2026-07-04 | [Hero search mobile layering](./2026-07-04_hero_search_mobile_layering.md) | Fixed the mobile hero package results panel so it layers above the device mockup. |
 | 2026-07-11 | [Hidden admin dashboard](./2026-07-11_hidden_admin_dashboard.md) | Added the hidden `/xloginy` admin purchase dashboard with login, purchase table, chart, and proxy routes. |
+| 2026-07-11 | [Admin users and OTP tracking](./2026-07-11_admin_users_otp_tracking.md) | Added total users, users table, and recent OTP request table to the hidden admin dashboard. |

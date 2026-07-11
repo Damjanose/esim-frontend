@@ -29,16 +29,35 @@ type ChartPoint = {
   revenueCents: number;
 };
 
+type DashboardUser = {
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  otpRequestCount: number;
+  lastOtpRequestedAt: string | null;
+};
+
+type OtpRequestEvent = {
+  id: string;
+  email: string;
+  status: string;
+  errorMessage: string | null;
+  createdAt: string;
+};
+
 type DashboardPayload = {
   status?: string;
   data?: {
     summary?: {
       purchaseCount: number;
+      userCount?: number;
       revenueByCurrency: Record<string, number>;
       latestPurchaseAt: string | null;
     };
     chart?: ChartPoint[];
     purchases?: Purchase[];
+    users?: DashboardUser[];
+    recentOtpRequests?: OtpRequestEvent[];
   };
   message?: string;
 };
@@ -65,6 +84,10 @@ function formatRevenue(revenueByCurrency: Record<string, number>) {
   const entries = Object.entries(revenueByCurrency);
   if (entries.length === 0) return "N/A";
   return entries.map(([currency, amount]) => formatMoney(amount, currency)).join(" + ");
+}
+
+function formatOtpStatus(status: string) {
+  return status.replaceAll("_", " ");
 }
 
 function PurchasesChart({ data }: { data: ChartPoint[] }) {
@@ -126,8 +149,11 @@ export default function AdminDashboardPage() {
 
   const purchases = dashboard?.purchases ?? [];
   const chart = dashboard?.chart ?? [];
+  const users = dashboard?.users ?? [];
+  const recentOtpRequests = dashboard?.recentOtpRequests ?? [];
   const summary = dashboard?.summary ?? {
     purchaseCount: 0,
+    userCount: 0,
     revenueByCurrency: {},
     latestPurchaseAt: null
   };
@@ -297,7 +323,7 @@ export default function AdminDashboardPage() {
               </div>
             ) : null}
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
               <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
                 <p className="text-xs font-black uppercase text-slate-500">Total purchases</p>
                 <p className="mt-2 font-display text-3xl font-black text-midnight">
@@ -312,6 +338,12 @@ export default function AdminDashboardPage() {
                 <p className="text-xs font-black uppercase text-slate-500">Latest purchase</p>
                 <p className="mt-2 text-lg font-black text-midnight">{latestPurchase}</p>
               </article>
+              <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
+                <p className="text-xs font-black uppercase text-slate-500">Total users</p>
+                <p className="mt-2 font-display text-3xl font-black text-midnight">
+                  {summary.userCount ?? users.length}
+                </p>
+              </article>
             </div>
 
             <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
@@ -323,6 +355,9 @@ export default function AdminDashboardPage() {
             </section>
 
             <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+              <div className="border-b border-line px-4 py-3">
+                <h2 className="font-display text-xl font-black text-midnight">Purchases</h2>
+              </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse text-left text-sm">
                   <thead className="bg-midnight text-white">
@@ -346,6 +381,80 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3 text-slate-600">{formatDate(purchase.providerCreatedAt)}</td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+              <div className="border-b border-line px-4 py-3">
+                <h2 className="font-display text-xl font-black text-midnight">Users</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse text-left text-sm">
+                  <thead className="bg-midnight text-white">
+                    <tr>
+                      <th className="px-4 py-3 font-black">Email</th>
+                      <th className="px-4 py-3 font-black">Created</th>
+                      <th className="px-4 py-3 font-black">Updated</th>
+                      <th className="px-4 py-3 font-black">OTP requests</th>
+                      <th className="px-4 py-3 font-black">Latest OTP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.length > 0 ? (
+                      users.map((user) => (
+                        <tr className="border-t border-line" key={user.email}>
+                          <td className="px-4 py-3 font-semibold text-midnight">{user.email}</td>
+                          <td className="px-4 py-3 text-slate-600">{formatDate(user.createdAt)}</td>
+                          <td className="px-4 py-3 text-slate-600">{formatDate(user.updatedAt)}</td>
+                          <td className="px-4 py-3 font-bold text-midnight">{user.otpRequestCount}</td>
+                          <td className="px-4 py-3 text-slate-600">{formatDate(user.lastOtpRequestedAt)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr className="border-t border-line">
+                        <td className="px-4 py-5 text-center text-sm font-semibold text-slate-500" colSpan={5}>
+                          No users yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+              <div className="border-b border-line px-4 py-3">
+                <h2 className="font-display text-xl font-black text-midnight">Recent OTP requests</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse text-left text-sm">
+                  <thead className="bg-midnight text-white">
+                    <tr>
+                      <th className="px-4 py-3 font-black">Email</th>
+                      <th className="px-4 py-3 font-black">Status</th>
+                      <th className="px-4 py-3 font-black">Timestamp</th>
+                      <th className="px-4 py-3 font-black">Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentOtpRequests.length > 0 ? (
+                      recentOtpRequests.map((request) => (
+                        <tr className="border-t border-line" key={request.id}>
+                          <td className="px-4 py-3 font-semibold text-midnight">{request.email}</td>
+                          <td className="px-4 py-3 font-bold text-midnight">{formatOtpStatus(request.status)}</td>
+                          <td className="px-4 py-3 text-slate-600">{formatDate(request.createdAt)}</td>
+                          <td className="px-4 py-3 text-slate-600">{request.errorMessage ?? "N/A"}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr className="border-t border-line">
+                        <td className="px-4 py-5 text-center text-sm font-semibold text-slate-500" colSpan={4}>
+                          No OTP requests yet
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
