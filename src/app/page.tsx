@@ -2,7 +2,6 @@ import {
   ArrowRight,
   BadgeCheck,
   CircleHelp,
-  Download,
   Headphones,
   MapPin,
   Plane,
@@ -332,24 +331,65 @@ function Cta() {
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <span
+            aria-label="App Store coming soon"
             aria-disabled="true"
-            className="inline-flex min-h-12 cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-white/18 px-6 font-black text-white/55"
+            className="inline-flex min-h-16 cursor-not-allowed items-center justify-center gap-3 rounded-lg border border-white/15 bg-white/10 px-5 text-left text-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
           >
-            <Download aria-hidden="true" size={18} />
-            {landingContent.appLinks.ios.label}
+            <AppleStoreIcon />
+            <span className="grid leading-none">
+              <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/35">
+                Coming soon
+              </span>
+              <span className="mt-1 font-display text-lg font-black text-white/60">
+                {landingContent.appLinks.ios.label}
+              </span>
+            </span>
           </span>
           <a
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-cyan px-6 font-black text-midnight transition hover:bg-aqua"
+            aria-label="Download Velocity eSIM on Google Play"
+            className="inline-flex min-h-16 items-center justify-center gap-3 rounded-lg border border-cyan/60 bg-cyan px-5 text-left text-midnight shadow-[0_18px_38px_rgba(27,211,232,0.28)] transition hover:-translate-y-0.5 hover:bg-aqua hover:shadow-[0_22px_48px_rgba(27,211,232,0.36)]"
             href={landingContent.appLinks.android.href}
             rel="noopener noreferrer"
             target="_blank"
           >
-            <Download aria-hidden="true" size={18} />
-            {landingContent.appLinks.android.label}
+            <GooglePlayIcon />
+            <span className="grid leading-none">
+              <span className="text-[11px] font-black uppercase tracking-[0.08em] text-midnight/65">
+                Get it on
+              </span>
+              <span className="mt-1 font-display text-lg font-black">
+                {landingContent.appLinks.android.label}
+              </span>
+            </span>
           </a>
         </div>
       </div>
     </section>
+  );
+}
+
+function AppleStoreIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-8 w-8 shrink-0"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path d="M16.54 12.36c-.03-2.28 1.86-3.38 1.95-3.43-1.07-1.57-2.72-1.78-3.3-1.8-1.39-.14-2.73.82-3.44.82-.72 0-1.82-.8-3-.78-1.54.02-2.97.91-3.76 2.3-1.61 2.79-.41 6.89 1.13 9.15.77 1.1 1.67 2.33 2.84 2.29 1.15-.05 1.58-.73 2.97-.73 1.38 0 1.78.73 2.98.7 1.23-.02 2.01-1.1 2.75-2.21.89-1.26 1.24-2.51 1.25-2.58-.03-.01-2.34-.9-2.37-3.73Z" />
+      <path d="M14.28 5.65c.62-.75 1.04-1.8.92-2.85-.9.04-2.03.62-2.68 1.37-.58.66-1.1 1.75-.96 2.77 1.02.08 2.08-.52 2.72-1.29Z" />
+    </svg>
+  );
+}
+
+function GooglePlayIcon() {
+  return (
+    <svg aria-hidden="true" className="h-8 w-8 shrink-0" viewBox="0 0 32 32">
+      <path d="M5.4 3.8c-.37.4-.6 1.02-.6 1.84v20.72c0 .82.23 1.44.62 1.84l.08.08L17.1 16.14v-.28L5.48 3.72l-.08.08Z" fill="#1a73e8" />
+      <path d="m20.96 20.02-3.86-4.02v-.28l3.86-4.02.08.05 4.58 2.6c1.31.74 1.31 1.96 0 2.71l-4.58 2.6-.08.36Z" fill="#fbbc04" />
+      <path d="m21.04 19.66-3.94-3.94L5.4 28.2c.58.62 1.55.69 2.65.07l12.99-8.61Z" fill="#34a853" />
+      <path d="M21.04 12.34 8.05 3.73c-1.1-.62-2.07-.55-2.65.07l11.7 12.2 3.94-3.66Z" fill="#ea4335" />
+    </svg>
   );
 }
 

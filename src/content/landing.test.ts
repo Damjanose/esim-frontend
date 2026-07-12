@@ -41,6 +41,17 @@ describe("landingContent", () => {
     expect(pageSource).toContain("href={landingContent.appLinks.android.href}");
   });
 
+  it("renders premium store buttons with platform icons", () => {
+    const pageSource = readFileSync("src/app/page.tsx", "utf8");
+
+    expect(pageSource).toContain("function AppleStoreIcon");
+    expect(pageSource).toContain("function GooglePlayIcon");
+    expect(pageSource).toContain("<AppleStoreIcon />");
+    expect(pageSource).toContain("<GooglePlayIcon />");
+    expect(pageSource).toContain('aria-label="App Store coming soon"');
+    expect(pageSource).toContain('aria-label="Download Velocity eSIM on Google Play"');
+  });
+
   it("uses app logo assets for favicon, header, and footer branding", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
     const layoutSource = readFileSync("src/app/layout.tsx", "utf8");
