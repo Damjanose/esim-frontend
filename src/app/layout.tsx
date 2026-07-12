@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
+import { createMetadata, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Velocity eSIM | Global Travel Data",
-  description:
-    "Velocity eSIM helps travelers buy digital SIM plans for fast mobile data in 200+ destinations.",
-  openGraph: {
-    title: "Velocity eSIM",
+  metadataBase: new URL(siteUrl),
+  ...createMetadata({
+    path: "/",
+    title: "Velocity eSIM | Travel Data for 200+ Destinations",
     description:
-      "Instant travel data for 200+ destinations. No physical SIM. No roaming surprises.",
-    type: "website"
-  }
+      "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
+  })
 };
 
 export default function RootLayout({

@@ -13,15 +13,26 @@ import {
   Sparkles,
   Wifi
 } from "lucide-react";
+import type { Metadata } from "next";
+import { JsonLd } from "./JsonLd";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { landingContent } from "@/content/landing";
+import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 
 const stepIcons = [MapPin, QrCode, Wifi];
 const benefitIcons = [Sparkles, ShieldCheck, Headphones];
 
+export const metadata: Metadata = createMetadata({
+  path: "/",
+  title: "Velocity eSIM | Travel Data for 200+ Destinations",
+  description:
+    "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
+});
+
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-white text-ink">
+      <JsonLd data={createLandingJsonLd()} />
       <Nav />
       <Hero />
       <Destinations />
