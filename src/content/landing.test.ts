@@ -34,10 +34,10 @@ describe("landingContent", () => {
     });
   });
 
-  it("routes the primary download CTA to Google Play instead of an in-page placeholder", () => {
+  it("routes the header CTA to the download section and the Android CTA to Google Play", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 
+    expect(pageSource).toContain('href="#download"');
     expect(pageSource).toContain("href={landingContent.appLinks.android.href}");
-    expect(pageSource).not.toContain('href="#download"');
   });
 });

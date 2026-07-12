@@ -68,9 +68,7 @@ function Nav() {
         </div>
         <a
           className="inline-flex h-11 items-center gap-2 rounded-lg bg-midnight px-5 text-sm font-bold text-cyan transition hover:bg-ink"
-          href={landingContent.appLinks.android.href}
-          rel="noopener noreferrer"
-          target="_blank"
+          href="#download"
         >
           Get App
           <ArrowRight aria-hidden="true" size={16} />
