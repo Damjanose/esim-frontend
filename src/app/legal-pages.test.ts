@@ -23,4 +23,11 @@ describe("legal pages and hydration-safe shell", () => {
     expect(layout).toContain("<html lang=\"en\" suppressHydrationWarning>");
     expect(layout).toContain("<body suppressHydrationWarning>{children}</body>");
   });
+
+  it("uses the app logo asset for legal page branding instead of a generic icon", () => {
+    const legalPage = readFileSync("src/app/LegalDocumentPage.tsx", "utf8");
+
+    expect(legalPage).toContain('src="/app-logo.png"');
+    expect(legalPage).not.toContain("Globe2");
+  });
 });

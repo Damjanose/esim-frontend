@@ -3,7 +3,6 @@ import {
   BadgeCheck,
   CircleHelp,
   Download,
-  Globe2,
   Headphones,
   MapPin,
   Plane,
@@ -50,9 +49,12 @@ function Nav() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-cyan/10 bg-white/82 backdrop-blur-xl">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
         <a className="flex items-center gap-3 font-display text-lg font-bold" href="#">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-midnight text-cyan shadow-glow">
-            <Globe2 aria-hidden="true" size={20} />
-          </span>
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-9 w-9 rounded-lg shadow-glow"
+            src="/app-logo.png"
+          />
           {landingContent.brand}
         </a>
         <div className="hidden items-center gap-8 md:flex">
@@ -357,9 +359,12 @@ function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-5 md:grid-cols-[1fr_auto] md:px-8">
         <div>
           <div className="flex items-center gap-3 font-display text-lg font-black">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-cyan text-midnight">
-              <Globe2 aria-hidden="true" size={20} />
-            </span>
+            <img
+              alt=""
+              aria-hidden="true"
+              className="h-9 w-9 rounded-lg shadow-glow"
+              src="/app-logo.png"
+            />
             {landingContent.brand}
           </div>
           <p className="mt-4 max-w-md text-sm leading-6 text-white/60">

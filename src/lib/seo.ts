@@ -10,6 +10,7 @@ export const ogImage = {
   height: 630,
   alt: "Velocity eSIM travel data app preview"
 };
+export const appLogoUrl = `${siteUrl}/app-logo.png`;
 
 export const privateRoutePrefixes = [
   "/api",
@@ -122,7 +123,7 @@ export function createLandingJsonLd() {
         name: siteName,
         url: `${siteUrl}/`,
         email: supportEmail,
-        logo: ogImage.url
+        logo: appLogoUrl
       },
       {
         "@type": "WebSite",

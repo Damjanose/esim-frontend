@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { landingContent } from "./landing";
 
 describe("landingContent", () => {
@@ -39,5 +39,17 @@ describe("landingContent", () => {
 
     expect(pageSource).toContain('href="#download"');
     expect(pageSource).toContain("href={landingContent.appLinks.android.href}");
+  });
+
+  it("uses app logo assets for favicon, header, and footer branding", () => {
+    const pageSource = readFileSync("src/app/page.tsx", "utf8");
+    const layoutSource = readFileSync("src/app/layout.tsx", "utf8");
+
+    expect(existsSync("src/app/icon.png")).toBe(true);
+    expect(existsSync("public/favicon.png")).toBe(true);
+    expect(existsSync("public/app-logo.png")).toBe(true);
+    expect(pageSource).toContain('src="/app-logo.png"');
+    expect(pageSource).not.toContain("Globe2");
+    expect(layoutSource).toContain('url: "/favicon.png"');
   });
 });

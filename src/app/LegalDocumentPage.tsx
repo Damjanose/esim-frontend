@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Globe2 } from "lucide-react";
 import type { LegalDocument } from "@/content/legal";
 import { landingContent } from "@/content/landing";
 
@@ -13,9 +12,12 @@ export function LegalDocumentPage({ document }: LegalDocumentPageProps) {
       <header className="border-b border-line bg-white">
         <nav className="mx-auto flex h-20 max-w-4xl items-center justify-between px-5 md:px-8">
           <Link className="flex items-center gap-3 font-display text-lg font-bold" href="/">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-midnight text-cyan shadow-glow">
-              <Globe2 aria-hidden="true" size={20} />
-            </span>
+            <img
+              alt=""
+              aria-hidden="true"
+              className="h-9 w-9 rounded-lg shadow-glow"
+              src="/app-logo.png"
+            />
             {landingContent.brand}
           </Link>
           <Link className="text-sm font-bold text-midnight transition hover:text-cyan" href="/">

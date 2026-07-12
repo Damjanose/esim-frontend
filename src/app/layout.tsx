@@ -9,7 +9,11 @@ export const metadata: Metadata = {
     title: "Velocity eSIM | Travel Data for 200+ Destinations",
     description:
       "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
-  })
+  }),
+  icons: {
+    icon: [{ url: "/favicon.png", sizes: "48x48", type: "image/png" }],
+    apple: [{ url: "/app-logo.png", sizes: "1024x1024", type: "image/png" }]
+  }
 };
 
 export default function RootLayout({
