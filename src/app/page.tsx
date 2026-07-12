@@ -68,7 +68,9 @@ function Nav() {
         </div>
         <a
           className="inline-flex h-11 items-center gap-2 rounded-lg bg-midnight px-5 text-sm font-bold text-cyan transition hover:bg-ink"
-          href="#download"
+          href={landingContent.appLinks.android.href}
+          rel="noopener noreferrer"
+          target="_blank"
         >
           Get App
           <ArrowRight aria-hidden="true" size={16} />
@@ -329,13 +331,21 @@ function Cta() {
           Download links will guide travelers straight to the mobile app as soon as your release is ready.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-cyan px-6 font-black text-midnight transition hover:bg-aqua" href="#">
+          <span
+            aria-disabled="true"
+            className="inline-flex min-h-12 cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-white/18 px-6 font-black text-white/55"
+          >
             <Download aria-hidden="true" size={18} />
-            App Store
-          </a>
-          <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 font-black text-midnight transition hover:bg-cloud" href="#">
+            {landingContent.appLinks.ios.label}
+          </span>
+          <a
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-cyan px-6 font-black text-midnight transition hover:bg-aqua"
+            href={landingContent.appLinks.android.href}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
             <Download aria-hidden="true" size={18} />
-            Google Play
+            {landingContent.appLinks.android.label}
           </a>
         </div>
       </div>

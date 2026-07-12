@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { createMetadata, createWebPageJsonLd, indexableRoutes, privateRoutePrefixes, siteUrl } from "./seo";
+import {
+  createLandingJsonLd,
+  createMetadata,
+  createWebPageJsonLd,
+  indexableRoutes,
+  privateRoutePrefixes,
+  siteUrl
+} from "./seo";
 
 describe("SEO route contract", () => {
   it("uses the eSIM subdomain as the only canonical host", () => {
@@ -104,5 +111,21 @@ describe("SEO route contract", () => {
         })
       ])
     );
+  });
+
+  it("adds the live Android app link to SoftwareApplication schema without a fake iOS URL", () => {
+    const schema = createLandingJsonLd();
+    const softwareApplication = schema["@graph"].find(
+      (entry) => entry["@type"] === "SoftwareApplication"
+    );
+
+    expect(softwareApplication).toMatchObject({
+      "@type": "SoftwareApplication",
+      operatingSystem: "Android",
+      downloadUrl: "https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim",
+      sameAs: ["https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"]
+    });
+    expect(JSON.stringify(softwareApplication)).not.toContain("apps.apple.com");
+    expect(JSON.stringify(softwareApplication)).not.toContain("null");
   });
 });

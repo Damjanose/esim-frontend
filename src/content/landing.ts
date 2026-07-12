@@ -29,6 +29,11 @@ export type SupportLink = {
   href: string;
 };
 
+export type AppLink = {
+  label: string;
+  href: string | null;
+};
+
 export const landingContent = {
   brand: "Velocity eSIM",
   navItems: [
@@ -159,5 +164,15 @@ export const landingContent = {
     { label: "Contact", href: "mailto:esim@uplisoft.com" },
     { label: "Policy", href: "/policy" },
     { label: "Terms", href: "/terms" }
-  ] satisfies SupportLink[]
+  ] satisfies SupportLink[],
+  appLinks: {
+    android: {
+      label: "Google Play",
+      href: "https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
+    },
+    ios: {
+      label: "App Store",
+      href: null
+    }
+  } satisfies Record<"android" | "ios", AppLink>
 } as const;
