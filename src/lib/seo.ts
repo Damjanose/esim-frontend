@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { landingContent } from "@/content/landing";
+import { publicSeoPages, type SeoPageFaq } from "@/content/seo-pages";
 
 export const siteUrl = "https://esim.uplisoft.com";
 export const siteName = "Velocity eSIM";
@@ -24,7 +25,7 @@ export const privateRoutePrefixes = [
 ] as const;
 
 export type IndexableRoute = {
-  path: "/" | "/policy" | "/terms";
+  path: string;
   url: string;
   title: string;
   description: string;
@@ -42,6 +43,23 @@ export const indexableRoutes: IndexableRoute[] = [
     changeFrequency: "monthly",
     priority: 1
   },
+  {
+    path: "/destinations",
+    url: `${siteUrl}/destinations`,
+    title: "Travel eSIM Destinations | Velocity eSIM",
+    description:
+      "Browse Velocity eSIM destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+    changeFrequency: "monthly",
+    priority: 0.8
+  },
+  ...publicSeoPages.map((page) => ({
+    path: page.path,
+    url: `${siteUrl}${page.path}`,
+    title: page.title,
+    description: page.description,
+    changeFrequency: "monthly" as const,
+    priority: page.kind === "destination" ? 0.75 : 0.65
+  })),
   {
     path: "/policy",
     url: `${siteUrl}/policy`,
@@ -204,5 +222,87 @@ export function createWebPageJsonLd({
         ]
       }
     ]
+  };
+}
+
+export function createContentPageJsonLd({
+  path,
+  name,
+  description,
+  breadcrumbName,
+  parent,
+  faqs = []
+}: {
+  path: string;
+  name: string;
+  description: string;
+  breadcrumbName: string;
+  parent?: {
+    name: string;
+    path: string;
+  };
+  faqs?: SeoPageFaq[];
+}) {
+  const url = absoluteUrl(path);
+  const breadcrumbItems = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: `${siteUrl}/`
+    }
+  ];
+
+  if (parent) {
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      position: 2,
+      name: parent.name,
+      item: absoluteUrl(parent.path)
+    });
+  }
+
+  breadcrumbItems.push({
+    "@type": "ListItem",
+    position: breadcrumbItems.length + 1,
+    name: breadcrumbName,
+    item: url
+  });
+
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "WebPage",
+      "@id": `${url}#webpage`,
+      url,
+      name,
+      description,
+      isPartOf: { "@id": `${siteUrl}/#website` },
+      inLanguage: "en"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${url}#breadcrumb`,
+      itemListElement: breadcrumbItems
+    }
+  ];
+
+  if (faqs.length > 0) {
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer
+        }
+      }))
+    });
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": graph
   };
 }

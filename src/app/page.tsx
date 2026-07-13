@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "./JsonLd";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { landingContent } from "@/content/landing";
+import { guidePages, useCasePages } from "@/content/seo-pages";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 
 const stepIcons = [MapPin, QrCode, Wifi];
@@ -99,12 +100,12 @@ function Hero() {
           <HeroPackageSearch />
           <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
             <span className="font-semibold text-midnight">Popular:</span>
-            {landingContent.hero.popular.map((item) => (
-              <a
-                className="rounded-full border border-line bg-white px-3 py-1 font-medium transition hover:border-cyan hover:text-midnight"
-                href="#destinations"
-                key={item}
-              >
+          {landingContent.hero.popular.map((item) => (
+            <a
+              className="rounded-full border border-line bg-white px-3 py-1 font-medium transition hover:border-cyan hover:text-midnight"
+                href={item === "USA" ? "/destinations/usa" : item === "Japan" ? "/destinations/japan" : "/destinations/europe"}
+              key={item}
+            >
                 {item}
               </a>
             ))}
@@ -183,8 +184,9 @@ function Destinations() {
         />
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {landingContent.destinations.map((destination) => (
-            <article
+            <a
               className="group overflow-hidden rounded-xl border border-line bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-card"
+              href={destination.href}
               key={destination.country}
             >
               <div className={`relative h-40 overflow-hidden bg-gradient-to-br ${destination.palette}`}>
@@ -218,7 +220,7 @@ function Destinations() {
                   </span>
                 </div>
               </div>
-            </article>
+            </a>
           ))}
         </div>
       </div>
@@ -263,10 +265,12 @@ function Benefits() {
         <div>
           <p className="text-sm font-black uppercase text-cyan">Benefits</p>
           <h2 className="mt-3 max-w-xl font-display text-4xl font-black leading-tight md:text-5xl">
-            Built for smarter travel and future support.
+            Built for smarter travel, business trips, and fewer roaming surprises.
           </h2>
           <p className="mt-5 max-w-xl leading-8 text-white/70">
-            The landing page introduces the service clearly today, while the structure leaves room for support pages, contact forms, and app deep links tomorrow.
+            Velocity eSIM gives travelers a practical way to prepare international data,
+            keep mobile internet abroad, and use a roaming alternative for vacations,
+            remote work, and business travel.
           </p>
         </div>
         <div className="grid gap-4">
@@ -327,7 +331,8 @@ function Cta() {
           Keep the app ready before your next border crossing.
         </h2>
         <p className="mx-auto mt-5 max-w-2xl leading-8 text-white/70">
-          Download links will guide travelers straight to the mobile app as soon as your release is ready.
+          Download Velocity eSIM to choose travel data for 200+ destinations, install
+          before departure, and keep mobile internet ready for the moments roaming feels unclear.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <span
@@ -415,6 +420,19 @@ function Footer() {
           {landingContent.supportLinks.map((link) => (
             <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href={link.href} key={link.label}>
               {link.label}
+            </a>
+          ))}
+          <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href="/destinations">
+            Destinations
+          </a>
+          {guidePages.slice(0, 2).map((link) => (
+            <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href={link.path} key={link.path}>
+              {link.heading}
+            </a>
+          ))}
+          {useCasePages.map((link) => (
+            <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href={link.path} key={link.path}>
+              {link.eyebrow}
             </a>
           ))}
         </div>

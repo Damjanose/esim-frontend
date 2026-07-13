@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  createContentPageJsonLd,
   createLandingJsonLd,
   createMetadata,
   createWebPageJsonLd,
@@ -20,7 +21,24 @@ describe("SEO route contract", () => {
   });
 
   it("keeps private, admin, and API-only routes out of the sitemap source", () => {
-    expect(indexableRoutes.map((route) => route.path)).toEqual(["/", "/policy", "/terms"]);
+    expect(indexableRoutes.map((route) => route.path)).toEqual([
+      "/",
+      "/destinations",
+      "/destinations/usa",
+      "/destinations/europe",
+      "/destinations/japan",
+      "/destinations/turkey",
+      "/destinations/france",
+      "/destinations/uk",
+      "/guides/what-is-an-esim",
+      "/guides/esim-vs-roaming",
+      "/guides/how-to-install-esim",
+      "/guides/internet-abroad",
+      "/use-cases/business-travel",
+      "/use-cases/remote-work",
+      "/policy",
+      "/terms"
+    ]);
     expect(privateRoutePrefixes).toEqual([
       "/api",
       "/admin",
@@ -127,5 +145,82 @@ describe("SEO route contract", () => {
     });
     expect(JSON.stringify(softwareApplication)).not.toContain("apps.apple.com");
     expect(JSON.stringify(softwareApplication)).not.toContain("null");
+  });
+
+  it("creates content page schema with breadcrumbs and visible FAQ answers", () => {
+    const schema = createContentPageJsonLd({
+      path: "/guides/what-is-an-esim",
+      name: "What Is an eSIM?",
+      description:
+        "A simple guide to what an eSIM is, how travel eSIM data works, and when to install one before an international trip.",
+      breadcrumbName: "What Is an eSIM?",
+      parent: {
+        name: "Guides",
+        path: "/guides"
+      },
+      faqs: [
+        {
+          question: "Does an eSIM replace my phone number?",
+          answer:
+            "No. A travel eSIM can provide mobile data while your usual SIM remains available for calls, texts, and WhatsApp."
+        }
+      ]
+    });
+
+    expect(schema["@graph"]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          "@type": "WebPage",
+          "@id": "https://esim.uplisoft.com/guides/what-is-an-esim#webpage",
+          url: "https://esim.uplisoft.com/guides/what-is-an-esim",
+          name: "What Is an eSIM?"
+        }),
+        expect.objectContaining({
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            expect.objectContaining({
+              position: 1,
+              name: "Home",
+              item: "https://esim.uplisoft.com/"
+            }),
+            expect.objectContaining({
+              position: 2,
+              name: "Guides",
+              item: "https://esim.uplisoft.com/guides"
+            }),
+            expect.objectContaining({
+              position: 3,
+              name: "What Is an eSIM?",
+              item: "https://esim.uplisoft.com/guides/what-is-an-esim"
+            })
+          ]
+        }),
+        expect.objectContaining({
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "Does an eSIM replace my phone number?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text:
+                  "No. A travel eSIM can provide mobile data while your usual SIM remains available for calls, texts, and WhatsApp."
+              }
+            }
+          ]
+        })
+      ])
+    );
+  });
+
+  it("omits FAQ schema when a content page has no visible FAQs", () => {
+    const schema = createContentPageJsonLd({
+      path: "/destinations",
+      name: "Travel eSIM Destinations",
+      description: "Browse Velocity eSIM travel data destinations.",
+      breadcrumbName: "Destinations"
+    });
+
+    expect(schema["@graph"].some((entry) => entry["@type"] === "FAQPage")).toBe(false);
   });
 });

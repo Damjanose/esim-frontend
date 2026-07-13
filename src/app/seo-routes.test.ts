@@ -32,6 +32,19 @@ describe("Next SEO routes", () => {
 
     expect(entries.map((entry) => entry.url)).toEqual([
       "https://esim.uplisoft.com/",
+      "https://esim.uplisoft.com/destinations",
+      "https://esim.uplisoft.com/destinations/usa",
+      "https://esim.uplisoft.com/destinations/europe",
+      "https://esim.uplisoft.com/destinations/japan",
+      "https://esim.uplisoft.com/destinations/turkey",
+      "https://esim.uplisoft.com/destinations/france",
+      "https://esim.uplisoft.com/destinations/uk",
+      "https://esim.uplisoft.com/guides/what-is-an-esim",
+      "https://esim.uplisoft.com/guides/esim-vs-roaming",
+      "https://esim.uplisoft.com/guides/how-to-install-esim",
+      "https://esim.uplisoft.com/guides/internet-abroad",
+      "https://esim.uplisoft.com/use-cases/business-travel",
+      "https://esim.uplisoft.com/use-cases/remote-work",
       "https://esim.uplisoft.com/policy",
       "https://esim.uplisoft.com/terms"
     ]);
