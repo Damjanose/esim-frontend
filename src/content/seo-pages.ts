@@ -28,14 +28,8 @@ export type SeoContentPage = {
   intro: string;
   sections: SeoPageSection[];
   faqs: SeoPageFaq[];
-  cta: SeoPageLink;
   relatedLinks: SeoPageLink[];
 };
-
-const appCta = {
-  label: "Download on Google Play",
-  href: landingContent.appLinks.android.href
-} satisfies SeoPageLink;
 
 export const destinationPages = [
   {
@@ -73,7 +67,6 @@ export const destinationPages = [
           "No. A travel eSIM provides mobile data. Your regular SIM can stay active for your normal number if your phone supports dual SIM."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "All destinations", href: "/destinations" },
       { label: "What is an eSIM?", href: "/guides/what-is-an-esim" },
@@ -115,7 +108,6 @@ export const destinationPages = [
           "Install before departure when you have stable Wi-Fi, then activate mobile data when you reach your destination."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "France eSIM", href: "/destinations/france" },
       { label: "UK eSIM", href: "/destinations/uk" },
@@ -157,7 +149,6 @@ export const destinationPages = [
           "Yes. Check your device settings and carrier restrictions before buying any travel eSIM."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "All destinations", href: "/destinations" },
       { label: "How to install an eSIM", href: "/guides/how-to-install-esim" },
@@ -199,7 +190,6 @@ export const destinationPages = [
           "It can be helpful for email, maps, messaging, and travel coordination when you need mobile data away from hotel or office Wi-Fi."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "Business travel eSIM", href: "/use-cases/business-travel" },
       { label: "Remote work travel data", href: "/use-cases/remote-work" },
@@ -241,7 +231,6 @@ export const destinationPages = [
           "Velocity eSIM focuses on travel data. Use your regular number or internet apps for calls when available."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "Europe eSIM", href: "/destinations/europe" },
       { label: "UK eSIM", href: "/destinations/uk" },
@@ -283,7 +272,6 @@ export const destinationPages = [
           "Yes. Install before traveling when you have Wi-Fi, then use the data line after arrival."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "Europe eSIM", href: "/destinations/europe" },
       { label: "Business travel eSIM", href: "/use-cases/business-travel" },
@@ -328,7 +316,6 @@ export const guidePages = [
           "No. Many recent iPhone, Samsung Galaxy, Google Pixel, and flagship devices support eSIM, but you should check your device before buying."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "How to install an eSIM", href: "/guides/how-to-install-esim" },
       { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" },
@@ -370,7 +357,6 @@ export const guidePages = [
           "On supported phones, you can keep your usual SIM active and choose which line provides mobile data."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "What is an eSIM?", href: "/guides/what-is-an-esim" },
       { label: "Internet abroad guide", href: "/guides/internet-abroad" },
@@ -412,7 +398,6 @@ export const guidePages = [
           "Install before travel, then turn on the travel data line when you arrive at the destination."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "What is an eSIM?", href: "/guides/what-is-an-esim" },
       { label: "Japan eSIM", href: "/destinations/japan" },
@@ -454,7 +439,6 @@ export const guidePages = [
           "Yes. Wi-Fi can save mobile data, while an eSIM helps when you are away from trusted Wi-Fi networks."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" },
       { label: "How to install an eSIM", href: "/guides/how-to-install-esim" },
@@ -499,7 +483,6 @@ export const useCasePages = [
           "On supported dual-SIM phones, your regular SIM can remain available while the eSIM supplies mobile data."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "Remote work travel data", href: "/use-cases/remote-work" },
       { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" },
@@ -541,7 +524,6 @@ export const useCasePages = [
           "Mobile data can help access apps and email needed for authentication, while your usual SIM may still receive SMS if active and supported."
       }
     ],
-    cta: appCta,
     relatedLinks: [
       { label: "Business travel eSIM", href: "/use-cases/business-travel" },
       { label: "Internet abroad guide", href: "/guides/internet-abroad" },

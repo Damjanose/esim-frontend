@@ -156,11 +156,14 @@ export function createLandingJsonLd() {
         "@id": `${siteUrl}/#softwareapplication`,
         name: siteName,
         applicationCategory: "TravelApplication",
-        operatingSystem: "Android",
+        operatingSystem: "iOS, Android",
         description: landingContent.hero.body,
         url: `${siteUrl}/`,
-        downloadUrl: landingContent.appLinks.android.href,
-        sameAs: [landingContent.appLinks.android.href]
+        downloadUrl: landingContent.appLinks.ios.href,
+        sameAs: [
+          landingContent.appLinks.ios.href,
+          landingContent.appLinks.android.href
+        ]
       },
       {
         "@type": "FAQPage",

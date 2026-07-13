@@ -178,7 +178,7 @@ export const landingContent = {
     },
     ios: {
       label: "App Store",
-      href: null
+      href: "https://apps.apple.com/am/app/velocityesim/id6768258284"
     }
   } satisfies Record<"android" | "ios", AppLink>
 } as const;

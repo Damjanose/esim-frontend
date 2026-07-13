@@ -1,5 +1,7 @@
 import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import { JsonLd } from "./JsonLd";
+import { SiteFooter } from "./SiteFooter";
+import { landingContent } from "@/content/landing";
 import type { SeoContentPage } from "@/content/seo-pages";
 import { createContentPageJsonLd } from "@/lib/seo";
 
@@ -41,15 +43,24 @@ export function SeoContentPageView({
               {page.heading}
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-white/72">{page.intro}</p>
-            <a
-              className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-lg bg-cyan px-5 font-bold text-midnight transition hover:bg-aqua"
-              href={page.cta.href}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {page.cta.label}
-              <ArrowRight aria-hidden="true" size={18} />
-            </a>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a
+                aria-label="Download Velocity eSIM on the App Store"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 bg-white px-5 font-bold text-midnight transition hover:-translate-y-0.5 hover:border-cyan"
+                href={landingContent.appLinks.ios.href}
+              >
+                {landingContent.appLinks.ios.label}
+                <ArrowRight aria-hidden="true" size={18} />
+              </a>
+              <a
+                aria-label="Download Velocity eSIM on Google Play"
+                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-cyan px-5 font-bold text-midnight transition hover:-translate-y-0.5 hover:bg-aqua"
+                href={landingContent.appLinks.android.href}
+              >
+                {landingContent.appLinks.android.label}
+                <ArrowRight aria-hidden="true" size={18} />
+              </a>
+            </div>
           </div>
         </section>
 
@@ -111,6 +122,7 @@ export function SeoContentPageView({
           </div>
         </section>
       </article>
+      <SiteFooter />
     </main>
   );
 }

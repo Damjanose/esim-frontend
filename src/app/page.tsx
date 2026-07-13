@@ -14,8 +14,8 @@ import {
 import type { Metadata } from "next";
 import { JsonLd } from "./JsonLd";
 import { HeroPackageSearch } from "./HeroPackageSearch";
+import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
-import { guidePages, useCasePages } from "@/content/seo-pages";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 
 const stepIcons = [MapPin, QrCode, Wifi];
@@ -39,7 +39,7 @@ export default function Home() {
       <Benefits />
       <Faq />
       <Cta />
-      <Footer />
+      <SiteFooter />
     </main>
   );
 }
@@ -335,21 +335,23 @@ function Cta() {
           before departure, and keep mobile internet ready for the moments roaming feels unclear.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <span
-            aria-label="App Store coming soon"
-            aria-disabled="true"
-            className="inline-flex min-h-16 cursor-not-allowed items-center justify-center gap-3 rounded-lg border border-white/15 bg-white/10 px-5 text-left text-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
+          <a
+            aria-label="Download Velocity eSIM on the App Store"
+            className="inline-flex min-h-16 items-center justify-center gap-3 rounded-lg border border-white/20 bg-white px-5 text-left text-midnight shadow-[0_18px_38px_rgba(255,255,255,0.14)] transition hover:-translate-y-0.5 hover:border-cyan hover:shadow-[0_22px_48px_rgba(27,211,232,0.2)]"
+            href={landingContent.appLinks.ios.href}
+            rel="noopener noreferrer"
+            target="_blank"
           >
             <AppleStoreIcon />
             <span className="grid leading-none">
-              <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/35">
-                Coming soon
+              <span className="text-[11px] font-black uppercase tracking-[0.08em] text-midnight/65">
+                Download on the
               </span>
-              <span className="mt-1 font-display text-lg font-black text-white/60">
+              <span className="mt-1 font-display text-lg font-black">
                 {landingContent.appLinks.ios.label}
               </span>
             </span>
-          </span>
+          </a>
           <a
             aria-label="Download Velocity eSIM on Google Play"
             className="inline-flex min-h-16 items-center justify-center gap-3 rounded-lg border border-cyan/60 bg-cyan px-5 text-left text-midnight shadow-[0_18px_38px_rgba(27,211,232,0.28)] transition hover:-translate-y-0.5 hover:bg-aqua hover:shadow-[0_22px_48px_rgba(27,211,232,0.36)]"
@@ -395,49 +397,6 @@ function GooglePlayIcon() {
       <path d="m21.04 19.66-3.94-3.94L5.4 28.2c.58.62 1.55.69 2.65.07l12.99-8.61Z" fill="#34a853" />
       <path d="M21.04 12.34 8.05 3.73c-1.1-.62-2.07-.55-2.65.07l11.7 12.2 3.94-3.66Z" fill="#ea4335" />
     </svg>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t border-cyan/10 bg-midnight py-12 text-white">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 md:grid-cols-[1fr_auto] md:px-8">
-        <div>
-          <div className="flex items-center gap-3 font-display text-lg font-black">
-            <img
-              alt=""
-              aria-hidden="true"
-              className="h-9 w-9 rounded-lg shadow-glow"
-              src="/app-logo.png"
-            />
-            {landingContent.brand}
-          </div>
-          <p className="mt-4 max-w-md text-sm leading-6 text-white/60">
-            Simple global connectivity for travelers who want reliable mobile data without roaming surprises.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-5">
-          {landingContent.supportLinks.map((link) => (
-            <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href={link.href} key={link.label}>
-              {link.label}
-            </a>
-          ))}
-          <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href="/destinations">
-            Destinations
-          </a>
-          {guidePages.slice(0, 2).map((link) => (
-            <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href={link.path} key={link.path}>
-              {link.heading}
-            </a>
-          ))}
-          {useCasePages.map((link) => (
-            <a className="text-sm font-semibold text-white/70 transition hover:text-cyan" href={link.path} key={link.path}>
-              {link.eyebrow}
-            </a>
-          ))}
-        </div>
-      </div>
-    </footer>
   );
 }
 

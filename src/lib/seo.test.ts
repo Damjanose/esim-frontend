@@ -131,7 +131,7 @@ describe("SEO route contract", () => {
     );
   });
 
-  it("adds the live Android app link to SoftwareApplication schema without a fake iOS URL", () => {
+  it("adds the live Android and iOS app links to SoftwareApplication schema", () => {
     const schema = createLandingJsonLd();
     const softwareApplication = schema["@graph"].find(
       (entry) => entry["@type"] === "SoftwareApplication"
@@ -139,11 +139,13 @@ describe("SEO route contract", () => {
 
     expect(softwareApplication).toMatchObject({
       "@type": "SoftwareApplication",
-      operatingSystem: "Android",
-      downloadUrl: "https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim",
-      sameAs: ["https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"]
+      operatingSystem: "iOS, Android",
+      downloadUrl: "https://apps.apple.com/am/app/velocityesim/id6768258284",
+      sameAs: [
+        "https://apps.apple.com/am/app/velocityesim/id6768258284",
+        "https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
+      ]
     });
-    expect(JSON.stringify(softwareApplication)).not.toContain("apps.apple.com");
     expect(JSON.stringify(softwareApplication)).not.toContain("null");
   });
 

@@ -9,6 +9,7 @@ import {
 import { landingContent } from "./landing";
 
 const approvedExternalLinks = new Set([
+  landingContent.appLinks.ios.href,
   landingContent.appLinks.android.href,
   null
 ]);
@@ -48,7 +49,6 @@ describe("SEO content pages", () => {
       expect(page.intro.trim().length).toBeGreaterThan(80);
       expect(page.sections.length).toBeGreaterThanOrEqual(2);
       expect(page.faqs.length).toBeGreaterThanOrEqual(2);
-      expect(page.cta.href).toBe(landingContent.appLinks.android.href);
       expect(seoPageByPath[page.path]).toBe(page);
     }
   });
