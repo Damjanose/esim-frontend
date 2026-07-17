@@ -41,8 +41,7 @@ export function Navbar() {
           href="/"
         >
           <img
-            alt=""
-            aria-hidden="true"
+            alt="Velocity eSIM app logo"
             className="h-9 w-9 object-contain"
             src="/app-logo.png"
           />

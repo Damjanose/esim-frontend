@@ -42,7 +42,7 @@ export const destinationPages = [
     eyebrow: "USA travel eSIM",
     heading: "Travel data for the United States, ready before you land.",
     intro:
-      "Velocity eSIM helps travelers visiting the United States set up mobile internet before arrival. Choose a prepaid eSIM data plan, install it on a compatible phone, and use local mobile data while keeping your usual number available for calls, texts, and WhatsApp.",
+      "Velocity eSIM helps travelers visiting the United States set up mobile internet before arrival. Choose a prepaid eSIM data plan, install it on a compatible phone, and use local mobile data while keeping your usual number available for calls, texts, and WhatsApp. Keep travel data ready to use when you land.",
     sections: [
       {
         title: "Why use a USA eSIM?",
@@ -68,9 +68,9 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "All destinations", href: "/destinations" },
-      { label: "What is an eSIM?", href: "/guides/what-is-an-esim" },
-      { label: "Business travel eSIM", href: "/use-cases/business-travel" }
+      { label: "Browse every eSIM destination", href: "/destinations" },
+      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "Business travel data guide", href: "/use-cases/business-travel" }
     ]
   },
   {
@@ -83,7 +83,7 @@ export const destinationPages = [
     eyebrow: "Europe travel eSIM",
     heading: "Stay connected across Europe with prepaid eSIM data.",
     intro:
-      "Velocity eSIM gives travelers a simple way to prepare mobile internet for European trips. It is designed for people who want travel data for maps, messaging, booking apps, and work tools without depending on roaming or hunting for a SIM shop after arrival.",
+      "Velocity eSIM gives travelers a simple way to prepare mobile internet for European trips. It is designed for people who want travel data for maps, messaging, booking apps, and work tools without depending on roaming or hunting for a SIM shop after arrival. Stay connected across borders with prepaid data planned before departure.",
     sections: [
       {
         title: "A practical roaming alternative",
@@ -109,9 +109,9 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "France eSIM", href: "/destinations/france" },
-      { label: "UK eSIM", href: "/destinations/uk" },
-      { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" }
+      { label: "France travel eSIM plans", href: "/destinations/france" },
+      { label: "UK travel eSIM plans", href: "/destinations/uk" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
     ]
   },
   {
@@ -124,7 +124,7 @@ export const destinationPages = [
     eyebrow: "Japan travel eSIM",
     heading: "Mobile internet for Japan, installed before your plane lands.",
     intro:
-      "A Japan eSIM helps travelers stay online for transit, translation, maps, hotel details, messaging, and everyday trip planning. Velocity eSIM makes the setup digital so you can prepare your mobile data before the first train, taxi, or airport transfer.",
+      "A Japan eSIM helps travelers stay online for transit, translation, maps, hotel details, messaging, and everyday trip planning. Velocity eSIM makes mobile internet setup digital so data is installed before the plane lands and before the first train, taxi, or airport transfer.",
     sections: [
       {
         title: "Built for arrival moments",
@@ -150,9 +150,9 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "All destinations", href: "/destinations" },
-      { label: "How to install an eSIM", href: "/guides/how-to-install-esim" },
-      { label: "Internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Browse every eSIM destination", href: "/destinations" },
+      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
     ]
   },
   {
@@ -165,7 +165,7 @@ export const destinationPages = [
     eyebrow: "Turkey travel eSIM",
     heading: "Travel internet for Turkey without a physical SIM stop.",
     intro:
-      "Velocity eSIM helps visitors to Turkey prepare mobile data before arrival. It is a practical option for city breaks, family trips, business travel, and longer stays where reliable app access matters from the first day.",
+      "Velocity eSIM helps visitors to Turkey prepare mobile internet data before arrival. It is a practical option for city breaks, family trips, business travel, and longer stays where reliable app access matters from the first day. The setup avoids a physical SIM stop after landing.",
     sections: [
       {
         title: "Useful in Istanbul and beyond",
@@ -191,9 +191,9 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Business travel eSIM", href: "/use-cases/business-travel" },
-      { label: "Remote work travel data", href: "/use-cases/remote-work" },
-      { label: "What is an eSIM?", href: "/guides/what-is-an-esim" }
+      { label: "Business travel data guide", href: "/use-cases/business-travel" },
+      { label: "Remote work data guide", href: "/use-cases/remote-work" },
+      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" }
     ]
   },
   {
@@ -206,7 +206,7 @@ export const destinationPages = [
     eyebrow: "France travel eSIM",
     heading: "France travel data for maps, messages, bookings, and work.",
     intro:
-      "A France eSIM helps travelers prepare mobile internet before a trip to Paris or other French destinations. Use Velocity eSIM to plan ahead, avoid a physical SIM errand, and keep essential travel apps ready.",
+      "A France eSIM helps travelers prepare mobile internet before a trip to Paris or other French destinations. Use Velocity eSIM to plan ahead, avoid a physical SIM errand, and keep messages, bookings, maps, and work apps ready.",
     sections: [
       {
         title: "Helpful for city travel",
@@ -232,9 +232,9 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe eSIM", href: "/destinations/europe" },
-      { label: "UK eSIM", href: "/destinations/uk" },
-      { label: "Internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "UK travel eSIM plans", href: "/destinations/uk" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
     ]
   },
   {
@@ -247,7 +247,7 @@ export const destinationPages = [
     eyebrow: "UK travel eSIM",
     heading: "UK mobile data for travelers before the first connection.",
     intro:
-      "Velocity eSIM helps visitors to the United Kingdom set up travel data on a compatible phone. It is useful for London city breaks, business meetings, events, student visits, and international trips where roaming fees are hard to predict.",
+      "Velocity eSIM helps travelers visiting the United Kingdom set up travel data on a compatible phone. It is useful for London city breaks, business meetings, events, student visits, and international trips where roaming fees are hard to predict. Prepare the first connection before arrival.",
     sections: [
       {
         title: "A cleaner way to get online",
@@ -273,9 +273,9 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe eSIM", href: "/destinations/europe" },
-      { label: "Business travel eSIM", href: "/use-cases/business-travel" },
-      { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" }
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "Business travel data guide", href: "/use-cases/business-travel" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
     ]
   }
 ] satisfies SeoContentPage[];
@@ -291,7 +291,7 @@ export const guidePages = [
     eyebrow: "eSIM guide",
     heading: "What is an eSIM?",
     intro:
-      "An eSIM is a digital SIM profile that can be installed on supported phones. For travelers, it can provide mobile data abroad without buying or swapping a physical SIM card, making it easier to prepare internet access before a trip.",
+      "This guide explains what an eSIM is: a digital SIM profile that can be installed on supported phones. For travelers, it can provide mobile data abroad without buying or swapping a physical SIM card, making it easier to prepare internet access before a trip.",
     sections: [
       {
         title: "How travel eSIM data works",
@@ -317,9 +317,9 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "How to install an eSIM", href: "/guides/how-to-install-esim" },
-      { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" },
-      { label: "All destinations", href: "/destinations" }
+      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
+      { label: "Browse every eSIM destination", href: "/destinations" }
     ]
   },
   {
@@ -332,7 +332,7 @@ export const guidePages = [
     eyebrow: "Roaming alternative",
     heading: "eSIM vs roaming: a simpler way to plan travel data.",
     intro:
-      "International roaming can be convenient, but pricing and limits are not always easy to understand before a trip. A prepaid travel eSIM gives many travelers a clearer data plan that can be installed before departure.",
+      "International roaming can be convenient, but pricing and limits are not always easy to understand before a trip. A prepaid travel eSIM gives many travelers a simpler way to choose a clearer data plan that can be installed before departure.",
     sections: [
       {
         title: "Roaming depends on your home carrier",
@@ -358,9 +358,9 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "What is an eSIM?", href: "/guides/what-is-an-esim" },
-      { label: "Internet abroad guide", href: "/guides/internet-abroad" },
-      { label: "Europe eSIM", href: "/destinations/europe" }
+      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" },
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" }
     ]
   },
   {
@@ -373,7 +373,7 @@ export const guidePages = [
     eyebrow: "Setup guide",
     heading: "How to install a travel eSIM before your trip.",
     intro:
-      "Installing an eSIM is usually a short digital setup on a compatible phone. The best time to install is before travel while you have stable Wi-Fi, then you can turn on the travel data line when you reach your destination.",
+      "This guide explains how installing an eSIM is usually a short digital setup on a compatible phone. The best time to install is before your trip while you have stable Wi-Fi, then you can turn on the travel data line when you reach your destination.",
     sections: [
       {
         title: "Check compatibility first",
@@ -399,9 +399,9 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "What is an eSIM?", href: "/guides/what-is-an-esim" },
-      { label: "Japan eSIM", href: "/destinations/japan" },
-      { label: "USA eSIM", href: "/destinations/usa" }
+      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "Japan travel eSIM plans", href: "/destinations/japan" },
+      { label: "USA travel eSIM plans", href: "/destinations/usa" }
     ]
   },
   {
@@ -414,7 +414,7 @@ export const guidePages = [
     eyebrow: "Travel internet guide",
     heading: "How to get internet abroad without the guesswork.",
     intro:
-      "Travelers usually choose between roaming, public Wi-Fi, local SIM cards, portable hotspots, or eSIM data. Velocity eSIM focuses on the digital eSIM option so mobile internet can be prepared before departure.",
+      "This guide explains how travelers can get internet abroad through roaming, public Wi-Fi, local SIM cards, portable hotspots, or eSIM data. Velocity eSIM focuses on the digital eSIM option so mobile internet can be prepared before departure and planned without guesswork.",
     sections: [
       {
         title: "Public Wi-Fi is not enough for every trip",
@@ -440,9 +440,9 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" },
-      { label: "How to install an eSIM", href: "/guides/how-to-install-esim" },
-      { label: "All destinations", href: "/destinations" }
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
+      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Browse every eSIM destination", href: "/destinations" }
     ]
   }
 ] satisfies SeoContentPage[];
@@ -458,7 +458,7 @@ export const useCasePages = [
     eyebrow: "Business travel",
     heading: "International data for business trips without roaming uncertainty.",
     intro:
-      "Business travelers need mobile internet for email, calendars, maps, rides, bookings, messaging, and urgent work updates. Velocity eSIM helps prepare travel data before departure so the first connection is not left to airport Wi-Fi.",
+      "Business travelers need international mobile internet for email, calendars, maps, rides, bookings, messaging, and urgent work updates during work trips. Velocity eSIM helps prepare travel data before departure so the first connection is not left to airport Wi-Fi or roaming uncertainty.",
     sections: [
       {
         title: "Useful between meetings",
@@ -484,9 +484,9 @@ export const useCasePages = [
       }
     ],
     relatedLinks: [
-      { label: "Remote work travel data", href: "/use-cases/remote-work" },
-      { label: "eSIM vs roaming", href: "/guides/esim-vs-roaming" },
-      { label: "USA eSIM", href: "/destinations/usa" }
+      { label: "Remote work data guide", href: "/use-cases/remote-work" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
+      { label: "USA travel eSIM plans", href: "/destinations/usa" }
     ]
   },
   {
@@ -499,7 +499,7 @@ export const useCasePages = [
     eyebrow: "Remote work",
     heading: "Travel data for remote work days abroad.",
     intro:
-      "Remote workers and flexible travelers often need mobile data outside hotels, apartments, cafes, and coworking spaces. Velocity eSIM helps make international data part of the travel checklist before work starts in a new place.",
+      "Remote workers and flexible travelers often need mobile data abroad outside hotels, apartments, cafes, and coworking spaces. Velocity eSIM helps make international data part of the travel checklist before work days start in a new place.",
     sections: [
       {
         title: "A backup for work essentials",
@@ -525,9 +525,9 @@ export const useCasePages = [
       }
     ],
     relatedLinks: [
-      { label: "Business travel eSIM", href: "/use-cases/business-travel" },
-      { label: "Internet abroad guide", href: "/guides/internet-abroad" },
-      { label: "Europe eSIM", href: "/destinations/europe" }
+      { label: "Business travel data guide", href: "/use-cases/business-travel" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" },
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" }
     ]
   }
 ] satisfies SeoContentPage[];

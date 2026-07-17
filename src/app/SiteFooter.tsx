@@ -2,18 +2,29 @@ import { landingContent } from "@/content/landing";
 import { guidePages, useCasePages } from "@/content/seo-pages";
 
 const footerExploreLinks = [
-  { label: "Destinations", href: "/destinations" },
-  ...useCasePages.map((page) => ({ label: page.eyebrow, href: page.path }))
+  { label: "Browse all eSIM destinations", href: "/destinations" },
+  ...useCasePages.map((page) => ({
+    label:
+      page.slug === "business-travel"
+        ? "Business travel eSIM guide"
+        : "Remote work eSIM guide",
+    href: page.path
+  }))
 ];
 const footerResourceLinks = guidePages.slice(0, 3).map((page) => ({
-  label: page.heading,
+  label:
+    page.slug === "what-is-an-esim"
+      ? "Beginner guide to eSIMs"
+      : page.slug === "esim-vs-roaming"
+        ? "Compare eSIM and roaming"
+        : "Travel eSIM installation guide",
   href: page.path
 }));
 const footerCompanyLinks = [
-  { label: "Support", href: "/support" },
-  { label: "Contact", href: "mailto:esim@uplisoft.com" },
-  { label: "Policy", href: "/policy" },
-  { label: "Terms", href: "/terms" }
+  { label: "Velocity eSIM support", href: "/support" },
+  { label: "Contact Velocity eSIM", href: "mailto:esim@uplisoft.com" },
+  { label: "Velocity eSIM privacy policy", href: "/policy" },
+  { label: "Velocity eSIM terms", href: "/terms" }
 ];
 
 export function SiteFooter() {
@@ -24,8 +35,7 @@ export function SiteFooter() {
           <div>
             <div className="flex items-center gap-3 font-display text-lg font-black">
               <img
-                alt=""
-                aria-hidden="true"
+                alt="Velocity eSIM app logo"
                 className="h-9 w-9 rounded-lg shadow-glow"
                 src="/app-logo.png"
               />

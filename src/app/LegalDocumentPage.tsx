@@ -14,8 +14,7 @@ export function LegalDocumentPage({ document }: LegalDocumentPageProps) {
         <nav className="mx-auto flex h-20 max-w-4xl items-center justify-between px-5 md:px-8">
           <Link className="flex items-center gap-3 font-display text-lg font-bold" href="/">
             <img
-              alt=""
-              aria-hidden="true"
+              alt="Velocity eSIM app logo"
               className="h-9 w-9 rounded-lg shadow-glow"
               src="/app-logo.png"
             />

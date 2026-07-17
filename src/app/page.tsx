@@ -183,7 +183,7 @@ function Hero() {
           </h1>
 
           <p className="mx-auto mt-7 max-w-[530px] text-[15px] leading-7 text-[#a9b8cd] sm:text-[17px] lg:mx-0">
-            High-speed data in 200+ countries and regions.
+            Premium eSIMs with high-speed data in 200+ countries and regions.
             <br className="hidden sm:block" />
             Instant activation. No SIM card. No roaming fees.
           </p>
@@ -1096,8 +1096,7 @@ function Cta() {
       <div className="relative mx-auto max-w-[1280px]">
         <div className="relative min-h-[220px] overflow-visible rounded-[22px] border border-white/80 shadow-[0_25px_80px_rgba(16,70,222,0.28)] md:min-h-[190px]">
           <Image
-            alt=""
-            aria-hidden="true"
+            alt="Blue travel route background for Velocity eSIM"
             className="pointer-events-none absolute inset-0 h-full w-full rounded-[22px] object-cover"
             fill
             loading="lazy"
