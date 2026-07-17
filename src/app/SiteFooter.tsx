@@ -9,6 +9,12 @@ const footerResourceLinks = guidePages.slice(0, 3).map((page) => ({
   label: page.heading,
   href: page.path
 }));
+const footerCompanyLinks = [
+  { label: "Support", href: "/support" },
+  { label: "Contact", href: "mailto:esim@uplisoft.com" },
+  { label: "Policy", href: "/policy" },
+  { label: "Terms", href: "/terms" }
+];
 
 export function SiteFooter() {
   return (
@@ -33,7 +39,7 @@ export function SiteFooter() {
             </p>
           </div>
           <div className="grid gap-8 sm:grid-cols-3">
-            <FooterLinkColumn title="Company" links={landingContent.supportLinks} />
+            <FooterLinkColumn title="Company" links={footerCompanyLinks} />
             <FooterLinkColumn title="Explore" links={footerExploreLinks} />
             <FooterLinkColumn title="Resources" links={footerResourceLinks} />
           </div>

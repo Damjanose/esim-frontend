@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { LegalDocument } from "@/content/legal";
 import { landingContent } from "@/content/landing";
+import { SiteFooter } from "./SiteFooter";
 
 type LegalDocumentPageProps = {
   document: LegalDocument;
@@ -48,6 +49,8 @@ export function LegalDocumentPage({ document }: LegalDocumentPageProps) {
           ))}
         </div>
       </article>
+
+      <SiteFooter />
     </main>
   );
 }

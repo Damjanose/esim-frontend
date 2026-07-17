@@ -33,6 +33,7 @@ import {
   type HeroPackageOption,
 } from "@/services/packages";
 import { Navbar } from "../components/Navbar";
+import { SiteFooter } from "../SiteFooter";
 
 type DestinationPlansProps = {
   countryCode: string;
@@ -238,6 +239,7 @@ function useCountryHeroImage(country?: string) {
       return;
     }
 
+    const countryName = normalizedCountry;
     const controller = new AbortController();
 
     async function loadCountryImage() {
@@ -246,7 +248,7 @@ function useCountryHeroImage(country?: string) {
 
         const response = await fetch(
           `/api/country-image?country=${encodeURIComponent(
-            normalizedCountry,
+            countryName,
           )}`,
           {
             signal: controller.signal,
@@ -702,6 +704,8 @@ export function DestinationPlans({
           )}
         </div>
       </section>
+
+      <SiteFooter />
     </main>
   );
 }
@@ -738,11 +742,14 @@ function HeroCountryImage({
           src={heroImage.imageUrl}
         />
       ) : (
-        <div className="h-full w-full animate-pulse bg-[linear-gradient(135deg,#09213d,#031024)]" />
+        <DestinationHeroImageLoader country={country} />
       )}
 
       {loading && heroImage?.imageUrl ? (
-        <div className="absolute inset-0 animate-pulse bg-[#07172a]/20" />
+        <DestinationHeroImageLoader
+          compact
+          country={country}
+        />
       ) : null}
 
       <div className="absolute inset-0 bg-[linear-gradient(90deg,#020916_0%,rgba(2,9,22,0.98)_18%,rgba(2,9,22,0.78)_44%,rgba(2,9,22,0.2)_76%,rgba(2,9,22,0.38)_100%)]" />
@@ -750,6 +757,65 @@ function HeroCountryImage({
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,9,22,0.12)_0%,transparent_42%,#020916_100%)]" />
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_73%_45%,rgba(23,142,255,0.11),transparent_42%)]" />
+    </div>
+  );
+}
+
+function DestinationHeroImageLoader({
+  compact = false,
+  country,
+}: {
+  compact?: boolean;
+  country?: string;
+}) {
+  return (
+    <div
+      aria-label="Loading destination image"
+      className={[
+        "absolute inset-0 overflow-hidden bg-[linear-gradient(135deg,#061427_0%,#082648_48%,#031021_100%)]",
+        compact ? "opacity-75" : "",
+      ].join(" ")}
+      role="status"
+    >
+      <div className="absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(72,178,255,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(72,178,255,0.9)_1px,transparent_1px)] [background-size:54px_54px]" />
+
+      <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent_0%,rgba(53,186,255,0.07)_34%,rgba(255,255,255,0.18)_50%,rgba(53,186,255,0.07)_66%,transparent_100%)] animate-[destination-loader-scan_2.8s_ease-in-out_infinite]" />
+
+      <div className="absolute right-[10%] top-[18%] h-28 w-48 rounded-[24px] border border-[#2e7fb7]/35 bg-[#07182c]/70 shadow-[0_22px_60px_rgba(0,0,0,0.24)] backdrop-blur-md">
+        <div className="absolute left-5 top-5 h-2 w-28 rounded-full bg-[#2a76ac]/70" />
+        <div className="absolute left-5 top-11 h-2 w-36 rounded-full bg-[#154364]" />
+        <div className="absolute bottom-5 left-5 h-8 w-8 rounded-full border border-[#43b8ff]/55 bg-[#0b2f51]" />
+      </div>
+
+      <div className="absolute bottom-[18%] right-[14%] h-24 w-60 rounded-[26px] border border-[#1e5d8d]/45 bg-[#061528]/80 shadow-[0_20px_55px_rgba(0,0,0,0.28)] backdrop-blur-lg">
+        <div className="absolute left-5 top-5 h-3 w-32 rounded-full bg-[#23699c]" />
+        <div className="absolute left-5 top-11 h-2 w-44 rounded-full bg-[#123957]" />
+        <div className="absolute bottom-5 left-5 h-2 w-28 rounded-full bg-[#164f77]" />
+      </div>
+
+      <div className="absolute left-[58%] top-[48%] h-3 w-3 rounded-full bg-[#35caff] shadow-[0_0_0_8px_rgba(53,202,255,0.12),0_0_26px_rgba(53,202,255,0.75)]" />
+      <div className="absolute left-[78%] top-[36%] h-2.5 w-2.5 rounded-full bg-[#1b7cff] shadow-[0_0_0_7px_rgba(27,124,255,0.13),0_0_22px_rgba(27,124,255,0.65)]" />
+      <div className="absolute left-[70%] top-[67%] h-2 w-2 rounded-full bg-[#7fdfff] shadow-[0_0_0_6px_rgba(127,223,255,0.11),0_0_18px_rgba(127,223,255,0.55)]" />
+
+      <div className="absolute bottom-8 right-8 hidden max-w-[310px] rounded-[18px] border border-[#2a6f9f]/55 bg-[#06162a]/85 px-5 py-4 shadow-[0_18px_50px_rgba(0,0,0,0.32)] backdrop-blur-xl sm:block">
+        <div className="flex items-center gap-3">
+          <span className="relative grid h-10 w-10 place-items-center rounded-[13px] border border-[#2b8fd0]/60 bg-[#082945]">
+            <span className="h-4 w-4 rounded-full border-2 border-[#4bc4ff] border-t-transparent animate-spin" />
+          </span>
+
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#49b9ff]">
+              Loading destination image
+            </p>
+
+            <p className="mt-1 text-xs font-semibold text-[#91a8bf]">
+              {country
+                ? `Preparing ${country} from Wikimedia`
+                : "Preparing travel imagery"}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -885,7 +951,7 @@ function DestinationStats({
           >
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-[#1d527c] bg-[#09213a] text-[#42b0ff]">
               <Icon
-                aria-hidden="true"
+                aria-hidden={true}
                 size={20}
               />
             </span>
@@ -999,7 +1065,7 @@ function FeaturedPlan({
                   key={feature.label}
                 >
                   <Icon
-                    aria-hidden="true"
+                    aria-hidden={true}
                     className="text-[#58baff]"
                     size={15}
                   />
@@ -1060,7 +1126,7 @@ function CompactPlanCard({
       <div className="relative flex items-start gap-4 pr-8">
         <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[15px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff] shadow-[0_0_24px_rgba(30,155,255,0.16)]">
           <Icon
-            aria-hidden="true"
+            aria-hidden={true}
             size={26}
           />
         </span>

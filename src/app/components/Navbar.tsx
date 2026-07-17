@@ -16,7 +16,7 @@ export function Navbar() {
     },
     {
       label: "Destinations",
-      href: "/#coverage"
+      href: "/destinations"
     },
     {
       label: "How it Works",
@@ -38,7 +38,7 @@ export function Navbar() {
         <a
           aria-label="Velocity eSIM home"
           className="flex shrink-0 items-center gap-2.5"
-          href="#"
+          href="/"
         >
           <img
             alt=""
@@ -77,7 +77,7 @@ export function Navbar() {
 
           <a
             className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#1557ff] to-[#27c6ff] px-5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(24,111,255,0.38)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_38px_rgba(24,111,255,0.5)] sm:px-7"
-            href="#download-app"
+            href="/#download-app"
           >
             Get eSIM Now
           </a>

@@ -30,6 +30,7 @@ import {
   type ComponentType,
 } from "react";
 import { Navbar } from "../components/Navbar";
+import { SiteFooter } from "../SiteFooter";
 
 type SupportCategory = {
   title: string;
@@ -37,6 +38,7 @@ type SupportCategory = {
   icon: ComponentType<{
     size?: number;
     className?: string;
+    strokeWidth?: number;
     "aria-hidden"?: boolean;
   }>;
   articles: string[];
@@ -258,6 +260,8 @@ export default function SupportPage() {
           <ContactSupport />
         </div>
       </section>
+
+      <SiteFooter />
     </main>
   );
 }
@@ -395,7 +399,7 @@ function SupportCategories({
               <div className="relative flex items-start justify-between gap-5">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[17px] border border-[#1b79b2] bg-[#082642] text-[#45b5ff] shadow-[0_0_28px_rgba(20,147,255,0.13)]">
                   <Icon
-                    aria-hidden="true"
+                    aria-hidden={true}
                     size={26}
                     strokeWidth={2}
                   />
@@ -639,7 +643,7 @@ function QuickHelp() {
               key={item.title}
             >
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[15px] border border-[#1d628f] bg-[#08213b] text-[#45b4ff]">
-                <Icon aria-hidden="true" size={22} />
+                <Icon aria-hidden={true} size={22} />
               </span>
 
               <div>
@@ -748,6 +752,7 @@ type SupportInfoProps = {
   icon: ComponentType<{
     size?: number;
     className?: string;
+    strokeWidth?: number;
     "aria-hidden"?: boolean;
   }>;
 };
@@ -760,7 +765,7 @@ function SupportInfo({
   return (
     <div className="flex items-start gap-4 rounded-[17px] border border-[#28648c]/65 bg-[#071b31]/72 p-4 backdrop-blur-xl">
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-[#287ba8] bg-[#092842] text-[#52baff]">
-        <Icon aria-hidden="true" size={18} />
+        <Icon aria-hidden={true} size={18} />
       </span>
 
       <div>

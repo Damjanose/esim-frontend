@@ -9,6 +9,8 @@ import {
 } from "@/lib/seo";
 
 import { JsonLd } from "../JsonLd";
+import { Navbar } from "../components/Navbar";
+import { SiteFooter } from "../SiteFooter";
 import { DestinationPlans } from "./DestinationPlans";
 
 export const metadata: Metadata = createMetadata({
@@ -51,6 +53,8 @@ export default async function DestinationsPage({
         <DestinationPlans countryCode={countryCode} />
       ) : (
         <>
+          <Navbar />
+
           <section className="relative isolate overflow-hidden px-5 pb-20 pt-28 md:px-8 md:pb-24">
             <div className="pointer-events-none absolute inset-0 -z-30 bg-[radial-gradient(circle_at_74%_28%,rgba(0,112,255,0.2),transparent_38%),radial-gradient(circle_at_16%_18%,rgba(20,79,170,0.12),transparent_32%),linear-gradient(180deg,#020814_0%,#020916_72%,#030b18_100%)]" />
 
@@ -154,6 +158,8 @@ export default async function DestinationsPage({
               </div>
             </div>
           </section>
+
+          <SiteFooter />
         </>
       )}
     </main>
