@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { JsonLd } from "./JsonLd";
 import { SiteFooter } from "./SiteFooter";
@@ -233,12 +234,14 @@ function TravelerReviews() {
               className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#061126] bg-[#12213a] shadow-[0_6px_14px_rgba(0,0,0,0.3)]"
               key={image}
             >
-              <img
+              <Image
                 alt={`Velocity eSIM traveler ${index + 1}`}
                 className="h-full w-full object-cover"
+                height={40}
                 loading="lazy"
                 referrerPolicy="no-referrer"
                 src={image}
+                width={40}
               />
             </div>
           ))}
@@ -287,10 +290,14 @@ function HeroVisual() {
       <div className="pointer-events-none absolute left-1/2 top-[51%] hidden h-[390px] w-[610px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-[#1683ff]/10 sm:block" />
 
       {/* Premium phone and map artwork */}
-      <img
+      <Image
         alt="Velocity eSIM mobile application with worldwide coverage"
         className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[610px] max-w-none -translate-x-1/2 -translate-y-[48%] object-contain drop-shadow-[0_40px_65px_rgba(0,0,0,0.6)] sm:w-[750px] lg:w-[850px]"
-        src="/images/hero-3.png"
+        height={638}
+        priority
+        sizes="(max-width: 1024px) 100vw, 850px"
+        src="/images/hero-3.webp"
+        width={850}
       />
 
       {/* Country bubbles */}
@@ -370,12 +377,14 @@ function DestinationBubble({
       className={`absolute z-30 hidden items-center gap-3 sm:flex ${className}`}
     >
       <div className="h-[68px] w-[68px] overflow-hidden rounded-full border-2 border-[#8bc9ff]/80 bg-[#07162c] p-1 shadow-[0_0_30px_rgba(33,139,255,0.35)]">
-        <img
+        <Image
           alt={`${city}, ${country}`}
           className="h-full w-full rounded-full object-cover"
+          height={60}
           loading="lazy"
           referrerPolicy="no-referrer"
           src={image}
+          width={60}
         />
       </div>
 
@@ -784,7 +793,7 @@ function JourneyAndCoverage() {
           </div>
 
           <div
-            className={`${cardClassName} bg-[image:url('/images/6__.png')] bg-cover bg-center bg-no-repeat`}
+            className={`${cardClassName} bg-[image:url('/images/6__.webp')] bg-cover bg-center bg-no-repeat`}
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(0,108,255,0.12),transparent_58%)]" />
 
@@ -889,12 +898,14 @@ function TestimonialsAndFaq() {
 
               <div className="relative mt-6 flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <img
+                  <Image
                     alt={testimonial.name}
                     className="h-11 w-11 shrink-0 rounded-full border border-white/15 object-cover shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+                    height={44}
                     loading="lazy"
                     referrerPolicy="no-referrer"
                     src={testimonial.image}
+                    width={44}
                   />
 
                   <div className="min-w-0">
@@ -1084,13 +1095,15 @@ function Cta() {
     >
       <div className="relative mx-auto max-w-[1280px]">
         <div className="relative min-h-[220px] overflow-visible rounded-[22px] border border-white/80 shadow-[0_25px_80px_rgba(16,70,222,0.28)] md:min-h-[190px]">
-          <img
+          <Image
             alt=""
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 h-full w-full rounded-[22px] object-cover"
+            fill
             loading="lazy"
             referrerPolicy="no-referrer"
-            src="/images/3.png"
+            sizes="(max-width: 768px) 100vw, 1280px"
+            src="/images/3.webp"
           />
 
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[linear-gradient(90deg,rgba(3,17,48,0.88)_0%,rgba(3,22,62,0.66)_45%,rgba(2,14,42,0.5)_100%)]" />
