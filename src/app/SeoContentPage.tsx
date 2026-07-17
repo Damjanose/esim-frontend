@@ -1,5 +1,6 @@
 import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import { JsonLd } from "./JsonLd";
+import { Navbar } from "./components/Navbar";
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import type { SeoContentPage } from "@/content/seo-pages";
@@ -27,6 +28,8 @@ export function SeoContentPageView({
           faqs: page.faqs
         })}
       />
+      <Navbar />
+
       <article>
         <section className="relative isolate overflow-hidden bg-midnight px-5 pb-16 pt-24 text-white md:px-8 md:pb-24">
           <div className="hero-grid absolute inset-0 opacity-20" />

@@ -36,6 +36,7 @@ describe("SEO route contract", () => {
       "/guides/internet-abroad",
       "/use-cases/business-travel",
       "/use-cases/remote-work",
+      "/support",
       "/policy",
       "/terms"
     ]);

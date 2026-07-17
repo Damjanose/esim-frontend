@@ -24,6 +24,13 @@ describe("legal pages and hydration-safe shell", () => {
     expect(layout).toContain("<body suppressHydrationWarning>{children}</body>");
   });
 
+  it("keeps the browser canvas aligned with the dark app background during overscroll", () => {
+    const globalCss = readFileSync("src/app/globals.css", "utf8");
+
+    expect(globalCss).toContain("background: #020916;");
+    expect(globalCss).not.toContain("background: #ffffff;");
+  });
+
   it("uses the app logo asset for legal page branding instead of a generic icon", () => {
     const legalPage = readFileSync("src/app/LegalDocumentPage.tsx", "utf8");
 

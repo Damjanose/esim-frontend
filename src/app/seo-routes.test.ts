@@ -45,6 +45,7 @@ describe("Next SEO routes", () => {
       "https://esim.uplisoft.com/guides/internet-abroad",
       "https://esim.uplisoft.com/use-cases/business-travel",
       "https://esim.uplisoft.com/use-cases/remote-work",
+      "https://esim.uplisoft.com/support",
       "https://esim.uplisoft.com/policy",
       "https://esim.uplisoft.com/terms"
     ]);

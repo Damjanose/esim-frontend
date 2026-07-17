@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.28.2",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "test": "vitest run"
@@ -13,7 +13,8 @@
     "lucide-react": "^0.475.0",
     "next": "^15.1.6",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "world-countries": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",
@@ -26,4 +27,3 @@
     "vitest": "^2.1.8"
   }
 }
-

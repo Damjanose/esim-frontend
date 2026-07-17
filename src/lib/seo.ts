@@ -61,6 +61,15 @@ export const indexableRoutes: IndexableRoute[] = [
     priority: page.kind === "destination" ? 0.75 : 0.65
   })),
   {
+    path: "/support",
+    url: `${siteUrl}/support`,
+    title: "Support Center | Velocity eSIM",
+    description:
+      "Get help with Velocity eSIM app sign-in, Pokpay checkout, QR or manual eSIM setup, remaining data, top-ups, refunds, and connection troubleshooting.",
+    changeFrequency: "monthly",
+    priority: 0.6
+  },
+  {
     path: "/policy",
     url: `${siteUrl}/policy`,
     title: "Privacy Policy | Velocity eSIM",
@@ -187,7 +196,7 @@ export function createWebPageJsonLd({
   description,
   breadcrumbName
 }: {
-  path: "/policy" | "/terms";
+  path: "/policy" | "/support" | "/terms";
   name: string;
   description: string;
   breadcrumbName: string;

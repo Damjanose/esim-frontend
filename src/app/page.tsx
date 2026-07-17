@@ -1,25 +1,126 @@
 import {
   ArrowRight,
-  BadgeCheck,
-  CircleHelp,
+  Check,
+  ChevronDown,
+  Globe2,
   Headphones,
-  MapPin,
-  Plane,
   QrCode,
   ShieldCheck,
-  Smartphone,
-  Sparkles,
-  Wifi
+  ShoppingCart,
+  Star,
+  Wifi,
+  Zap,
+  CalendarDays,
+  Infinity as InfinityIcon,
+  Plane,
+  SlidersHorizontal,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { JsonLd } from "./JsonLd";
-import { HeroPackageSearch } from "./HeroPackageSearch";
-import { SiteFooter } from "./SiteFooter";
-import { landingContent } from "@/content/landing";
-import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 
-const stepIcons = [MapPin, QrCode, Wifi];
-const benefitIcons = [Sparkles, ShieldCheck, Headphones];
+import { JsonLd } from "./JsonLd";
+import { SiteFooter } from "./SiteFooter";
+
+import { Navbar } from './components/Navbar'
+import { createLandingJsonLd, createMetadata } from "@/lib/seo";
+import { HeroPackageSearch } from "./HeroPackageSearch";
+
+const travelerImages = [
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=85",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=85",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=85",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=85",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&h=120&q=85"
+];
+
+const heroDestinations = [
+  {
+    city: "New York",
+    country: "USA",
+    flag: "🇺🇸",
+    image:
+      "https://images.unsplash.com/photo-1522083165195-3424ed129620?auto=format&fit=crop&w=240&q=90",
+    className:
+      "left-[2%] top-[9%] lg:left-[4%] lg:top-[7%]",
+  },
+  {
+    city: "Paris",
+    country: "France",
+    flag: "🇫🇷",
+    image:
+      "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=240&q=90",
+    className:
+      "right-[0%] top-[12%] lg:right-[-1%] lg:top-[10%]",
+  },
+  {
+    city: "Bali",
+    country: "Indonesia",
+    flag: "🇮🇩",
+    image:
+      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=240&q=90",
+    className:
+      "bottom-[5%] left-[4%] lg:bottom-[7%] lg:left-[3%]",
+  },
+];
+
+const benefits = [
+  {
+    icon: Zap,
+    title: "Instant Activation",
+    description: "Get connected in under one minute with a QR code."
+  },
+  {
+    icon: Globe2,
+    title: "Global Coverage",
+    description: "200+ countries and regions with reliable local networks."
+  },
+  {
+    icon: ShieldCheck,
+    title: "Transparent Pricing",
+    description: "No hidden fees. What you see is exactly what you pay."
+  },
+  {
+    icon: Headphones,
+    title: "24/7 Support",
+    description: "Our support team is available whenever you need help."
+  }
+];
+
+const installationSteps = [
+  {
+    icon: ShoppingCart,
+    title: "Choose Your Plan",
+    description: "Select your destination and the data plan that fits your trip."
+  },
+  {
+    icon: QrCode,
+    title: "Scan & Install",
+    description: "Scan the QR code and install your eSIM in just a few seconds."
+  },
+  {
+    icon: Wifi,
+    title: "Connect & Go",
+    description: "Enjoy high-speed mobile data when you arrive."
+  }
+];
+
+const testimonials = [
+  {
+    quote:
+      "Velocity eSIM made my Japan trip so easy. The installation was quick and the connection stayed fast throughout the trip.",
+    name: "Sophia R.",
+    country: "USA",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=85"
+  },
+  {
+    quote:
+      "The best eSIM service I have used. It was affordable, reliable and very easy to activate before my flight.",
+    name: "Aisha M.",
+    country: "Canada",
+    image:
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=120&h=120&q=85"
+  }
+];
 
 export const metadata: Metadata = createMetadata({
   path: "/",
@@ -30,229 +131,523 @@ export const metadata: Metadata = createMetadata({
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-white text-ink">
+    <main className="min-h-screen overflow-x-hidden bg-[#020916] text-white">
       <JsonLd data={createLandingJsonLd()} />
-      <Nav />
+
+      <Navbar />
       <Hero />
-      <Destinations />
-      <HowItWorks />
+      <Plans />
       <Benefits />
-      <Faq />
+      <JourneyAndCoverage />
+      <TestimonialsAndFaq />
+      <AppDownload />
       <Cta />
       <SiteFooter />
     </main>
   );
 }
 
-function Nav() {
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-cyan/10 bg-white/82 backdrop-blur-xl">
-      <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
-        <a className="flex items-center gap-3 font-display text-lg font-bold" href="#">
-          <img
-            alt=""
-            aria-hidden="true"
-            className="h-9 w-9 rounded-lg shadow-glow"
-            src="/app-logo.png"
-          />
-          {landingContent.brand}
-        </a>
-        <div className="hidden items-center gap-8 md:flex">
-          {landingContent.navItems.map((item) => (
-            <a
-              className="text-sm font-medium text-slate-600 transition hover:text-midnight"
-              href={item.href}
-              key={item.href}
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-        <a
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-midnight px-5 text-sm font-bold text-cyan transition hover:bg-ink"
-          href="#download"
-        >
-          Get App
-          <ArrowRight aria-hidden="true" size={16} />
-        </a>
-      </nav>
-    </header>
-  );
-}
-
 function Hero() {
   return (
-    <section className="relative isolate pt-32">
-      <div className="hero-grid absolute inset-0 -z-10" />
-      <div className="absolute left-1/2 top-24 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan/20 blur-3xl" />
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 md:grid-cols-[1.03fr_0.97fr] md:px-8 md:pb-28 md:pt-14">
-        <div className="relative z-20">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-white/70 px-4 py-2 text-xs font-bold uppercase text-midnight shadow-sm backdrop-blur">
-            <span className="h-2 w-2 rounded-full bg-cyan" />
-            {landingContent.hero.eyebrow}
+    <section className="relative isolate z-20 overflow-hidden bg-[#04132C] pt-20 text-white" id="home">
+      {/* Background lighting */}
+      <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_73%_43%,rgba(0,111,255,0.18),transparent_34%),radial-gradient(circle_at_18%_23%,rgba(19,86,190,0.09),transparent_30%),linear-gradient(180deg,#020b1d_0%,#04132C_58%,#020a19_100%)]" />
+
+      <div className="pointer-events-none absolute left-[55%] top-[34%] -z-10 h-[620px] w-[620px] rounded-full bg-[#006cff]/10 blur-[150px]" />
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-[#020916] via-[#020916]/75 to-transparent" />
+
+      <div className="mx-auto grid min-h-[700px] max-w-[1480px] items-center gap-10 px-5 pb-20 pt-12 md:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:pb-16 lg:pt-8 xl:px-14">
+        {/* Left content */}
+        <div className="relative z-20 mx-auto w-full max-w-[610px] text-center lg:mx-0 lg:text-left">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#31567e]/60 bg-[#07172c]/80 px-4 py-2 text-xs font-semibold text-white/80 shadow-[0_12px_35px_rgba(0,0,0,0.2)] backdrop-blur-xl">
+            <Star
+              aria-hidden="true"
+              className="fill-[#ffd54a] text-[#ffd54a]"
+              size={14}
+            />
+
+            Trusted by 1M+ Travelers Worldwide
           </div>
-          <h1 className="max-w-4xl font-display text-5xl font-black leading-none text-midnight md:text-7xl">
-            {landingContent.hero.title}
+
+          <h1 className="mx-auto max-w-[590px] font-display text-[44px] font-black leading-[1.04] tracking-[-0.045em] sm:text-[56px] lg:mx-0 lg:text-[61px] xl:text-[68px]">
+            Stay Connected
+            <br />
+            Worldwide with
+            <br />
+
+            <span className="bg-gradient-to-r from-[#246dff] via-[#169cff] to-[#28d0ff] bg-clip-text text-transparent">
+              Premium eSIMs
+            </span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            {landingContent.hero.body}
+
+          <p className="mx-auto mt-7 max-w-[530px] text-[15px] leading-7 text-[#a9b8cd] sm:text-[17px] lg:mx-0">
+            High-speed data in 200+ countries and regions.
+            <br className="hidden sm:block" />
+            Instant activation. No SIM card. No roaming fees.
           </p>
-          <HeroPackageSearch />
-          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            <span className="font-semibold text-midnight">Popular:</span>
-          {landingContent.hero.popular.map((item) => (
+
+          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
             <a
-              className="rounded-full border border-line bg-white px-3 py-1 font-medium transition hover:border-cyan hover:text-midnight"
-                href={item === "USA" ? "/destinations/usa" : item === "Japan" ? "/destinations/japan" : "/destinations/europe"}
-              key={item}
+              className="group inline-flex h-[56px] min-w-[210px] items-center justify-center gap-3 rounded-full border border-[#4abfff]/35 bg-gradient-to-r from-[#1857ff] via-[#087cff] to-[#29c9ff] px-8 text-sm font-bold text-white shadow-[0_15px_38px_rgba(0,117,255,0.28)] transition-transform hover:-translate-y-0.5"
+              href="#download-app"
             >
-                {item}
-              </a>
-            ))}
+              Get eSIM Now
+
+              <ArrowRight
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-x-1"
+                size={19}
+              />
+            </a>
+
+            <a
+              className="inline-flex h-[56px] min-w-[170px] items-center justify-center rounded-full border border-[#527cae]/75 bg-[#061225]/60 px-8 text-sm font-bold text-white shadow-[0_12px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl transition-colors hover:border-[#55a9ff]"
+              href="#plans"
+            >
+              View Plans
+            </a>
           </div>
+
+          <HeroPackageSearch />
+          <TravelerReviews />
         </div>
-        <HeroDevice />
+
+        <HeroVisual />
       </div>
     </section>
   );
 }
 
-function HeroDevice() {
+function TravelerReviews() {
   return (
-    <div className="relative z-0 mx-auto w-full max-w-[440px]">
-      <div className="absolute -left-8 top-10 hidden rounded-xl border border-cyan/20 bg-white/80 p-4 shadow-card backdrop-blur sm:block">
-        <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-lg bg-cyan/15 text-midnight">
-            <Plane aria-hidden="true" size={18} />
-          </span>
-          <div>
-            <p className="text-xs font-bold uppercase text-slate-500">Ready before arrival</p>
-            <p className="text-sm font-black text-midnight">Install in minutes</p>
-          </div>
+    <div className="mt-11 flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-7 lg:justify-start">
+      <div>
+        <p className="mb-3 text-xs font-medium text-white/55">
+          Trusted by travelers from
+        </p>
+
+        <div className="flex justify-center -space-x-2 lg:justify-start">
+          {travelerImages.map((image, index) => (
+            <div
+              className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#061126] bg-[#12213a] shadow-[0_6px_14px_rgba(0,0,0,0.3)]"
+              key={image}
+            >
+              <img
+                alt={`Velocity eSIM traveler ${index + 1}`}
+                className="h-full w-full object-cover"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                src={image}
+              />
+            </div>
+          ))}
         </div>
       </div>
-      <div className="ml-auto rounded-[2rem] border border-midnight/10 bg-midnight p-4 shadow-glow">
-        <div className="rounded-[1.55rem] bg-white p-5">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase text-slate-400">Active plan</p>
-              <p className="font-display text-2xl font-black text-midnight">Tokyo, Japan</p>
-            </div>
-            <span className="grid h-11 w-11 place-items-center rounded-lg bg-cyan text-midnight">
-              <Smartphone aria-hidden="true" size={21} />
-            </span>
+
+      <div>
+        <p className="mb-2 text-xs text-white/60">
+          and 50,000+ reviews
+        </p>
+
+        <div className="flex items-center justify-center gap-3 lg:justify-start">
+          <div className="flex gap-1">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <span
+                className="grid h-[18px] w-[18px] place-items-center rounded-[4px] bg-[#00b67a]"
+                key={index}
+              >
+                <Star
+                  aria-hidden="true"
+                  className="fill-white text-white"
+                  size={11}
+                />
+              </span>
+            ))}
           </div>
-          <div className="rounded-xl bg-cloud p-4">
-            <div className="mb-2 flex justify-between text-xs font-bold uppercase text-slate-500">
-              <span>Data usage</span>
-              <span>7.6 GB / 10 GB</span>
-            </div>
-            <div className="h-3 rounded-full bg-white">
-              <div className="h-3 w-3/4 rounded-full bg-cyan" />
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-line p-4">
-              <p className="text-xs font-bold uppercase text-slate-400">Network</p>
-              <p className="mt-1 font-black text-midnight">5G / LTE</p>
-            </div>
-            <div className="rounded-xl border border-line p-4">
-              <p className="text-xs font-bold uppercase text-slate-400">Validity</p>
-              <p className="mt-1 font-black text-midnight">30 days</p>
-            </div>
-          </div>
-          <div className="mt-4 rounded-xl bg-midnight p-4 text-white">
-            <div className="flex items-center gap-3">
-              <BadgeCheck aria-hidden="true" className="text-cyan" size={20} />
-              <p className="text-sm font-semibold">Connected with Velocity eSIM</p>
-            </div>
-          </div>
+
+          <span className="text-xs font-semibold text-white/80">
+            4.8/5
+          </span>
         </div>
       </div>
     </div>
   );
 }
 
-function Destinations() {
+function HeroVisual() {
   return (
-    <section className="bg-cloud py-20 md:py-28" id="destinations">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <SectionHeading
-          body="Browse starter plans for traveler favorites. More destinations can plug into this section later."
-          kicker="Popular destinations"
-          title="Choose data where your trip begins."
+    <div className="relative mx-auto h-[520px] w-full max-w-[850px] sm:h-[610px] lg:h-[660px]">
+      {/* Main glow */}
+      <div className="pointer-events-none absolute left-1/2 top-[49%] h-[65%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#006cff]/18 blur-[100px]" />
+
+      {/* Orbit lines */}
+      <div className="pointer-events-none absolute left-1/2 top-[48%] hidden h-[500px] w-[740px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-[#1683ff]/15 sm:block" />
+
+      <div className="pointer-events-none absolute left-1/2 top-[51%] hidden h-[390px] w-[610px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-[#1683ff]/10 sm:block" />
+
+      {/* Premium phone and map artwork */}
+      <img
+        alt="Velocity eSIM mobile application with worldwide coverage"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[610px] max-w-none -translate-x-1/2 -translate-y-[48%] object-contain drop-shadow-[0_40px_65px_rgba(0,0,0,0.6)] sm:w-[750px] lg:w-[850px]"
+        src="/images/hero-3.png"
+      />
+
+      {/* Country bubbles */}
+      {heroDestinations.map((destination) => (
+        <DestinationBubble
+          city={destination.city}
+          className={destination.className}
+          country={destination.country}
+          flag={destination.flag}
+          image={destination.image}
+          key={destination.city}
         />
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-          {landingContent.destinations.map((destination) => (
-            <a
-              className="group overflow-hidden rounded-xl border border-line bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-card"
-              href={destination.href}
-              key={destination.country}
-            >
-              <div className={`relative h-40 overflow-hidden bg-gradient-to-br ${destination.palette}`}>
-                <img
-                  alt={destination.imageAlt}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  loading="lazy"
-                  src={destination.imageUrl}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-midnight/55 via-midnight/10 to-transparent" />
-                <span className="absolute left-5 top-5 rounded-full bg-white/82 px-3 py-1 text-xs font-black text-midnight">
-                  {destination.landmark}
-                </span>
-              </div>
-              <div className="p-5">
-                <div className="flex min-h-7 items-center justify-between gap-3">
-                  <h3 className="font-display text-lg font-black text-midnight">
-                    {destination.country}
-                  </h3>
-                  {destination.badge ? (
-                    <span className="rounded-full bg-cyan px-2 py-1 text-[10px] font-black uppercase text-midnight">
-                      {destination.badge}
-                    </span>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-sm text-slate-500">{destination.region}</p>
-                <div className="mt-5 flex items-end justify-between">
-                  <span className="text-xs font-semibold text-slate-400">Starting from</span>
-                  <span className="font-display text-xl font-black text-midnight">
-                    {destination.price}
-                  </span>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
+      ))}
+
+      {/* Coverage card */}
+      <FeatureCard
+        className="bottom-[18%] left-[1%] lg:bottom-[17%] lg:left-[2%]"
+        description="Worldwide Coverage"
+        icon={<Globe2 size={22} />}
+        title={
+          <>
+            200+
+            <br />
+            Countries
+          </>
+        }
+      />
+
+      {/* Activation card */}
+      <FeatureCard
+        className="right-[0%] top-[31%] lg:right-[-2%] lg:top-[30%]"
+        description="In Under 1 Minute"
+        icon={<Zap size={22} />}
+        title={
+          <>
+            Instant
+            <br />
+            Activation
+          </>
+        }
+      />
+
+      {/* Plans card */}
+      <FeatureCard
+        className="bottom-[13%] right-[4%] lg:bottom-[13%] lg:right-[2%]"
+        description="1GB to Unlimited"
+        icon={<SlidersHorizontal size={22} />}
+        title={
+          <>
+            Flexible
+            <br />
+            Data Plans
+          </>
+        }
+      />
+    </div>
   );
 }
 
-function HowItWorks() {
+type DestinationBubbleProps = {
+  city: string;
+  country: string;
+  flag: string;
+  image: string;
+  className: string;
+};
+
+function DestinationBubble({
+  city,
+  country,
+  flag,
+  image,
+  className,
+}: DestinationBubbleProps) {
   return (
-    <section className="py-20 md:py-28" id="how-it-works">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <SectionHeading
-          align="center"
-          body="A simple travel-data flow your users can understand in seconds."
-          kicker="How it works"
-          title="From checkout to connection in three steps."
+    <div
+      className={`absolute z-30 hidden items-center gap-3 sm:flex ${className}`}
+    >
+      <div className="h-[68px] w-[68px] overflow-hidden rounded-full border-2 border-[#8bc9ff]/80 bg-[#07162c] p-1 shadow-[0_0_30px_rgba(33,139,255,0.35)]">
+        <img
+          alt={`${city}, ${country}`}
+          className="h-full w-full rounded-full object-cover"
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          src={image}
         />
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {landingContent.steps.map((step, index) => {
-            const Icon = stepIcons[index];
+      </div>
+
+      <div className="min-w-[92px]">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-white">
+          <span>{flag}</span>
+          {city}
+        </p>
+
+        <p className="mt-1 text-xs text-[#9fb0c6]">
+          {country}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type FeatureCardProps = {
+  title: React.ReactNode;
+  description: string;
+  icon: React.ReactNode;
+  className: string;
+};
+
+function FeatureCard({
+  title,
+  description,
+  icon,
+  className,
+}: FeatureCardProps) {
+  return (
+    <div
+      className={`absolute z-30 hidden w-[145px] rounded-[20px] border border-[#6388b3]/55 bg-[linear-gradient(145deg,rgba(11,31,59,0.94),rgba(4,18,39,0.88))] p-4 shadow-[0_24px_55px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:block lg:w-[158px] lg:p-5 ${className}`}
+    >
+      <div className="grid h-10 w-10 place-items-center rounded-full border border-[#389cff]/45 bg-[linear-gradient(145deg,#174fb6,#087fff)] text-white shadow-[0_0_22px_rgba(0,123,255,0.32)]">
+        {icon}
+      </div>
+
+      <p className="mt-4 text-[17px] font-black leading-[1.2] text-white lg:text-[19px]">
+        {title}
+      </p>
+
+      <p className="mt-2 text-[11px] leading-4 text-[#9eafc5]">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+
+function Plans() {
+  const planTypes = [
+    {
+      title: "Short Trips",
+      subtitle: "For weekends and quick getaways",
+      icon: CalendarDays,
+      eyebrow: "1–7 days",
+      description:
+        "Stay connected for navigation, messaging, bookings, and essential travel apps.",
+      features: [
+        "Flexible short-term validity",
+        "Light and medium data options",
+        "Instant digital activation",
+      ],
+      accent:
+        "from-[#1348ff]/25 via-[#0b2d64]/20 to-transparent",
+      iconClass:
+        "border-[#296aff]/50 bg-[#0c2a61] text-[#5d8fff]",
+    },
+    {
+      title: "Longer Journeys",
+      subtitle: "For holidays and business travel",
+      icon: Plane,
+      eyebrow: "8–30 days",
+      description:
+        "Choose larger data allowances designed for longer stays and frequent daily usage.",
+      features: [
+        "More data for longer stays",
+        "Ideal for work and entertainment",
+        "Premium local network access",
+      ],
+      accent:
+        "from-[#075fff]/25 via-[#063f78]/20 to-transparent",
+      iconClass:
+        "border-[#168cff]/50 bg-[#082f58] text-[#48afff]",
+      highlighted: true,
+    },
+    {
+      title: "Unlimited Data",
+      subtitle: "For maximum flexibility abroad",
+      icon: InfinityIcon,
+      eyebrow: "No data limits",
+      description:
+        "Browse, stream, navigate, and stay online without monitoring every megabyte.",
+      features: [
+        "Unlimited data options",
+        "Perfect for heavy daily usage",
+        "Available in selected destinations",
+      ],
+      accent:
+        "from-[#00a9dc]/20 via-[#075372]/20 to-transparent",
+      iconClass:
+        "border-[#26c9e8]/50 bg-[#07384c] text-[#48d8ef]",
+    },
+  ];
+
+  return (
+    <section
+      className="relative z-0 overflow-hidden bg-[#020916] px-5 pb-16 pt-8 text-white md:px-8 md:pb-20"
+      id="plans"
+    >
+      <div className="pointer-events-none absolute left-1/2 top-20 h-72 w-[70%] -translate-x-1/2 rounded-full bg-[#045fff]/10 blur-[120px]" />
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#174972]/60 to-transparent" />
+
+      <div className="relative mx-auto max-w-[1280px]">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#204c72]/70 bg-[#07182b]/80 px-4 py-2 backdrop-blur-xl">
+            <Wifi
+              aria-hidden="true"
+              className="text-[#3daaff]"
+              size={14}
+            />
+
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#42aaff]">
+              Flexible connectivity
+            </span>
+          </div>
+
+          <h2 className="mt-5 font-display text-3xl font-black tracking-[-0.04em] sm:text-4xl lg:text-[46px]">
+            A plan for every kind of journey
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#8fa2b8] sm:text-base">
+            Select your destination first, then compare the
+            available data and validity options for your trip.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {planTypes.map((plan) => {
+            const Icon = plan.icon;
+
             return (
-              <article className="rounded-xl border border-line bg-white p-7 text-center shadow-sm" key={step.title}>
-                <span className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-cyan/12 text-midnight">
-                  <Icon aria-hidden="true" size={24} />
-                </span>
-                <p className="mt-6 text-sm font-black uppercase text-cyan">Step {index + 1}</p>
-                <h3 className="mt-2 font-display text-xl font-black text-midnight">{step.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{step.description}</p>
+              <article
+                className={[
+                  "group relative flex min-h-[390px] flex-col overflow-hidden rounded-[24px]",
+                  "border bg-[linear-gradient(145deg,rgba(9,27,50,0.98),rgba(4,15,29,0.98))]",
+                  "p-6 shadow-[0_24px_65px_rgba(0,0,0,0.28)] transition duration-300",
+                  "hover:-translate-y-1",
+                  plan.highlighted
+                    ? "border-[#168cff]/80 shadow-[0_25px_75px_rgba(0,91,210,0.18)]"
+                    : "border-[#204562]/80 hover:border-[#287bb3]/80",
+                ].join(" ")}
+                key={plan.title}
+              >
+                <div
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b ${plan.accent}`}
+                />
+
+                <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full border border-[#168cff]/10" />
+
+                <div className="pointer-events-none absolute -right-9 -top-9 h-28 w-28 rounded-full border border-[#168cff]/10" />
+
+                {plan.highlighted ? (
+                  <span className="absolute right-5 top-5 rounded-full border border-[#36bfff]/50 bg-[#0b3154]/90 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-[#66c7ff]">
+                    Most popular
+                  </span>
+                ) : null}
+
+                <div className="relative">
+                  <span
+                    className={[
+                      "grid h-14 w-14 place-items-center rounded-[17px] border",
+                      "shadow-[0_12px_32px_rgba(0,0,0,0.22)]",
+                      plan.iconClass,
+                    ].join(" ")}
+                  >
+                    <Icon
+                      aria-hidden="true"
+                      size={27}
+                      strokeWidth={2}
+                    />
+                  </span>
+
+                  <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-[#47aaff]">
+                    {plan.eyebrow}
+                  </p>
+
+                  <h3 className="mt-3 font-display text-2xl font-black tracking-[-0.025em]">
+                    {plan.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm font-semibold text-[#8297ad]">
+                    {plan.subtitle}
+                  </p>
+
+                  <p className="mt-5 min-h-[72px] text-sm leading-6 text-[#93a5b9]">
+                    {plan.description}
+                  </p>
+                </div>
+
+                <div className="relative mt-6 border-t border-[#173a58] pt-5">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li
+                        className="flex items-center gap-3 text-sm text-[#a3b2c3]"
+                        key={feature}
+                      >
+                        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-[#2377a9] bg-[#09253e] text-[#4ac7ff]">
+                          <Check
+                            aria-hidden="true"
+                            size={11}
+                            strokeWidth={3}
+                          />
+                        </span>
+
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <a
+                  className={[
+                    "relative mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full",
+                    "text-sm font-black transition duration-200",
+                    plan.highlighted
+                      ? "bg-gradient-to-r from-[#1658ff] to-[#29c7ff] text-white shadow-[0_12px_30px_rgba(22,112,255,0.3)] hover:-translate-y-0.5"
+                      : "border border-[#265b83] bg-[#07192c] text-white hover:border-[#35b9ff] hover:bg-[#0a2038]",
+                  ].join(" ")}
+                  href="#home"
+                >
+                  Find plans for your destination
+
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="transition-transform group-hover:translate-x-1"
+                    size={16}
+                  />
+                </a>
               </article>
             );
           })}
         </div>
+
+        {/* <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-[18px] border border-[#173a58] bg-[#061427]/75 px-5 py-4 text-center backdrop-blur-xl sm:flex-row sm:text-left">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#21527b] bg-[#09213a] text-[#45afff]">
+              <Globe2 aria-hidden="true" size={19} />
+            </span>
+
+            <div>
+              <p className="text-sm font-black">
+                Plans and prices depend on your destination
+              </p>
+
+              <p className="mt-1 text-xs text-[#778da5]">
+                Search a country to view live packages and exact
+                pricing.
+              </p>
+            </div>
+          </div>
+
+          <a
+            className="inline-flex shrink-0 items-center gap-2 text-sm font-black text-[#4eb5ff] transition hover:text-[#7fcbff]"
+            href="#home"
+          >
+            Search destinations
+            <ArrowRight aria-hidden="true" size={16} />
+          </a>
+        </div> */}
       </div>
     </section>
   );
@@ -260,31 +655,37 @@ function HowItWorks() {
 
 function Benefits() {
   return (
-    <section className="bg-midnight py-20 text-white md:py-28" id="benefits">
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-[0.95fr_1.05fr] md:px-8">
-        <div>
-          <p className="text-sm font-black uppercase text-cyan">Benefits</p>
-          <h2 className="mt-3 max-w-xl font-display text-4xl font-black leading-tight md:text-5xl">
-            Built for smarter travel, business trips, and fewer roaming surprises.
-          </h2>
-          <p className="mt-5 max-w-xl leading-8 text-white/70">
-            Velocity eSIM gives travelers a practical way to prepare international data,
-            keep mobile internet abroad, and use a roaming alternative for vacations,
-            remote work, and business travel.
-          </p>
-        </div>
-        <div className="grid gap-4">
-          {landingContent.benefits.map((benefit, index) => {
-            const Icon = benefitIcons[index];
+    <section
+      className="bg-[#020916] px-5 py-10 text-white md:px-8"
+      id="benefits"
+    >
+      <div className="mx-auto max-w-[1280px]">
+        <p className="mb-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-[#28a7ff]">
+          Why travelers choose Velocity eSIM
+        </p>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {benefits.map((benefit) => {
+            const Icon = benefit.icon;
+
             return (
-              <article className="rounded-xl border border-cyan/20 bg-white/8 p-6 backdrop-blur" key={benefit.title}>
-                <div className="flex gap-4">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cyan text-midnight">
-                    <Icon aria-hidden="true" size={22} />
+              <article
+                className="rounded-2xl border border-[#234363]/75 bg-[linear-gradient(145deg,rgba(12,29,51,0.95),rgba(6,18,35,0.95))] p-5 shadow-[0_16px_42px_rgba(0,0,0,0.2)]"
+                key={benefit.title}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#2e9dff,#153cf2)] text-white shadow-[0_0_26px_rgba(26,107,255,0.42)]">
+                    <Icon aria-hidden="true" size={24} />
                   </span>
+
                   <div>
-                    <h3 className="font-display text-xl font-black">{benefit.title}</h3>
-                    <p className="mt-2 leading-7 text-white/70">{benefit.description}</p>
+                    <h3 className="font-display text-base font-black">
+                      {benefit.title}
+                    </h3>
+
+                    <p className="mt-1 text-xs leading-5 text-white/55">
+                      {benefit.description}
+                    </p>
                   </div>
                 </div>
               </article>
@@ -296,26 +697,379 @@ function Benefits() {
   );
 }
 
-function Faq() {
+function JourneyAndCoverage() {
+  const cardClassName =
+    "relative mt-7 h-auto min-h-[420px] w-full overflow-hidden rounded-[22px] border border-[#234767]/75 bg-[#061326] shadow-[0_28px_70px_rgba(0,0,0,0.3)] sm:h-[420px]";
+
   return (
-    <section className="py-20 md:py-28" id="faq">
-      <div className="mx-auto max-w-3xl px-5 md:px-8">
-        <SectionHeading
-          align="center"
-          body="The first answers customers need before choosing an eSIM."
-          kicker="FAQ"
-          title="Common questions, simple answers."
-        />
-        <div className="mt-10 space-y-4">
-          {landingContent.faqs.map((faq) => (
-            <details className="group rounded-xl border border-line bg-white p-5 shadow-sm" key={faq.question}>
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-black text-midnight">
-                {faq.question}
-                <CircleHelp aria-hidden="true" className="shrink-0 text-cyan transition group-open:rotate-45" size={20} />
-              </summary>
-              <p className="mt-4 leading-7 text-slate-600">{faq.answer}</p>
-            </details>
+    <section
+      className="overflow-hidden bg-[#020916] px-5 py-14 text-white md:px-8 md:py-20"
+      id="how-it-works"
+    >
+      <div className="mx-auto grid max-w-[1320px] items-start gap-12 lg:grid-cols-2 lg:gap-8">
+        {/* How it works */}
+        <div className="mx-auto w-full max-w-[630px]">
+          <div className="text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#289fff]">
+              How it works
+            </p>
+
+            <h2 className="mt-2 font-display text-3xl font-black">
+              3 Simple Steps
+            </h2>
+          </div>
+
+          <div
+            className={`${cardClassName} flex items-center justify-center px-6 py-10 sm:px-8`}
+          >
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[230px] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#006cff]/10 blur-[90px]" />
+
+            <div className="relative z-10 grid w-full gap-10 sm:grid-cols-3 sm:gap-0">
+              {installationSteps.map((step, index) => {
+                const Icon = step.icon;
+                const isLastStep = index === installationSteps.length - 1;
+
+                return (
+                  <div
+                    className="relative flex min-w-0 flex-col items-center text-center"
+                    key={step.title}
+                  >
+                    {!isLastStep && (
+                      <div className="pointer-events-none absolute left-[calc(50%+48px)] top-[36px] z-0 hidden w-[calc(100%-96px)] items-center sm:flex">
+                        <span className="h-px flex-1 bg-gradient-to-r from-[#2b8cff]/65 via-[#2b8cff]/80 to-[#2b8cff]/45" />
+
+                        <ArrowRight
+                          aria-hidden="true"
+                          className="-ml-[2px] shrink-0 text-[#60afff]"
+                          size={18}
+                          strokeWidth={1.7}
+                        />
+                      </div>
+                    )}
+
+                    <div className="relative z-10">
+                      <span className="absolute -left-3 -top-3 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#2796ff] to-[#1750f4] text-xs font-black shadow-[0_0_22px_rgba(30,119,255,0.7)]">
+                        {index + 1}
+                      </span>
+
+                      <span className="grid h-[74px] w-[74px] place-items-center rounded-[18px] border border-[#32618c] bg-[linear-gradient(145deg,#102844,#071629)] text-white shadow-[0_16px_30px_rgba(0,0,0,0.3)]">
+                        <Icon aria-hidden="true" size={30} strokeWidth={2.2} />
+                      </span>
+                    </div>
+
+                    <h3 className="mt-5 whitespace-nowrap font-display text-sm font-black">
+                      {step.title}
+                    </h3>
+
+                    <p className="mt-2 max-w-[165px] text-xs leading-5 text-white/55">
+                      {step.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Coverage */}
+        <div className="mx-auto w-full max-w-[630px]" id="coverage">
+          <div className="text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#289fff]">
+              Global coverage
+            </p>
+
+            <h2 className="mt-2 font-display text-3xl font-black">
+              Where Will You Go Next?
+            </h2>
+          </div>
+
+          <div
+            className={`${cardClassName} bg-[image:url('/images/6__.png')] bg-cover bg-center bg-no-repeat`}
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(0,108,255,0.12),transparent_58%)]" />
+
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#020916]/5 via-transparent to-[#03101f]/90" />
+
+            <div className="relative z-10 flex h-full items-end p-4 sm:p-5">
+              <div className="grid h-[92px] w-full grid-cols-3 overflow-hidden rounded-[18px] border border-[#31577c]/85 bg-[#06162a]/90 text-center shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+                <div className="flex flex-col items-center justify-center px-2">
+                  <p className="font-display text-xl font-black sm:text-2xl">
+                    200+
+                  </p>
+
+                  <p className="mt-1 text-[9px] text-white/50 sm:text-[10px]">
+                    Countries
+                  </p>
+                </div>
+
+                <div className="my-4 flex flex-col items-center justify-center border-x border-white/10 px-2">
+                  <p className="font-display text-xl font-black sm:text-2xl">
+                    500+
+                  </p>
+
+                  <p className="mt-1 text-[9px] text-white/50 sm:text-[10px]">
+                    Networks
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center justify-center px-2">
+                  <p className="font-display text-xl font-black sm:text-2xl">
+                    99%
+                  </p>
+
+                  <p className="mt-1 text-[9px] text-white/50 sm:text-[10px]">
+                    Global Coverage
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 flex justify-center">
+            <a
+              className="group inline-flex h-11 min-w-[230px] items-center justify-center gap-3 rounded-full border border-[#275da0] bg-[#07172a] px-6 text-sm font-bold transition duration-300 hover:border-[#39bfff] hover:bg-[#0b213d]"
+              href="/destinations"
+            >
+              <span>View All Destinations</span>
+
+              <ArrowRight
+                aria-hidden="true"
+                className="shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+                size={17}
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TestimonialsAndFaq() {
+  return (
+    <section className="relative overflow-hidden bg-[#020916] px-5 py-10 text-white md:px-8">
+      <div className="relative mx-auto max-w-[1280px]">
+        <div className="text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#289fff]">
+            Trusted by travelers
+          </p>
+
+          <h2 className="mt-2 font-display text-3xl font-black tracking-[-0.03em] sm:text-4xl">
+            Loved by Millions Around the World
+          </h2>
+        </div>
+
+        <div className="mt-7 grid items-stretch gap-5 md:grid-cols-[0.82fr_1fr_1fr]">
+          <div className="relative hidden min-h-[285px] md:block">
+            <img
+              alt="Velocity eSIM mobile applications"
+              className="pointer-events-none absolute bottom-[-5px] left-1/2 h-[116%] w-[142%] max-w-none -translate-x-1/2 object-contain object-bottom drop-shadow-[0_24px_32px_rgba(0,0,0,0.45)]"
+              loading="lazy"
+              src="/images/a6.png"
+            />
+          </div>
+
+          {testimonials.slice(0, 2).map((testimonial) => (
+            <article
+              className="group relative flex min-h-[285px] flex-col overflow-hidden rounded-[18px] border border-[#234767]/80 bg-[linear-gradient(145deg,rgba(10,27,49,0.98),rgba(4,15,30,0.98))] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-[#3477a9] hover:shadow-[0_24px_60px_rgba(0,78,180,0.18)]"
+              key={testimonial.name}
+            >
+              <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#55b2ff]/50 to-transparent" />
+
+              <span
+                aria-hidden="true"
+                className="relative font-display text-[42px] font-black leading-none text-white/35"
+              >
+                “
+              </span>
+
+              <p className="relative mt-2 flex-1 text-sm font-medium leading-7 text-white/76">
+                {testimonial.quote}
+              </p>
+
+              <div className="relative mt-6 flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <img
+                    alt={testimonial.name}
+                    className="h-11 w-11 shrink-0 rounded-full border border-white/15 object-cover shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    src={testimonial.image}
+                  />
+
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-white">
+                      {testimonial.name}
+                    </p>
+
+                    <p className="mt-0.5 text-[10px] text-white/45">
+                      {testimonial.country}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  aria-label="5 out of 5 stars"
+                  className="flex shrink-0 gap-0.5"
+                >
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star
+                      aria-hidden="true"
+                      className="fill-[#ffca28] text-[#ffca28]"
+                      key={index}
+                      size={14}
+                      strokeWidth={1.5}
+                    />
+                  ))}
+                </div>
+              </div>
+            </article>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AppDownload() {
+  return (
+    <section
+      className="relative overflow-hidden bg-[#020916] px-5 py-16 text-white md:px-8 md:py-24"
+      id="download-app"
+    >
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#006cff]/10 blur-[130px]" />
+
+      <div className="relative mx-auto max-w-[1280px]">
+        <div className="relative overflow-hidden rounded-[26px] border border-[#285378]/80 bg-[linear-gradient(135deg,rgba(9,28,53,0.98),rgba(4,15,31,0.99))] shadow-[0_30px_90px_rgba(0,0,0,0.4)]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_45%,rgba(20,112,255,0.22),transparent_42%)]" />
+
+          <div className="pointer-events-none absolute inset-x-20 top-0 h-px bg-gradient-to-r from-transparent via-[#55b2ff]/60 to-transparent" />
+
+          <div className="relative grid min-h-[390px] items-center gap-10 px-7 py-12 sm:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-16 lg:py-14">
+            {/* Content */}
+            <div className="relative z-20 max-w-[570px]">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#289fff]">
+                Velocity in your pocket
+              </p>
+
+              <h2 className="mt-3 font-display text-3xl font-black leading-[1.08] tracking-[-0.04em] sm:text-4xl lg:text-[46px]">
+                Download the App.
+                <br />
+
+                <span className="bg-gradient-to-r from-[#2874ff] to-[#35caff] bg-clip-text text-transparent">
+                  Stay Connected Anywhere.
+                </span>
+              </h2>
+
+              <p className="mt-5 max-w-[520px] text-sm leading-7 text-[#a9b7cb] sm:text-base">
+                Purchase, install and manage your eSIM directly from your
+                phone. Track your data usage and top up wherever your journey
+                takes you.
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+                {[
+                  "Instant eSIM activation",
+                  "Real-time data tracking",
+                  "Secure in-app purchases"
+                ].map((feature) => (
+                  <div
+                    className="flex items-center gap-2 text-xs font-semibold text-white/70"
+                    key={feature}
+                  >
+                    <span className="grid h-5 w-5 place-items-center rounded-full border border-[#2f77a9] bg-[#0b2740] text-[#53caff]">
+                      <Check aria-hidden="true" size={11} strokeWidth={2.5} />
+                    </span>
+
+                    {feature}
+                  </div>
+                ))}
+              </div>
+
+              {/* Store buttons */}
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <a
+                  aria-label="Download Velocity eSIM on the App Store"
+                  className="group flex h-[64px] min-w-[210px] items-center gap-3 rounded-[16px] border border-[#315778]/85 bg-[#050d19]/90 px-5 shadow-[0_14px_35px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-[#42baff] hover:bg-[#09182a]"
+                  href="https://apps.apple.com/am/app/velocityesim/id6768258284"
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="h-8 w-8 shrink-0 fill-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M18.71 12.5c.03-2.3 1.88-3.4 1.97-3.45-1.07-1.57-2.74-1.78-3.33-1.8-1.4-.15-2.76.84-3.47.84-.72 0-1.81-.82-2.98-.79-1.51.02-2.93.9-3.71 2.27-1.62 2.8-.41 6.92 1.14 9.19.78 1.1 1.69 2.33 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.37 0 1.78.74 2.98.71 1.23-.02 2.01-1.1 2.76-2.21.9-1.27 1.26-2.52 1.28-2.59-.03-.01-2.44-.95-2.47-3.72ZM16.43 5.77a3.84 3.84 0 0 0 .88-2.77 3.9 3.9 0 0 0-2.55 1.32 3.67 3.67 0 0 0-.91 2.67 3.22 3.22 0 0 0 2.58-1.22Z" />
+                  </svg>
+
+                  <span className="text-left">
+                    <span className="block text-[10px] font-medium leading-none text-white/55">
+                      Download on the
+                    </span>
+
+                    <span className="mt-1 block font-display text-lg font-black leading-none text-white">
+                      App Store
+                    </span>
+                  </span>
+                </a>
+
+                <a
+                  aria-label="Get Velocity eSIM on Google Play"
+                  className="group flex h-[64px] min-w-[210px] items-center gap-3 rounded-[16px] border border-[#315778]/85 bg-[#050d19]/90 px-5 shadow-[0_14px_35px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-[#42baff] hover:bg-[#09182a]"
+                  href="https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="h-8 w-8 shrink-0"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3.6 2.55c-.37.39-.6.98-.6 1.74v15.42c0 .76.23 1.35.6 1.74l.09.08 8.64-8.64v-.2L3.69 2.46l-.09.09Z"
+                      fill="#41D691"
+                    />
+
+                    <path
+                      d="m15.21 15.78-2.88-2.89v-.2l2.89-2.89.06.04 3.43 1.95c.98.56.98 1.47 0 2.03l-3.43 1.95-.07.01Z"
+                      fill="#FFCC00"
+                    />
+
+                    <path
+                      d="m15.28 15.77-2.95-2.98-8.73 8.73c.32.34.86.38 1.47.04l10.21-5.79Z"
+                      fill="#F34A45"
+                    />
+
+                    <path
+                      d="M15.28 9.82 5.07 4.03c-.61-.35-1.15-.3-1.47.04l8.73 8.72 2.95-2.97Z"
+                      fill="#2AA4F4"
+                    />
+                  </svg>
+
+                  <span className="text-left">
+                    <span className="block text-[10px] font-medium leading-none text-white/55">
+                      Get it on
+                    </span>
+
+                    <span className="mt-1 block font-display text-lg font-black leading-none text-white">
+                      Google Play
+                    </span>
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            {/* App visual */}
+            <div className="relative flex min-h-[300px] items-end justify-center lg:min-h-[360px]">
+              <div className="pointer-events-none absolute left-1/2 top-1/2 h-[240px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#096cff]/25 blur-[85px]" />
+
+              <div className="pointer-events-none absolute bottom-3 left-1/2 h-[50px] w-[72%] -translate-x-1/2 rounded-full bg-black/70 blur-[28px]" />
+
+              <img
+                alt="Velocity eSIM mobile application"
+                className="relative z-10 max-h-[390px] w-full max-w-[520px] object-contain object-bottom drop-shadow-[0_35px_45px_rgba(0,0,0,0.5)]"
+                loading="lazy"
+                src="/images/6c.png"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -324,100 +1078,53 @@ function Faq() {
 
 function Cta() {
   return (
-    <section className="px-5 pb-20 md:px-8 md:pb-28" id="download">
-      <div className="mx-auto max-w-7xl rounded-2xl bg-midnight px-6 py-14 text-center text-white shadow-card md:px-12">
-        <p className="text-sm font-black uppercase text-cyan">Ready for your next adventure?</p>
-        <h2 className="mx-auto mt-3 max-w-3xl font-display text-4xl font-black leading-tight md:text-5xl">
-          Keep the app ready before your next border crossing.
-        </h2>
-        <p className="mx-auto mt-5 max-w-2xl leading-8 text-white/70">
-          Download Velocity eSIM to choose travel data for 200+ destinations, install
-          before departure, and keep mobile internet ready for the moments roaming feels unclear.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <a
-            aria-label="Download Velocity eSIM on the App Store"
-            className="inline-flex min-h-16 items-center justify-center gap-3 rounded-lg border border-white/20 bg-white px-5 text-left text-midnight shadow-[0_18px_38px_rgba(255,255,255,0.14)] transition hover:-translate-y-0.5 hover:border-cyan hover:shadow-[0_22px_48px_rgba(27,211,232,0.2)]"
-            href={landingContent.appLinks.ios.href}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <AppleStoreIcon />
-            <span className="grid leading-none">
-              <span className="text-[11px] font-black uppercase tracking-[0.08em] text-midnight/65">
-                Download on the
-              </span>
-              <span className="mt-1 font-display text-lg font-black">
-                {landingContent.appLinks.ios.label}
-              </span>
-            </span>
-          </a>
-          <a
-            aria-label="Download Velocity eSIM on Google Play"
-            className="inline-flex min-h-16 items-center justify-center gap-3 rounded-lg border border-cyan/60 bg-cyan px-5 text-left text-midnight shadow-[0_18px_38px_rgba(27,211,232,0.28)] transition hover:-translate-y-0.5 hover:bg-aqua hover:shadow-[0_22px_48px_rgba(27,211,232,0.36)]"
-            href={landingContent.appLinks.android.href}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <GooglePlayIcon />
-            <span className="grid leading-none">
-              <span className="text-[11px] font-black uppercase tracking-[0.08em] text-midnight/65">
-                Get it on
-              </span>
-              <span className="mt-1 font-display text-lg font-black">
-                {landingContent.appLinks.android.label}
-              </span>
-            </span>
-          </a>
+    <section
+      className="overflow-hidden bg-[#020916] px-5 pb-16 pt-20 text-white md:px-8 md:pt-24"
+      id="download"
+    >
+      <div className="relative mx-auto max-w-[1280px]">
+        <div className="relative min-h-[220px] overflow-visible rounded-[22px] border border-white/80 shadow-[0_25px_80px_rgba(16,70,222,0.28)] md:min-h-[190px]">
+          <img
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full rounded-[22px] object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            src="/images/3.png"
+          />
+
+          <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[linear-gradient(90deg,rgba(3,17,48,0.88)_0%,rgba(3,22,62,0.66)_45%,rgba(2,14,42,0.5)_100%)]" />
+
+          <img
+            alt="Traveler using Velocity eSIM in the mountains"
+            className="pointer-events-none absolute bottom-0 left-[58%] z-20 hidden h-[145%] max-w-none -translate-x-1/2 object-contain object-bottom md:block lg:left-[60%]"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            src="/images/4-.png"
+          />
+
+          <div className="relative z-10 flex min-h-[220px] flex-col justify-center gap-7 overflow-hidden rounded-[22px] px-7 py-9 md:min-h-[190px] md:flex-row md:items-center md:justify-between md:px-12 md:py-8">
+            <div className="max-w-[560px] md:pr-20 lg:pr-0">
+              <h2 className="font-display text-3xl font-black tracking-[-0.03em] md:text-[38px] md:leading-[1.08]">
+                Ready to Stay Connected Anywhere?
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-white/75 md:text-base">
+                Join millions of travelers who trust Velocity eSIM for seamless
+                connectivity.
+              </p>
+            </div>
+
+            <a
+              className="relative z-30 inline-flex h-14 min-w-[250px] items-center justify-center gap-5 self-start rounded-full bg-white px-8 text-sm font-black text-[#1c55cc] shadow-[0_16px_40px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(0,0,0,0.28)] md:self-auto"
+              href="#download-app"
+            >
+              Get eSIM Now
+              <ArrowRight aria-hidden="true" size={20} />
+            </a>
+          </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function AppleStoreIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-8 w-8 shrink-0"
-      fill="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path d="M16.54 12.36c-.03-2.28 1.86-3.38 1.95-3.43-1.07-1.57-2.72-1.78-3.3-1.8-1.39-.14-2.73.82-3.44.82-.72 0-1.82-.8-3-.78-1.54.02-2.97.91-3.76 2.3-1.61 2.79-.41 6.89 1.13 9.15.77 1.1 1.67 2.33 2.84 2.29 1.15-.05 1.58-.73 2.97-.73 1.38 0 1.78.73 2.98.7 1.23-.02 2.01-1.1 2.75-2.21.89-1.26 1.24-2.51 1.25-2.58-.03-.01-2.34-.9-2.37-3.73Z" />
-      <path d="M14.28 5.65c.62-.75 1.04-1.8.92-2.85-.9.04-2.03.62-2.68 1.37-.58.66-1.1 1.75-.96 2.77 1.02.08 2.08-.52 2.72-1.29Z" />
-    </svg>
-  );
-}
-
-function GooglePlayIcon() {
-  return (
-    <svg aria-hidden="true" className="h-8 w-8 shrink-0" viewBox="0 0 32 32">
-      <path d="M5.4 3.8c-.37.4-.6 1.02-.6 1.84v20.72c0 .82.23 1.44.62 1.84l.08.08L17.1 16.14v-.28L5.48 3.72l-.08.08Z" fill="#1a73e8" />
-      <path d="m20.96 20.02-3.86-4.02v-.28l3.86-4.02.08.05 4.58 2.6c1.31.74 1.31 1.96 0 2.71l-4.58 2.6-.08.36Z" fill="#fbbc04" />
-      <path d="m21.04 19.66-3.94-3.94L5.4 28.2c.58.62 1.55.69 2.65.07l12.99-8.61Z" fill="#34a853" />
-      <path d="M21.04 12.34 8.05 3.73c-1.1-.62-2.07-.55-2.65.07l11.7 12.2 3.94-3.66Z" fill="#ea4335" />
-    </svg>
-  );
-}
-
-function SectionHeading({
-  align = "left",
-  body,
-  kicker,
-  title
-}: {
-  align?: "left" | "center";
-  body: string;
-  kicker: string;
-  title: string;
-}) {
-  return (
-    <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
-      <p className="text-sm font-black uppercase text-cyan">{kicker}</p>
-      <h2 className="mt-3 font-display text-4xl font-black leading-tight text-midnight md:text-5xl">
-        {title}
-      </h2>
-      <p className="mt-4 leading-7 text-slate-600">{body}</p>
-    </div>
   );
 }
