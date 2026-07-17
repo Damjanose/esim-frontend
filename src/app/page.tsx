@@ -20,6 +20,7 @@ import { SiteFooter } from "./SiteFooter";
 
 import { landingContent } from "@/content/landing";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
+import { HeroPackageSearch } from "./HeroPackageSearch";
 
 const travelerImages = [
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=85",
@@ -146,7 +147,7 @@ export const metadata: Metadata = createMetadata({
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#020916] text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[#020916] text-white">
       <JsonLd data={createLandingJsonLd()} />
 
       <Nav />
@@ -247,14 +248,14 @@ function Nav() {
 
 function Hero() {
   return (
-    <section className="relative isolate min-h-[780px] overflow-hidden bg-[#020916] pt-20 text-white">
+    <section className="relative isolate z-20 min-h-[780px] overflow-visible bg-[#020916] pt-20 text-white">
       <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_72%_38%,rgba(0,102,255,0.18),transparent_38%),radial-gradient(circle_at_18%_20%,rgba(14,78,170,0.1),transparent_32%),linear-gradient(180deg,#020814_0%,#020916_58%,#030b18_100%)]" />
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-60 bg-gradient-to-t from-[#020916] to-transparent" />
 
-      <div className="mx-auto grid min-h-[700px] max-w-[1440px] items-center gap-10 px-5 py-14 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:py-8 xl:px-14">
+      <div className="mx-auto grid min-h-[700px] max-w-[1440px] items-center gap-10 px-5 pb-24 pt-14 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:pb-16 lg:pt-8 xl:px-14">
         <div className="relative z-20 max-w-[590px] pt-5 lg:pt-0">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#27527d]/55 bg-[#071629]/75 px-4 py-2 text-xs font-semibold text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#27527d]/55 bg-[#071629]/75 px-4 py-2 text-xs font-semibold text-white/80">
             <Star
               aria-hidden="true"
               className="fill-[#ffd54a] text-[#ffd54a]"
@@ -269,7 +270,6 @@ function Hero() {
             <br />
             Worldwide with
             <br />
-
             <span className="bg-gradient-to-r from-[#236cff] via-[#298cff] to-[#27c8ff] bg-clip-text text-transparent">
               Premium eSIMs
             </span>
@@ -283,11 +283,10 @@ function Hero() {
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <a
-              className="group inline-flex h-[52px] min-w-[190px] items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-7 text-sm font-bold text-white shadow-[0_14px_36px_rgba(18,102,255,0.38)] transition hover:-translate-y-0.5"
+              className="group inline-flex h-[52px] min-w-[190px] items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-7 text-sm font-bold text-white"
               href="#download"
             >
               Get eSIM Now
-
               <ArrowRight
                 aria-hidden="true"
                 className="transition-transform group-hover:translate-x-1"
@@ -296,12 +295,14 @@ function Hero() {
             </a>
 
             <a
-              className="inline-flex h-[52px] min-w-[150px] items-center justify-center rounded-full border border-[#5f86b8]/70 bg-[#061122]/45 px-7 text-sm font-bold text-white transition hover:border-[#45bfff] hover:bg-[#0a1a31]"
+              className="inline-flex h-[52px] min-w-[150px] items-center justify-center rounded-full border border-[#5f86b8]/70 bg-[#061122]/45 px-7 text-sm font-bold text-white"
               href="#plans"
             >
               View Plans
             </a>
           </div>
+
+          <HeroPackageSearch />
 
           <TravelerReviews />
         </div>
@@ -387,8 +388,8 @@ function HeroVisual() {
 function Plans() {
   return (
     <section
-      className="relative bg-[#020916] px-5 pb-10 pt-4 text-white md:px-8"
-      id="plans"
+    className="relative z-0 bg-[#020916] px-5 pb-10 pt-4 text-white md:px-8"
+    id="plans"
     >
       <div className="pointer-events-none absolute left-1/2 top-24 h-52 w-[65%] -translate-x-1/2 rounded-full bg-[#045fff]/10 blur-[100px]" />
 
