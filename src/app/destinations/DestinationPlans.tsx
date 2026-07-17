@@ -2,25 +2,19 @@
 
 import {
   ArrowDownUp,
-  ArrowLeft,
   ArrowRight,
   BarChart3,
   CalendarDays,
-  Check,
-  ChevronDown,
   Database,
   Globe2,
   Headphones,
   Infinity as InfinityIcon,
-  Menu,
   Plane,
   Radio,
-  Search,
   ShieldCheck,
   Signal,
   Star,
   Wifi,
-  X,
   Zap,
 } from "lucide-react";
 import Image from "next/image";
@@ -32,13 +26,13 @@ import {
   useRef,
   useState,
   type ComponentType,
-  type RefObject,
 } from "react";
 
 import {
   fetchPackageOptions,
   type HeroPackageOption,
 } from "@/services/packages";
+import { Navbar } from "../components/Navbar";
 
 type DestinationPlansProps = {
   countryCode: string;
@@ -574,22 +568,9 @@ export function DestinationPlans({
     );
   }
 
-  function clearSearch() {
-    setQuery("");
-    setDebouncedQuery("");
-    setIsSearchOpen(true);
-  }
-
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#020916] text-white">
-      <DestinationNav
-        mobileMenuOpen={mobileMenuOpen}
-        onMobileMenuToggle={() =>
-          setMobileMenuOpen(
-            (current) => !current,
-          )
-        }
-      />
+      <Navbar />
 
       <section className="relative isolate pb-20 pt-20">
         <div className="pointer-events-none absolute inset-0 -z-30 bg-[radial-gradient(circle_at_72%_20%,rgba(0,112,255,0.16),transparent_34%),radial-gradient(circle_at_18%_32%,rgba(13,72,155,0.1),transparent_30%),linear-gradient(180deg,#020814_0%,#020916_62%,#020916_100%)]" />
@@ -846,165 +827,6 @@ function PlanToolbar({
         </select>
       </label>
     </div>
-  );
-}
-
-type DestinationNavProps = {
-  mobileMenuOpen: boolean;
-  onMobileMenuToggle: () => void;
-};
-
-function DestinationNav({
-  mobileMenuOpen,
-  onMobileMenuToggle,
-}: DestinationNavProps) {
-  return (
-    <header className="fixed inset-x-0 top-0 z-[100] border-b border-white/[0.04] bg-[#020916]/82 backdrop-blur-2xl">
-      <nav className="mx-auto flex h-20 max-w-[1360px] items-center justify-between px-5 md:px-8 xl:px-12">
-        <Link
-          className="flex shrink-0 items-center gap-3"
-          href="/"
-        >
-          <img
-            alt=""
-            aria-hidden="true"
-            className="h-10 w-10 object-contain"
-            src="/app-logo.png"
-          />
-
-          <span>
-            <span className="block font-display text-lg font-black tracking-[0.16em]">
-              VELOCITY
-            </span>
-
-            <span className="block text-[9px] font-bold tracking-[0.28em] text-[#7f94aa]">
-              eSIM
-            </span>
-          </span>
-        </Link>
-
-        <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            className="rounded-[12px] border border-[#234c70] bg-[#09182a] px-5 py-3 text-sm font-bold"
-            href="/destinations"
-          >
-            Destinations
-          </Link>
-
-          <Link
-            className="px-4 py-3 text-sm font-semibold text-white/70 transition hover:text-white"
-            href="/#how-it-works"
-          >
-            How it works
-          </Link>
-
-          <Link
-            className="px-4 py-3 text-sm font-semibold text-white/70 transition hover:text-white"
-            href="/about"
-          >
-            About eSIM
-          </Link>
-
-          <Link
-            className="px-4 py-3 text-sm font-semibold text-white/70 transition hover:text-white"
-            href="/support"
-          >
-            Help
-          </Link>
-        </div>
-
-        <div className="hidden items-center gap-3 md:flex">
-          <button
-            className="inline-flex h-11 items-center gap-2 px-3 text-sm font-bold text-white/75"
-            type="button"
-          >
-            <Globe2
-              aria-hidden="true"
-              size={17}
-            />
-
-            EN
-
-            <ChevronDown
-              aria-hidden="true"
-              size={14}
-            />
-          </button>
-
-          <Link
-            className="inline-flex h-11 items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-6 text-sm font-black shadow-[0_12px_30px_rgba(18,102,255,0.3)] transition hover:-translate-y-0.5"
-            href="/#download"
-          >
-            Get eSIM Now
-
-            <ArrowRight
-              aria-hidden="true"
-              size={17}
-            />
-          </Link>
-        </div>
-
-        <button
-          aria-label="Toggle navigation"
-          className="grid h-11 w-11 place-items-center rounded-xl border border-[#244969] bg-[#07182b] md:hidden"
-          onClick={onMobileMenuToggle}
-          type="button"
-        >
-          {mobileMenuOpen ? (
-            <X
-              aria-hidden="true"
-              size={20}
-            />
-          ) : (
-            <Menu
-              aria-hidden="true"
-              size={20}
-            />
-          )}
-        </button>
-      </nav>
-
-      {mobileMenuOpen ? (
-        <div className="border-t border-[#173650] bg-[#041021] px-5 py-4 md:hidden">
-          <div className="flex flex-col gap-2">
-            <Link
-              className="rounded-xl bg-[#0a2138] px-4 py-3 text-sm font-bold"
-              href="/destinations"
-            >
-              Destinations
-            </Link>
-
-            <Link
-              className="px-4 py-3 text-sm font-semibold text-white/75"
-              href="/#how-it-works"
-            >
-              How it works
-            </Link>
-
-            <Link
-              className="px-4 py-3 text-sm font-semibold text-white/75"
-              href="/about"
-            >
-              About eSIM
-            </Link>
-
-            <Link
-              className="px-4 py-3 text-sm font-semibold text-white/75"
-              href="/support"
-            >
-              Help
-            </Link>
-
-            <Link
-              className="mt-2 inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-5 text-sm font-black"
-              href="/#download"
-            >
-              Get eSIM Now
-            </Link>
-          </div>
-        </div>
-      ) : null}
-    </header>
   );
 }
 

@@ -29,6 +29,7 @@ import {
   useState,
   type ComponentType,
 } from "react";
+import { Navbar } from "../components/Navbar";
 
 type SupportCategory = {
   title: string;
@@ -214,6 +215,8 @@ export default function SupportPage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#020916] text-white">
+      <Navbar />
+
       <SupportHero
         onSearchChange={setSearchQuery}
         searchQuery={searchQuery}
@@ -361,7 +364,7 @@ function SupportCategories({
 }: SupportCategoriesProps) {
   return (
     <div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mt-7">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#289fff]">
             {isSearching ? "Matching topics" : "Browse by topic"}

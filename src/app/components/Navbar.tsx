@@ -8,27 +8,23 @@ export function Navbar() {
   const navItems = [
     {
       label: "Home",
-      href: "#"
+      href: "/"
     },
     {
       label: "Plans",
-      href: "#plans"
+      href: "/#plans"
     },
     {
       label: "Destinations",
-      href: "#coverage"
+      href: "/#coverage"
     },
     {
       label: "How it Works",
-      href: "#how-it-works"
+      href: "/#how-it-works"
     },
     {
       label: "About Us",
-      href: "#benefits"
-    },
-    {
-      label: "Faq",
-      href: "#faq"
+      href: "/#benefits"
     },
     {
       label: "Support",
