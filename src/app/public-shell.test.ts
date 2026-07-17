@@ -50,7 +50,7 @@ describe("public navigation shell", () => {
   });
 
   it("renders the shared navbar and footer on support and SEO content pages", () => {
-    const support = readFileSync("src/app/support/page.tsx", "utf8");
+    const support = readFileSync("src/app/support/SupportPageClient.tsx", "utf8");
     const seoContent = readFileSync("src/app/SeoContentPage.tsx", "utf8");
 
     expect(support).toContain('import { SiteFooter } from "../SiteFooter"');

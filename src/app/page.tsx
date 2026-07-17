@@ -149,7 +149,7 @@ export default function Home() {
 
 function Hero() {
   return (
-    <section className="relative isolate z-20 overflow-hidden bg-[#04132C] pt-20 text-white">
+    <section className="relative isolate z-20 overflow-hidden bg-[#04132C] pt-20 text-white" id="home">
       {/* Background lighting */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_73%_43%,rgba(0,111,255,0.18),transparent_34%),radial-gradient(circle_at_18%_23%,rgba(19,86,190,0.09),transparent_30%),linear-gradient(180deg,#020b1d_0%,#04132C_58%,#020a19_100%)]" />
 
