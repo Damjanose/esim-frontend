@@ -23,6 +23,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -48,6 +49,12 @@ type CountryOption = {
   countryCode: string;
   flagUri: string;
   planCount: number;
+};
+
+type CountryHeroImage = {
+  imageUrl: string;
+  alt: string;
+  sourceUrl: string;
 };
 
 type PlanFilter =
@@ -113,49 +120,21 @@ function normalizeCountryCode(value: string) {
     .replace(/\s+/g, "-");
 }
 
-function getDynamicCountryImage(
-  countryName: string,
-  countryCode: string,
+function countryCodesMatch(
+  firstCode: string,
+  secondCode: string,
 ) {
-  const normalizedCountry = countryName
-    .trim()
-    .replace(/\s+/g, ",");
-
-  const normalizedCode = normalizeCountryCode(countryCode);
-
-  /*
-   * The lock value keeps the selected image stable instead
-   * of returning a different photo after each render.
-   */
-  const lock = Array.from(normalizedCode).reduce(
-    (total, character) =>
-      total + character.charCodeAt(0),
-    0,
+  return (
+    normalizeCountryCode(firstCode) ===
+    normalizeCountryCode(secondCode)
   );
-
-  const searchTerms = encodeURIComponent(
-    `${normalizedCountry},travel,landmark,city`,
-  );
-
-  return `https://loremflickr.com/1800/850/${searchTerms}?lock=${lock}`;
-}
-
-function getFallbackCountryImage(countryCode: string) {
-  const lock = Array.from(
-    normalizeCountryCode(countryCode),
-  ).reduce(
-    (total, character) =>
-      total + character.charCodeAt(0),
-    100,
-  );
-
-  return `https://loremflickr.com/1800/850/travel,city,landmark?lock=${lock}`;
 }
 
 function isUnlimitedPlan(plan: HeroPackageOption) {
   return (
     plan.dataNumericGb >= 999 ||
-    plan.dataLabel.toLowerCase().includes("unlimited")
+    plan.dataLabel.toLowerCase().includes("unlimited") ||
+    plan.title.toLowerCase().includes("unlimited")
   );
 }
 
@@ -165,10 +144,16 @@ function getPlanValueScore(plan: HeroPackageOption) {
   }
 
   if (isUnlimitedPlan(plan)) {
-    return plan.durationDays / plan.priceNumeric;
+    return (
+      Math.max(plan.durationDays, 1) /
+      plan.priceNumeric
+    );
   }
 
-  return plan.dataNumericGb / plan.priceNumeric;
+  return (
+    Math.max(plan.dataNumericGb, 0.1) /
+    plan.priceNumeric
+  );
 }
 
 function getPlanIcon(
@@ -205,25 +190,31 @@ function getCountryOptions(
   const countryMap = new Map<string, CountryOption>();
 
   for (const plan of packages) {
-    if (!plan.country.trim() || !plan.countryCode.trim()) {
+    const normalizedCode =
+      normalizeCountryCode(plan.countryCode);
+
+    if (!plan.country.trim() || !normalizedCode) {
       continue;
     }
 
-    const existingCountry = countryMap.get(
-      plan.countryCode,
-    );
+    const existingCountry =
+      countryMap.get(normalizedCode);
 
     if (existingCountry) {
       existingCountry.planCount += 1;
 
-      if (!existingCountry.flagUri && plan.flagUri) {
-        existingCountry.flagUri = plan.flagUri;
+      if (
+        !existingCountry.flagUri &&
+        plan.flagUri
+      ) {
+        existingCountry.flagUri =
+          plan.flagUri;
       }
 
       continue;
     }
 
-    countryMap.set(plan.countryCode, {
+    countryMap.set(normalizedCode, {
       country: plan.country,
       countryCode: plan.countryCode,
       flagUri: plan.flagUri,
@@ -237,35 +228,125 @@ function getCountryOptions(
   );
 }
 
+function useCountryHeroImage(country?: string) {
+  const [image, setImage] =
+    useState<CountryHeroImage | null>(null);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  useEffect(() => {
+    const normalizedCountry = country?.trim();
+
+    if (!normalizedCountry) {
+      setImage(null);
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function loadCountryImage() {
+      try {
+        setLoading(true);
+
+        const response = await fetch(
+          `/api/country-image?country=${encodeURIComponent(
+            normalizedCountry,
+          )}`,
+          {
+            signal: controller.signal,
+            cache: "force-cache",
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Country image request failed: ${response.status}`,
+          );
+        }
+
+        const payload =
+          (await response.json()) as CountryHeroImage;
+
+        if (!payload.imageUrl) {
+          throw new Error(
+            "Country image URL is missing",
+          );
+        }
+
+        setImage(payload);
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Failed to load country hero image:",
+          error,
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadCountryImage();
+
+    return () => {
+      controller.abort();
+    };
+  }, [country]);
+
+  return {
+    image,
+    loading,
+  };
+}
+
 export function DestinationPlans({
   countryCode,
 }: DestinationPlansProps) {
   const router = useRouter();
-  const searchRef = useRef<HTMLDivElement | null>(null);
 
-  const [packages, setPackages] = useState<
-    HeroPackageOption[]
-  >([]);
+  const searchRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const [packages, setPackages] =
+    useState<HeroPackageOption[]>([]);
 
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] =
-    useState("");
-  const [isSearchOpen, setIsSearchOpen] =
-    useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] =
-    useState(false);
+
+  const [
+    debouncedQuery,
+    setDebouncedQuery,
+  ] = useState("");
+
+  const [
+    isSearchOpen,
+    setIsSearchOpen,
+  ] = useState(false);
+
+  const [
+    mobileMenuOpen,
+    setMobileMenuOpen,
+  ] = useState(false);
 
   const [filter, setFilter] =
     useState<PlanFilter>("all");
+
   const [sort, setSort] =
     useState<SortOption>("recommended");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
+
   const [error, setError] =
     useState<string | null>(null);
-
-  const [heroImageFailed, setHeroImageFailed] =
-    useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -341,7 +422,11 @@ export function DestinationPlans({
   }, []);
 
   useEffect(() => {
-    setHeroImageFailed(false);
+    setFilter("all");
+    setSort("recommended");
+    setQuery("");
+    setDebouncedQuery("");
+    setIsSearchOpen(false);
   }, [countryCode]);
 
   const countries = useMemo(
@@ -349,23 +434,23 @@ export function DestinationPlans({
     [packages],
   );
 
-  const selectedCountry = useMemo(
-    () =>
-      countries.find(
-        (country) =>
-          country.countryCode === countryCode,
+  const selectedCountry = useMemo(() => {
+    return countries.find((country) =>
+      countryCodesMatch(
+        country.countryCode,
+        countryCode,
       ),
-    [countries, countryCode],
-  );
+    );
+  }, [countries, countryCode]);
 
-  const selectedCountryPlans = useMemo(
-    () =>
-      packages.filter(
-        (plan) =>
-          plan.countryCode === countryCode,
+  const selectedCountryPlans = useMemo(() => {
+    return packages.filter((plan) =>
+      countryCodesMatch(
+        plan.countryCode,
+        countryCode,
       ),
-    [packages, countryCode],
-  );
+    );
+  }, [packages, countryCode]);
 
   const matchingCountries = useMemo(() => {
     const normalizedQuery =
@@ -376,20 +461,25 @@ export function DestinationPlans({
     }
 
     return countries
-      .filter(
-        (country) =>
+      .filter((country) => {
+        return (
           country.country
             .toLowerCase()
             .includes(normalizedQuery) ||
-          country.countryCode
-            .toLowerCase()
-            .includes(normalizedQuery),
-      )
+          normalizeCountryCode(
+            country.countryCode,
+          ).includes(
+            normalizeCountryCode(
+              normalizedQuery,
+            ),
+          )
+        );
+      })
       .slice(0, 12);
   }, [countries, debouncedQuery]);
 
   const visiblePlans = useMemo(() => {
-    const matchingPlans =
+    const filteredPlans =
       selectedCountryPlans.filter((plan) => {
         switch (filter) {
           case "unlimited":
@@ -418,7 +508,7 @@ export function DestinationPlans({
         }
       });
 
-    return [...matchingPlans].sort(
+    return [...filteredPlans].sort(
       (first, second) => {
         switch (sort) {
           case "price-low":
@@ -447,32 +537,26 @@ export function DestinationPlans({
         }
       },
     );
-  }, [filter, selectedCountryPlans, sort]);
+  }, [
+    filter,
+    selectedCountryPlans,
+    sort,
+  ]);
 
   const featuredPlan = visiblePlans[0];
-  const remainingPlans = visiblePlans.slice(1);
+
+  const remainingPlans =
+    visiblePlans.slice(1);
 
   const isSearching =
     query !== debouncedQuery;
 
-  const heroImage = useMemo(() => {
-    if (!selectedCountry) {
-      return getFallbackCountryImage(countryCode);
-    }
-
-    if (heroImageFailed) {
-      return getFallbackCountryImage(countryCode);
-    }
-
-    return getDynamicCountryImage(
-      selectedCountry.country,
-      selectedCountry.countryCode,
-    );
-  }, [
-    selectedCountry,
-    countryCode,
-    heroImageFailed,
-  ]);
+  const {
+    image: heroImage,
+    loading: heroImageLoading,
+  } = useCountryHeroImage(
+    selectedCountry?.country,
+  );
 
   function selectCountry(
     country: CountryOption,
@@ -482,7 +566,6 @@ export function DestinationPlans({
     setIsSearchOpen(false);
     setFilter("all");
     setSort("recommended");
-    setHeroImageFailed(false);
 
     router.push(
       `/destinations?country=${encodeURIComponent(
@@ -514,33 +597,16 @@ export function DestinationPlans({
         <div className="hero-grid pointer-events-none absolute inset-0 -z-20 opacity-[0.07]" />
 
         <div className="mx-auto max-w-[1360px] px-5 md:px-8 xl:px-12">
-          <div className="relative mt-6 min-h-[410px] overflow-hidden rounded-[28px] border border-[#173d61]/65 bg-[#020916] shadow-[0_32px_90px_rgba(0,0,0,0.36)]">
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-full overflow-hidden lg:w-[74%]">
-              <img
-                alt={
-                  selectedCountry
-                    ? `${selectedCountry.country} travel destination`
-                    : "International travel destination"
-                }
-                className="h-full w-full object-cover object-center"
-                key={heroImage}
-                onError={() => {
-                  if (!heroImageFailed) {
-                    setHeroImageFailed(true);
-                  }
-                }}
-                referrerPolicy="no-referrer"
-                src={heroImage}
-              />
+          <div className="relative mt-6 min-h-[430px] overflow-hidden rounded-[30px] border border-[#173d61]/70 bg-[#020916] shadow-[0_34px_95px_rgba(0,0,0,0.42)]">
+            <HeroCountryImage
+              country={
+                selectedCountry?.country
+              }
+              heroImage={heroImage}
+              loading={heroImageLoading}
+            />
 
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,#020916_0%,rgba(2,9,22,0.98)_20%,rgba(2,9,22,0.73)_48%,rgba(2,9,22,0.18)_78%,rgba(2,9,22,0.4)_100%)]" />
-
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,9,22,0.12)_0%,transparent_45%,#020916_100%)]" />
-
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_45%,rgba(23,142,255,0.12),transparent_42%)]" />
-            </div>
-
-            <div className="relative z-10 grid min-h-[410px] items-end gap-10 px-6 py-9 sm:px-9 lg:grid-cols-[0.88fr_1.12fr] lg:px-11 lg:py-11">
+            <div className="relative z-10 grid min-h-[430px] items-end gap-10 px-6 py-9 sm:px-9 lg:grid-cols-[0.88fr_1.12fr] lg:px-11 lg:py-11">
               <div className="max-w-[610px]">
                 {selectedCountry ? (
                   <div className="inline-flex items-center gap-3 rounded-[12px] border border-[#1d6db3]/75 bg-[#06182c]/80 px-4 py-2.5 shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl">
@@ -585,22 +651,19 @@ export function DestinationPlans({
                   Choose the plan that fits your
                   journey.
                 </p>
-              </div>
 
-              <CountrySearch
-                countryCode={countryCode}
-                isOpen={isSearchOpen}
-                isSearching={isSearching}
-                matchingCountries={
-                  matchingCountries
-                }
-                onClear={clearSearch}
-                onOpenChange={setIsSearchOpen}
-                onQueryChange={setQuery}
-                onSelect={selectCountry}
-                query={query}
-                rootRef={searchRef}
-              />
+                {heroImage?.sourceUrl ? (
+                  <a
+                    className="mt-4 inline-flex text-[10px] text-white/35 transition hover:text-white/60"
+                    href={heroImage.sourceUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Image source: Wikimedia
+                    Commons
+                  </a>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -630,14 +693,16 @@ export function DestinationPlans({
                 />
               ) : null}
 
-              {remainingPlans.length ? (
+              {remainingPlans.length > 0 ? (
                 <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {remainingPlans.map((plan) => (
-                    <CompactPlanCard
-                      key={plan.id}
-                      plan={plan}
-                    />
-                  ))}
+                  {remainingPlans.map(
+                    (plan) => (
+                      <CompactPlanCard
+                        key={plan.id}
+                        plan={plan}
+                      />
+                    ),
+                  )}
                 </div>
               ) : null}
 
@@ -660,199 +725,50 @@ export function DestinationPlans({
   );
 }
 
-type CountrySearchProps = {
-  countryCode: string;
-  query: string;
-  isOpen: boolean;
-  isSearching: boolean;
-  matchingCountries: CountryOption[];
-  rootRef: RefObject<HTMLDivElement | null>;
-  onQueryChange: (value: string) => void;
-  onOpenChange: (value: boolean) => void;
-  onClear: () => void;
-  onSelect: (country: CountryOption) => void;
+type HeroCountryImageProps = {
+  country?: string;
+  heroImage: CountryHeroImage | null;
+  loading: boolean;
 };
 
-function CountrySearch({
-  countryCode,
-  query,
-  isOpen,
-  isSearching,
-  matchingCountries,
-  rootRef,
-  onQueryChange,
-  onOpenChange,
-  onClear,
-  onSelect,
-}: CountrySearchProps) {
+function HeroCountryImage({
+  country,
+  heroImage,
+  loading,
+}: HeroCountryImageProps) {
   return (
-    <div
-      className="relative z-50 w-full lg:mb-3"
-      ref={rootRef}
-    >
-      <div
-        className={[
-          "rounded-full border bg-[#07162a]/84 p-2",
-          "shadow-[0_24px_65px_rgba(0,0,0,0.48)] backdrop-blur-2xl",
-          isOpen
-            ? "border-[#168cff] shadow-[0_0_32px_rgba(22,140,255,0.2)]"
-            : "border-[#315a80]/90",
-        ].join(" ")}
-      >
-        <label className="flex min-h-[62px] items-center gap-4 rounded-full bg-[#091a2e]/88 px-5">
-          <Search
-            aria-hidden="true"
-            className="shrink-0 text-[#46afff]"
-            size={22}
-          />
+    <div className="pointer-events-none absolute inset-y-0 right-0 w-full overflow-hidden lg:w-[76%]">
+      {heroImage?.imageUrl ? (
+        <Image
+          alt={
+            heroImage.alt ||
+            `${country ?? "International"} travel destination`
+          }
+          className={[
+            "object-cover object-center transition duration-500",
+            loading
+              ? "scale-[1.02] opacity-70"
+              : "scale-100 opacity-100",
+          ].join(" ")}
+          fill
+          key={heroImage.imageUrl}
+          priority
+          sizes="(max-width: 1024px) 100vw, 76vw"
+          src={heroImage.imageUrl}
+        />
+      ) : (
+        <div className="h-full w-full animate-pulse bg-[linear-gradient(135deg,#09213d,#031024)]" />
+      )}
 
-          <span className="sr-only">
-            Search destinations
-          </span>
-
-          <input
-            autoComplete="off"
-            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-white outline-none placeholder:text-[#8195ac]"
-            onChange={(event) => {
-              onQueryChange(event.target.value);
-              onOpenChange(true);
-            }}
-            onFocus={() => onOpenChange(true)}
-            placeholder="Search destinations"
-            type="text"
-            value={query}
-          />
-
-          {isSearching ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#168cff]/25 border-t-[#35a5ff]" />
-          ) : query ? (
-            <button
-              aria-label="Clear destination search"
-              className="grid h-9 w-9 place-items-center rounded-full text-[#7d92a9] transition hover:bg-white/5 hover:text-white"
-              onClick={onClear}
-              type="button"
-            >
-              <X aria-hidden="true" size={17} />
-            </button>
-          ) : (
-            <ChevronDown
-              aria-hidden="true"
-              className="text-[#8297ae]"
-              size={19}
-            />
-          )}
-        </label>
-      </div>
-
-      {isOpen ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.75rem)] z-[80] overflow-hidden rounded-[20px] border border-[#234c70] bg-[#061427]/98 shadow-[0_32px_90px_rgba(0,0,0,0.68)] backdrop-blur-2xl">
-          <div className="border-b border-[#193854] px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#7d91a8]">
-              {query.trim()
-                ? "Matching destinations"
-                : "Available destinations"}
-            </p>
-          </div>
-
-          <div className="max-h-[320px] overflow-y-auto p-2">
-            {isSearching ? (
-              <div className="flex items-center gap-3 px-4 py-5">
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#168cff]/30 border-t-[#168cff]" />
-
-                <p className="text-sm font-semibold text-[#8da3ba]">
-                  Searching destinations...
-                </p>
-              </div>
-            ) : matchingCountries.length ? (
-              matchingCountries.map(
-                (country) => {
-                  const active =
-                    country.countryCode ===
-                    countryCode;
-
-                  return (
-                    <button
-                      className={[
-                        "group flex w-full items-center justify-between gap-4 rounded-[14px] px-3 py-3 text-left transition",
-                        active
-                          ? "bg-[#0b2d4f]"
-                          : "hover:bg-[#0a213b]",
-                      ].join(" ")}
-                      key={country.countryCode}
-                      onClick={() =>
-                        onSelect(country)
-                      }
-                      type="button"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        {country.flagUri ? (
-                          <img
-                            alt={`${country.country} flag`}
-                            className="h-10 w-10 shrink-0 rounded-full border border-white/10 object-cover"
-                            src={country.flagUri}
-                          />
-                        ) : (
-                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#0b2b4b] text-[#35a5ff]">
-                            <Globe2
-                              aria-hidden="true"
-                              size={18}
-                            />
-                          </span>
-                        )}
-
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black">
-                            {country.country}
-                          </p>
-
-                          <p className="mt-1 text-xs text-[#7890aa]">
-                            {country.planCount}{" "}
-                            {country.planCount === 1
-                              ? "plan"
-                              : "plans"}{" "}
-                            available
-                          </p>
-                        </div>
-                      </div>
-
-                      {active ? (
-                        <Check
-                          aria-hidden="true"
-                          className="text-[#54b5ff]"
-                          size={17}
-                        />
-                      ) : (
-                        <ArrowRight
-                          aria-hidden="true"
-                          className="text-[#52708e] transition group-hover:translate-x-1 group-hover:text-[#54b5ff]"
-                          size={17}
-                        />
-                      )}
-                    </button>
-                  );
-                },
-              )
-            ) : (
-              <div className="px-4 py-8 text-center">
-                <Globe2
-                  aria-hidden="true"
-                  className="mx-auto text-[#49647f]"
-                  size={28}
-                />
-
-                <p className="mt-3 text-sm font-black">
-                  No destination found
-                </p>
-
-                <p className="mt-1 text-xs text-[#7890aa]">
-                  Try searching for another
-                  country.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+      {loading && heroImage?.imageUrl ? (
+        <div className="absolute inset-0 animate-pulse bg-[#07172a]/20" />
       ) : null}
+
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,#020916_0%,rgba(2,9,22,0.98)_18%,rgba(2,9,22,0.78)_44%,rgba(2,9,22,0.2)_76%,rgba(2,9,22,0.38)_100%)]" />
+
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,9,22,0.12)_0%,transparent_42%,#020916_100%)]" />
+
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_73%_45%,rgba(23,142,255,0.11),transparent_42%)]" />
     </div>
   );
 }
@@ -1016,14 +932,7 @@ function DestinationNav({
           </button>
 
           <Link
-            className="inline-flex h-11 items-center justify-center rounded-full border border-[#3c638a] px-6 text-sm font-bold"
-            href="/login"
-          >
-            Log in
-          </Link>
-
-          <Link
-            className="inline-flex h-11 items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-6 text-sm font-black"
+            className="inline-flex h-11 items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-6 text-sm font-black shadow-[0_12px_30px_rgba(18,102,255,0.3)] transition hover:-translate-y-0.5"
             href="/#download"
           >
             Get eSIM Now
@@ -1042,7 +951,10 @@ function DestinationNav({
           type="button"
         >
           {mobileMenuOpen ? (
-            <X aria-hidden="true" size={20} />
+            <X
+              aria-hidden="true"
+              size={20}
+            />
           ) : (
             <Menu
               aria-hidden="true"
@@ -1051,6 +963,47 @@ function DestinationNav({
           )}
         </button>
       </nav>
+
+      {mobileMenuOpen ? (
+        <div className="border-t border-[#173650] bg-[#041021] px-5 py-4 md:hidden">
+          <div className="flex flex-col gap-2">
+            <Link
+              className="rounded-xl bg-[#0a2138] px-4 py-3 text-sm font-bold"
+              href="/destinations"
+            >
+              Destinations
+            </Link>
+
+            <Link
+              className="px-4 py-3 text-sm font-semibold text-white/75"
+              href="/#how-it-works"
+            >
+              How it works
+            </Link>
+
+            <Link
+              className="px-4 py-3 text-sm font-semibold text-white/75"
+              href="/about"
+            >
+              About eSIM
+            </Link>
+
+            <Link
+              className="px-4 py-3 text-sm font-semibold text-white/75"
+              href="/support"
+            >
+              Help
+            </Link>
+
+            <Link
+              className="mt-2 inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-5 text-sm font-black"
+              href="/#download"
+            >
+              Get eSIM Now
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }
@@ -1076,22 +1029,25 @@ function DestinationStats({
     {
       icon: Zap,
       title: "Instant activation",
-      description: "Start using in minutes",
+      description:
+        "Start using in minutes",
     },
     {
       icon: Signal,
       title: "Fast data",
-      description: "Premium local networks",
+      description:
+        "Premium local networks",
     },
     {
       icon: ShieldCheck,
       title: "Secure checkout",
-      description: "Encrypted and trusted",
+      description:
+        "Encrypted and trusted",
     },
   ];
 
   return (
-    <div className="mt-5 grid overflow-hidden rounded-[18px] border border-[#1d4366] bg-[#061427]/92 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="mt-5 grid overflow-hidden rounded-[18px] border border-[#1d4366] bg-[#061427]/92 shadow-[0_18px_55px_rgba(0,0,0,0.2)] sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
 
@@ -1133,9 +1089,13 @@ function FeaturedPlan({
 }: {
   plan: HeroPackageOption;
 }) {
-  const unlimited = isUnlimitedPlan(plan);
+  const unlimited =
+    isUnlimitedPlan(plan);
 
-  const features = [
+  const features: Array<{
+    icon: IconComponent;
+    label: string;
+  }> = [
     {
       icon: unlimited
         ? InfinityIcon
@@ -1159,7 +1119,13 @@ function FeaturedPlan({
   ];
 
   return (
-    <article className="group relative mt-5 overflow-hidden rounded-[20px] border border-[#168cff]/85 bg-[linear-gradient(105deg,#07172b_0%,#08213c_46%,#061326_100%)] px-5 py-6 sm:px-7">
+    <article className="group relative mt-5 overflow-hidden rounded-[20px] border border-[#168cff]/85 bg-[linear-gradient(105deg,#07172b_0%,#08213c_46%,#061326_100%)] px-5 py-6 shadow-[0_25px_75px_rgba(0,80,190,0.2)] sm:px-7">
+      <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-[#47b9ff] to-transparent" />
+
+      <div className="pointer-events-none absolute -left-16 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[#0879ff]/13 blur-[70px]" />
+
+      <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 border-b border-l border-[#168cff]/60 bg-[#0d2f51]/75 [clip-path:polygon(100%_0,100%_100%,0_0)]" />
+
       <Star
         aria-hidden="true"
         className="absolute right-4 top-4 fill-[#45b8ff] text-[#45b8ff]"
@@ -1168,14 +1134,14 @@ function FeaturedPlan({
 
       <div className="relative grid items-center gap-7 lg:grid-cols-[220px_1fr_220px]">
         <div>
-          <span className="inline-flex rounded-full bg-gradient-to-r from-[#1476ff] to-[#28bfff] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em]">
+          <span className="inline-flex rounded-full border border-[#2ebfff]/65 bg-gradient-to-r from-[#1476ff] to-[#28bfff] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em]">
             Best value
           </span>
 
           <div className="relative mx-auto mt-4 grid h-32 w-32 place-items-center">
-            <div className="absolute inset-0 rounded-full border border-[#20c9ff]/25 shadow-[0_0_50px_rgba(20,173,255,0.24)]" />
+            <div className="absolute inset-0 rounded-full border border-[#20c9ff]/25 bg-[#0794ff]/5 shadow-[0_0_50px_rgba(20,173,255,0.24)]" />
 
-            <div className="absolute inset-4 rounded-full border border-[#33c6ff]/75" />
+            <div className="absolute inset-4 rounded-full border border-[#33c6ff]/75 shadow-[inset_0_0_24px_rgba(31,172,255,0.3),0_0_30px_rgba(27,158,255,0.32)]" />
 
             <span className="relative grid h-20 w-20 place-items-center rounded-full bg-[#061326] text-[#32a9ff]">
               {unlimited ? (
@@ -1191,7 +1157,7 @@ function FeaturedPlan({
         </div>
 
         <div>
-          <h2 className="font-display text-2xl font-black sm:text-3xl">
+          <h2 className="font-display text-2xl font-black tracking-[-0.025em] sm:text-3xl">
             {plan.title}
           </h2>
 
@@ -1224,7 +1190,7 @@ function FeaturedPlan({
         </div>
 
         <div className="lg:text-center">
-          <p className="font-display text-4xl font-black">
+          <p className="font-display text-4xl font-black tracking-[-0.04em]">
             {plan.price}
           </p>
 
@@ -1233,7 +1199,7 @@ function FeaturedPlan({
           </p>
 
           <Link
-            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-5 text-sm font-black"
+            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-5 text-sm font-black shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5"
             href={`/checkout?package=${encodeURIComponent(
               plan.id,
             )}`}
@@ -1242,6 +1208,7 @@ function FeaturedPlan({
 
             <ArrowRight
               aria-hidden="true"
+              className="transition-transform group-hover:translate-x-1"
               size={17}
             />
           </Link>
@@ -1259,15 +1226,17 @@ function CompactPlanCard({
   const Icon = getPlanIcon(plan);
 
   return (
-    <article className="group relative flex min-h-[220px] flex-col overflow-hidden rounded-[18px] border border-[#214867]/85 bg-[linear-gradient(145deg,#07182c,#051224)] p-5 transition hover:-translate-y-1 hover:border-[#168cff]/75">
+    <article className="group relative flex min-h-[220px] flex-col overflow-hidden rounded-[18px] border border-[#214867]/85 bg-[linear-gradient(145deg,#07182c,#051224)] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:border-[#168cff]/75">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-[#0879ff]/10 blur-[50px]" />
+
       <Star
         aria-hidden="true"
-        className="absolute right-5 top-5 text-[#668099]"
+        className="absolute right-5 top-5 text-[#668099] transition group-hover:text-[#4eb5ff]"
         size={19}
       />
 
       <div className="relative flex items-start gap-4 pr-8">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[15px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[15px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff] shadow-[0_0_24px_rgba(30,155,255,0.16)]">
           <Icon
             aria-hidden="true"
             size={26}
@@ -1289,7 +1258,7 @@ function CompactPlanCard({
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="relative mt-5 flex flex-wrap gap-2">
         <span className="rounded-md bg-[#0a2038] px-2.5 py-1.5 text-[10px] font-bold text-[#91a7bd]">
           {plan.dataLabel} data
         </span>
@@ -1299,13 +1268,19 @@ function CompactPlanCard({
         </span>
       </div>
 
-      <div className="mt-auto flex items-end justify-between gap-4 pt-6">
-        <p className="font-display text-2xl font-black">
-          {plan.price}
-        </p>
+      <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
+        <div>
+          <p className="font-display text-2xl font-black">
+            {plan.price}
+          </p>
+
+          <p className="mt-1 text-[10px] text-[#70869e]">
+            Total price
+          </p>
+        </div>
 
         <Link
-          className="inline-flex h-10 items-center gap-2 rounded-[11px] border border-[#168cff]/75 px-4 text-xs font-black text-[#42b1ff]"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-[11px] border border-[#168cff]/75 px-4 text-xs font-black text-[#42b1ff] transition hover:bg-[#168cff] hover:text-white"
           href={`/checkout?package=${encodeURIComponent(
             plan.id,
           )}`}
@@ -1339,7 +1314,7 @@ function PlansSupportBar() {
       </div>
 
       <Link
-        className="inline-flex items-center gap-2 font-black text-[#4eb5ff]"
+        className="inline-flex shrink-0 items-center gap-2 font-black text-[#4eb5ff]"
         href="/support"
       >
         Visit Help Center
@@ -1361,14 +1336,14 @@ function PlansLoading() {
       <div className="mt-5 h-[260px] animate-pulse rounded-[20px] border border-[#173a5b] bg-[#07172a]" />
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 3 }).map(
-          (_, index) => (
-            <div
-              className="h-[220px] animate-pulse rounded-[18px] border border-[#173a5b] bg-[#07172a]"
-              key={index}
-            />
-          ),
-        )}
+        {Array.from({
+          length: 3,
+        }).map((_, index) => (
+          <div
+            className="h-[220px] animate-pulse rounded-[18px] border border-[#173a5b] bg-[#07172a]"
+            key={index}
+          />
+        ))}
       </div>
     </>
   );
@@ -1391,7 +1366,7 @@ function ErrorState({
         Plans are temporarily unavailable
       </h2>
 
-      <p className="mt-2 text-sm text-[#c8aab1]">
+      <p className="mt-2 text-sm leading-6 text-[#c8aab1]">
         {message}
       </p>
     </div>
@@ -1415,6 +1390,10 @@ function EmptyFilterState({
         No plans match this filter
       </h3>
 
+      <p className="mt-2 text-sm text-[#8298af]">
+        Choose another data or validity option.
+      </p>
+
       <button
         className="mt-5 rounded-full bg-[#168cff] px-5 py-2.5 text-xs font-black"
         onClick={onReset}
@@ -1436,11 +1415,16 @@ function MissingDestinationState() {
       />
 
       <h2 className="mt-5 font-display text-2xl font-black">
-        No plans found
+        No plans found for this destination
       </h2>
 
+      <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#8298af]">
+        Search for another destination or return
+        to the destination directory.
+      </p>x
+
       <Link
-        className="mt-6 inline-flex h-11 items-center rounded-full bg-[#168cff] px-6 text-sm font-black"
+        className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#168cff] px-6 text-sm font-black"
         href="/destinations"
       >
         View all destinations

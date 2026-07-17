@@ -5,13 +5,15 @@ import {
   Globe2,
   Headphones,
   MapPin,
-  Plus,
   QrCode,
   ShieldCheck,
   ShoppingCart,
   Star,
   Wifi,
-  Zap
+  Zap,
+  CalendarDays,
+  Infinity as InfinityIcon,
+  Plane,
 } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -236,7 +238,7 @@ function Nav() {
 
           <a
             className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#1557ff] to-[#27c6ff] px-5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(24,111,255,0.38)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_38px_rgba(24,111,255,0.5)] sm:px-7"
-            href="#download"
+            href="#download-app"
           >
             Get eSIM Now
           </a>
@@ -284,7 +286,7 @@ function Hero() {
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <a
               className="group inline-flex h-[52px] min-w-[190px] items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-7 text-sm font-bold text-white"
-              href="#download"
+              href="#download-app"
             >
               Get eSIM Now
               <ArrowRight
@@ -386,105 +388,227 @@ function HeroVisual() {
 }
 
 function Plans() {
+  const planTypes = [
+    {
+      title: "Short Trips",
+      subtitle: "For weekends and quick getaways",
+      icon: CalendarDays,
+      eyebrow: "1–7 days",
+      description:
+        "Stay connected for navigation, messaging, bookings, and essential travel apps.",
+      features: [
+        "Flexible short-term validity",
+        "Light and medium data options",
+        "Instant digital activation",
+      ],
+      accent:
+        "from-[#1348ff]/25 via-[#0b2d64]/20 to-transparent",
+      iconClass:
+        "border-[#296aff]/50 bg-[#0c2a61] text-[#5d8fff]",
+    },
+    {
+      title: "Longer Journeys",
+      subtitle: "For holidays and business travel",
+      icon: Plane,
+      eyebrow: "8–30 days",
+      description:
+        "Choose larger data allowances designed for longer stays and frequent daily usage.",
+      features: [
+        "More data for longer stays",
+        "Ideal for work and entertainment",
+        "Premium local network access",
+      ],
+      accent:
+        "from-[#075fff]/25 via-[#063f78]/20 to-transparent",
+      iconClass:
+        "border-[#168cff]/50 bg-[#082f58] text-[#48afff]",
+      highlighted: true,
+    },
+    {
+      title: "Unlimited Data",
+      subtitle: "For maximum flexibility abroad",
+      icon: InfinityIcon,
+      eyebrow: "No data limits",
+      description:
+        "Browse, stream, navigate, and stay online without monitoring every megabyte.",
+      features: [
+        "Unlimited data options",
+        "Perfect for heavy daily usage",
+        "Available in selected destinations",
+      ],
+      accent:
+        "from-[#00a9dc]/20 via-[#075372]/20 to-transparent",
+      iconClass:
+        "border-[#26c9e8]/50 bg-[#07384c] text-[#48d8ef]",
+    },
+  ];
+
   return (
     <section
-    className="relative z-0 bg-[#020916] px-5 pb-10 pt-4 text-white md:px-8"
-    id="plans"
+      className="relative z-0 overflow-hidden bg-[#020916] px-5 pb-16 pt-8 text-white md:px-8 md:pb-20"
+      id="plans"
     >
-      <div className="pointer-events-none absolute left-1/2 top-24 h-52 w-[65%] -translate-x-1/2 rounded-full bg-[#045fff]/10 blur-[100px]" />
+      <div className="pointer-events-none absolute left-1/2 top-20 h-72 w-[70%] -translate-x-1/2 rounded-full bg-[#045fff]/10 blur-[120px]" />
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#174972]/60 to-transparent" />
 
       <div className="relative mx-auto max-w-[1280px]">
-        <div className="text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#289cff]">
-            Popular plans
-          </p>
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#204c72]/70 bg-[#07182b]/80 px-4 py-2 backdrop-blur-xl">
+            <Wifi
+              aria-hidden="true"
+              className="text-[#3daaff]"
+              size={14}
+            />
 
-          <h2 className="mt-3 font-display text-3xl font-black tracking-[-0.03em] sm:text-4xl lg:text-[42px]">
-            Choose the Perfect Plan for Your Journey
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#42aaff]">
+              Flexible connectivity
+            </span>
+          </div>
+
+          <h2 className="mt-5 font-display text-3xl font-black tracking-[-0.04em] sm:text-4xl lg:text-[46px]">
+            A plan for every kind of journey
           </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#8fa2b8] sm:text-base">
+            Select your destination first, then compare the
+            available data and validity options for your trip.
+          </p>
         </div>
 
-        <div className="mt-8 grid gap-5 lg:grid-cols-3">
-          {plans.map((plan) => {
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {planTypes.map((plan) => {
             const Icon = plan.icon;
 
             return (
               <article
-                className={`relative rounded-[20px] border bg-[linear-gradient(145deg,rgba(12,29,54,0.96),rgba(5,16,33,0.98))] p-6 shadow-[0_22px_60px_rgba(0,0,0,0.28)] ${
+                className={[
+                  "group relative flex min-h-[390px] flex-col overflow-hidden rounded-[24px]",
+                  "border bg-[linear-gradient(145deg,rgba(9,27,50,0.98),rgba(4,15,29,0.98))]",
+                  "p-6 shadow-[0_24px_65px_rgba(0,0,0,0.28)] transition duration-300",
+                  "hover:-translate-y-1",
                   plan.highlighted
-                    ? "border-[#755cff] ring-1 ring-[#1ba9ff]/80"
-                    : "border-[#23466d]/75"
-                }`}
+                    ? "border-[#168cff]/80 shadow-[0_25px_75px_rgba(0,91,210,0.18)]"
+                    : "border-[#204562]/80 hover:border-[#287bb3]/80",
+                ].join(" ")}
                 key={plan.title}
               >
+                <div
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b ${plan.accent}`}
+                />
+
+                <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full border border-[#168cff]/10" />
+
+                <div className="pointer-events-none absolute -right-9 -top-9 h-28 w-28 rounded-full border border-[#168cff]/10" />
+
                 {plan.highlighted ? (
-                  <span className="absolute -top-3 left-5 rounded-full bg-gradient-to-r from-[#1679ff] to-[#2cc8ff] px-3 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-white">
-                    Best value
+                  <span className="absolute right-5 top-5 rounded-full border border-[#36bfff]/50 bg-[#0b3154]/90 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-[#66c7ff]">
+                    Most popular
                   </span>
                 ) : null}
 
-                <div className="flex items-start justify-between gap-5">
-                  <div>
-                    <h3 className="font-display text-xl font-black">
-                      {plan.title}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-white/55">
-                      {plan.subtitle}
-                    </p>
-                  </div>
-
+                <div className="relative">
                   <span
-                    className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-white ${plan.iconClass}`}
+                    className={[
+                      "grid h-14 w-14 place-items-center rounded-[17px] border",
+                      "shadow-[0_12px_32px_rgba(0,0,0,0.22)]",
+                      plan.iconClass,
+                    ].join(" ")}
                   >
-                    <Icon aria-hidden="true" size={27} />
+                    <Icon
+                      aria-hidden="true"
+                      size={27}
+                      strokeWidth={2}
+                    />
                   </span>
+
+                  <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-[#47aaff]">
+                    {plan.eyebrow}
+                  </p>
+
+                  <h3 className="mt-3 font-display text-2xl font-black tracking-[-0.025em]">
+                    {plan.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm font-semibold text-[#8297ad]">
+                    {plan.subtitle}
+                  </p>
+
+                  <p className="mt-5 min-h-[72px] text-sm leading-6 text-[#93a5b9]">
+                    {plan.description}
+                  </p>
                 </div>
 
-                <div className="mt-5 flex items-end gap-2">
-                  <span className="font-display text-4xl font-black tracking-[-0.04em]">
-                    {plan.price}
-                  </span>
+                <div className="relative mt-6 border-t border-[#173a58] pt-5">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li
+                        className="flex items-center gap-3 text-sm text-[#a3b2c3]"
+                        key={feature}
+                      >
+                        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-[#2377a9] bg-[#09253e] text-[#4ac7ff]">
+                          <Check
+                            aria-hidden="true"
+                            size={11}
+                            strokeWidth={3}
+                          />
+                        </span>
 
-                  <span className="pb-1 text-xs text-white/50">
-                    From
-                  </span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature) => (
-                    <li
-                      className="flex items-center gap-2.5 text-sm text-white/72"
-                      key={feature}
-                    >
-                      <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full border border-[#2d789f] text-[#48c9ff]">
-                        <Check aria-hidden="true" size={10} />
-                      </span>
-
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
 
                 <a
-                  className={`mt-7 inline-flex h-11 w-full items-center justify-center rounded-full border text-sm font-bold transition ${
+                  className={[
+                    "relative mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full",
+                    "text-sm font-black transition duration-200",
                     plan.highlighted
-                      ? "border-transparent bg-gradient-to-r from-[#1658ff] to-[#28bfff] text-white shadow-[0_10px_28px_rgba(22,112,255,0.33)] hover:-translate-y-0.5"
-                      : "border-[#245b98] bg-transparent text-white hover:border-[#39bfff] hover:bg-[#0a203a]"
-                  }`}
-                  href="/destinations"
+                      ? "bg-gradient-to-r from-[#1658ff] to-[#29c7ff] text-white shadow-[0_12px_30px_rgba(22,112,255,0.3)] hover:-translate-y-0.5"
+                      : "border border-[#265b83] bg-[#07192c] text-white hover:border-[#35b9ff] hover:bg-[#0a2038]",
+                  ].join(" ")}
+                  href="#home"
                 >
-                  {plan.buttonLabel}
+                  Find plans for your destination
+
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="transition-transform group-hover:translate-x-1"
+                    size={16}
+                  />
                 </a>
               </article>
             );
           })}
         </div>
 
-        <p className="mt-4 flex items-center justify-center gap-2 text-xs text-white/45">
-          <Wifi aria-hidden="true" size={14} />
-          All plans include high-speed 4G/5G data
-        </p>
+        {/* <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-[18px] border border-[#173a58] bg-[#061427]/75 px-5 py-4 text-center backdrop-blur-xl sm:flex-row sm:text-left">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#21527b] bg-[#09213a] text-[#45afff]">
+              <Globe2 aria-hidden="true" size={19} />
+            </span>
+
+            <div>
+              <p className="text-sm font-black">
+                Plans and prices depend on your destination
+              </p>
+
+              <p className="mt-1 text-xs text-[#778da5]">
+                Search a country to view live packages and exact
+                pricing.
+              </p>
+            </div>
+          </div>
+
+          <a
+            className="inline-flex shrink-0 items-center gap-2 text-sm font-black text-[#4eb5ff] transition hover:text-[#7fcbff]"
+            href="#home"
+          >
+            Search destinations
+            <ArrowRight aria-hidden="true" size={16} />
+          </a>
+        </div> */}
       </div>
     </section>
   );
@@ -954,7 +1078,7 @@ function Cta() {
 
             <a
               className="relative z-30 inline-flex h-14 min-w-[250px] items-center justify-center gap-5 self-start rounded-full bg-white px-8 text-sm font-black text-[#1c55cc] shadow-[0_16px_40px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(0,0,0,0.28)] md:self-auto"
-              href="#plans"
+              href="#download-app"
             >
               Get eSIM Now
               <ArrowRight aria-hidden="true" size={20} />

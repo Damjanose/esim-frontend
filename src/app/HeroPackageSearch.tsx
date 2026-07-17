@@ -314,11 +314,11 @@ export function HeroPackageSearch() {
               </p>
             </div>
 
-            {!loading && !error ? (
+            {/* {!loading && !error ? (
               <span className="shrink-0 rounded-full border border-[#1d466b] bg-[#0a2139] px-2.5 py-1 text-[10px] font-black text-[#59b6ff]">
                 {countries.length} countries
               </span>
-            ) : null}
+            ) : null} */}
           </div>
 
           {loading ? (
