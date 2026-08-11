@@ -38,11 +38,11 @@ export const destinationPages = [
     path: "/destinations/usa",
     title: "eSIM for USA | Travel Data for the United States",
     description:
-      "Buy a Velocity eSIM for the USA, install your travel data before departure, and stay online without surprise roaming fees.",
+      "Buy a eSim2you for the USA, install your travel data before departure, and stay online without surprise roaming fees.",
     eyebrow: "USA travel eSIM",
     heading: "Travel data for the United States, ready before you land.",
     intro:
-      "Velocity eSIM helps travelers visiting the United States set up mobile internet before arrival. Choose a prepaid eSIM data plan, install it on a compatible phone, and use local mobile data while keeping your usual number available for calls, texts, and WhatsApp. Keep travel data ready to use when you land.",
+      "eSim2you helps travelers visiting the United States set up mobile internet before arrival. Choose a prepaid eSIM data plan, install it on a compatible phone, and use local mobile data while keeping your usual number available for calls, texts, and WhatsApp. Keep travel data ready to use when you land.",
     sections: [
       {
         title: "Why use a USA eSIM?",
@@ -79,11 +79,11 @@ export const destinationPages = [
     path: "/destinations/europe",
     title: "eSIM for Europe | International Data Without Roaming",
     description:
-      "Use Velocity eSIM for Europe travel data, mobile internet abroad, and a simpler roaming alternative across European trips.",
+      "Use eSim2you for Europe travel data, mobile internet abroad, and a simpler roaming alternative across European trips.",
     eyebrow: "Europe travel eSIM",
     heading: "Stay connected across Europe with prepaid eSIM data.",
     intro:
-      "Velocity eSIM gives travelers a simple way to prepare mobile internet for European trips. It is designed for people who want travel data for maps, messaging, booking apps, and work tools without depending on roaming or hunting for a SIM shop after arrival. Stay connected across borders with prepaid data planned before departure.",
+      "eSim2you gives travelers a simple way to prepare mobile internet for European trips. It is designed for people who want travel data for maps, messaging, booking apps, and work tools without depending on roaming or hunting for a SIM shop after arrival. Stay connected across borders with prepaid data planned before departure.",
     sections: [
       {
         title: "A practical roaming alternative",
@@ -120,11 +120,11 @@ export const destinationPages = [
     path: "/destinations/japan",
     title: "eSIM for Japan | Travel Data Before Arrival",
     description:
-      "Prepare a Japan travel eSIM with Velocity eSIM and use mobile data for maps, messaging, translation, and transport apps.",
+      "Prepare a Japan travel eSIM with eSim2you and use mobile data for maps, messaging, translation, and transport apps.",
     eyebrow: "Japan travel eSIM",
     heading: "Mobile internet for Japan, installed before your plane lands.",
     intro:
-      "A Japan eSIM helps travelers stay online for transit, translation, maps, hotel details, messaging, and everyday trip planning. Velocity eSIM makes mobile internet setup digital so data is installed before the plane lands and before the first train, taxi, or airport transfer.",
+      "A Japan eSIM helps travelers stay online for transit, translation, maps, hotel details, messaging, and everyday trip planning. eSim2you makes mobile internet setup digital so data is installed before the plane lands and before the first train, taxi, or airport transfer.",
     sections: [
       {
         title: "Built for arrival moments",
@@ -161,11 +161,11 @@ export const destinationPages = [
     path: "/destinations/turkey",
     title: "eSIM for Turkey | Travel Internet for Visitors",
     description:
-      "Get a Velocity eSIM for Turkey travel data and use mobile internet abroad for maps, messaging, bookings, and work trips.",
+      "Get a eSim2you for Turkey travel data and use mobile internet abroad for maps, messaging, bookings, and work trips.",
     eyebrow: "Turkey travel eSIM",
     heading: "Travel internet for Turkey without a physical SIM stop.",
     intro:
-      "Velocity eSIM helps visitors to Turkey prepare mobile internet data before arrival. It is a practical option for city breaks, family trips, business travel, and longer stays where reliable app access matters from the first day. The setup avoids a physical SIM stop after landing.",
+      "eSim2you helps visitors to Turkey prepare mobile internet data before arrival. It is a practical option for city breaks, family trips, business travel, and longer stays where reliable app access matters from the first day. The setup avoids a physical SIM stop after landing.",
     sections: [
       {
         title: "Useful in Istanbul and beyond",
@@ -202,11 +202,11 @@ export const destinationPages = [
     path: "/destinations/france",
     title: "eSIM for France | Travel Data for Paris and Beyond",
     description:
-      "Use Velocity eSIM for France travel data, mobile internet in Paris, and a cleaner alternative to international roaming.",
+      "Use eSim2you for France travel data, mobile internet in Paris, and a cleaner alternative to international roaming.",
     eyebrow: "France travel eSIM",
     heading: "France travel data for maps, messages, bookings, and work.",
     intro:
-      "A France eSIM helps travelers prepare mobile internet before a trip to Paris or other French destinations. Use Velocity eSIM to plan ahead, avoid a physical SIM errand, and keep messages, bookings, maps, and work apps ready.",
+      "A France eSIM helps travelers prepare mobile internet before a trip to Paris or other French destinations. Use eSim2you to plan ahead, avoid a physical SIM errand, and keep messages, bookings, maps, and work apps ready.",
     sections: [
       {
         title: "Helpful for city travel",
@@ -228,7 +228,7 @@ export const destinationPages = [
       {
         question: "Does a France eSIM include calls?",
         answer:
-          "Velocity eSIM focuses on travel data. Use your regular number or internet apps for calls when available."
+          "eSim2you focuses on travel data. Use your regular number or internet apps for calls when available."
       }
     ],
     relatedLinks: [
@@ -243,11 +243,11 @@ export const destinationPages = [
     path: "/destinations/uk",
     title: "eSIM for UK | Travel Data for the United Kingdom",
     description:
-      "Prepare a UK travel eSIM with Velocity eSIM and use mobile data for London trips, business travel, maps, and messaging.",
+      "Prepare a UK travel eSIM with eSim2you and use mobile data for London trips, business travel, maps, and messaging.",
     eyebrow: "UK travel eSIM",
     heading: "UK mobile data for travelers before the first connection.",
     intro:
-      "Velocity eSIM helps travelers visiting the United Kingdom set up travel data on a compatible phone. It is useful for London city breaks, business meetings, events, student visits, and international trips where roaming fees are hard to predict. Prepare the first connection before arrival.",
+      "eSim2you helps travelers visiting the United Kingdom set up travel data on a compatible phone. It is useful for London city breaks, business meetings, events, student visits, and international trips where roaming fees are hard to predict. Prepare the first connection before arrival.",
     sections: [
       {
         title: "A cleaner way to get online",
@@ -414,7 +414,7 @@ export const guidePages = [
     eyebrow: "Travel internet guide",
     heading: "How to get internet abroad without the guesswork.",
     intro:
-      "This guide explains how travelers can get internet abroad through roaming, public Wi-Fi, local SIM cards, portable hotspots, or eSIM data. Velocity eSIM focuses on the digital eSIM option so mobile internet can be prepared before departure and planned without guesswork.",
+      "This guide explains how travelers can get internet abroad through roaming, public Wi-Fi, local SIM cards, portable hotspots, or eSIM data. eSim2you focuses on the digital eSIM option so mobile internet can be prepared before departure and planned without guesswork.",
     sections: [
       {
         title: "Public Wi-Fi is not enough for every trip",
@@ -454,11 +454,11 @@ export const useCasePages = [
     path: "/use-cases/business-travel",
     title: "Business Travel eSIM | International Data for Work Trips",
     description:
-      "Use Velocity eSIM for business travel data, reliable mobile internet abroad, email, messaging, maps, and work-trip coordination.",
+      "Use eSim2you for business travel data, reliable mobile internet abroad, email, messaging, maps, and work-trip coordination.",
     eyebrow: "Business travel",
     heading: "International data for business trips without roaming uncertainty.",
     intro:
-      "Business travelers need international mobile internet for email, calendars, maps, rides, bookings, messaging, and urgent work updates during work trips. Velocity eSIM helps prepare travel data before departure so the first connection is not left to airport Wi-Fi or roaming uncertainty.",
+      "Business travelers need international mobile internet for email, calendars, maps, rides, bookings, messaging, and urgent work updates during work trips. eSim2you helps prepare travel data before departure so the first connection is not left to airport Wi-Fi or roaming uncertainty.",
     sections: [
       {
         title: "Useful between meetings",
@@ -473,7 +473,7 @@ export const useCasePages = [
     ],
     faqs: [
       {
-        question: "Is Velocity eSIM useful for work trips?",
+        question: "Is eSim2you useful for work trips?",
         answer:
           "Yes. It is designed for travel data needs such as email, maps, messaging, bookings, and staying connected away from trusted Wi-Fi."
       },
@@ -495,11 +495,11 @@ export const useCasePages = [
     path: "/use-cases/remote-work",
     title: "Remote Work Travel Data | eSIM for Working Abroad",
     description:
-      "Prepare mobile data for remote work abroad with Velocity eSIM, a digital travel data option for compatible phones.",
+      "Prepare mobile data for remote work abroad with eSim2you, a digital travel data option for compatible phones.",
     eyebrow: "Remote work",
     heading: "Travel data for remote work days abroad.",
     intro:
-      "Remote workers and flexible travelers often need mobile data abroad outside hotels, apartments, cafes, and coworking spaces. Velocity eSIM helps make international data part of the travel checklist before work days start in a new place.",
+      "Remote workers and flexible travelers often need mobile data abroad outside hotels, apartments, cafes, and coworking spaces. eSim2you helps make international data part of the travel checklist before work days start in a new place.",
     sections: [
       {
         title: "A backup for work essentials",

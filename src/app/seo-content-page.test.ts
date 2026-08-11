@@ -14,8 +14,8 @@ describe("SEO content page template", () => {
 
     expect(source).toContain("landingContent.appLinks.ios.href");
     expect(source).toContain("landingContent.appLinks.android.href");
-    expect(source).toContain('aria-label="Download Velocity eSIM on the App Store"');
-    expect(source).toContain('aria-label="Download Velocity eSIM on Google Play"');
+    expect(source).toContain('aria-label="Download eSim2you on the App Store"');
+    expect(source).toContain('aria-label="Download eSim2you on Google Play"');
     expect(source).toContain("cursor-pointer");
     expect(source).not.toContain('aria-disabled="true"');
     expect(source).not.toContain("cursor-not-allowed");

@@ -48,7 +48,7 @@ export function SeoContentPageView({
             <p className="mt-6 max-w-3xl text-lg leading-8 text-white/72">{page.intro}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                aria-label="Download Velocity eSIM on the App Store"
+                aria-label="Download eSim2you on the App Store"
                 className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 bg-white px-5 font-bold text-midnight transition hover:-translate-y-0.5 hover:border-cyan"
                 href={landingContent.appLinks.ios.href}
               >
@@ -56,7 +56,7 @@ export function SeoContentPageView({
                 <ArrowRight aria-hidden="true" size={18} />
               </a>
               <a
-                aria-label="Download Velocity eSIM on Google Play"
+                aria-label="Download eSim2you on Google Play"
                 className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-cyan px-5 font-bold text-midnight transition hover:-translate-y-0.5 hover:bg-aqua"
                 href={landingContent.appLinks.android.href}
               >

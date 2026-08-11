@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   ...createMetadata({
     path: "/",
-    title: "Velocity eSIM | Travel Data for 200+ Destinations",
+    title: "eSim2you | Travel Data for 200+ Destinations",
     description:
       "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
   }),

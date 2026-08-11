@@ -3,13 +3,13 @@ import { landingContent } from "@/content/landing";
 import { publicSeoPages, type SeoPageFaq } from "@/content/seo-pages";
 
 export const siteUrl = "https://esim.uplisoft.com";
-export const siteName = "Velocity eSIM";
+export const siteName = "eSim2you";
 export const supportEmail = "esim@uplisoft.com";
 export const ogImage = {
   url: `${siteUrl}/og/velocity-esim-og.png`,
   width: 1200,
   height: 630,
-  alt: "Velocity eSIM travel data app preview"
+  alt: "eSim2you travel data app preview"
 };
 export const appLogoUrl = `${siteUrl}/app-logo.png`;
 
@@ -37,7 +37,7 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/",
     url: `${siteUrl}/`,
-    title: "Velocity eSIM | Travel Data for 200+ Destinations",
+    title: "eSim2you | Travel Data for 200+ Destinations",
     description:
       "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees.",
     changeFrequency: "monthly",
@@ -46,9 +46,9 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/destinations",
     url: `${siteUrl}/destinations`,
-    title: "Travel eSIM Destinations | Velocity eSIM",
+    title: "Travel eSIM Destinations | eSim2you",
     description:
-      "Browse Velocity eSIM destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+      "Browse eSim2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
     changeFrequency: "monthly",
     priority: 0.8
   },
@@ -63,25 +63,25 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/support",
     url: `${siteUrl}/support`,
-    title: "Support Center | Velocity eSIM",
+    title: "Support Center | eSim2you",
     description:
-      "Get help with Velocity eSIM app sign-in, Pokpay checkout, QR or manual eSIM setup, remaining data, top-ups, refunds, and connection troubleshooting.",
+      "Get help with eSim2you app sign-in, Pokpay checkout, QR or manual eSIM setup, remaining data, top-ups, refunds, and connection troubleshooting.",
     changeFrequency: "monthly",
     priority: 0.6
   },
   {
     path: "/policy",
     url: `${siteUrl}/policy`,
-    title: "Privacy Policy | Velocity eSIM",
-    description: "Privacy Policy for Velocity eSIM travelers and app users.",
+    title: "Privacy Policy | eSim2you",
+    description: "Privacy Policy for eSim2you travelers and app users.",
     changeFrequency: "yearly",
     priority: 0.3
   },
   {
     path: "/terms",
     url: `${siteUrl}/terms`,
-    title: "Terms of Service | Velocity eSIM",
-    description: "Terms of Service for Velocity eSIM travelers and app users.",
+    title: "Terms of Service | eSim2you",
+    description: "Terms of Service for eSim2you travelers and app users.",
     changeFrequency: "yearly",
     priority: 0.3
   }

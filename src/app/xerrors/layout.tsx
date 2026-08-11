@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xerrors",
-  title: "Error Inbox | Velocity eSIM",
-  description: "Private Velocity eSIM error inbox.",
+  title: "Error Inbox | eSim2you",
+  description: "Private eSim2you error inbox.",
   indexable: false
 });
 

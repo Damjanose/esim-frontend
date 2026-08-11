@@ -36,12 +36,12 @@ export function Navbar() {
     <header className="absolute inset-x-0 top-0 z-50">
       <nav className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 lg:px-10 xl:px-14">
         <a
-          aria-label="Velocity eSIM home"
+          aria-label="eSim2you home"
           className="flex shrink-0 items-center gap-2.5"
           href="/"
         >
           <img
-            alt="Velocity eSIM app logo"
+            alt="eSim2you app logo"
             className="h-9 w-9 object-contain"
             src="/app-logo.png"
           />

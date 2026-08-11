@@ -101,7 +101,7 @@ async function fetchJson<T>(
     headers: {
       Accept: "application/json",
       "Api-User-Agent":
-        "Velocity-eSIM/1.0 contact@example.com",
+        "eSim2you/1.0 contact@example.com",
     },
     next: {
       revalidate: CACHE_SECONDS,

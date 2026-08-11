@@ -36,7 +36,7 @@ export type AppLink = {
 };
 
 export const landingContent = {
-  brand: "Velocity eSIM",
+  brand: "eSim2you",
   navItems: [
     { label: "Destinations", href: "#destinations" },
     { label: "How it works", href: "#how-it-works" },
@@ -157,7 +157,7 @@ export const landingContent = {
     {
       question: "Can I keep WhatsApp?",
       answer:
-        "Yes. You can keep your usual phone number for WhatsApp while using Velocity eSIM for mobile data."
+        "Yes. You can keep your usual phone number for WhatsApp while using eSim2you for mobile data."
     },
     {
       question: "When should I activate it?",

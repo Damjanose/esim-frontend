@@ -4,7 +4,7 @@ import { landingContent } from "./landing";
 
 describe("landingContent", () => {
   it("contains the core sections needed for a public eSIM landing page", () => {
-    expect(landingContent.brand).toBe("Velocity eSIM");
+    expect(landingContent.brand).toBe("eSim2you");
     expect(landingContent.destinations).toHaveLength(5);
     expect(
       landingContent.destinations.every((destination) =>
@@ -49,8 +49,8 @@ describe("landingContent", () => {
     expect(pageSource).toContain("function GooglePlayIcon");
     expect(pageSource).toContain("<AppleStoreIcon />");
     expect(pageSource).toContain("<GooglePlayIcon />");
-    expect(pageSource).toContain('aria-label="Download Velocity eSIM on the App Store"');
-    expect(pageSource).toContain('aria-label="Download Velocity eSIM on Google Play"');
+    expect(pageSource).toContain('aria-label="Download eSim2you on the App Store"');
+    expect(pageSource).toContain('aria-label="Download eSim2you on Google Play"');
   });
 
   it("organizes footer links without duplicate footer download actions", () => {
@@ -62,8 +62,8 @@ describe("landingContent", () => {
     expect(footerSource).toContain("Company");
     expect(footerSource).toContain("Explore");
     expect(footerSource).toContain("Resources");
-    expect(footerSource).not.toContain('aria-label="Download Velocity eSIM from the footer on the App Store"');
-    expect(footerSource).not.toContain('aria-label="Download Velocity eSIM from the footer on Google Play"');
+    expect(footerSource).not.toContain('aria-label="Download eSim2you from the footer on the App Store"');
+    expect(footerSource).not.toContain('aria-label="Download eSim2you from the footer on Google Play"');
   });
 
   it("keeps footer resources styled like the other footer link columns and repeats the app name naturally", () => {
@@ -72,9 +72,9 @@ describe("landingContent", () => {
     expect(footerSource).toContain('<FooterLinkColumn title="Resources" links={footerResourceLinks} />');
     expect(footerSource).not.toContain("function FooterResourceLinks");
     expect(footerSource).not.toContain("rounded-lg border border-white/10 bg-white/5");
-    expect(footerSource).toContain("Velocity eSIM travel data guides");
-    expect(footerSource).toContain("Velocity eSIM helps travelers");
-    expect(footerSource).toContain("Velocity eSIM destination coverage");
+    expect(footerSource).toContain("eSim2you travel data guides");
+    expect(footerSource).toContain("eSim2you helps travelers");
+    expect(footerSource).toContain("eSim2you destination coverage");
   });
 
   it("uses app logo assets for favicon, header, and footer branding", () => {

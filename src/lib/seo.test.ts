@@ -55,24 +55,24 @@ describe("SEO route contract", () => {
   it("builds route metadata with canonical, open graph, twitter, and index directives", () => {
     const metadata = createMetadata({
       path: "/policy",
-      title: "Privacy Policy | Velocity eSIM",
-      description: "Privacy Policy for Velocity eSIM travelers and app users."
+      title: "Privacy Policy | eSim2you",
+      description: "Privacy Policy for eSim2you travelers and app users."
     });
 
     expect(metadata.alternates).toEqual({
       canonical: "https://esim.uplisoft.com/policy"
     });
     expect(metadata.openGraph).toMatchObject({
-      title: "Privacy Policy | Velocity eSIM",
-      description: "Privacy Policy for Velocity eSIM travelers and app users.",
+      title: "Privacy Policy | eSim2you",
+      description: "Privacy Policy for eSim2you travelers and app users.",
       url: "https://esim.uplisoft.com/policy",
-      siteName: "Velocity eSIM",
+      siteName: "eSim2you",
       type: "website"
     });
     expect(metadata.twitter).toMatchObject({
       card: "summary_large_image",
-      title: "Privacy Policy | Velocity eSIM",
-      description: "Privacy Policy for Velocity eSIM travelers and app users."
+      title: "Privacy Policy | eSim2you",
+      description: "Privacy Policy for eSim2you travelers and app users."
     });
     expect(metadata.robots).toEqual({ index: true, follow: true });
   });
@@ -80,8 +80,8 @@ describe("SEO route contract", () => {
   it("marks hidden app/admin pages as noindex and noarchive", () => {
     const metadata = createMetadata({
       path: "/xloginy",
-      title: "Admin | Velocity eSIM",
-      description: "Private Velocity eSIM admin surface.",
+      title: "Admin | eSim2you",
+      description: "Private eSim2you admin surface.",
       indexable: false
     });
 
@@ -101,7 +101,7 @@ describe("SEO route contract", () => {
     const schema = createWebPageJsonLd({
       path: "/terms",
       name: "Terms of Service",
-      description: "Terms of Service for Velocity eSIM travelers and app users.",
+      description: "Terms of Service for eSim2you travelers and app users.",
       breadcrumbName: "Terms"
     });
 
@@ -220,7 +220,7 @@ describe("SEO route contract", () => {
     const schema = createContentPageJsonLd({
       path: "/destinations",
       name: "Travel eSIM Destinations",
-      description: "Browse Velocity eSIM travel data destinations.",
+      description: "Browse eSim2you travel data destinations.",
       breadcrumbName: "Destinations"
     });
 

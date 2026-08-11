@@ -6,8 +6,8 @@ import { LegalDocumentPage } from "../LegalDocumentPage";
 
 export const metadata: Metadata = createMetadata({
   path: "/terms",
-  title: "Terms of Service | Velocity eSIM",
-  description: "Terms of Service for Velocity eSIM travelers and app users."
+  title: "Terms of Service | eSim2you",
+  description: "Terms of Service for eSim2you travelers and app users."
 });
 
 export default function TermsPage() {
@@ -17,7 +17,7 @@ export default function TermsPage() {
         data={createWebPageJsonLd({
           path: "/terms",
           name: "Terms of Service",
-          description: "Terms of Service for Velocity eSIM travelers and app users.",
+          description: "Terms of Service for eSim2you travelers and app users.",
           breadcrumbName: "Terms"
         })}
       />

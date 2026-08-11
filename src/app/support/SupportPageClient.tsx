@@ -79,7 +79,7 @@ const supportCategories: SupportCategory[] = [
       "Fix common no-data problems by checking the active eSIM line, data roaming, network selection, and destination coverage.",
     icon: Signal,
     guidance: [
-      "Set mobile data to the Velocity eSIM line after arriving.",
+      "Set mobile data to the eSim2you line after arriving.",
       "Turn on data roaming for the eSIM line.",
       "Restart the phone and try manual network selection if automatic selection stalls.",
     ],
@@ -98,10 +98,10 @@ const supportCategories: SupportCategory[] = [
   {
     title: "Payments & refunds",
     description:
-      "Velocity eSIM uses Pokpay checkout for purchases and top-ups, with card details handled outside the app.",
+      "eSim2you uses Pokpay checkout for purchases and top-ups, with card details handled outside the app.",
     icon: CreditCard,
     guidance: [
-      "Complete Pokpay checkout, then return to Velocity eSIM.",
+      "Complete Pokpay checkout, then return to eSim2you.",
       "If checkout is not complete, reopen the payment step and try again.",
       "For refund review, send the order details and whether the eSIM was installed or used.",
     ],
@@ -122,9 +122,9 @@ const supportCategories: SupportCategory[] = [
 const faqs: FaqItem[] = [
   {
     category: "Getting started",
-    question: "What does Velocity eSIM sell?",
+    question: "What does eSim2you sell?",
     answer:
-      "Velocity eSIM sells prepaid travel data plans for compatible eSIM devices. Choose a destination in the marketplace, pay securely, then manage installation from My eSIMs in the app.",
+      "eSim2you sells prepaid travel data plans for compatible eSIM devices. Choose a destination in the marketplace, pay securely, then manage installation from My eSIMs in the app.",
   },
   {
     category: "Account",
@@ -136,7 +136,7 @@ const faqs: FaqItem[] = [
     category: "Payment",
     question: "How does Pokpay checkout work?",
     answer:
-      "When you buy a plan or an available top-up, Velocity eSIM opens Pokpay checkout. Pokpay handles the payment details, and you return to the app so the purchase can be confirmed.",
+      "When you buy a plan or an available top-up, eSim2you opens Pokpay checkout. Pokpay handles the payment details, and you return to the app so the purchase can be confirmed.",
   },
   {
     category: "Installation",
@@ -297,7 +297,7 @@ function SupportHero({
           />
 
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4eb5ff]">
-            Velocity Help Center
+            eSim2you Help Center
           </span>
         </div>
 
@@ -381,7 +381,7 @@ function SupportCategories({
 
         <p className="max-w-md text-sm leading-6 text-[#778ca3]">
           These topics mirror current app flows, so the guidance matches
-          what you can open in Velocity eSIM today.
+          what you can open in eSim2you today.
         </p>
       </div>
 
@@ -586,7 +586,7 @@ function QuickHelp() {
       icon: Globe2,
       title: "Browse destinations",
       description:
-        "Compare available destination plans before you buy in the Velocity eSIM app.",
+        "Compare available destination plans before you buy in the eSim2you app.",
       label: "Browse plans",
       href: "/destinations",
     },

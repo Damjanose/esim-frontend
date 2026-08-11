@@ -15,9 +15,9 @@ import { DestinationPlans } from "./DestinationPlans";
 
 export const metadata: Metadata = createMetadata({
   path: "/destinations",
-  title: "Travel eSIM Destinations | Velocity eSIM",
+  title: "Travel eSIM Destinations | eSim2you",
   description:
-    "Browse Velocity eSIM destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+    "Browse eSim2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
 });
 
 type DestinationsPageProps = {
@@ -44,7 +44,7 @@ export default async function DestinationsPage({
           path: "/destinations",
           name: "Travel eSIM Destinations",
           description:
-            "Browse Velocity eSIM destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+            "Browse eSim2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
           breadcrumbName: "Destinations",
         })}
       />
@@ -76,7 +76,7 @@ export default async function DestinationsPage({
                 </h1>
 
                 <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-[#9fafc4] sm:text-lg">
-                  Browse Velocity eSIM destination guides, explore regional
+                  Browse eSim2you destination guides, explore regional
                   connectivity options, and find a smarter alternative to
                   expensive roaming.
                 </p>

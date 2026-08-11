@@ -21,10 +21,10 @@ const footerResourceLinks = guidePages.slice(0, 3).map((page) => ({
   href: page.path
 }));
 const footerCompanyLinks = [
-  { label: "Velocity eSIM support", href: "/support" },
-  { label: "Contact Velocity eSIM", href: "mailto:esim@uplisoft.com" },
-  { label: "Velocity eSIM privacy policy", href: "/policy" },
-  { label: "Velocity eSIM terms", href: "/terms" }
+  { label: "eSim2you support", href: "/support" },
+  { label: "Contact eSim2you", href: "mailto:esim@uplisoft.com" },
+  { label: "eSim2you privacy policy", href: "/policy" },
+  { label: "eSim2you terms", href: "/terms" }
 ];
 
 export function SiteFooter() {
@@ -35,17 +35,17 @@ export function SiteFooter() {
           <div>
             <div className="flex items-center gap-3 font-display text-lg font-black">
               <img
-                alt="Velocity eSIM app logo"
+                alt="eSim2you app logo"
                 className="h-9 w-9 rounded-lg shadow-glow"
                 src="/app-logo.png"
               />
               {landingContent.brand}
             </div>
             <p className="mt-4 max-w-md text-sm leading-6 text-white/60">
-              Velocity eSIM helps travelers choose reliable mobile data for international trips without roaming surprises.
+              eSim2you helps travelers choose reliable mobile data for international trips without roaming surprises.
             </p>
             <p className="mt-4 max-w-md text-sm leading-6 text-white/45">
-              Velocity eSIM travel data guides and destination pages are built for quick planning before you fly.
+              eSim2you travel data guides and destination pages are built for quick planning before you fly.
             </p>
           </div>
           <div className="grid gap-8 sm:grid-cols-3">
@@ -55,8 +55,8 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs font-semibold text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Velocity eSIM. All rights reserved.</p>
-          <p>Velocity eSIM destination coverage for 200+ destinations.</p>
+          <p>© 2026 eSim2you. All rights reserved.</p>
+          <p>eSim2you destination coverage for 200+ destinations.</p>
         </div>
       </div>
     </footer>

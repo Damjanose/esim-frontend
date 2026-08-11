@@ -18,13 +18,13 @@ export const termsDocument = {
     {
       title: "Agreement",
       paragraphs: [
-        'By creating an account or using Velocity eSIM ("the App"), you agree to these Terms. If you do not agree, do not use the App. We may update these Terms; continued use after changes means you accept the revised Terms.'
+        'By creating an account or using eSim2you ("the App"), you agree to these Terms. If you do not agree, do not use the App. We may update these Terms; continued use after changes means you accept the revised Terms.'
       ]
     },
     {
       title: "The service",
       paragraphs: [
-        "Velocity eSIM helps you discover, purchase, activate, and manage prepaid mobile data plans using compatible eSIM-capable devices. Plans are provided by third-party mobile operators or aggregators we integrate with. Availability, coverage, speeds, and pricing depend on those networks and may change without notice."
+        "eSim2you helps you discover, purchase, activate, and manage prepaid mobile data plans using compatible eSIM-capable devices. Plans are provided by third-party mobile operators or aggregators we integrate with. Availability, coverage, speeds, and pricing depend on those networks and may change without notice."
       ]
     },
     {
@@ -54,13 +54,13 @@ export const termsDocument = {
     {
       title: "Intellectual property",
       paragraphs: [
-        "The App, branding, and content are owned by Velocity eSIM or licensors and protected by applicable laws. You receive a limited, revocable license to use the App for personal, non-commercial use unless otherwise agreed."
+        "The App, branding, and content are owned by eSim2you or licensors and protected by applicable laws. You receive a limited, revocable license to use the App for personal, non-commercial use unless otherwise agreed."
       ]
     },
     {
       title: "Limitation of liability",
       paragraphs: [
-        "To the maximum extent permitted by law, Velocity eSIM is not liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill arising from use of the App or third-party connectivity services. Some jurisdictions do not allow certain limitations; in those cases our liability is limited to the fullest extent permitted."
+        "To the maximum extent permitted by law, eSim2you is not liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill arising from use of the App or third-party connectivity services. Some jurisdictions do not allow certain limitations; in those cases our liability is limited to the fullest extent permitted."
       ]
     },
     {
@@ -77,7 +77,7 @@ export const policyDocument = {
     {
       title: "Overview",
       paragraphs: [
-        'Velocity eSIM ("we", "us") respects your privacy. This Policy describes how we collect, use, store, and share personal information when you use our mobile application and related services to browse, purchase, activate, and manage prepaid travel eSIM data plans.'
+        'eSim2you ("we", "us") respects your privacy. This Policy describes how we collect, use, store, and share personal information when you use our mobile application and related services to browse, purchase, activate, and manage prepaid travel eSIM data plans.'
       ]
     },
     {
@@ -99,7 +99,7 @@ export const policyDocument = {
     {
       title: "Sharing",
       paragraphs: [
-        "We share information with mobile operators and technical partners as needed to provision data plans; with payment processors for transactions; with infrastructure and analytics providers under contracts that limit use; and when required by law, court order, or to protect rights and safety. If Velocity eSIM is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
+        "We share information with mobile operators and technical partners as needed to provision data plans; with payment processors for transactions; with infrastructure and analytics providers under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
       ]
     },
     {

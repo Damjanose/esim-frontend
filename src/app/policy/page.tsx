@@ -6,8 +6,8 @@ import { LegalDocumentPage } from "../LegalDocumentPage";
 
 export const metadata: Metadata = createMetadata({
   path: "/policy",
-  title: "Privacy Policy | Velocity eSIM",
-  description: "Privacy Policy for Velocity eSIM travelers and app users."
+  title: "Privacy Policy | eSim2you",
+  description: "Privacy Policy for eSim2you travelers and app users."
 });
 
 export default function PolicyPage() {
@@ -17,7 +17,7 @@ export default function PolicyPage() {
         data={createWebPageJsonLd({
           path: "/policy",
           name: "Privacy Policy",
-          description: "Privacy Policy for Velocity eSIM travelers and app users.",
+          description: "Privacy Policy for eSim2you travelers and app users.",
           breadcrumbName: "Privacy Policy"
         })}
       />

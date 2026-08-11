@@ -107,7 +107,7 @@ const installationSteps = [
 const testimonials = [
   {
     quote:
-      "Velocity eSIM made my Japan trip so easy. The installation was quick and the connection stayed fast throughout the trip.",
+      "eSim2you made my Japan trip so easy. The installation was quick and the connection stayed fast throughout the trip.",
     name: "Sophia R.",
     country: "USA",
     image:
@@ -125,7 +125,7 @@ const testimonials = [
 
 export const metadata: Metadata = createMetadata({
   path: "/",
-  title: "Velocity eSIM | Travel Data for 200+ Destinations",
+  title: "eSim2you | Travel Data for 200+ Destinations",
   description:
     "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
 });
@@ -235,7 +235,7 @@ function TravelerReviews() {
               key={image}
             >
               <Image
-                alt={`Velocity eSIM traveler ${index + 1}`}
+                alt={`eSim2you traveler ${index + 1}`}
                 className="h-full w-full object-cover"
                 height={40}
                 loading="lazy"
@@ -291,7 +291,7 @@ function HeroVisual() {
 
       {/* Premium phone and map artwork */}
       <Image
-        alt="Velocity eSIM mobile application with worldwide coverage"
+        alt="eSim2you mobile application with worldwide coverage"
         className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[610px] max-w-none -translate-x-1/2 -translate-y-[48%] object-contain drop-shadow-[0_40px_65px_rgba(0,0,0,0.6)] sm:w-[750px] lg:w-[850px]"
         height={638}
         priority
@@ -670,7 +670,7 @@ function Benefits() {
     >
       <div className="mx-auto max-w-[1280px]">
         <p className="mb-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-[#28a7ff]">
-          Why travelers choose Velocity eSIM
+          Why travelers choose eSim2you
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -871,7 +871,7 @@ function TestimonialsAndFaq() {
         <div className="mt-7 grid items-stretch gap-5 md:grid-cols-[0.82fr_1fr_1fr]">
           <div className="relative hidden min-h-[285px] md:block">
             <img
-              alt="Velocity eSIM mobile applications"
+              alt="eSim2you mobile applications"
               className="pointer-events-none absolute bottom-[-5px] left-1/2 h-[116%] w-[142%] max-w-none -translate-x-1/2 object-contain object-bottom drop-shadow-[0_24px_32px_rgba(0,0,0,0.45)]"
               loading="lazy"
               src="/images/a6.png"
@@ -960,7 +960,7 @@ function AppDownload() {
             {/* Content */}
             <div className="relative z-20 max-w-[570px]">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#289fff]">
-                Velocity in your pocket
+                eSim2you in your pocket
               </p>
 
               <h2 className="mt-3 font-display text-3xl font-black leading-[1.08] tracking-[-0.04em] sm:text-4xl lg:text-[46px]">
@@ -1000,7 +1000,7 @@ function AppDownload() {
               {/* Store buttons */}
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <a
-                  aria-label="Download Velocity eSIM on the App Store"
+                  aria-label="Download eSim2you on the App Store"
                   className="group flex h-[64px] min-w-[210px] items-center gap-3 rounded-[16px] border border-[#315778]/85 bg-[#050d19]/90 px-5 shadow-[0_14px_35px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-[#42baff] hover:bg-[#09182a]"
                   href="https://apps.apple.com/am/app/velocityesim/id6768258284"
                 >
@@ -1024,7 +1024,7 @@ function AppDownload() {
                 </a>
 
                 <a
-                  aria-label="Get Velocity eSIM on Google Play"
+                  aria-label="Get eSim2you on Google Play"
                   className="group flex h-[64px] min-w-[210px] items-center gap-3 rounded-[16px] border border-[#315778]/85 bg-[#050d19]/90 px-5 shadow-[0_14px_35px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-[#42baff] hover:bg-[#09182a]"
                   href="https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
                 >
@@ -1074,7 +1074,7 @@ function AppDownload() {
               <div className="pointer-events-none absolute bottom-3 left-1/2 h-[50px] w-[72%] -translate-x-1/2 rounded-full bg-black/70 blur-[28px]" />
 
               <img
-                alt="Velocity eSIM mobile application"
+                alt="eSim2you mobile application"
                 className="relative z-10 max-h-[390px] w-full max-w-[520px] object-contain object-bottom drop-shadow-[0_35px_45px_rgba(0,0,0,0.5)]"
                 loading="lazy"
                 src="/images/6c.png"
@@ -1096,7 +1096,7 @@ function Cta() {
       <div className="relative mx-auto max-w-[1280px]">
         <div className="relative min-h-[220px] overflow-visible rounded-[22px] border border-white/80 shadow-[0_25px_80px_rgba(16,70,222,0.28)] md:min-h-[190px]">
           <Image
-            alt="Blue travel route background for Velocity eSIM"
+            alt="Blue travel route background for eSim2you"
             className="pointer-events-none absolute inset-0 h-full w-full rounded-[22px] object-cover"
             fill
             loading="lazy"
@@ -1108,7 +1108,7 @@ function Cta() {
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[linear-gradient(90deg,rgba(3,17,48,0.88)_0%,rgba(3,22,62,0.66)_45%,rgba(2,14,42,0.5)_100%)]" />
 
           <img
-            alt="Traveler using Velocity eSIM in the mountains"
+            alt="Traveler using eSim2you in the mountains"
             className="pointer-events-none absolute bottom-0 left-[58%] z-20 hidden h-[145%] max-w-none -translate-x-1/2 object-contain object-bottom md:block lg:left-[60%]"
             loading="lazy"
             referrerPolicy="no-referrer"
@@ -1122,7 +1122,7 @@ function Cta() {
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-white/75 md:text-base">
-                Join millions of travelers who trust Velocity eSIM for seamless
+                Join millions of travelers who trust eSim2you for seamless
                 connectivity.
               </p>
             </div>

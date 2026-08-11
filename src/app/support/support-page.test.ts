@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 describe("support page content", () => {
   const source = readFileSync("src/app/support/SupportPageClient.tsx", "utf8");
 
-  it("uses current Velocity support flows and contact details", () => {
+  it("uses current eSim2you support flows and contact details", () => {
     expect(source).toContain("esim@uplisoft.com");
     expect(source).toContain("Email OTP sign-in");
     expect(source).toContain("Pokpay checkout");
