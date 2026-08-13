@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ACCESS_COOKIE, PENDING_TOPUP_COOKIE } from "@/lib/session";
-import { POST as createTopupIntent } from "../api/payments/topups/intent/route";
+import { POST as createTopupIntent } from "../bff/payments/topups/intent/route";
 import { GET as topupReturn } from "./topup/return/route";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -19,7 +19,7 @@ const paymentSession = {
 };
 
 function intentRequest(body: unknown, cookie = `${ACCESS_COOKIE}=good-token`) {
-  return new Request("http://localhost:3000/api/payments/topups/intent", {
+  return new Request("http://localhost:3000/bff/payments/topups/intent", {
     method: "POST",
     headers: { "content-type": "application/json", cookie },
     body: JSON.stringify(body)
@@ -35,7 +35,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("POST /api/payments/topups/intent", () => {
+describe("POST /bff/payments/topups/intent", () => {
   it("asks the backend for a checkout url and remembers which eSIM is topping up", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
     vi.stubGlobal("fetch", fetchMock);

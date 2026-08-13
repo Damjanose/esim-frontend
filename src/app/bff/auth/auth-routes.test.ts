@@ -39,7 +39,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("POST /api/auth/otp/send", () => {
+describe("POST /bff/auth/otp/send", () => {
   it("forwards the email and returns the expiry without leaking backend internals", async () => {
     const fetchMock = vi.fn(async () =>
       jsonResponse({ status: "success", data: { email: "a@b.co", expiresInSeconds: 300 } })
@@ -47,7 +47,7 @@ describe("POST /api/auth/otp/send", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await otpSend(
-      postRequest("http://localhost:3000/api/auth/otp/send", { email: "A@B.co" })
+      postRequest("http://localhost:3000/bff/auth/otp/send", { email: "A@B.co" })
     );
     const payload = await response.json();
 
@@ -62,7 +62,7 @@ describe("POST /api/auth/otp/send", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    const response = await otpSend(postRequest("http://localhost:3000/api/auth/otp/send", {}));
+    const response = await otpSend(postRequest("http://localhost:3000/bff/auth/otp/send", {}));
 
     expect(response.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -77,7 +77,7 @@ describe("POST /api/auth/otp/send", () => {
     );
 
     const response = await otpSend(
-      postRequest("http://localhost:3000/api/auth/otp/send", { email: "a@b.co" })
+      postRequest("http://localhost:3000/bff/auth/otp/send", { email: "a@b.co" })
     );
     const payload = await response.json();
 
@@ -86,7 +86,7 @@ describe("POST /api/auth/otp/send", () => {
   });
 });
 
-describe("POST /api/auth/otp/verify", () => {
+describe("POST /bff/auth/otp/verify", () => {
   it("stores the session in httpOnly cookies and never returns tokens to the browser", async () => {
     vi.stubGlobal(
       "fetch",
@@ -94,7 +94,7 @@ describe("POST /api/auth/otp/verify", () => {
     );
 
     const response = await otpVerify(
-      postRequest("http://localhost:3000/api/auth/otp/verify", {
+      postRequest("http://localhost:3000/bff/auth/otp/verify", {
         email: "a@b.co",
         otp: "123456"
       })
@@ -125,7 +125,7 @@ describe("POST /api/auth/otp/verify", () => {
     );
 
     const response = await otpVerify(
-      postRequest("http://localhost:3000/api/auth/otp/verify", {
+      postRequest("http://localhost:3000/bff/auth/otp/verify", {
         email: "a@b.co",
         otp: "000000"
       })
@@ -140,7 +140,7 @@ describe("POST /api/auth/otp/verify", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await otpVerify(
-      postRequest("http://localhost:3000/api/auth/otp/verify", { email: "a@b.co", otp: "12" })
+      postRequest("http://localhost:3000/bff/auth/otp/verify", { email: "a@b.co", otp: "12" })
     );
 
     expect(response.status).toBe(400);
@@ -148,7 +148,7 @@ describe("POST /api/auth/otp/verify", () => {
   });
 });
 
-describe("POST /api/auth/signout", () => {
+describe("POST /bff/auth/signout", () => {
   it("expires the session cookies", async () => {
     const response = await signOut();
 

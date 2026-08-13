@@ -45,7 +45,7 @@ describe("email claim after social sign-in", () => {
   });
 
   it("verifies the code before the session exists", () => {
-    expect(linkStep).toContain("/api/auth/link/otp/verify");
+    expect(linkStep).toContain("/bff/auth/link/otp/verify");
   });
 
   it("replaces the email form while a claim is in progress", () => {

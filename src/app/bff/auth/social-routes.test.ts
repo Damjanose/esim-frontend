@@ -36,13 +36,13 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("POST /api/auth/social/google", () => {
+describe("POST /bff/auth/social/google", () => {
   it("exchanges the Google credential for session cookies", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: sessionPair }));
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await googleSignIn(
-      post("http://localhost:3000/api/auth/social/google", {
+      post("http://localhost:3000/bff/auth/social/google", {
         idToken: "google-id-token",
         nonce: "n-1"
       })
@@ -76,7 +76,7 @@ describe("POST /api/auth/social/google", () => {
     );
 
     const response = await googleSignIn(
-      post("http://localhost:3000/api/auth/social/google", { idToken: "google-id-token" })
+      post("http://localhost:3000/bff/auth/social/google", { idToken: "google-id-token" })
     );
     const payload = (await response.json()) as {
       data: { linkRequired: boolean; linkTicket: string; suggestedEmail: string };
@@ -93,7 +93,7 @@ describe("POST /api/auth/social/google", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await googleSignIn(
-      post("http://localhost:3000/api/auth/social/google", {})
+      post("http://localhost:3000/bff/auth/social/google", {})
     );
 
     expect(response.status).toBe(400);
@@ -109,7 +109,7 @@ describe("POST /api/auth/social/google", () => {
     );
 
     const response = await googleSignIn(
-      post("http://localhost:3000/api/auth/social/google", { idToken: "google-id-token" })
+      post("http://localhost:3000/bff/auth/social/google", { idToken: "google-id-token" })
     );
     const payload = (await response.json()) as { error: string };
 
@@ -118,13 +118,13 @@ describe("POST /api/auth/social/google", () => {
   });
 });
 
-describe("POST /api/auth/social/apple", () => {
+describe("POST /bff/auth/social/apple", () => {
   it("forwards the identity token and nonce", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: sessionPair }));
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await appleSignIn(
-      post("http://localhost:3000/api/auth/social/apple", {
+      post("http://localhost:3000/bff/auth/social/apple", {
         identityToken: "apple-identity-token",
         nonce: "n-2"
       })
@@ -147,20 +147,20 @@ describe("POST /api/auth/social/apple", () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    const response = await appleSignIn(post("http://localhost:3000/api/auth/social/apple", {}));
+    const response = await appleSignIn(post("http://localhost:3000/bff/auth/social/apple", {}));
 
     expect(response.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
-describe("POST /api/auth/link/otp/verify", () => {
+describe("POST /bff/auth/link/otp/verify", () => {
   it("mints session cookies once the email is claimed", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: sessionPair }));
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await linkVerify(
-      post("http://localhost:3000/api/auth/link/otp/verify", {
+      post("http://localhost:3000/bff/auth/link/otp/verify", {
         linkTicket: "ticket-1",
         email: "bob@example.com",
         otp: "123456"
@@ -183,7 +183,7 @@ describe("POST /api/auth/link/otp/verify", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await linkVerify(
-      post("http://localhost:3000/api/auth/link/otp/verify", {
+      post("http://localhost:3000/bff/auth/link/otp/verify", {
         linkTicket: "ticket-1",
         email: "bob@example.com",
         otp: "12"
@@ -203,7 +203,7 @@ describe("POST /api/auth/link/otp/verify", () => {
     );
 
     const response = await linkVerify(
-      post("http://localhost:3000/api/auth/link/otp/verify", {
+      post("http://localhost:3000/bff/auth/link/otp/verify", {
         linkTicket: "stale",
         email: "bob@example.com",
         otp: "123456"

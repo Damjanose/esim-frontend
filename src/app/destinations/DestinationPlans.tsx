@@ -247,7 +247,7 @@ function useCountryHeroImage(country?: string) {
         setLoading(true);
 
         const response = await fetch(
-          `/api/country-image?country=${encodeURIComponent(
+          `/bff/country-image?country=${encodeURIComponent(
             countryName,
           )}`,
           {

@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
-import type { BillingAddress } from "@/app/api/user/billing-address/route";
+import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 
 const FIELDS: { autoComplete: string; key: keyof BillingAddress; label: string }[] = [
   { autoComplete: "address-line1", key: "line1", label: "Address" },
@@ -26,7 +26,7 @@ export function BillingForm({ initialAddress }: { initialAddress: BillingAddress
     setSaved(false);
 
     try {
-      const response = await fetch("/api/user/billing-address", {
+      const response = await fetch("/bff/user/billing-address", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(address)

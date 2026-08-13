@@ -31,7 +31,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
     setError(null);
 
     try {
-      const response = await fetch(`/api/auth/identities/${provider}`, { method: "DELETE" });
+      const response = await fetch(`/bff/auth/identities/${provider}`, { method: "DELETE" });
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => ({}))) as { error?: string };

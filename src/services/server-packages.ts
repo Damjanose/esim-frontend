@@ -3,7 +3,7 @@ import { mapPackagesPayload, type HeroPackageOption } from "./packages";
 
 /**
  * Server-side catalog access. The browser helper in `packages.ts` goes through
- * the `/api/packages` proxy; Server Components talk to the backend directly.
+ * the `/bff/packages` proxy; Server Components talk to the backend directly.
  */
 export async function getPackageOptions(): Promise<HeroPackageOption[]> {
   const result = await backendFetch<{ packages?: unknown[] }>("/packages");

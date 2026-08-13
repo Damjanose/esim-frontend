@@ -35,7 +35,7 @@ export function TopUpPanel({
     setError(null);
 
     try {
-      const response = await fetch("/api/payments/topups/intent", {
+      const response = await fetch("/bff/payments/topups/intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order_id: orderId, package_id: packageId })

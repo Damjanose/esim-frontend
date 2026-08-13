@@ -12,7 +12,7 @@ export function PayButton({ packageId }: { packageId: string }) {
     setError(null);
 
     try {
-      const response = await fetch("/api/payments/intent", {
+      const response = await fetch("/bff/payments/intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ package_id: packageId })

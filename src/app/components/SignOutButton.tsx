@@ -10,7 +10,7 @@ export function SignOutButton() {
 
   async function signOut() {
     setBusy(true);
-    await fetch("/api/auth/signout", { method: "POST" }).catch(() => undefined);
+    await fetch("/bff/auth/signout", { method: "POST" }).catch(() => undefined);
     router.replace("/");
     router.refresh();
   }

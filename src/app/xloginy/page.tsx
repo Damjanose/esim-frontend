@@ -171,7 +171,7 @@ export default function AdminDashboardPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/dashboard", {
+      const response = await fetch("/bff/admin/dashboard", {
         headers: { Authorization: `Bearer ${nextToken}` },
         cache: "no-store"
       });
@@ -209,7 +209,7 @@ export default function AdminDashboardPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/login", {
+      const response = await fetch("/bff/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })

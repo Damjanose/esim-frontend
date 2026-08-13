@@ -16,8 +16,8 @@ describe("hidden admin error inbox", () => {
   it("renders utility filters, table columns, and plain error detail actions", () => {
     const errorInboxSource = readFileSync("src/app/xerrors/page.tsx", "utf8");
 
-    expect(errorInboxSource).toContain("/api/admin/login");
-    expect(errorInboxSource).toContain("/api/admin/errors");
+    expect(errorInboxSource).toContain("/bff/admin/login");
+    expect(errorInboxSource).toContain("/bff/admin/errors");
     expect(errorInboxSource).toContain("Error Inbox");
     expect(errorInboxSource).toContain("Email");
     expect(errorInboxSource).toContain("Request ID");
@@ -46,13 +46,13 @@ describe("hidden admin error inbox", () => {
   });
 
   it("adds local admin API proxy routes for error inbox operations", () => {
-    expect(existsSync("src/app/api/admin/errors/route.ts")).toBe(true);
-    expect(existsSync("src/app/api/admin/errors/[id]/route.ts")).toBe(true);
-    expect(existsSync("src/app/api/admin/errors/[id]/repair/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/errors/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/errors/[id]/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/errors/[id]/repair/route.ts")).toBe(true);
 
-    const listProxy = readFileSync("src/app/api/admin/errors/route.ts", "utf8");
-    const detailProxy = readFileSync("src/app/api/admin/errors/[id]/route.ts", "utf8");
-    const repairProxy = readFileSync("src/app/api/admin/errors/[id]/repair/route.ts", "utf8");
+    const listProxy = readFileSync("src/app/bff/admin/errors/route.ts", "utf8");
+    const detailProxy = readFileSync("src/app/bff/admin/errors/[id]/route.ts", "utf8");
+    const repairProxy = readFileSync("src/app/bff/admin/errors/[id]/repair/route.ts", "utf8");
 
     expect(listProxy).toContain("/admin/errors");
     expect(listProxy).toContain("Authorization");

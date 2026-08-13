@@ -19,6 +19,7 @@ describe("Next SEO routes", () => {
         "/admin/",
         "/account/",
         "/auth/",
+        "/bff/",
         "/billing/",
         "/checkout/",
         "/dashboard/",
@@ -55,7 +56,7 @@ describe("Next SEO routes", () => {
     expect(entries.every((entry) => entry.url.startsWith("https://esim.uplisoft.com"))).toBe(true);
     expect(entries.some((entry) => entry.url.includes("/xloginy"))).toBe(false);
     expect(entries.some((entry) => entry.url.includes("/xerrors"))).toBe(false);
-    expect(entries.some((entry) => entry.url.includes("/api/"))).toBe(false);
+    expect(entries.some((entry) => entry.url.includes("/bff/"))).toBe(false);
   });
 
   it("adds noindex metadata layouts to hidden admin pages", () => {
@@ -76,7 +77,10 @@ describe("Next SEO routes", () => {
 
     expect(middlewareSource).toContain('const canonicalHost = "esim.uplisoft.com"');
     expect(middlewareSource).toContain('const wwwHost = `www.${canonicalHost}`');
-    expect(middlewareSource).toContain('request.headers.get("x-forwarded-proto")');
+    // The proxy headers (including x-forwarded-proto) are read by
+    // getPublicOrigin, which has its own tests; canonicalisation must build on
+    // that origin so redirects never point at the server's internal address.
+    expect(middlewareSource).toContain("getPublicOrigin(request)");
     expect(middlewareSource).toContain('url.protocol = "https:"');
     expect(middlewareSource).toContain('url.pathname.replace(/\\/+$/, "")');
     expect(middlewareSource).toContain("NextResponse.redirect(url, 308)");

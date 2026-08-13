@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getPublicOrigin } from "@/lib/public-origin";
 import { guardedRedirect } from "@/lib/route-guard";
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/session";
 
@@ -6,21 +7,24 @@ const canonicalHost = "esim.uplisoft.com";
 const wwwHost = `www.${canonicalHost}`;
 
 export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  const requestHost = request.headers.get("host")?.split(":")[0].toLowerCase();
+  // `request.nextUrl` is resolved from the address the server listens on, which
+  // in production is the loopback port nginx proxies to. Redirecting to it
+  // would send the visitor to `localhost`, so every absolute URL below is built
+  // on the public origin taken from the forwarded headers instead.
+  const url = new URL(
+    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+    getPublicOrigin(request)
+  );
   let shouldRedirect = false;
 
-  if (requestHost === wwwHost || url.hostname === wwwHost) {
+  if (url.hostname === wwwHost) {
     url.hostname = canonicalHost;
     url.port = "";
     shouldRedirect = true;
   }
 
-  const forwardedProto = request.headers.get("x-forwarded-proto");
-  const isCanonicalHost = requestHost === canonicalHost || url.hostname === canonicalHost;
-  if ((isCanonicalHost || requestHost === wwwHost) && forwardedProto === "http") {
+  if (url.hostname === canonicalHost && url.protocol === "http:") {
     url.protocol = "https:";
-    url.hostname = canonicalHost;
     url.port = "";
     shouldRedirect = true;
   }

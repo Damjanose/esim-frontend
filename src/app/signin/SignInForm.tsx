@@ -50,7 +50,7 @@ export function SignInForm() {
     setBusy(true);
     setError(null);
 
-    const { ok, payload } = await postJson("/api/auth/otp/send", { email });
+    const { ok, payload } = await postJson("/bff/auth/otp/send", { email });
 
     setBusy(false);
 
@@ -71,7 +71,7 @@ export function SignInForm() {
     setBusy(true);
     setError(null);
 
-    const { ok, payload } = await postJson("/api/auth/otp/verify", { email, otp: code });
+    const { ok, payload } = await postJson("/bff/auth/otp/verify", { email, otp: code });
 
     if (!ok) {
       setBusy(false);

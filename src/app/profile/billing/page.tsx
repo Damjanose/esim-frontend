@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, CreditCard, Lock, WifiOff } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
-import type { BillingAddress } from "@/app/api/user/billing-address/route";
+import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { BillingForm } from "./BillingForm";

@@ -117,7 +117,7 @@ export default function AdminErrorInboxPage() {
     params.set("unresolvedOnly", String(unresolvedOnly));
 
     try {
-      const response = await fetch(`/api/admin/errors?${params.toString()}`, {
+      const response = await fetch(`/bff/admin/errors?${params.toString()}`, {
         headers: { Authorization: `Bearer ${nextToken}` },
         cache: "no-store"
       });
@@ -165,7 +165,7 @@ export default function AdminErrorInboxPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/admin/login", {
+      const response = await fetch("/bff/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -194,7 +194,7 @@ export default function AdminErrorInboxPage() {
     setError("");
     setNotice("");
     try {
-      const response = await fetch(`/api/admin/errors/${selectedError.id}`, {
+      const response = await fetch(`/bff/admin/errors/${selectedError.id}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -224,7 +224,7 @@ export default function AdminErrorInboxPage() {
     setError("");
     setNotice("");
     try {
-      const response = await fetch(`/api/admin/errors/${selectedError.id}/repair`, {
+      const response = await fetch(`/bff/admin/errors/${selectedError.id}/repair`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });

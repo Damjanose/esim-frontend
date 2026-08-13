@@ -17,7 +17,7 @@ export function DeleteAccountCard() {
     setError(null);
 
     try {
-      const response = await fetch("/api/user/account", { method: "DELETE" });
+      const response = await fetch("/bff/user/account", { method: "DELETE" });
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => ({}))) as { error?: string };

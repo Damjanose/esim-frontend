@@ -249,7 +249,7 @@ export function mapPackagesPayload(
 export async function fetchPackageOptions(): Promise<
   HeroPackageOption[]
 > {
-  const response = await fetch("/api/packages", {
+  const response = await fetch("/bff/packages", {
     method: "GET",
     headers: {
       Accept: "application/json",

@@ -33,7 +33,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("GET /api/user/billing-address", () => {
+describe("GET /bff/user/billing-address", () => {
   it("returns the stored address", async () => {
     vi.stubGlobal(
       "fetch",
@@ -41,7 +41,7 @@ describe("GET /api/user/billing-address", () => {
     );
 
     const response = await getBillingAddress(
-      new Request("http://localhost:3000/api/user/billing-address", {
+      new Request("http://localhost:3000/bff/user/billing-address", {
         headers: { cookie: signedIn }
       })
     );
@@ -55,7 +55,7 @@ describe("GET /api/user/billing-address", () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ status: "error" }, 401)));
 
     const response = await getBillingAddress(
-      new Request("http://localhost:3000/api/user/billing-address", {
+      new Request("http://localhost:3000/bff/user/billing-address", {
         headers: { cookie: signedIn }
       })
     );
@@ -64,9 +64,9 @@ describe("GET /api/user/billing-address", () => {
   });
 });
 
-describe("PUT /api/user/billing-address", () => {
+describe("PUT /bff/user/billing-address", () => {
   function putRequest(body: unknown) {
-    return new Request("http://localhost:3000/api/user/billing-address", {
+    return new Request("http://localhost:3000/bff/user/billing-address", {
       method: "PUT",
       headers: { "content-type": "application/json", cookie: signedIn },
       body: JSON.stringify(body)
@@ -109,7 +109,7 @@ describe("PUT /api/user/billing-address", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await putBillingAddress(
-      new Request("http://localhost:3000/api/user/billing-address", {
+      new Request("http://localhost:3000/bff/user/billing-address", {
         method: "PUT",
         headers: { "content-type": "application/json", cookie: signedIn },
         body: "not json"
@@ -121,9 +121,9 @@ describe("PUT /api/user/billing-address", () => {
   });
 });
 
-describe("DELETE /api/user/account", () => {
+describe("DELETE /bff/user/account", () => {
   function deleteRequest() {
-    return new Request("http://localhost:3000/api/user/account", {
+    return new Request("http://localhost:3000/bff/user/account", {
       method: "DELETE",
       headers: { cookie: signedIn }
     });

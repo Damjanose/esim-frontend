@@ -19,7 +19,7 @@ export async function fetchForPage<T>(
 
   const recover = () => {
     if (refreshToken) {
-      redirect(`/api/auth/refresh?next=${encodeURIComponent(currentPath)}`);
+      redirect(`/bff/auth/refresh?next=${encodeURIComponent(currentPath)}`);
     }
     redirect(`/signin?next=${encodeURIComponent(currentPath)}`);
   };

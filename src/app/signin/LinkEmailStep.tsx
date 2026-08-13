@@ -42,7 +42,7 @@ export function LinkEmailStep({
     setBusy(true);
     setError(null);
 
-    const response = await fetch("/api/auth/link/otp/send", {
+    const response = await fetch("/bff/auth/link/otp/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ linkTicket: challenge.linkTicket, email })
@@ -72,7 +72,7 @@ export function LinkEmailStep({
     setBusy(true);
     setError(null);
 
-    const response = await fetch("/api/auth/link/otp/verify", {
+    const response = await fetch("/bff/auth/link/otp/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ linkTicket: challenge.linkTicket, email, otp: code })

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE } from "@/lib/session";
-import { POST as createIntent } from "../api/payments/intent/route";
+import { POST as createIntent } from "../bff/payments/intent/route";
 import { GET as checkoutReturn } from "./return/route";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -34,13 +34,13 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("POST /api/payments/intent", () => {
+describe("POST /bff/payments/intent", () => {
   it("asks the backend for a checkout url and remembers the payment id", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await createIntent(
-      new Request("http://localhost:3000/api/payments/intent", {
+      new Request("http://localhost:3000/bff/payments/intent", {
         method: "POST",
         headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
         body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })
@@ -70,7 +70,7 @@ describe("POST /api/payments/intent", () => {
     // Next resolves request.url from the bind address, so a deployed site would
     // otherwise send Pokpay a localhost return_url the allowlist must reject.
     await createIntent(
-      new Request("http://localhost:3000/api/payments/intent", {
+      new Request("http://localhost:3000/bff/payments/intent", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -93,7 +93,7 @@ describe("POST /api/payments/intent", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await createIntent(
-      new Request("http://localhost:3000/api/payments/intent", {
+      new Request("http://localhost:3000/bff/payments/intent", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })

@@ -162,7 +162,7 @@ export function SocialSignInButtons({
             }
             setBusy("google");
             setError(null);
-            void completeSignIn("/api/auth/social/google", {
+            void completeSignIn("/bff/auth/social/google", {
               idToken: response.credential,
               nonce
             });
@@ -226,7 +226,7 @@ export function SocialSignInButtons({
       // No nonce: the web flow and the native SDK differ in whether the nonce is
       // hashed before it reaches the token, and the backend only checks a nonce
       // when one is supplied.
-      await completeSignIn("/api/auth/social/apple", { identityToken });
+      await completeSignIn("/bff/auth/social/apple", { identityToken });
     } catch {
       setBusy(null);
       // A closed popup is the common case here, and is not worth an error.

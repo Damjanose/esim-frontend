@@ -16,8 +16,8 @@ describe("hidden admin purchase dashboard", () => {
   it("renders an admin login, purchase table, and SVG purchases-over-time chart", () => {
     const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
 
-    expect(dashboardSource).toContain("/api/admin/login");
-    expect(dashboardSource).toContain("/api/admin/dashboard");
+    expect(dashboardSource).toContain("/bff/admin/login");
+    expect(dashboardSource).toContain("/bff/admin/dashboard");
     expect(dashboardSource).toContain("response.status === 401");
     expect(dashboardSource).toContain("sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY)");
     expect(dashboardSource).toContain("Purchases over time");
@@ -54,11 +54,11 @@ describe("hidden admin purchase dashboard", () => {
   });
 
   it("adds local admin API proxy routes for login and dashboard data", () => {
-    expect(existsSync("src/app/api/admin/login/route.ts")).toBe(true);
-    expect(existsSync("src/app/api/admin/dashboard/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/login/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/dashboard/route.ts")).toBe(true);
 
-    const loginProxy = readFileSync("src/app/api/admin/login/route.ts", "utf8");
-    const dashboardProxy = readFileSync("src/app/api/admin/dashboard/route.ts", "utf8");
+    const loginProxy = readFileSync("src/app/bff/admin/login/route.ts", "utf8");
+    const dashboardProxy = readFileSync("src/app/bff/admin/dashboard/route.ts", "utf8");
     // Backend URL resolution is shared by all proxy routes rather than copied per route.
     const backendSource = readFileSync("src/lib/backend.ts", "utf8");
 

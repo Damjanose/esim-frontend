@@ -25,7 +25,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("GET /api/auth/refresh", () => {
+describe("GET /bff/auth/refresh", () => {
   it("rotates the cookies and returns the visitor to where they were", async () => {
     vi.stubGlobal(
       "fetch",
@@ -44,7 +44,7 @@ describe("GET /api/auth/refresh", () => {
 
     const response = await refreshRoute(
       getRequest(
-        "http://localhost:3000/api/auth/refresh?next=%2Faccount%2F42",
+        "http://localhost:3000/bff/auth/refresh?next=%2Faccount%2F42",
         `${REFRESH_COOKIE}=valid-refresh`
       )
     );
@@ -64,7 +64,7 @@ describe("GET /api/auth/refresh", () => {
 
     const response = await refreshRoute(
       getRequest(
-        "http://localhost:3000/api/auth/refresh?next=%2Faccount",
+        "http://localhost:3000/bff/auth/refresh?next=%2Faccount",
         `${REFRESH_COOKIE}=dead-refresh`
       )
     );
@@ -82,7 +82,7 @@ describe("GET /api/auth/refresh", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await refreshRoute(
-      getRequest("http://localhost:3000/api/auth/refresh?next=%2Faccount")
+      getRequest("http://localhost:3000/bff/auth/refresh?next=%2Faccount")
     );
 
     expect(fetchMock).not.toHaveBeenCalled();
@@ -109,11 +109,63 @@ describe("GET /api/auth/refresh", () => {
 
     const response = await refreshRoute(
       getRequest(
-        "http://localhost:3000/api/auth/refresh?next=https%3A%2F%2Fevil.example.com",
+        "http://localhost:3000/bff/auth/refresh?next=https%3A%2F%2Fevil.example.com",
         `${REFRESH_COOKIE}=valid-refresh`
       )
     );
 
     expect(response.headers.get("location")).toBe("http://localhost:3000/account");
+  });
+
+  it("returns the visitor to the public origin, not the proxied server's address", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        jsonResponse({
+          status: "success",
+          data: {
+            token: "rotated-access",
+            refreshToken: "rotated-refresh",
+            expiresInSeconds: 604800,
+            refreshExpiresInSeconds: 2592000
+          }
+        })
+      )
+    );
+
+    const request = new Request("https://localhost:3020/bff/auth/refresh?next=%2Fprofile", {
+      method: "GET",
+      headers: {
+        cookie: `${REFRESH_COOKIE}=valid-refresh`,
+        host: "esim.uplisoft.com",
+        "x-forwarded-proto": "https"
+      }
+    });
+
+    const response = await refreshRoute(request);
+
+    expect(response.headers.get("location")).toBe("https://esim.uplisoft.com/profile");
+  });
+
+  it("sends a dead session to sign-in on the public origin", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "error", error: "Invalid refresh token" }, 401))
+    );
+
+    const request = new Request("https://localhost:3020/bff/auth/refresh?next=%2Fprofile", {
+      method: "GET",
+      headers: {
+        cookie: `${REFRESH_COOKIE}=dead-refresh`,
+        host: "esim.uplisoft.com",
+        "x-forwarded-proto": "https"
+      }
+    });
+
+    const response = await refreshRoute(request);
+
+    expect(response.headers.get("location")).toBe(
+      "https://esim.uplisoft.com/signin?next=%2Fprofile"
+    );
   });
 });
