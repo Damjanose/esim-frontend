@@ -1,28 +1,15 @@
 import { NextResponse } from "next/server";
-
-const DEFAULT_BACKEND_API_URL = "https://esim.uplisoft.com/api";
-
-function getBackendApiUrl() {
-  return (
-    process.env.PACKAGES_API_URL ??
-    process.env.BACKEND_API_URL ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    DEFAULT_BACKEND_API_URL
-  ).replace(/\/$/, "");
-}
+import { backendFetch } from "@/lib/backend";
 
 export async function GET() {
-  try {
-    const response = await fetch(`${getBackendApiUrl()}/packages`, {
-      cache: "no-store",
-    });
-    const payload = await response.json();
+  const result = await backendFetch<{ packages?: unknown[] }>("/packages");
 
-    return NextResponse.json(payload, { status: response.status });
-  } catch {
+  if (!result.ok) {
     return NextResponse.json(
-      { status: "error", error: "Failed to fetch packages" },
-      { status: 502 },
+      { status: "error", error: result.message },
+      { status: result.status }
     );
   }
+
+  return NextResponse.json({ status: "success", data: result.data });
 }

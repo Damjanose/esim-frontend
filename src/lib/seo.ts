@@ -19,7 +19,9 @@ export const privateRoutePrefixes = [
   "/account",
   "/auth",
   "/billing",
+  "/checkout",
   "/dashboard",
+  "/signin",
   "/xerrors",
   "/xloginy"
 ] as const;

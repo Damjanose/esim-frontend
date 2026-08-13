@@ -1,14 +1,5 @@
 import { NextResponse } from "next/server";
-
-const DEFAULT_BACKEND_API_URL = "https://esim.uplisoft.com/api";
-const LOCAL_BACKEND_API_URL = "http://127.0.0.1:4000/api";
-
-function getBackendApiUrl() {
-  const configuredUrl = process.env.BACKEND_API_URL ?? process.env.NEXT_PUBLIC_API_URL;
-  if (configuredUrl) return configuredUrl.replace(/\/$/, "");
-  if (process.env.NODE_ENV === "development") return LOCAL_BACKEND_API_URL;
-  return DEFAULT_BACKEND_API_URL;
-}
+import { getBackendApiUrl } from "@/lib/backend";
 
 type RouteContext = {
   params: Promise<{ id: string }>;

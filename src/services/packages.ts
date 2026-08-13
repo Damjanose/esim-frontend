@@ -223,6 +223,29 @@ export function filterPackageOptions(
     .slice(0, limit);
 }
 
+/**
+ * Shared by the browser fetch below and the server-side catalog lookup, so both
+ * views of a plan are built from exactly the same mapping.
+ */
+export function mapPackagesPayload(
+  payload: PackagesResponse | ApiPackage[] | { packages?: ApiPackage[] },
+): HeroPackageOption[] {
+  const packages = Array.isArray(payload)
+    ? payload
+    : payload.packages ??
+      (payload as PackagesResponse).data?.packages ??
+      [];
+
+  return packages
+    .map(mapPackageToOption)
+    .filter(
+      (option) =>
+        option.id.length > 0 &&
+        option.country.length > 0 &&
+        option.countryCode.length > 0,
+    );
+}
+
 export async function fetchPackageOptions(): Promise<
   HeroPackageOption[]
 > {
@@ -244,16 +267,5 @@ export async function fetchPackageOptions(): Promise<
     | PackagesResponse
     | ApiPackage[];
 
-  const packages = Array.isArray(payload)
-    ? payload
-    : payload.data?.packages ?? payload.packages ?? [];
-
-  return packages
-    .map(mapPackageToOption)
-    .filter(
-      (option) =>
-        option.id.length > 0 &&
-        option.country.length > 0 &&
-        option.countryCode.length > 0,
-    );
+  return mapPackagesPayload(payload);
 }

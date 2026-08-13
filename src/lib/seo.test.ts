@@ -46,7 +46,9 @@ describe("SEO route contract", () => {
       "/account",
       "/auth",
       "/billing",
+      "/checkout",
       "/dashboard",
+      "/signin",
       "/xerrors",
       "/xloginy"
     ]);

@@ -59,14 +59,17 @@ describe("hidden admin purchase dashboard", () => {
 
     const loginProxy = readFileSync("src/app/api/admin/login/route.ts", "utf8");
     const dashboardProxy = readFileSync("src/app/api/admin/dashboard/route.ts", "utf8");
+    // Backend URL resolution is shared by all proxy routes rather than copied per route.
+    const backendSource = readFileSync("src/lib/backend.ts", "utf8");
 
     expect(loginProxy).toContain("/admin/login");
-    expect(loginProxy).toContain("BACKEND_API_URL");
-    expect(loginProxy).toContain("http://127.0.0.1:4000/api");
-    expect(loginProxy).toContain("NODE_ENV");
+    expect(loginProxy).toContain("backendFetch");
     expect(dashboardProxy).toContain("/admin/dashboard");
     expect(dashboardProxy).toContain("Authorization");
-    expect(dashboardProxy).toContain("http://127.0.0.1:4000/api");
-    expect(dashboardProxy).toContain("NODE_ENV");
+    expect(dashboardProxy).toContain("backendFetch");
+    expect(backendSource).toContain("BACKEND_API_URL");
+    expect(backendSource).toContain("https://esim.uplisoft.com/api");
+    // No environment-dependent fallback: the hosted backend is the default everywhere.
+    expect(backendSource).not.toContain("NODE_ENV");
   });
 });
