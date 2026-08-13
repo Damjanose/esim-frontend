@@ -5,17 +5,24 @@ import {
   ArrowLeft,
   CheckCircle2,
   Clock3,
+  History,
   Info,
   QrCode,
   Smartphone,
   WifiOff
 } from "lucide-react";
-import { resolveQrSource, summariseUsage, type UsagePayload } from "@/lib/esim-install";
+import {
+  formatMegabytes,
+  resolveQrSource,
+  summariseUsage,
+  type UsagePayload
+} from "@/lib/esim-install";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
 import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { CopyField } from "./CopyField";
+import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
 
 export const metadata: Metadata = createMetadata({
   path: "/account",
@@ -47,15 +54,43 @@ type Instructions = {
   [key: string]: unknown;
 };
 
+/** Every field is optional upstream, so each one is rendered defensively. */
+type PackageHistoryEntry = {
+  id?: string;
+  package_id?: string;
+  status?: string;
+  remaining?: number;
+  total?: number;
+  is_unlimited?: boolean;
+};
+
+/**
+ * The backend answers 200 with `available: false` and an explanation when the
+ * provider has nothing to sell or the eSIM is not provisioned yet.
+ */
+type Topups = {
+  available?: boolean;
+  packages?: TopupPackage[];
+  reason?: string;
+  message?: string;
+};
+
+function describeAllowance(entry: PackageHistoryEntry): string {
+  if (entry.is_unlimited) return "Unlimited";
+  if (typeof entry.total !== "number") return "—";
+  if (typeof entry.remaining !== "number") return formatMegabytes(entry.total);
+  return `${formatMegabytes(entry.remaining)} of ${formatMegabytes(entry.total)} left`;
+}
+
 export default async function OrderDetailPage({
   params,
   searchParams
 }: {
   params: Promise<{ orderId: string }>;
-  searchParams: Promise<{ new?: string }>;
+  searchParams: Promise<{ new?: string; topup?: string }>;
 }) {
   const { orderId } = await params;
-  const { new: isNew } = await searchParams;
+  const { new: isNew, topup: isToppedUp } = await searchParams;
   const basePath = `/account/${orderId}`;
 
   const orderResult = await fetchForPage<{ order: Order }>(`/orders/${orderId}`, basePath);
@@ -85,12 +120,19 @@ export default async function OrderDetailPage({
   const order = orderResult.data.order;
   const sim = order.sims?.[0];
 
-  const [usageResult, instructionsResult] = await Promise.all([
+  const [usageResult, instructionsResult, packagesResult, topupsResult] = await Promise.all([
     fetchForPage<{ usage: UsagePayload }>(`/orders/${orderId}/usage`, basePath),
-    fetchForPage<{ instructions: Instructions }>(`/orders/${orderId}/instructions`, basePath)
+    fetchForPage<{ instructions: Instructions }>(`/orders/${orderId}/instructions`, basePath),
+    fetchForPage<{ packages: PackageHistoryEntry[] }>(`/orders/${orderId}/packages`, basePath),
+    fetchForPage<{ topups: Topups }>(`/orders/${orderId}/topups`, basePath)
   ]);
 
   const usage = summariseUsage(usageResult.ok ? usageResult.data.usage : null);
+  // Plan history is supplementary: if the provider call fails, the install and
+  // usage panels above are still worth showing on their own.
+  const packageHistory = packagesResult.ok ? packagesResult.data.packages : [];
+  const topups = topupsResult.ok ? topupsResult.data.topups : null;
+  const topupPackages = topups?.available === true ? (topups.packages ?? []) : [];
   const qr = resolveQrSource(sim?.qrcode);
   const instructionsAvailable =
     instructionsResult.ok && instructionsResult.data.instructions?.available === true;
@@ -115,6 +157,19 @@ export default async function OrderDetailPage({
               <p className="font-bold">Payment complete — your eSIM is ready</p>
               <p className="mt-0.5 text-sm text-[#9ae6b4]">
                 Scan the QR code below to install it on your device.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        {isToppedUp === "1" ? (
+          <div className="mt-6 flex items-center gap-4 rounded-[16px] border border-[#1c7a4b] bg-[#07281a] px-5 py-4">
+            <CheckCircle2 aria-hidden="true" className="shrink-0 text-[#4ade80]" size={22} />
+            <div>
+              <p className="font-bold">Top-up complete</p>
+              <p className="mt-0.5 text-sm text-[#9ae6b4]">
+                Your extra data has been added to this eSIM. Usage can take a few minutes to
+                catch up.
               </p>
             </div>
           </div>
@@ -229,6 +284,56 @@ export default async function OrderDetailPage({
             </Link>
           </aside>
         </div>
+
+        {topupPackages.length > 0 ? (
+          <TopUpPanel orderId={order.id} packages={topupPackages} />
+        ) : topups?.message ? (
+          <div className="mt-5 flex items-start gap-3 rounded-[18px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] px-6 py-5">
+            <Info aria-hidden="true" className="mt-0.5 shrink-0 text-[#58baff]" size={18} />
+            <div>
+              <p className="text-sm font-bold">Top-up unavailable</p>
+              <p className="mt-1 text-sm text-[#8ea3ba]">{topups.message}</p>
+            </div>
+          </div>
+        ) : null}
+
+        {packageHistory.length > 0 ? (
+          <div className="mt-5 rounded-[20px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] p-6 sm:p-8">
+            <h2 className="flex items-center gap-2.5 font-display text-xl font-black">
+              <History aria-hidden="true" className="text-[#58baff]" size={20} />
+              Plan history
+            </h2>
+            <p className="mt-2 text-sm text-[#8ea3ba]">
+              Every plan that has run on this eSIM, including top-ups.
+            </p>
+
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full min-w-[420px] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="text-[11px] font-black uppercase tracking-[0.1em] text-[#748aa2]">
+                    <th className="pb-3 pr-4 font-black">Plan</th>
+                    <th className="pb-3 pr-4 font-black">Status</th>
+                    <th className="pb-3 font-black">Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {packageHistory.map((entry, index) => (
+                    <tr
+                      className="border-t border-[#214867]/50"
+                      key={entry.id ?? `${entry.package_id ?? "plan"}-${index}`}
+                    >
+                      <td className="py-3 pr-4 font-semibold text-white">
+                        {entry.package_id ?? "—"}
+                      </td>
+                      <td className="py-3 pr-4 text-[#8ea3ba]">{entry.status ?? "—"}</td>
+                      <td className="py-3 text-[#c7d6e5]">{describeAllowance(entry)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <SiteFooter />

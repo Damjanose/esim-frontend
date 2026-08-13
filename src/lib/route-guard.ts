@@ -1,10 +1,11 @@
-const GUARDED_PREFIXES = ["/account", "/checkout"];
+const GUARDED_PREFIXES = ["/account", "/checkout", "/profile"];
 
 /**
- * The payment return carries its own short-lived payment cookie and must stay
- * reachable even if the session cookie has lapsed while the visitor was on Pokpay.
+ * The payment returns carry their own short-lived payment cookie and must stay
+ * reachable even if the session cookie has lapsed while the visitor was on
+ * Pokpay. The goodbye page is reached with the session deliberately cleared.
  */
-const UNGUARDED_PATHS = ["/checkout/return"];
+const UNGUARDED_PATHS = ["/checkout/return", "/account/topup/return", "/profile/deleted"];
 
 /**
  * Presence of a session cookie is all middleware can cheaply check. It is a

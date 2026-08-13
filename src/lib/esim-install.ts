@@ -59,7 +59,8 @@ const UNAVAILABLE_MESSAGES: Record<string, string> = {
   provider_error: "Usage is unavailable from the provider right now. Please check back shortly."
 };
 
-function formatMegabytes(value: number): string {
+/** Shared so usage summaries and the per-eSIM plan history read identically. */
+export function formatMegabytes(value: number): string {
   if (value >= 1024) {
     const gb = value / 1024;
     return `${Number.isInteger(gb) ? gb : gb.toFixed(1)} GB`;

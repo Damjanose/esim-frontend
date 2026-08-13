@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Globe2, Inbox, WifiOff } from "lucide-react";
+import { ArrowRight, Inbox, UserRound, WifiOff } from "lucide-react";
+import { summariseUsage, type UsagePayload } from "@/lib/esim-install";
+import { resolveOrderSections, type OrderSummary } from "@/lib/order-groups";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
 import { Navbar } from "../components/Navbar";
 import { SiteFooter } from "../SiteFooter";
-import { SignOutButton } from "./SignOutButton";
+import { ActivePlanCard, PlanCard } from "./PlanCard";
 
 export const metadata: Metadata = createMetadata({
   path: "/account",
@@ -14,34 +16,52 @@ export const metadata: Metadata = createMetadata({
   indexable: false
 });
 
-type Order = {
-  id: number;
-  code: string;
-  status: string;
-  lifecycle_status: "ready" | "active" | "expired";
-  package_id: string;
-  created_at: string;
-  expires_at: string | null;
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  active: "border-[#1c7a4b] bg-[#07281a] text-[#4ade80]",
-  ready: "border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]",
-  expired: "border-[#4a4a58] bg-[#16161d] text-[#9ca3af]"
-};
-
-function formatDate(value: string | null): string {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+function Section({
+  children,
+  description,
+  title
+}: {
+  children: React.ReactNode;
+  description: string;
+  title: string;
+}) {
+  return (
+    <section className="mt-12">
+      <h2 className="font-display text-xl font-black tracking-[-0.02em]">{title}</h2>
+      <p className="mt-1 text-sm text-[#8ea3ba]">{description}</p>
+      {children}
+    </section>
+  );
 }
 
 export default async function AccountPage() {
-  // Usage is deliberately not fetched here: it is a per-order provider call, so
-  // a list of N plans would mean N upstream round-trips. It loads on detail.
-  const result = await fetchForPage<{ orders: Order[] }>("/orders", "/account");
+  // Fetched first and on its own: this endpoint checks remaining data and
+  // expires a depleted plan as a side effect, so asking it before the list means
+  // the list already reflects that expiry.
+  const activeResult = await fetchForPage<{ order: OrderSummary | null }>(
+    "/orders/active",
+    "/account"
+  );
+  const activeOrder = activeResult.ok ? activeResult.data.order : undefined;
+
+  // Per-order usage is one upstream round-trip each, so only the live plan gets
+  // one here. The rest load their usage on the detail page.
+  const [ordersResult, usageResult] = await Promise.all([
+    fetchForPage<{ orders: OrderSummary[] }>("/orders", "/account"),
+    activeOrder
+      ? fetchForPage<{ usage: UsagePayload }>(`/orders/${activeOrder.id}/usage`, "/account")
+      : null
+  ]);
+
+  const sections = ordersResult.ok
+    ? resolveOrderSections(ordersResult.data.orders, activeOrder)
+    : null;
+  const usage = summariseUsage(usageResult?.ok ? usageResult.data.usage : null);
+  const isEmpty =
+    sections !== null &&
+    sections.active === null &&
+    sections.ready.length === 0 &&
+    sections.history.length === 0;
 
   return (
     <main className="min-h-screen bg-[#040d1a] text-white">
@@ -58,18 +78,28 @@ export default async function AccountPage() {
             </p>
           </div>
 
-          <SignOutButton />
+          {/* Sign-out lives on the profile, so the account area has one place
+              that owns the session. */}
+          <Link
+            className="inline-flex h-10 items-center gap-2 rounded-[11px] border border-[#214867] px-4 text-xs font-black text-[#8ea3ba] transition hover:border-[#168cff]/75 hover:text-white"
+            href="/profile"
+          >
+            <UserRound size={15} />
+            Profile
+          </Link>
         </div>
 
-        {!result.ok ? (
+        {sections === null ? (
           <div className="mt-10 flex items-center gap-4 rounded-[18px] border border-[#7a4b1c] bg-[#1b1207] px-6 py-5">
             <WifiOff aria-hidden="true" className="shrink-0 text-[#ffb454]" size={22} />
             <div>
               <p className="font-bold">We couldn&apos;t load your plans</p>
-              <p className="mt-1 text-sm text-[#c9b393]">{result.message}</p>
+              <p className="mt-1 text-sm text-[#c9b393]">
+                {ordersResult.ok ? "" : ordersResult.message}
+              </p>
             </div>
           </div>
-        ) : result.data.orders.length === 0 ? (
+        ) : isEmpty ? (
           <div className="mt-10 flex flex-col items-center rounded-[20px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] px-6 py-14 text-center">
             <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
               <Inbox size={26} />
@@ -87,53 +117,45 @@ export default async function AccountPage() {
             </Link>
           </div>
         ) : (
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2">
-            {result.data.orders.map((order) => (
-              <li key={order.id}>
-                <Link
-                  className="group flex h-full flex-col rounded-[18px] border border-[#214867]/85 bg-[linear-gradient(145deg,#07182c,#051224)] p-5 transition duration-300 hover:-translate-y-1 hover:border-[#168cff]/75"
-                  href={`/account/${order.id}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
-                      <Globe2 size={22} />
-                    </span>
+          <>
+            {sections.active ? (
+              <Section
+                description="The plan currently using your data."
+                title="Active plan"
+              >
+                <div className="mt-5">
+                  <ActivePlanCard order={sections.active} usage={usage} />
+                </div>
+              </Section>
+            ) : null}
 
-                    <span
-                      className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.08em] ${
-                        STATUS_STYLES[order.lifecycle_status] ?? STATUS_STYLES.ready
-                      }`}
-                    >
-                      {order.lifecycle_status}
-                    </span>
-                  </div>
+            {sections.ready.length > 0 ? (
+              <Section
+                description="Bought and waiting. Install one to start using it."
+                title="Ready to use"
+              >
+                <ul className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {sections.ready.map((order) => (
+                    <li key={order.id}>
+                      <PlanCard order={order} />
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            ) : null}
 
-                  <p className="mt-4 font-display text-lg font-black">{order.package_id}</p>
-
-                  <dl className="mt-3 space-y-1.5 text-xs text-[#8196ad]">
-                    <div className="flex justify-between gap-3">
-                      <dt>Order</dt>
-                      <dd className="font-semibold text-[#c7d6e5]">{order.code}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <dt>Purchased</dt>
-                      <dd className="font-semibold text-[#c7d6e5]">
-                        {formatDate(order.created_at)}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <span className="mt-5 inline-flex items-center gap-2 text-xs font-black text-[#42b1ff]">
-                    View eSIM
-                    <ArrowRight
-                      className="transition-transform group-hover:translate-x-1"
-                      size={14}
-                    />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+            {sections.history.length > 0 ? (
+              <Section description="Plans you have finished." title="History">
+                <ul className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {sections.history.map((order) => (
+                    <li key={order.id}>
+                      <PlanCard order={order} />
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            ) : null}
+          </>
         )}
       </section>
 

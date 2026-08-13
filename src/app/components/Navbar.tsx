@@ -2,6 +2,7 @@ import { landingContent } from "@/content/landing";
 import {
   ChevronDown,
   Globe2,
+  UserRound,
 } from "lucide-react";
 
 export function Navbar() {
@@ -73,6 +74,17 @@ export function Navbar() {
             <span>EN</span>
             <ChevronDown aria-hidden="true" size={14} />
           </button>
+
+          {/* Static on purpose: the navbar renders on statically generated public
+              pages, so it must not read cookies. Signed-out visitors are sent on
+              to sign-in by the route guard. */}
+          <a
+            aria-label="Your profile"
+            className="grid h-11 w-11 place-items-center rounded-full border border-white/15 text-white/75 transition hover:border-white/40 hover:text-white"
+            href="/profile"
+          >
+            <UserRound aria-hidden="true" size={19} />
+          </a>
 
           <a
             className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-[#1557ff] to-[#27c6ff] px-5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(24,111,255,0.38)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_38px_rgba(24,111,255,0.5)] sm:px-7"

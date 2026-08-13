@@ -14,3 +14,5 @@
 | 2026-07-12 | [Subdomain SEO](./2026-07-12_subdomain_seo.md) | Added subdomain-specific metadata, robots, sitemap, structured data, OG image, private noindex protections, canonical redirects, tests, and manual Search Console notes. |
 | 2026-07-13 | [SEO content pages](./2026-07-13_seo_content_pages.md) | Added crawlable destination, guide, and use-case SEO pages with sitemap entries, JSON-LD, homepage internal links, and tests. |
 | 2026-07-13 | [App Store link and footer](./2026-07-13_app_store_footer.md) | Added the live iOS App Store link, updated app schema, and redesigned the homepage footer with grouped links and store buttons. |
+| 2026-08-13 | [Web profile and account area](./2026-08-13_web_profile_and_account_area.md) | Added the `/profile` hub, active/history plan sections, eSIM top-up, billing settings, account deletion, and Google/Apple sign-in across five phases. |
+| 2026-08-13 | [Social sign-in env wiring](./2026-08-13_social_signin_env_wiring.md) | Added `.env.local`/`.env.example` so the Google button actually renders on `/signin`; Apple still blocked on a missing Services ID. |

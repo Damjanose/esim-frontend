@@ -22,6 +22,7 @@ describe("Next SEO routes", () => {
         "/billing/",
         "/checkout/",
         "/dashboard/",
+        "/profile/",
         "/signin/",
         "/xerrors/",
         "/xloginy/"

@@ -29,7 +29,7 @@ export type BackendResult<T> =
   | { ok: false; status: number; message: string; payload?: Record<string, unknown> };
 
 export type BackendRequest = {
-  method?: "GET" | "POST" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: unknown;
   token?: string;
 };

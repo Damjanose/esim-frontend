@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import type { BackendResult } from "./backend";
-import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE, REFRESH_COOKIE } from "./session";
+import {
+  ACCESS_COOKIE,
+  PENDING_PAYMENT_COOKIE,
+  PENDING_TOPUP_COOKIE,
+  REFRESH_COOKIE
+} from "./session";
 import { callWithSession, type SessionPairResult } from "./with-session";
 
 const freshPair = {
@@ -88,7 +93,8 @@ describe("callWithSession", () => {
     expect(cookieNames(result.cookies)).toEqual([
       ACCESS_COOKIE,
       REFRESH_COOKIE,
-      PENDING_PAYMENT_COOKIE
+      PENDING_PAYMENT_COOKIE,
+      PENDING_TOPUP_COOKIE
     ]);
   });
 
@@ -108,7 +114,8 @@ describe("callWithSession", () => {
     expect(cookieNames(result.cookies)).toEqual([
       ACCESS_COOKIE,
       REFRESH_COOKIE,
-      PENDING_PAYMENT_COOKIE
+      PENDING_PAYMENT_COOKIE,
+      PENDING_TOPUP_COOKIE
     ]);
   });
 
