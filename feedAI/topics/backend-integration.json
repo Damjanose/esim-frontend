@@ -1,0 +1,40 @@
+{
+  "topic": "backend-integration",
+  "covers": "How this frontend talks to the Express eSIM backend ('E-SIM backend' sibling repo): BFF layer, backend client, env wiring.",
+  "facts": ["f003", "f004", "f005", "f023", "f028"],
+  "why_bff_exists": "nginx in production proxies the ENTIRE /api/* prefix to the Express backend, including paths Next never claims. Next route handlers used to live at src/app/api/** and were silently unreachable in prod (Express 404 'Cannot GET ...'). Fixed 2026-08-13 by git-mv'ing all 20 route handlers to src/app/bff/**. See f003, f028.",
+  "core_module": {
+    "file": "src/lib/backend.ts",
+    "getBackendApiUrl()": "process.env.BACKEND_API_URL ?? NEXT_PUBLIC_API_URL ?? 'https://esim.uplisoft.com/api' (default applies in ALL envs incl. next dev)",
+    "backendFetch<T>(path, {method,body,token})": "cache:'no-store'; sets Authorization: Bearer <token> when given; unwraps envelope {status,data,error,message}; returns BackendResult<T> = {ok:true,data} | {ok:false,status,message,payload?}",
+    "error_collapse": "any fetch throw or JSON parse failure -> {ok:false,status:502,message:'We could not reach the eSIM service. Please try again.'}",
+    "supported_methods": "GET | POST | PUT | DELETE (PUT added for billing-address PUT in the profile phase)"
+  },
+  "bff_routes": {
+    "location": "src/app/bff/**",
+    "pattern": "each route.ts is a thin proxy: parse request -> backendFetch()/callWithSession() -> map to NextResponse.json({status,data|error})",
+    "known_routes": [
+      "bff/packages (GET, public catalog proxy)",
+      "bff/auth/otp/send, bff/auth/otp/verify",
+      "bff/auth/link/otp/send, bff/auth/link/otp/verify",
+      "bff/auth/social/google, bff/auth/social/apple",
+      "bff/auth/identities/[provider] (DELETE to unlink)",
+      "bff/auth/refresh, bff/auth/signout",
+      "bff/user/account, bff/user/billing-address",
+      "bff/payments/intent, bff/payments/topups/intent",
+      "bff/country-image",
+      "bff/admin/dashboard, bff/admin/errors, bff/admin/errors/[id], bff/admin/errors/[id]/repair, bff/admin/login (power /xloginy, /xerrors)"
+    ],
+    "trap": "src/app/checkout/return/route.ts and src/app/account/topup/return/route.ts are OUTSIDE app/bff (they are page-adjacent return handlers reached directly by Pokpay redirect, not browser fetch calls)."
+  },
+  "public_vs_authenticated_data": {
+    "public_catalog": "Server Components call src/services/server-packages.ts -> backendFetch('/packages') straight to backend origin, no cookies.",
+    "browser_catalog": "Client code calls src/services/packages.ts -> fetch('/bff/packages') -> same shape via mapPackagesPayload() shared with server path (f023)."
+  },
+  "env_vars": {
+    "BACKEND_API_URL": "server-only override of backend base URL, e.g. for local dev against a local backend",
+    "NEXT_PUBLIC_API_URL": "fallback used if BACKEND_API_URL unset; becomes public if set (NEXT_PUBLIC_ prefix)",
+    "note": "Never read/copy actual values from .env.local or .env.production into feedAI."
+  },
+  "mobile_coupling_constraint": "velocity-eSim mobile app has https://esim.uplisoft.com/api baked into shipped builds (EXPO_PUBLIC_API_URL) and api.uplisoft.com does not resolve, so /api can never be repointed at this Next app — this is a hard, load-bearing constraint on any future routing change (f028)."
+}

@@ -1,0 +1,34 @@
+{
+  "topic": "architecture",
+  "covers": "Overall shape of the Next.js app: App Router layout, top-level directories, request lifecycle.",
+  "facts": ["f001", "f002"],
+  "stack": {
+    "framework": "Next.js 15.1.6, App Router (src/app/), Turbopack for dev",
+    "react": "19.0.0",
+    "package_manager": "pnpm (pnpm-workspace.yaml; part of a 2-repo pnpm workspace alongside 'E-SIM backend')",
+    "language": "TypeScript, strict mode, path alias @/* -> src/*",
+    "styling": "Tailwind CSS 3.4",
+    "test_runner": "vitest 2.1",
+    "no_lint_script": true
+  },
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run"
+  },
+  "top_level_dirs": {
+    "src/app": "routes (App Router) + colocated client components + route handlers under app/bff/**",
+    "src/lib": "cross-cutting server/shared helpers: backend client, session/cookies, route guard, public origin, seo",
+    "src/services": "data-shaping layer between backend payloads and UI models (packages.ts client-side, server-packages.ts server-side)",
+    "src/content": "static typed content for landing/legal/SEO pages",
+    "docs/sessions": "dated session logs, see docs/sessions/INDEX.md for the full list — primary source for 'why', do not duplicate into feedAI, link to it",
+    "docs/superpowers/specs": "design specs (e.g. web profile/account area spec)"
+  },
+  "request_flow": {
+    "public_page": "Server Component reads data via src/services/server-packages.ts -> backendFetch() directly to backend origin (no cookie needed for public catalog)",
+    "authenticated_browser_call": "Client Component fetch('/bff/<path>') -> Next route handler in src/app/bff/** -> callWithSession()/backendFetch() -> backend, with httpOnly cookies read/written by the route handler",
+    "middleware": "src/middleware.ts runs on every non-static request: canonical-host/https/trailing-slash redirects first, then auth route guard (src/lib/route-guard.ts)"
+  },
+  "not_yet_answered": "No package-level README/ARCHITECTURE.md exists in this repo beyond docs/sessions logs; treat those session files as the primary architecture record."
+}

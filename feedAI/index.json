@@ -1,0 +1,41 @@
+{
+  "v": 1,
+  "entry": "brain.json",
+  "topics": {
+    "topics/architecture.json": {
+      "covers": "Overall Next.js App Router shape, top-level dirs, request lifecycle",
+      "keywords": ["app router", "src/app", "src/lib", "src/services", "turbopack", "pnpm workspace", "tsconfig paths"]
+    },
+    "topics/backend-integration.json": {
+      "covers": "BFF proxy layer (src/app/bff), backendFetch(), backend base URL, why /api can't be used by Next",
+      "keywords": ["backendFetch", "getBackendApiUrl", "BACKEND_API_URL", "bff", "src/app/bff", "backend proxy", "packages route", "nginx api prefix"]
+    },
+    "topics/auth.json": {
+      "covers": "Session cookies, token refresh, OTP + Google/Apple social sign-in, identity linking, account deletion auth edges",
+      "keywords": ["esim_at", "esim_rt", "callWithSession", "readEmailFromAccessToken", "session-identity", "SocialSignInButtons", "GOOGLE_WEB_CLIENT_ID", "APPLE_SERVICES_ID", "linkRequired", "linkTicket", "auth/identities", "invalid_client", "redirect_uri_mismatch"]
+    },
+    "topics/routing.json": {
+      "covers": "middleware.ts, canonicalization, auth route guard, public-origin derivation, hidden admin routes, SEO private prefixes",
+      "keywords": ["middleware", "guardedRedirect", "getPublicOrigin", "GUARDED_PREFIXES", "UNGUARDED_PATHS", "xloginy", "xerrors", "privateRoutePrefixes", "canonical host", "www redirect"]
+    },
+    "topics/account-flows.json": {
+      "covers": "Checkout/PayButton, top-up flow, order lifecycle grouping, billing address, account deletion",
+      "keywords": ["PayButton", "payments/intent", "topups/intent", "TopUpPanel", "order-groups", "groupOrdersByLifecycle", "orders/active", "esim_pending_topup", "billing-address", "card-details 410", "DeleteAccountCard"]
+    },
+    "topics/ui-components-styling.json": {
+      "covers": "Reusable components, HeroPackageSearch/packages data-shaping, Tailwind theme, i18n status",
+      "keywords": ["HeroPackageSearch", "mapPackagesPayload", "filterPackageOptions", "Navbar", "tailwind.config", "SettingsSection", "DestinationPlans", "Google button layout"]
+    },
+    "topics/testing-deployment.json": {
+      "covers": "Vitest config/conventions, update.sh deploy, env-file discipline, prod topology",
+      "keywords": ["vitest.config", "vitest run", "update.sh", ".env.production", ".env.local", "3020", "nginx", "tsc --noEmit", "test co-location"]
+    },
+    "topics/troubleshooting.json": {
+      "covers": "Symptom -> root cause -> fix log for diagnosed incidents (routing, auth, env)",
+      "keywords": ["localhost:3020 redirect", "Cannot GET /api", "invalid_client", "redirect_uri_mismatch", "env not deployed", "google button left-aligned"]
+    }
+  },
+  "facts": "facts.jsonl — append-only. grep it before assuming a topic file is current.",
+  "humans": "README.md",
+  "maintainers": "MAINTAIN.md"
+}

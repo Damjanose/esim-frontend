@@ -1,0 +1,56 @@
+{
+  "topic": "troubleshooting",
+  "covers": "Symptom -> root cause -> fix history. Check here first for anything that smells like a repeat of a diagnosed issue.",
+  "entries": [
+    {
+      "symptom": "Signed-out visitor on prod clicking a guarded link (e.g. /profile) lands on https://localhost:3020/signin?... (dead URL)",
+      "root_cause": "middleware built redirect URLs from url.origin, which Next resolves from the internal bind address (127.0.0.1:3020) not the Host header",
+      "fix": "derive all redirect URLs from getPublicOrigin(request); applied to src/middleware.ts and the auth refresh route",
+      "facts": ["f009"],
+      "source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"
+    },
+    {
+      "symptom": "Any /api/* Next route handler answers with Express's 'Cannot GET /api/...' in production only (works in dev)",
+      "root_cause": "nginx proxies the entire /api/* prefix to the Express backend before Next ever sees the request; per-path carve-out is impossible because BFF paths intentionally mirror backend paths (e.g. /auth/otp/send exists on both)",
+      "fix": "moved all route handlers from src/app/api/** to src/app/bff/** (git mv); repointed every browser call site; added /bff to seo.ts privateRoutePrefixes",
+      "facts": ["f003", "f028"],
+      "source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"
+    },
+    {
+      "symptom": "Apple sign-in button renders on /signin but fails immediately with invalid_client",
+      "root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (…apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity",
+      "fix": "set NEXT_PUBLIC_APPLE_SERVICES_ID=com.uplisoft.velocityesim.web in .env.local and .env.production; also required creating the Services ID in Apple Developer portal (cannot be done from code) and adding APPLE_BUNDLE_ID/APPLE_SERVICES_ID to the backend .env",
+      "facts": ["f012", "f013"],
+      "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
+    },
+    {
+      "symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' — works fine on localhost",
+      "root_cause": "that message is Google's generic body text for redirect_uri_mismatch; https://esim.uplisoft.com was missing from the OAuth client's Authorized JavaScript origins. Worked locally because Google ignores the port for localhost origins (masked that localhost:3000 wasn't registered either)",
+      "fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console — NO code change",
+      "facts": ["f014"],
+      "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
+    },
+    {
+      "symptom": "Neither Google nor Apple button appears on /signin at all",
+      "root_cause": "SocialSignInButtons returns null when both NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID and NEXT_PUBLIC_APPLE_SERVICES_ID are empty; repo had no env file at all",
+      "fix": "added .env.local with NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID copied from backend's GOOGLE_WEB_CLIENT_ID (must match or backend rejects token aud); added .env.example documenting all vars",
+      "facts": ["f012"],
+      "source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    },
+    {
+      "symptom": "Google sign-in button visually left-aligned instead of centered/full-width",
+      "root_cause": "Google Identity Services renders into a fixed-pixel-width iframe; CSS utility classes on the wrapper don't affect the iframe's own rendered width",
+      "fix": "measure the row with ResizeObserver, pass real pixel width to renderButton() (capped at Google's 400px max), re-render on resize",
+      "facts": [],
+      "source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    },
+    {
+      "symptom": "A local .env.local change 'works on my machine' but has no effect after deploying with update.sh",
+      "root_cause": ".env.local is gitignored and never exists on the server; update.sh deploys via git pull then builds, so only committed env files (.env.production) reach prod",
+      "fix": "n/a — this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod",
+      "facts": ["f029"],
+      "source": ".env.production comment, docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    }
+  ],
+  "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs."
+}

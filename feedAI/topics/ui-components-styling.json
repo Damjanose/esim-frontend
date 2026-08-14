@@ -1,0 +1,30 @@
+{
+  "topic": "ui-components-styling",
+  "covers": "Reusable components, hero package search/catalog data-shaping, Tailwind theme, i18n status.",
+  "facts": ["f021", "f022", "f023", "f024"],
+  "notable_components": {
+    "src/app/HeroPackageSearch.tsx": "landing-page search box; uses src/services/packages.ts fetchPackageOptions()/filterPackageOptions()",
+    "src/app/destinations/DestinationPlans.tsx": "country-specific plan listing",
+    "src/app/components/Navbar.tsx": "site nav; profile icon is a STATIC link regardless of session state (f022) — deliberate, so public pages stay statically generated; middleware/route-guard handles the actual bounce",
+    "src/app/components/SettingsSection.tsx": "section/row primitives reused across /profile, /profile/billing",
+    "src/app/checkout/PayButton.tsx": "see topics/account-flows.json",
+    "src/app/signin/SocialSignInButtons.tsx + LinkEmailStep.tsx": "see topics/auth.json",
+    "src/app/AdminNav.tsx": "nav shared by hidden /xloginy and /xerrors admin pages"
+  },
+  "data_shaping_layer": {
+    "type": "HeroPackageOption",
+    "shared_mapper": "mapPackagesPayload() in src/services/packages.ts, used by BOTH the browser fetch path and src/services/server-packages.ts (Server Components) so client and server renders of a plan are guaranteed identical (f023)",
+    "normalization_helpers": "formatDataLabel (GB/MB/'Unlimited' at >=999GB), formatDurationLabel, parsePriceNumeric (locale-ish string -> float), slugify (NFD strip diacritics), normalizeFilters",
+    "search": "filterPackageOptions(options, query, limit=10) does substring match against a precomputed lowercase `query` field concatenating country/title/data/duration/kind/region/filters"
+  },
+  "styling": {
+    "framework": "Tailwind 3.4, config at tailwind.config.ts",
+    "content_glob": "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "custom_palette": {"ink": "#06262f", "midnight": "#001f26", "cyan": "#00d9f5", "aqua": "#71efff", "cloud": "#f4fbfd", "mist": "#dff6fa", "line": "#c7e9ef"},
+    "fonts": {"sans": "var(--font-inter), Inter, system-ui", "display": "var(--font-display), Plus Jakarta Sans, system-ui"},
+    "custom_shadows": {"glow": "0 24px 80px rgba(0,217,245,0.24)", "card": "0 20px 60px rgba(0,31,38,0.12)"},
+    "global_css": "src/app/globals.css includes dark-theme support and a destination-image loader animation"
+  },
+  "google_button_layout_trap": "Google Identity Services renders its button into a fixed-pixel-width iframe; a naive '[&>div]:!w-full' stretches only the wrapper, leaving the button itself left-aligned. Fix used: measure the row with a ResizeObserver and pass the real pixel width to renderButton (capped at Google's 400px limit), re-render on resize. Apple's button is built to match Google's fixed 40px pill height rather than the taller default Apple house button (source: docs/sessions/2026-08-13_social_signin_env_wiring.md).",
+  "i18n": "No i18n library found in this repo (no i18next/next-intl in package.json); all copy is inline English (contrast with the velocity-eSim mobile app, which does use i18next per the root CLAUDE.md)."
+}

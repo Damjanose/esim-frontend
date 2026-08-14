@@ -1,0 +1,43 @@
+{
+  "v": 1,
+  "project": "velocity-esim-frontend — Next.js 15 / React 19 public web app (eSim2you / Velocity eSIM) for browsing eSIM packages, checkout, and account/profile management; a BFF in front of the sibling 'E-SIM backend' Express API, used by both public web visitors and a hidden internal admin surface.",
+  "budget": {
+    "brain": "≤10KB / ~2.5k tok",
+    "topic": "≤10KB / ~2.5k tok",
+    "fixed_in_brain": "≤20 recent ids — full history: grep facts.jsonl",
+    "rule": "never delete knowledge without a facts.jsonl line; trim topics not facts"
+  },
+  "load": ["brain.json", "grep facts.jsonl", "ONE topics/{t}.json from route[]"],
+  "route": {
+    "app router|src/app|src/lib|src/services|turbopack|pnpm workspace": "topics/architecture.json",
+    "backendFetch|BACKEND_API_URL|bff|src/app/bff|backend proxy|nginx api": "topics/backend-integration.json",
+    "esim_at|esim_rt|callWithSession|social sign-in|google|apple|otp|session|identities": "topics/auth.json",
+    "middleware|guardedRedirect|getPublicOrigin|xloginy|xerrors|canonical host|route guard": "topics/routing.json",
+    "checkout|paybutton|topup|order-groups|billing|delete account|payments": "topics/account-flows.json",
+    "component|hero package search|tailwind|navbar|styling|i18n": "topics/ui-components-styling.json",
+    "vitest|test|update.sh|env.production|deploy|nginx|3020": "topics/testing-deployment.json",
+    "bug|broken|not working|symptom|regression|invalid_client|redirect_uri_mismatch": "topics/troubleshooting.json"
+  },
+  "never": ["node_modules", ".next", "pnpm-lock.yaml", "tsconfig.tsbuildinfo", ".env.local", ".env.production values (structure only, never real values)"],
+  "maintain": "MAINTAIN.md",
+  "invariants": [
+    "The backend allows exactly one 'active' order per user at a time — GET /orders/active returns a single order, not a list, and calling it has the side effect of expiring a depleted plan server-side (f016).",
+    "Next route handlers must live under src/app/bff/**, never src/app/api/** — nginx proxies the whole /api/* prefix straight to Express in production, so anything under app/api/ is silently unreachable there even though it works in dev (f003).",
+    "getBackendApiUrl() defaults to the PRODUCTION backend (https://esim.uplisoft.com/api) even under `next dev` — local dev against a local backend requires explicitly setting BACKEND_API_URL (f004).",
+    "readEmailFromAccessToken() is unverified (no signature check possible client-side) — display only, never treat its output as an authorization decision (f008).",
+    "Any redirect URL built from `request.url`/`url.origin` inside a route handler or middleware will leak the internal bind address (localhost:3020) in production; always derive origin via getPublicOrigin(request) instead (f009).",
+    "NEXT_PUBLIC_APPLE_SERVICES_ID must be an Apple Services ID, never a bundle id or a Google client id — the SocialSignInButtons render guard only checks non-empty, so a wrong-but-present value renders a button that fails at runtime (f012, f013).",
+    ".env.local is gitignored and never reaches production; update.sh deploys via git pull + build, so any NEXT_PUBLIC_* value that must exist in prod has to also be committed in .env.production (f029)."
+  ],
+  "phase": {
+    "current": "Feature-building on top of a working public site + BFF + auth/checkout/account stack; most recent work (2026-08-13) closed out web social sign-in and the profile/account area to parity with the mobile app.",
+    "next": "Open items per docs/sessions: verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (needs per-client Apple client-secret JWT work, f031).",
+    "order": ["landing + SEO content pages", "hero/destination package search", "checkout + Pokpay payments", "hidden admin dashboards (/xloginy, /xerrors)", "BFF migration for nginx /api collision", "profile/account area + social sign-in (5 phases)"]
+  },
+  "sync": {
+    "commit": "978b92a",
+    "branch": "main",
+    "date": "2026-08-14",
+    "note_latest": "Most recent commit 978b92a 'fix: google auth' plus the 2026-08-13 session set closed out the web profile/account area (5 phases: profile hub, order lifecycle sections, top-up, billing/deletion, Google+Apple sign-in), fixed a prod redirect bug that sent guarded-route visitors to localhost:3020, and moved all BFF route handlers from src/app/api to src/app/bff because nginx claims the whole /api/* prefix for the Express backend."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "topic": "routing",
+  "covers": "Middleware, canonicalization, auth route guard, public-origin derivation, hidden admin routes, SEO route classification.",
+  "facts": ["f009", "f010", "f011", "f027", "f030"],
+  "middleware": {
+    "file": "src/middleware.ts",
+    "matcher": "excludes _next/static, _next/image, favicon.ico, og/",
+    "order_of_operations": [
+      "1. build one URL from getPublicOrigin(request) + pathname + search",
+      "2. www.esim.uplisoft.com -> esim.uplisoft.com (apex canonical)",
+      "3. http -> https on canonical host",
+      "4. strip trailing slash (except root)",
+      "5. if any of 2-4 fired: 308 redirect immediately, guard runs on the follow-up request",
+      "6. else: check session cookie presence, run guardedRedirect()"
+    ],
+    "trap_fixed_2026-08-13": "previously used url.origin directly, which Next resolves from the server bind address (127.0.0.1:3020 behind nginx in prod), sending prod visitors to https://localhost:3020/... (f009). Also affected src/app/bff/auth/refresh/route.ts (formerly src/app/api/auth/refresh) via the same pattern — fixed with getPublicOrigin() in both places."
+  },
+  "public_origin": {
+    "file": "src/lib/public-origin.ts",
+    "fn": "getPublicOrigin(request)",
+    "priority": ["PUBLIC_SITE_ORIGIN env var if set and parses", "x-forwarded-host + x-forwarded-proto headers", "Host header (+ forwarded-proto or scheme inferred from isLocal())", "fallback: new URL(request.url).origin"],
+    "local_detection": "hostnames localhost/127.0.0.1/0.0.0.0/[::1], private IP ranges 10.x/192.168.x/172.16-31.x, or *.local suffix are treated as http; everything else defaults to https when no proto header present"
+  },
+  "route_guard": {
+    "file": "src/lib/route-guard.ts",
+    "fn": "guardedRedirect(pathname, search, hasSession)",
+    "guarded_prefixes": ["/account", "/checkout", "/profile"],
+    "unguarded_exceptions": ["/checkout/return", "/account/topup/return", "/profile/deleted"],
+    "why_exceptions_matter": "these sit under a guarded prefix but must stay reachable with an expired/cleared session cookie — payment returns carry their own short-lived pending-payment cookie; /profile/deleted is reached with the session deliberately destroyed post-deletion",
+    "redirect_target": "/signin?next=<encoded original path+search>",
+    "note": "cookie presence is a cheap routing convenience only — every backend call is still independently validated server-side, this is NOT the authorization boundary"
+  },
+  "hidden_admin_routes": {
+    "routes": ["/xloginy (purchase/user/OTP admin dashboard, backed by bff/admin/dashboard, bff/admin/login)", "/xerrors (sanitized backend error inbox: filter/inspect/resolve/repair, backed by bff/admin/errors/**)"],
+    "discoverability": "deliberately unlinked from any nav; kept out of crawl/sitemap via privateRoutePrefixes"
+  },
+  "seo_private_prefixes": {
+    "file": "src/lib/seo.ts",
+    "list": ["/api", "/admin", "/account", "/auth", "/bff", "/billing", "/checkout", "/dashboard", "/profile", "/signin"],
+    "effect": "Disallow'd in robots.txt and excluded from sitemap.ts; /api kept in the list even though it's served by Express (still non-indexable)"
+  },
+  "canonical_host": "esim.uplisoft.com (apex, not www), enforced by middleware; production Next process binds 127.0.0.1:3020 behind nginx"
+}

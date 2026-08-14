@@ -1,0 +1,42 @@
+{
+  "topic": "account-flows",
+  "covers": "Checkout/payment, top-up, order lifecycle grouping, billing address, account deletion — the /account, /checkout, /profile areas.",
+  "facts": ["f016", "f017", "f018", "f019", "f020"],
+  "checkout": {
+    "component": "src/app/checkout/PayButton.tsx",
+    "flow": "POST /bff/payments/intent {package_id} -> {data:{checkoutUrl}} -> window.location.assign(checkoutUrl) [Pokpay hosted checkout] -> src/app/checkout/return/route.ts handles the redirect back",
+    "auth_edge_case": "401 from the intent call redirects the browser to /signin?next=/checkout?package=<id> instead of showing an error",
+    "why_full_nav_not_popup": "popups are unreliable in mobile and in-app browsers (design decision, see PayButton comment)"
+  },
+  "order_lifecycle": {
+    "file": "src/lib/order-groups.ts",
+    "types": "OrderSummary.lifecycle_status: 'ready'|'active'|'expired'",
+    "single_active_plan_rule": "backend allows exactly one active plan at a time; GET /orders/active returns that ONE order (not a list) and, as a side effect of being called, expires a depleted plan server-side",
+    "resolveOrderSections_and_groupOrdersByLifecycle": "the active-order lookup is treated as authoritative over the full /orders list — it can demote a plan the list still calls active, or promote one the list hasn't caught up on; falls back to pure list-grouping if the active lookup fails",
+    "groupOrdersByLifecycle_details": "active[] sorted newest-first, only the first kept as `active`, any surplus falls into `ready`; unknown/unrecognized lifecycle strings default to `ready` (never dropped) so a paid plan can't silently disappear from the UI",
+    "usage_fetching": "per-order usage stats are fetched individually (one upstream call each); only the live/active plan's usage loads on the /account list page, others load on their own detail page (/account/[orderId])"
+  },
+  "topup": {
+    "component": "src/app/account/[orderId]/TopUpPanel.tsx",
+    "flow": ["POST /bff/payments/topups/intent -> Pokpay checkout", "return at /account/topup/return (route.ts, in UNGUARDED_PATHS)", "backend POST /payments/topups/provision", "redirect to /account/:id?topup=1"],
+    "esim_pending_topup_cookie": "value '<orderId>:<paymentId>' set at intent time; the provisioning response can't identify which eSIM was topped up (backend returns the provider's top-up record; the payment reference only decodes to an ICCID), so this cookie is the join key. Also doubles as a payment-id fallback if Pokpay's return omits one. Cleared on return and by buildClearedSessionCookies() on signout.",
+    "route_ordering_note": "Next resolves the static /account/topup segment before the dynamic /account/[orderId] segment"
+  },
+  "payment_failure_reporting": {
+    "rule": "only an upstream 402 is surfaced as reason=unpaid; every other failure (network, 5xx, timeout) is reported as reason=provisioning",
+    "why": "a non-402 failure might have already captured the card, so the UI must not claim 'nothing was charged'"
+  },
+  "billing": {
+    "route": "/profile/billing, component BillingForm.tsx",
+    "card_details_status": "PUT /user/card-details returns 410 Gone — saved cards are permanently disabled server-side; card entry only happens inside Pokpay's hosted checkout",
+    "editable_fields": "billing address only, via GET/PUT /user/billing-address; validation rules/messages owned by backend"
+  },
+  "account_deletion": {
+    "component": "src/app/profile/DeleteAccountCard.tsx",
+    "two_step": true,
+    "retention_disclosure": "UI is explicit that service records may be retained for payment, fraud, tax, and provider obligations",
+    "cookie_clear_timing": "session cookies are cleared ONLY on successful deletion (a failed attempt must not strand the visitor outside a still-existing account)",
+    "post_delete_route": "/profile/deleted is in UNGUARDED_PATHS — reached with the session already destroyed"
+  },
+  "single_live_order_gotcha": "any UI or logic assuming a user can have multiple concurrently-active plans is wrong for this backend; it's enforced as exactly one."
+}

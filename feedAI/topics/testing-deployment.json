@@ -1,0 +1,25 @@
+{
+  "topic": "testing-deployment",
+  "covers": "Vitest setup and conventions, deploy script, env-file discipline, production topology.",
+  "facts": ["f025", "f026", "f029", "f030"],
+  "testing": {
+    "runner": "vitest 2.1, config at vitest.config.ts",
+    "environment": "node (not jsdom) — tests exercise pure functions/route-handler logic, not DOM rendering",
+    "include_glob": "src/**/*.test.ts ONLY — .tsx test files would NOT be picked up under current config",
+    "convention": "tests are co-located next to source, e.g. src/lib/session.test.ts, src/app/checkout/checkout-flow.test.ts, src/app/bff/auth/social-routes.test.ts",
+    "alias": "@ -> src/ (mirrors tsconfig paths)",
+    "known_flaky_baseline_as_of_2026-08-13": "221 passing, 4 pre-existing failures (landing.test.ts x3, hero-package-search.test.ts x1) confirmed unrelated to recent changes by stashing and re-running clean (f026) — if these 4 still fail, that's expected baseline noise, not a new regression; if a DIFFERENT test fails, that's real"
+  },
+  "deployment": {
+    "script": "update.sh at repo root — pulls via git and builds ON the server (not a CI artifact push)",
+    "prod_bind": "Next process listens on 127.0.0.1:3020, nginx reverse-proxies esim.uplisoft.com to it",
+    "canonical_host": "esim.uplisoft.com (apex), enforced by src/middleware.ts",
+    "env_file_discipline": {
+      ".env.production": "COMMITTED to git on purpose — contains only NEXT_PUBLIC_* values, which are public once bundled into client JS anyway; comment in the file itself explains this",
+      ".env.local": "gitignored, wins locally over .env.production, NEVER exists on the server",
+      "consequence": "any env var an engineer only sets in .env.local silently does not exist in production after `update.sh` — this exact gap made the Google sign-in button fail to render in prod until .env.production/.env.example were added (f029)"
+    },
+    "nginx_api_carveout": "nginx proxies ALL of /api/* to the Express backend; this is why browser-facing Next route handlers live under /bff/** instead — see topics/backend-integration.json"
+  },
+  "type_checking": "pnpm exec tsc --noEmit (no dedicated script in package.json, run manually per session logs); tsconfig.tsbuildinfo is a generated incremental cache, never read/edit it directly."
+}
