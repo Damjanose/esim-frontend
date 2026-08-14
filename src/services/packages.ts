@@ -13,6 +13,10 @@ export type HeroPackageOption = {
   durationDays: number;
   filters: string[];
   query: string;
+  /** Minutes included. Undefined on data-only packages. */
+  voiceMinutes?: number;
+  /** SMS included. Undefined on data-only packages. */
+  smsCount?: number;
 };
 
 type ApiPackage = {
@@ -32,6 +36,8 @@ type ApiPackage = {
   dataNumericGb?: number;
   durationDays?: number;
   filters?: string[];
+  voiceMinutes?: number;
+  smsCount?: number;
 };
 
 type PackagesResponse = {
@@ -173,6 +179,8 @@ function mapPackageToOption(
     pkg.region,
     pkg.headline,
     pkg.description,
+    pkg.voiceMinutes ? `${pkg.voiceMinutes} min` : null,
+    pkg.smsCount ? `${pkg.smsCount} sms` : null,
     ...filters,
   ]
     .filter(
@@ -197,6 +205,14 @@ function mapPackageToOption(
     durationDays,
     filters,
     query,
+    voiceMinutes:
+      typeof pkg.voiceMinutes === "number" && pkg.voiceMinutes > 0
+        ? pkg.voiceMinutes
+        : undefined,
+    smsCount:
+      typeof pkg.smsCount === "number" && pkg.smsCount > 0
+        ? pkg.smsCount
+        : undefined,
   };
 }
 

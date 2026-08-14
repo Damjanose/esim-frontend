@@ -1006,6 +1006,18 @@ function FeaturedPlan({
     },
   ];
 
+  if (plan.voiceMinutes || plan.smsCount) {
+    features.push({
+      icon: Headphones,
+      label: [
+        plan.voiceMinutes ? `${plan.voiceMinutes} min` : null,
+        plan.smsCount ? `${plan.smsCount} SMS` : null,
+      ]
+        .filter(Boolean)
+        .join(" + "),
+    });
+  }
+
   return (
     <article className="group relative mt-5 overflow-hidden rounded-[20px] border border-[#168cff]/85 bg-[linear-gradient(105deg,#07172b_0%,#08213c_46%,#061326_100%)] px-5 py-6 shadow-[0_25px_75px_rgba(0,80,190,0.2)] sm:px-7">
       <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-[#47b9ff] to-transparent" />
@@ -1154,6 +1166,21 @@ function CompactPlanCard({
         <span className="rounded-md bg-[#0a2038] px-2.5 py-1.5 text-[10px] font-bold text-[#91a7bd]">
           {getDurationText(plan)} validity
         </span>
+
+        {plan.voiceMinutes || plan.smsCount ? (
+          <span className="rounded-md bg-[#0a2038] px-2.5 py-1.5 text-[10px] font-bold text-[#4eb5ff]">
+            {[
+              plan.voiceMinutes
+                ? `${plan.voiceMinutes} min`
+                : null,
+              plan.smsCount
+                ? `${plan.smsCount} SMS`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" + ")}
+          </span>
+        ) : null}
       </div>
 
       <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarClock, Database, Globe2, ShieldCheck } from "lucide-react";
+import { CalendarClock, Database, Globe2, Phone, ShieldCheck } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 import { getPackageOption } from "@/services/server-packages";
 import { Navbar } from "../components/Navbar";
@@ -30,7 +30,21 @@ export default async function CheckoutPage({
   const rows = [
     { icon: Globe2, label: "Destination", value: plan.country },
     { icon: Database, label: "Data", value: plan.dataLabel },
-    { icon: CalendarClock, label: "Validity", value: plan.durationLabel }
+    { icon: CalendarClock, label: "Validity", value: plan.durationLabel },
+    ...(plan.voiceMinutes || plan.smsCount
+      ? [
+          {
+            icon: Phone,
+            label: "Voice & SMS",
+            value: [
+              plan.voiceMinutes ? `${plan.voiceMinutes} min` : null,
+              plan.smsCount ? `${plan.smsCount} SMS` : null
+            ]
+              .filter(Boolean)
+              .join(" + ")
+          }
+        ]
+      : [])
   ];
 
   return (
