@@ -43,8 +43,8 @@ export function Navbar() {
         >
           <img
             alt="eSim2you app logo"
-            className="h-9 w-9 object-contain"
-            src="/app-logo.png"
+            className="h-12 w-12 object-contain"
+            src="/logo-no-bg.png"
           />
 
           <span className="font-display text-lg font-bold tracking-[-0.02em] text-white">
