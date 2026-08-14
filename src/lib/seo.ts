@@ -6,12 +6,17 @@ export const siteUrl = "https://esim.uplisoft.com";
 export const siteName = "eSim2you";
 export const supportEmail = "esim@uplisoft.com";
 export const ogImage = {
-  url: `${siteUrl}/og/velocity-esim-og.png`,
+  url: `${siteUrl}/og/esim2you-og.png`,
   width: 1200,
   height: 630,
   alt: "eSim2you travel data app preview"
 };
 export const appLogoUrl = `${siteUrl}/app-logo.png`;
+
+export const socialLinks = {
+  instagram: "https://www.instagram.com/esim2you",
+  facebook: "https://www.facebook.com/people/ESIM2you/61593159061406/"
+};
 
 export const privateRoutePrefixes = [
   "/api",
@@ -154,7 +159,8 @@ export function createLandingJsonLd() {
         name: siteName,
         url: `${siteUrl}/`,
         email: supportEmail,
-        logo: appLogoUrl
+        logo: appLogoUrl,
+        sameAs: [socialLinks.instagram, socialLinks.facebook]
       },
       {
         "@type": "WebSite",

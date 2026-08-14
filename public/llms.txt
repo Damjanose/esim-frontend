@@ -1,0 +1,32 @@
+# eSim2you
+
+> eSim2you sells prepaid travel eSIMs (digital SIM cards) for 200+ destinations worldwide, with a focus on the United States and Europe. Travelers buy a data plan in the app or on the website, install the eSIM in minutes via QR code, and get mobile internet abroad without roaming fees or a physical SIM swap.
+
+eSim2you is a mobile app (iOS and Android) and website (https://esim.uplisoft.com) for buying and managing travel eSIM data plans. Plans cover single countries (e.g. USA, France, UK, Japan, Turkey) and regions (e.g. Europe multi-country plans). Setup takes minutes via QR code or manual installation, no physical SIM required, and no roaming surcharges.
+
+## Key pages
+
+- [Homepage](https://esim.uplisoft.com/): overview, plans, how it works, FAQ
+- [Destinations](https://esim.uplisoft.com/destinations): browse eSIM data plans by country/region
+- [Support](https://esim.uplisoft.com/support): setup help, troubleshooting, refunds, top-ups
+
+Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Portugal, Switzerland, Turkey, Japan. Full list: https://esim.uplisoft.com/destinations
+
+## Guides
+
+- What is an eSIM: https://esim.uplisoft.com/guides/what-is-an-esim
+- eSIM vs roaming: https://esim.uplisoft.com/guides/esim-vs-roaming
+- eSIM vs local SIM card: https://esim.uplisoft.com/guides/esim-vs-local-sim
+- How to install an eSIM: https://esim.uplisoft.com/guides/how-to-install-esim
+
+## Use cases
+
+- Internet abroad: https://esim.uplisoft.com/use-cases/internet-abroad
+- Business travel: https://esim.uplisoft.com/use-cases/business-travel
+- Remote work: https://esim.uplisoft.com/use-cases/remote-work
+
+## Contact
+
+- Support email: esim@uplisoft.com
+- Instagram: https://www.instagram.com/esim2you
+- Facebook: https://www.facebook.com/people/ESIM2you/61593159061406/

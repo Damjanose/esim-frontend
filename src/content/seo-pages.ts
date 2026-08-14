@@ -277,6 +277,252 @@ export const destinationPages = [
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
       { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
     ]
+  },
+  {
+    kind: "destination",
+    slug: "germany",
+    path: "/destinations/germany",
+    title: "eSIM for Germany | Travel Data for Berlin and Beyond",
+    description:
+      "Buy a eSim2you for Germany travel data, install it before departure, and use mobile internet in Berlin, Munich, and beyond.",
+    eyebrow: "Germany travel eSIM",
+    heading: "Germany travel data for maps, cities, and messaging.",
+    intro:
+      "eSim2you helps travelers visiting Germany prepare mobile internet before arrival. Whether you are heading to Berlin, Munich, Frankfurt, or a business trip across multiple cities, install a prepaid data plan ahead of time and skip the physical SIM counter after landing.",
+    sections: [
+      {
+        title: "Useful across German cities",
+        body:
+          "Travel data supports rail navigation, maps, translation, hotel bookings, and messaging while moving between German cities and regions."
+      },
+      {
+        title: "Prepared before departure",
+        body:
+          "Install the eSIM profile while you have Wi-Fi, then activate the data line as soon as you land in Germany."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I install a Germany eSIM before flying?",
+        answer:
+          "Yes. Install the eSIM before your trip, then turn on the data line after you arrive in Germany."
+      },
+      {
+        question: "Is a Germany eSIM good for business travel?",
+        answer:
+          "Yes. It can support email, maps, and messaging for conferences, meetings, and multi-city work trips."
+      }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "France travel eSIM plans", href: "/destinations/france" },
+      { label: "Business travel data guide", href: "/use-cases/business-travel" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "italy",
+    path: "/destinations/italy",
+    title: "eSIM for Italy | Travel Data for Rome, Milan, and More",
+    description:
+      "Use eSim2you for Italy travel data, mobile internet in Rome and Milan, and a simpler alternative to international roaming.",
+    eyebrow: "Italy travel eSIM",
+    heading: "Italy travel data ready for Rome and Milan.",
+    intro:
+      "An Italy eSIM helps travelers prepare mobile internet before a trip to Rome, Milan, Florence, or the Amalfi Coast. Use eSim2you to plan ahead, avoid a physical SIM errand, and keep maps, messaging, and booking apps ready from the first day.",
+    sections: [
+      {
+        title: "Helpful for city and coastal travel",
+        body:
+          "Mobile data supports train tickets, museum bookings, maps, rideshare apps, and messaging across busy Italian itineraries."
+      },
+      {
+        title: "Prepared before arrival",
+        body:
+          "Install the eSIM profile while you have Wi-Fi, then use the travel data line once you land in Italy."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I use an Italy eSIM for Rome and Milan?",
+        answer:
+          "Yes. An Italy travel eSIM is designed for mobile data across supported destinations throughout the country."
+      },
+      {
+        question: "Does an Italy eSIM include calls?",
+        answer:
+          "eSim2you focuses on travel data. Use your regular number or internet-based apps for calls when available."
+      }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "France travel eSIM plans", href: "/destinations/france" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "spain",
+    path: "/destinations/spain",
+    title: "eSIM for Spain | Travel Data for Barcelona, Madrid, and More",
+    description:
+      "Prepare a Spain travel eSIM with eSim2you and use mobile data for Barcelona, Madrid, maps, and messaging while traveling.",
+    eyebrow: "Spain travel eSIM",
+    heading: "Spain mobile data for Barcelona and Madrid travel.",
+    intro:
+      "eSim2you helps travelers visiting Spain set up travel data on a compatible phone. It is useful for Barcelona and Madrid city breaks, coastal trips, business travel, and student visits where roaming fees are hard to predict.",
+    sections: [
+      {
+        title: "A cleaner way to get online",
+        body:
+          "Install digitally before arrival and use mobile data for maps, transport, bookings, and secure messaging across Spain."
+      },
+      {
+        title: "Designed for everyday travel needs",
+        body:
+          "A Spain eSIM can keep essential apps reachable without changing your usual phone number or relying only on public Wi-Fi."
+      }
+    ],
+    faqs: [
+      {
+        question: "Is a Spain eSIM useful for Barcelona travel?",
+        answer:
+          "Yes. Travel data is helpful for transport apps, maps, messaging, and bookings while moving around Barcelona and beyond."
+      },
+      {
+        question: "Can I install the eSIM outside Spain?",
+        answer:
+          "Yes. Install before traveling when you have Wi-Fi, then use the data line after you arrive."
+      }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "Italy travel eSIM plans", href: "/destinations/italy" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "greece",
+    path: "/destinations/greece",
+    title: "eSIM for Greece | Travel Data for Athens and the Islands",
+    description:
+      "Buy a eSim2you for Greece travel data, use mobile internet in Athens, and stay connected across the Greek islands.",
+    eyebrow: "Greece travel eSIM",
+    heading: "Greece travel data for Athens and the islands.",
+    intro:
+      "eSim2you helps travelers visiting Greece prepare mobile internet before arrival. Whether you are exploring Athens, island hopping across the Cyclades, or planning a longer Mediterranean trip, install a prepaid data plan ahead of time and skip searching for a SIM shop after landing.",
+    sections: [
+      {
+        title: "Useful for island hopping",
+        body:
+          "Travel data supports ferry schedules, maps, translation, and messaging while moving between Athens and the Greek islands."
+      },
+      {
+        title: "Prepared before departure",
+        body:
+          "Install the eSIM profile while you have Wi-Fi, then activate the data line as soon as you land in Greece."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I use a Greece eSIM on the islands?",
+        answer:
+          "Yes. A Greece travel eSIM is designed for mobile data across supported destinations, including Athens and the islands."
+      },
+      {
+        question: "Should I install the Greece eSIM before flying?",
+        answer:
+          "Yes. Install before your trip while you have Wi-Fi, then turn on the data line after you arrive in Greece."
+      }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "Italy travel eSIM plans", href: "/destinations/italy" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "portugal",
+    path: "/destinations/portugal",
+    title: "eSIM for Portugal | Travel Data for Lisbon and Porto",
+    description:
+      "Prepare a Portugal travel eSIM with eSim2you and use mobile data for Lisbon, Porto, maps, and messaging while traveling.",
+    eyebrow: "Portugal travel eSIM",
+    heading: "Portugal travel data for Lisbon and Porto.",
+    intro:
+      "eSim2you helps travelers visiting Portugal set up travel data on a compatible phone. It is useful for Lisbon and Porto city breaks, coastal trips along the Algarve, business travel, and student visits where roaming fees are hard to predict.",
+    sections: [
+      {
+        title: "A cleaner way to get online",
+        body:
+          "Install digitally before arrival and use mobile data for maps, transport, bookings, and secure messaging across Portugal."
+      },
+      {
+        title: "Designed for everyday travel needs",
+        body:
+          "A Portugal eSIM can keep essential apps reachable without changing your usual phone number or relying only on public Wi-Fi."
+      }
+    ],
+    faqs: [
+      {
+        question: "Is a Portugal eSIM useful for Lisbon travel?",
+        answer:
+          "Yes. Travel data is helpful for transport apps, maps, messaging, and bookings while moving around Lisbon and Porto."
+      },
+      {
+        question: "Can I install the eSIM outside Portugal?",
+        answer:
+          "Yes. Install before traveling when you have Wi-Fi, then use the data line after you arrive."
+      }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "Spain travel eSIM plans", href: "/destinations/spain" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "switzerland",
+    path: "/destinations/switzerland",
+    title: "eSIM for Switzerland | Travel Data Outside the EU Roaming Zone",
+    description:
+      "Use eSim2you for Switzerland travel data, mobile internet in Zurich and Geneva, and a simpler alternative to roaming.",
+    eyebrow: "Switzerland travel eSIM",
+    heading: "Switzerland travel data for Zurich and Geneva.",
+    intro:
+      "Switzerland sits outside the EU roaming zone, so travelers arriving from EU countries can still face roaming charges there. eSim2you helps prepare mobile internet before a trip to Zurich, Geneva, or the Alps, so travel data is ready without depending on an unpredictable roaming rate.",
+    sections: [
+      {
+        title: "Useful outside the EU roaming zone",
+        body:
+          "Because Switzerland is not part of EU roaming agreements, a prepaid Switzerland eSIM can help travelers avoid unclear cross-border data charges."
+      },
+      {
+        title: "Prepared before arrival",
+        body:
+          "Install the eSIM profile while you have Wi-Fi, then use the travel data line once you land in Switzerland."
+      }
+    ],
+    faqs: [
+      {
+        question: "Does EU roaming cover Switzerland?",
+        answer:
+          "No. Switzerland is not part of the EU roaming zone, so a travel eSIM can be a useful alternative to unpredictable roaming charges."
+      },
+      {
+        question: "Can I use a Switzerland eSIM in Zurich and Geneva?",
+        answer:
+          "Yes. A Switzerland travel eSIM is designed for mobile data across supported destinations, including Zurich and Geneva."
+      }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "Germany travel eSIM plans", href: "/destinations/germany" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+    ]
   }
 ] satisfies SeoContentPage[];
 
@@ -443,6 +689,47 @@ export const guidePages = [
       { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
       { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
       { label: "Browse every eSIM destination", href: "/destinations" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "esim-vs-local-sim",
+    path: "/guides/esim-vs-local-sim",
+    title: "eSIM vs Local SIM Card | Which Is Better for Travel?",
+    description:
+      "Compare a travel eSIM with buying a local SIM card in the USA or Europe, including setup time, cost, and convenience.",
+    eyebrow: "Travel data comparison",
+    heading: "eSIM vs local SIM card: is it better for travel?",
+    intro:
+      "Travelers heading to the USA or Europe often choose between a prepaid travel eSIM and a local SIM card bought after landing. Both provide mobile data, but the setup, cost, and convenience can differ enough to matter for a short trip.",
+    sections: [
+      {
+        title: "A local SIM card takes time after landing",
+        body:
+          "Buying a local SIM card in the USA or Europe usually means finding a shop or kiosk, showing identification, and swapping the physical card, all after a long flight."
+      },
+      {
+        title: "A travel eSIM is ready before you land",
+        body:
+          "eSim2you lets travelers install a data plan digitally before departure, so the USA or Europe data line can be turned on the moment the plane lands, without a physical SIM card."
+      }
+    ],
+    faqs: [
+      {
+        question: "Is an eSIM better than a local SIM card for a short trip?",
+        answer:
+          "For short trips to the USA or Europe, many travelers prefer an eSIM because it can be installed before departure and does not require finding a local shop."
+      },
+      {
+        question: "Do I lose my phone number with either option?",
+        answer:
+          "No. On supported dual-SIM phones, your usual number can stay active while either a local SIM or an eSIM supplies mobile data."
+      }
+    ],
+    relatedLinks: [
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
+      { label: "USA travel eSIM plans", href: "/destinations/usa" },
+      { label: "Europe travel eSIM plans", href: "/destinations/europe" }
     ]
   }
 ] satisfies SeoContentPage[];

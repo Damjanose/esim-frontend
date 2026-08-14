@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { createMetadata, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const bingSiteVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   ...createMetadata({
@@ -13,7 +16,14 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.png", sizes: "48x48", type: "image/png" }],
     apple: [{ url: "/app-logo.png", sizes: "1024x1024", type: "image/png" }]
-  }
+  },
+  manifest: "/manifest.json",
+  ...((googleSiteVerification || bingSiteVerification) && {
+    verification: {
+      ...(googleSiteVerification && { google: googleSiteVerification }),
+      ...(bingSiteVerification && { other: { "msvalidate.01": bingSiteVerification } })
+    }
+  })
 };
 
 export default function RootLayout({
