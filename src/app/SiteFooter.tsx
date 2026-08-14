@@ -1,5 +1,7 @@
 import { landingContent } from "@/content/landing";
 import { guidePages, useCasePages } from "@/content/seo-pages";
+import { socialLinks } from "@/lib/seo";
+import { Facebook, Instagram } from "lucide-react";
 
 const footerExploreLinks = [
   { label: "Browse all eSIM destinations", href: "/destinations" },
@@ -47,6 +49,26 @@ export function SiteFooter() {
             <p className="mt-4 max-w-md text-sm leading-6 text-white/45">
               eSim2you travel data guides and destination pages are built for quick planning before you fly.
             </p>
+            <div className="mt-5 flex items-center gap-3">
+              <a
+                aria-label="eSim2you on Instagram"
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white/70 transition hover:border-cyan/60 hover:text-cyan"
+                href={socialLinks.instagram}
+                rel="me noopener noreferrer"
+                target="_blank"
+              >
+                <Instagram aria-hidden="true" size={18} />
+              </a>
+              <a
+                aria-label="eSim2you on Facebook"
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white/70 transition hover:border-cyan/60 hover:text-cyan"
+                href={socialLinks.facebook}
+                rel="me noopener noreferrer"
+                target="_blank"
+              >
+                <Facebook aria-hidden="true" size={18} />
+              </a>
+            </div>
           </div>
           <div className="grid gap-8 sm:grid-cols-3">
             <FooterLinkColumn title="Company" links={footerCompanyLinks} />

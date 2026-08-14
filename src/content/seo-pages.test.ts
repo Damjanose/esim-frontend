@@ -22,13 +22,20 @@ describe("SEO content pages", () => {
       "/destinations/japan",
       "/destinations/turkey",
       "/destinations/france",
-      "/destinations/uk"
+      "/destinations/uk",
+      "/destinations/germany",
+      "/destinations/italy",
+      "/destinations/spain",
+      "/destinations/greece",
+      "/destinations/portugal",
+      "/destinations/switzerland"
     ]);
     expect(guidePages.map((page) => page.path)).toEqual([
       "/guides/what-is-an-esim",
       "/guides/esim-vs-roaming",
       "/guides/how-to-install-esim",
-      "/guides/internet-abroad"
+      "/guides/internet-abroad",
+      "/guides/esim-vs-local-sim"
     ]);
     expect(useCasePages.map((page) => page.path)).toEqual([
       "/use-cases/business-travel",
@@ -40,7 +47,7 @@ describe("SEO content pages", () => {
     const paths = publicSeoPages.map((page) => page.path);
 
     expect(new Set(paths).size).toBe(paths.length);
-    expect(paths).toHaveLength(12);
+    expect(paths).toHaveLength(19);
 
     for (const page of publicSeoPages) {
       expect(page.title.trim().length).toBeGreaterThan(20);

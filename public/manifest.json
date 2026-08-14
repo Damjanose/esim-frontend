@@ -1,0 +1,22 @@
+{
+  "name": "eSim2you",
+  "short_name": "eSim2you",
+  "description": "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#1557ff",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/app-logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
