@@ -2,6 +2,39 @@
 last_updated: 2026-08-17
 ---
 
+## 2026-08-17 audit + implementation status
+
+Full audit + plan: `docs/superpowers/plans/2026-08-17-seo-improvements.md`.
+
+Findings:
+- `site:esim.uplisoft.com` returns **0 Google results** — not indexed at all.
+- `robots.txt` blocks `ClaudeBot`, `GPTBot`, `Google-Extended`, `Applebot-Extended`,
+  `Amazonbot`, `Bytespider`, `CCBot`, `meta-externalagent` at the Cloudflare edge (not in
+  `src/app/robots.ts` — this is a Cloudflare dashboard "Bots" setting, confirmed still active
+  as of 2026-08-17 20:xx UTC re-check). This blocks AI assistants from citing the site.
+- On-page SEO (title/meta/OG/JSON-LD/`llms.txt`/sitemap with 12 destination pages) is solid —
+  not the bottleneck.
+- Web search "best eSIM app for USA travel" does not surface eSim2you anywhere (Saily,
+  Holafly, Sim Local, Airalo, and comparison-site roundups dominate).
+
+**Blocked — needs a human with account access, not something Claude can execute:**
+- [ ] Task 1: Cloudflare dashboard → unblock AI crawler bots (**highest priority**)
+- [ ] Task 2: Google Search Console → verify property, submit sitemap
+- [ ] Task 3: Bing Webmaster Tools → verify property, submit sitemap
+- [ ] Task 5: Off-site listings/backlinks/Reddit/Wikidata outreach
+
+Claude has no Cloudflare/Google/Bing login and the Chrome browser-automation extension is not
+connected in this session, so these four cannot be done autonomously — see
+`docs/superpowers/plans/2026-08-17-seo-improvements.md` for exact steps for whoever has access.
+
+**Done / not blocked:**
+- [x] Task 4: structured data validated manually (JSON-LD parses cleanly as `Organization`,
+  `WebSite`, `SoftwareApplication`, `FAQPage` — confirmed via raw HTML fetch, no errors)
+- Task 6 (destination page expansion): correctly deferred — sitemap already has 12 destination
+  pages, expanding further needs GSC query-gap data that doesn't exist yet (Task 2 blocked)
+- Task 7 (ranking re-check): baseline recorded above; re-check requires 1-4 weeks after Tasks
+  1-3 land, and Tasks 1-3 haven't landed yet
+
 # SEO / ASO / AI-discoverability checklist
 
 Where to check each item and what "done" looks like. Code-side SEO infra (sitemap,

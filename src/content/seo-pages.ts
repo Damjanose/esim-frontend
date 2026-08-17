@@ -523,6 +523,252 @@ export const destinationPages = [
       { label: "Germany travel eSIM plans", href: "/destinations/germany" },
       { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
     ]
+  },
+  {
+    kind: "destination",
+    slug: "thailand",
+    path: "/destinations/thailand",
+    title: "eSIM for Thailand | Travel Data for Bangkok and Beyond",
+    description:
+      "Buy a eSim2you for Thailand, install it before you land, and use mobile data in Bangkok, Phuket, and Chiang Mai without roaming fees.",
+    eyebrow: "Thailand travel eSIM",
+    heading: "Travel data for Thailand, ready before you land.",
+    intro:
+      "eSim2you helps travelers visiting Thailand set up mobile internet before arrival. Install a prepaid eSIM data plan on a compatible phone and use local mobile data for Bangkok, Phuket, Chiang Mai, and island transfers, while keeping your usual number available for calls, texts, and WhatsApp. Keep travel data ready to use when you land.",
+    sections: [
+      {
+        title: "Why use a Thailand eSIM?",
+        body:
+          "A Thailand travel eSIM is useful for ride apps, maps, translation, hotel check-ins, and staying reachable across long domestic transfers between cities and islands."
+      },
+      {
+        title: "Best for common Thailand trips",
+        body:
+          "Use it for beach holidays, temple tours, digital nomad stays, and multi-city itineraries where predictable travel data is easier than roaming."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I install a Thailand eSIM before flying?",
+        answer:
+          "Yes. You can install the eSIM before your trip, then turn on the data line when you arrive in Thailand."
+      },
+      {
+        question: "Does a Thailand eSIM cover islands like Phuket and Koh Samui?",
+        answer:
+          "Coverage follows local mobile networks, so most populated islands and tourist areas are supported alongside Bangkok and Chiang Mai."
+      }
+    ],
+    relatedLinks: [
+      { label: "Browse every eSIM destination", href: "/destinations" },
+      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "uae",
+    path: "/destinations/uae",
+    title: "eSIM for UAE | Travel Data for Dubai and Abu Dhabi",
+    description:
+      "Get a eSim2you for the UAE and use mobile internet in Dubai and Abu Dhabi without hunting for a local SIM after landing.",
+    eyebrow: "UAE travel eSIM",
+    heading: "Mobile data for Dubai and Abu Dhabi, ready before you land.",
+    intro:
+      "eSim2you helps visitors to the United Arab Emirates prepare mobile data before arrival. It is a practical option for business trips, layovers, and holidays in Dubai and Abu Dhabi where reliable app access matters from the first day, without a physical SIM stop at the airport. Keep travel data ready to use when you land.",
+    sections: [
+      {
+        title: "Useful for Dubai and Abu Dhabi",
+        body:
+          "Travel data can support ride apps, maps, hotel coordination, and messaging while moving between airports, business districts, and tourist sites."
+      },
+      {
+        title: "Practical for layovers too",
+        body:
+          "A UAE eSIM can be installed in advance so a short layover in Dubai still comes with working mobile data as soon as you land."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I use a UAE eSIM for a short layover?",
+        answer:
+          "Yes. Install it before departure, then activate the data line as soon as you land, even for a short stopover."
+      },
+      {
+        question: "Will a UAE eSIM work in both Dubai and Abu Dhabi?",
+        answer:
+          "Yes. A UAE travel eSIM is designed for mobile data across supported destinations, including Dubai and Abu Dhabi."
+      }
+    ],
+    relatedLinks: [
+      { label: "Business travel data guide", href: "/use-cases/business-travel" },
+      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Browse every eSIM destination", href: "/destinations" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "mexico",
+    path: "/destinations/mexico",
+    title: "eSIM for Mexico | Travel Data for Cancun, CDMX, and More",
+    description:
+      "Use eSim2you for Mexico travel data, mobile internet in Cancun, Mexico City, and beach destinations, without roaming surprises.",
+    eyebrow: "Mexico travel eSIM",
+    heading: "Travel data for Mexico, ready before you land.",
+    intro:
+      "eSim2you gives travelers a simple way to prepare mobile internet for trips to Mexico. It is designed for people who want travel data for maps, messaging, booking apps, and ride-hailing in Cancun, Mexico City, and resort towns without depending on roaming or a local SIM shop. Keep travel data ready to use when you land.",
+    sections: [
+      {
+        title: "A practical roaming alternative",
+        body:
+          "A Mexico eSIM can reduce trip-planning stress because the data plan lives digitally on your phone and can be managed from the app."
+      },
+      {
+        title: "Useful for resort and city trips",
+        body:
+          "For beach holidays, city breaks, and business visits, setting up eSIM data before departure keeps connectivity simple from arrival."
+      }
+    ],
+    faqs: [
+      {
+        question: "Is an eSIM useful for Mexico travel?",
+        answer:
+          "Yes. It can be a convenient way to get mobile data abroad without buying a physical SIM card after arrival."
+      },
+      {
+        question: "Does a Mexico eSIM work in Cancun and Mexico City?",
+        answer:
+          "Yes. Coverage follows local mobile networks, supporting major cities and resort areas across the country."
+      }
+    ],
+    relatedLinks: [
+      { label: "Browse every eSIM destination", href: "/destinations" },
+      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
+      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "canada",
+    path: "/destinations/canada",
+    title: "eSIM for Canada | Travel Data for Toronto, Vancouver, and More",
+    description:
+      "Buy a eSim2you for Canada, install it in minutes, and stay online in Toronto, Vancouver, and Montreal without roaming fees.",
+    eyebrow: "Canada travel eSIM",
+    heading: "Travel data for Canada, ready before you land.",
+    intro:
+      "eSim2you helps travelers visiting Canada set up mobile internet before arrival. Choose a prepaid eSIM data plan, install it on a compatible phone, and use local mobile data across Toronto, Vancouver, and Montreal while keeping your usual number available for calls, texts, and WhatsApp. Keep travel data ready to use when you land.",
+    sections: [
+      {
+        title: "Why use a Canada eSIM?",
+        body:
+          "A Canada travel eSIM is useful for airport arrivals, city navigation, rideshare apps, and staying reachable during road trips between provinces."
+      },
+      {
+        title: "Best for common Canada trips",
+        body:
+          "Use it for vacations, conferences, cross-country road trips, and business visits where predictable travel data is easier than roaming."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I install a Canada eSIM before flying?",
+        answer:
+          "Yes. You can install the eSIM before your trip, then turn on the data line when you arrive in Canada."
+      },
+      {
+        question: "Will a Canada eSIM change my phone number?",
+        answer:
+          "No. A travel eSIM provides mobile data. Your regular SIM can stay active for your normal number if your phone supports dual SIM."
+      }
+    ],
+    relatedLinks: [
+      { label: "USA travel eSIM plans", href: "/destinations/usa" },
+      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "Business travel data guide", href: "/use-cases/business-travel" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "australia",
+    path: "/destinations/australia",
+    title: "eSIM for Australia | Travel Data for Sydney, Melbourne, and More",
+    description:
+      "Get a eSim2you for Australia travel data and stay connected in Sydney, Melbourne, and beyond without a local SIM stop.",
+    eyebrow: "Australia travel eSIM",
+    heading: "Mobile internet for Australia, installed before your plane lands.",
+    intro:
+      "An Australia eSIM helps travelers stay online for transit, maps, messaging, and everyday trip planning across Sydney, Melbourne, Brisbane, and beyond. eSim2you makes mobile internet setup digital so data is installed before the plane lands and before the first taxi or airport transfer.",
+    sections: [
+      {
+        title: "Built for arrival moments",
+        body:
+          "Use travel data for maps, messaging, and ride apps as soon as you are ready to turn on the eSIM line after a long-haul flight."
+      },
+      {
+        title: "Simple digital setup",
+        body:
+          "Skip the physical SIM counter and install the eSIM profile on a compatible device while you still have reliable Wi-Fi."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I use WhatsApp with an Australia eSIM?",
+        answer:
+          "Yes. Your WhatsApp account can continue using your usual number while the travel eSIM supplies mobile data."
+      },
+      {
+        question: "Do I need an eSIM-compatible phone for Australia?",
+        answer:
+          "Yes. Check your device settings and carrier restrictions before buying any travel eSIM."
+      }
+    ],
+    relatedLinks: [
+      { label: "Browse every eSIM destination", href: "/destinations" },
+      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Remote work data guide", href: "/use-cases/remote-work" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "indonesia",
+    path: "/destinations/indonesia",
+    title: "eSIM for Indonesia | Travel Data for Bali and Beyond",
+    description:
+      "Use eSim2you for Indonesia travel data, mobile internet in Bali and Jakarta, and a simpler alternative to roaming.",
+    eyebrow: "Indonesia travel eSIM",
+    heading: "Travel data for Bali, Jakarta, and the islands.",
+    intro:
+      "eSim2you helps visitors to Indonesia prepare mobile internet data before arrival. It is a practical option for Bali holidays, digital nomad stays, and multi-island itineraries where reliable app access matters from the first day, without a physical SIM stop after landing.",
+    sections: [
+      {
+        title: "Useful across Bali and the islands",
+        body:
+          "Travel data can support ride apps, maps, translation, villa coordination, and messaging while moving between islands and airports."
+      },
+      {
+        title: "Keep your setup lightweight",
+        body:
+          "An eSIM keeps your data plan digital, so compatible phones can stay connected without swapping physical SIM cards between stops."
+      }
+    ],
+    faqs: [
+      {
+        question: "Does an Indonesia eSIM cover Bali?",
+        answer:
+          "Yes. Coverage follows local mobile networks and includes Bali alongside Jakarta and other major islands."
+      },
+      {
+        question: "Is Indonesia eSIM data good for remote work?",
+        answer:
+          "It can be helpful for email, maps, messaging, and video calls when you need mobile data away from villa or cafe Wi-Fi."
+      }
+    ],
+    relatedLinks: [
+      { label: "Remote work data guide", href: "/use-cases/remote-work" },
+      { label: "Business travel data guide", href: "/use-cases/business-travel" },
+      { label: "Browse every eSIM destination", href: "/destinations" }
+    ]
   }
 ] satisfies SeoContentPage[];
 

@@ -28,7 +28,13 @@ describe("SEO content pages", () => {
       "/destinations/spain",
       "/destinations/greece",
       "/destinations/portugal",
-      "/destinations/switzerland"
+      "/destinations/switzerland",
+      "/destinations/thailand",
+      "/destinations/uae",
+      "/destinations/mexico",
+      "/destinations/canada",
+      "/destinations/australia",
+      "/destinations/indonesia"
     ]);
     expect(guidePages.map((page) => page.path)).toEqual([
       "/guides/what-is-an-esim",
@@ -47,7 +53,7 @@ describe("SEO content pages", () => {
     const paths = publicSeoPages.map((page) => page.path);
 
     expect(new Set(paths).size).toBe(paths.length);
-    expect(paths).toHaveLength(19);
+    expect(paths).toHaveLength(25);
 
     for (const page of publicSeoPages) {
       expect(page.title.trim().length).toBeGreaterThan(20);
