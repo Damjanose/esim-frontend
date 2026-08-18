@@ -67,7 +67,7 @@ Mirrors mobile's `resolveButtonVisual` (`controls.ts`):
 
 - `variant: "primary"` — always the brand gradient (`brandBlue → #0E86C0 → brandTeal`), white label, no border. The one unambiguous action on a screen; never used for a destructive action.
 - `variant: "flat", tone: "brand"` — white background, `brandBlue` label, 1px border (`rgba(11,73,183,0.42)`).
-- `variant: "flat", tone: "danger"` — white background, `error` label, 1px border (`rgba(186,26,26,0.38)`). Mobile deliberately has **no solid-red primary button** — destructive actions stay outlined, never filled red. The web's Delete Account flow currently uses a solid red fill; Phase 1 changes it to `flat/danger` to match this rule.
+- `variant: "flat", tone: "danger"` — white background, `error` label, 1px border (`rgba(186,26,26,0.38)`). Mobile deliberately has **no solid-red primary button** — destructive actions stay outlined, never filled red. The web's Delete Account flow currently uses a solid red fill; Phase 1 changes it to `flat/danger` to match this rule (see Task 8).
 - Disabled: 40% opacity, non-interactive.
 
 ## Radius & spacing
