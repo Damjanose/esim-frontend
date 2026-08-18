@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { Button } from "./Button";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -16,14 +17,9 @@ export function SignOutButton() {
   }
 
   return (
-    <button
-      className="inline-flex h-10 items-center gap-2 rounded-[11px] border border-[#214867] px-4 text-xs font-black text-[#8ea3ba] transition hover:border-[#168cff]/75 hover:text-white disabled:opacity-60"
-      disabled={busy}
-      onClick={() => void signOut()}
-      type="button"
-    >
+    <Button disabled={busy} onClick={() => void signOut()} size="sm" tone="brand" type="button" variant="flat">
       <LogOut size={15} />
       Sign out
-    </button>
+    </Button>
   );
 }
