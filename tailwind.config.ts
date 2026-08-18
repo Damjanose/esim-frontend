@@ -14,7 +14,12 @@ const config: Config = {
         line: "#c7e9ef",
         brandBlue: "#0B49B7",
         brandTeal: "#09C3BE",
-        error: "#BA1A1A"
+        error: "#BA1A1A",
+        surface: "#FFFFFF",
+        onSurface: "#1A1F36",
+        onSurfaceVariant: "#44495E",
+        outline: "#C4C7D4",
+        brandInk: "#061131"
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
@@ -32,7 +37,9 @@ const config: Config = {
       },
       boxShadow: {
         glow: "0 24px 80px rgba(0, 217, 245, 0.24)",
-        card: "0 20px 60px rgba(0, 31, 38, 0.12)"
+        card: "0 20px 60px rgba(0, 31, 38, 0.12)",
+        brandGlow: "0 24px 80px rgba(11, 73, 183, 0.16)",
+        brandCard: "0 20px 60px rgba(6, 17, 49, 0.08)"
       }
     }
   },

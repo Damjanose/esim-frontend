@@ -9,13 +9,13 @@ web implementers.
 
 | Web Tailwind token | Mobile source | Value | Used for |
 |---|---|---|---|
-| `surface` | `lightPalette.surface` | `#FFFFFF` | page/card background (Phase 2) |
-| `onSurface` | `lightPalette.onSurface` | `#1A1F36` | body text (Phase 2) |
-| `onSurfaceVariant` | `lightPalette.onSurfaceVariant` | `#44495E` | secondary text (Phase 2) |
-| `outline` | `lightPalette.outlineVariant` | `#C4C7D4` | borders, dividers (Phase 2) |
-| `brandBlue` | `marketplace.purple` (= `brand.blue`) | `#0B49B7` | gradient start, links |
+| `surface` | `lightPalette.surface` | `#FFFFFF` | page/card background |
+| `onSurface` | `lightPalette.onSurface` | `#1A1F36` | body text |
+| `onSurfaceVariant` | `lightPalette.onSurfaceVariant` | `#44495E` | secondary text |
+| `outline` | `lightPalette.outlineVariant` | `#C4C7D4` | borders, dividers |
+| `brandBlue` | `marketplace.purple` (= `brand.blue`) | `#0B49B7` | gradient start, links, glows |
 | `brandTeal` | `marketplace.cyan` (= `brand.teal`) | `#09C3BE` | gradient end, small accents |
-| `ink` (new) | `brand.ink` | `#061131` | headline text (Phase 2) — **not** the old `ink` (`#06262f`), see note below |
+| `brandInk` | `brand.ink` | `#061131` | headline text, logo mark |
 | `error` | `lightPalette.error` | `#BA1A1A` | error text/borders, danger-tone buttons |
 
 `marketplace.buttonGradient` (used by every primary CTA on mobile) is three
@@ -26,12 +26,27 @@ semantic token of its own on mobile either — it's used as a literal.
 ported — mobile's own buttons don't use it (they use `marketplace.buttonGradient`
 instead), so it would just be a second, unused teal.
 
-**Naming collision:** the existing Tailwind config already has an `ink` key
-(`#06262f`, part of the old dark theme, still used by `text-ink`/`bg-ink` in a
-few files). Phase 1 does not touch it. When Phase 2 introduces the mobile
-`brand.ink` value, it will need a different Tailwind key name (e.g. `brandInk`)
-to avoid silently changing those existing usages — resolve this in the Phase 2
-plan, not by editing this table.
+**Naming collision, resolved:** the Tailwind config still has an old `ink` key
+(`#06262f`, the pre-Phase-2 dark theme) alongside the new `brandInk` (`#061131`).
+`ink`/`midnight`/`cyan`/`aqua`/`cloud`/`mist`/`line` are the retiring dark-theme
+tokens — Phase 2 replaces every usage of them, file by file, with the tokens in
+the table above. Once no file references them any more, delete the old keys
+from `tailwind.config.ts`.
+
+## Applying this to a page (Phase 2 conversion rules)
+
+Every color in a converted file must be one of the tokens above (optionally
+with Tailwind's opacity modifier, e.g. `bg-brandBlue/10`, `border-outline/60`)
+— never a new hardcoded hex value. Rules for the patterns that recur across
+the dark-theme pages:
+
+- **Page/section background:** `bg-[#020916]` / `bg-[#04132C]` / similar → `bg-surface`.
+- **Body text:** `text-white`, `text-white/60` → `text-onSurface` / `text-onSurfaceVariant`.
+- **Headline text:** `text-white` on `font-display` headings → `text-brandInk`.
+- **Decorative glows** (`bg-[#006cff]/18 blur-[150px]` etc.): keep the blur/shape, swap the color to `bg-brandBlue/10` or `bg-brandTeal/10` — a glow that reads on near-black needs roughly half the opacity to work on white without looking muddy. Tune down, not up, when in doubt.
+- **Glass/dark card panels** (`bg-[#07172c]/80 border-[#31567e]/60`): become `bg-surface border border-outline` with a soft shadow (`shadow-brandCard`), not a translucent dark fill.
+- **Borders:** `border-white/15`, `border-[#214867]` → `border-outline` (neutral) or `border-brandBlue/20` (accent).
+- **Primary CTA gradients:** `from-[#1857ff] to-[#29c9ff]` style → the shared `Button`/`LinkButton` component (see below), not a hand-written gradient.
 
 ## Typography
 

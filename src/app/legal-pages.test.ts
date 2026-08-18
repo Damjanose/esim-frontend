@@ -24,11 +24,11 @@ describe("legal pages and hydration-safe shell", () => {
     expect(layout).toMatch(/<body[\s\S]*?suppressHydrationWarning[\s\S]*?>\s*{children}\s*<\/body>/);
   });
 
-  it("keeps the browser canvas aligned with the dark app background during overscroll", () => {
+  it("keeps the browser canvas aligned with the light app background during overscroll", () => {
     const globalCss = readFileSync("src/app/globals.css", "utf8");
 
-    expect(globalCss).toContain("background: #020916;");
-    expect(globalCss).not.toContain("background: #ffffff;");
+    expect(globalCss).toContain("background: #ffffff;");
+    expect(globalCss).not.toContain("background: #020916;");
   });
 
   it("uses the app logo asset for legal page branding instead of a generic icon", () => {
