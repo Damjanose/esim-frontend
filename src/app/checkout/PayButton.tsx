@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CreditCard, Loader2 } from "lucide-react";
+import { Button } from "@/app/components/Button";
 
 export function PayButton({ packageId }: { packageId: string }) {
   const [busy, setBusy] = useState(false);
@@ -46,15 +47,16 @@ export function PayButton({ packageId }: { packageId: string }) {
 
   return (
     <div className="mt-6">
-      <button
-        className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+      <Button
+        className="w-full"
         disabled={busy}
         onClick={() => void startPayment()}
+        size="lg"
         type="button"
       >
         {busy ? <Loader2 className="animate-spin" size={18} /> : <CreditCard size={18} />}
         {busy ? "Opening secure checkout…" : "Pay with Pokpay"}
-      </button>
+      </Button>
 
       {error ? <p className="mt-3 text-sm font-semibold text-[#ff8792]">{error}</p> : null}
 
