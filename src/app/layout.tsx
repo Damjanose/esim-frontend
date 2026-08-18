@@ -1,6 +1,25 @@
 import type { Metadata } from "next";
+import { Geist, Hanken_Grotesk, Inter } from "next/font/google";
 import { createMetadata, siteUrl } from "@/lib/seo";
 import "./globals.css";
+
+const hankenGrotesk = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-display"
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-sans"
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-mono"
+});
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const bingSiteVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
@@ -33,7 +52,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
+      <body
+        className={`${hankenGrotesk.variable} ${inter.variable} ${geist.variable}`}
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }
