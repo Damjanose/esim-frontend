@@ -27,17 +27,19 @@
     "readEmailFromAccessToken() is unverified (no signature check possible client-side) — display only, never treat its output as an authorization decision (f008).",
     "Any redirect URL built from `request.url`/`url.origin` inside a route handler or middleware will leak the internal bind address (localhost:3020) in production; always derive origin via getPublicOrigin(request) instead (f009).",
     "NEXT_PUBLIC_APPLE_SERVICES_ID must be an Apple Services ID, never a bundle id or a Google client id — the SocialSignInButtons render guard only checks non-empty, so a wrong-but-present value renders a button that fails at runtime (f012, f013).",
-    ".env.local is gitignored and never reaches production; update.sh deploys via git pull + build, so any NEXT_PUBLIC_* value that must exist in prod has to also be committed in .env.production (f029)."
+    ".env.local is gitignored and never reaches production; update.sh deploys via git pull + build, so any NEXT_PUBLIC_* value that must exist in prod has to also be committed in .env.production (f029).",
+    "Shared Button/LinkButton (src/app/components/Button.tsx, buttonClasses.ts) is the canonical CTA component, mirroring mobile's resolveButtonVisual — new buttons should use resolveButtonClasses() rather than hand-rolled Tailwind strings (f032).",
+    "The display font is Hanken Grotesk (not Plus Jakarta Sans) and all three font families (Hanken Grotesk/Inter/Geist) are loaded via next/font/google in src/app/layout.tsx — declaring a font CSS variable in tailwind.config.ts alone does not load it (f033, f034)."
   ],
   "phase": {
-    "current": "Feature-building on top of a working public site + BFF + auth/checkout/account stack; most recent work (2026-08-13) closed out web social sign-in and the profile/account area to parity with the mobile app.",
-    "next": "Open items per docs/sessions: verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (needs per-client Apple client-secret JWT work, f031).",
-    "order": ["landing + SEO content pages", "hero/destination package search", "checkout + Pokpay payments", "hidden admin dashboards (/xloginy, /xerrors)", "BFF migration for nginx /api collision", "profile/account area + social sign-in (5 phases)"]
+    "current": "Mid-migration to a mobile-parity design system on top of the existing public site + BFF + auth/checkout/account stack: Phase 1 (shared Button/LinkButton, migrated PayButton/SignOutButton/Navbar CTA/DeleteAccountCard) and Phase 2 (brand color + type-scale tokens, next/font loading fix) are done as of 2026-08-18 (f032-f034).",
+    "next": "Continue the mobile-parity redesign (docs/design/mobile-design-system.md phases beyond 2 — light-theme conversion of remaining screens); verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); no session docs have been written since 2026-08-13 — recommend resuming that habit (f037).",
+    "order": ["landing + SEO content pages", "hero/destination package search", "checkout + Pokpay payments", "hidden admin dashboards (/xloginy, /xerrors)", "BFF migration for nginx /api collision", "profile/account area + social sign-in (5 phases)", "mobile-parity design system migration (in progress)"]
   },
   "sync": {
-    "commit": "978b92a",
+    "commit": "303c726",
     "branch": "main",
-    "date": "2026-08-14",
-    "note_latest": "Most recent commit 978b92a 'fix: google auth' plus the 2026-08-13 session set closed out the web profile/account area (5 phases: profile hub, order lifecycle sections, top-up, billing/deletion, Google+Apple sign-in), fixed a prod redirect bug that sent guarded-route visitors to localhost:3020, and moved all BFF route handlers from src/app/api to src/app/bff because nginx claims the whole /api/* prefix for the Express backend."
+    "date": "2026-08-19",
+    "note_latest": "Resynced after 21 commits (978b92a..303c726, no session docs written for any of them): started a mobile-design-parity migration — shared Button/LinkButton component mirroring mobile's resolveButtonVisual, new brand color + type-scale tailwind tokens, a next/font fix that made Hanken Grotesk/Inter/Geist actually render (they were configured but silently falling back to system fonts), voiceMinutes/smsCount added to package data, 6 new destination SEO pages, and an SEO rebrand pass."
   }
 }

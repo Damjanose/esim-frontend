@@ -48,7 +48,7 @@ export function Navbar() {
             src="/logo-no-bg.png"
           />
 
-          <span className="font-display text-lg font-bold tracking-[-0.02em] text-white">
+          <span className="font-display text-lg font-bold tracking-[-0.02em] text-brandInk">
             {landingContent.brand}
           </span>
         </a>
@@ -56,7 +56,7 @@ export function Navbar() {
         <div className="hidden items-center gap-8 lg:flex">
           {navItems.map((item) => (
             <a
-              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
+              className="text-sm font-medium text-onSurfaceVariant transition-colors hover:text-brandInk"
               href={item.href}
               key={item.href}
             >
@@ -68,7 +68,7 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <button
             aria-label="Change language"
-            className="hidden items-center gap-2 text-sm font-semibold text-white/75 transition hover:text-white md:flex"
+            className="hidden items-center gap-2 text-sm font-semibold text-onSurfaceVariant transition hover:text-brandInk md:flex"
             type="button"
           >
             <Globe2 aria-hidden="true" size={17} />
@@ -81,7 +81,7 @@ export function Navbar() {
               to sign-in by the route guard. */}
           <a
             aria-label="Your profile"
-            className="grid h-11 w-11 place-items-center rounded-full border border-white/15 text-white/75 transition hover:border-white/40 hover:text-white"
+            className="grid h-11 w-11 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/40 hover:text-brandBlue"
             href="/profile"
           >
             <UserRound aria-hidden="true" size={19} />

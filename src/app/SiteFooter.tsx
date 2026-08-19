@@ -31,28 +31,28 @@ const footerCompanyLinks = [
 
 export function SiteFooter() {
   return (
-    <footer aria-label="Footer" className="border-t border-cyan/10 bg-midnight text-white">
+    <footer aria-label="Footer" className="border-t border-outline bg-surface text-onSurface">
       <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_1.4fr]">
           <div>
             <div className="flex items-center gap-3 font-display text-lg font-black">
               <img
                 alt="eSim2you app logo"
-                className="h-9 w-9 rounded-lg shadow-glow"
+                className="h-9 w-9 rounded-lg shadow-brandCard"
                 src="/app-logo.png"
               />
               {landingContent.brand}
             </div>
-            <p className="mt-4 max-w-md text-sm leading-6 text-white/60">
+            <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant">
               eSim2you helps travelers choose reliable mobile data for international trips without roaming surprises.
             </p>
-            <p className="mt-4 max-w-md text-sm leading-6 text-white/45">
+            <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant/70">
               eSim2you travel data guides and destination pages are built for quick planning before you fly.
             </p>
             <div className="mt-5 flex items-center gap-3">
               <a
                 aria-label="eSim2you on Instagram"
-                className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white/70 transition hover:border-cyan/60 hover:text-cyan"
+                className="grid h-10 w-10 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/60 hover:text-brandBlue"
                 href={socialLinks.instagram}
                 rel="me noopener noreferrer"
                 target="_blank"
@@ -61,7 +61,7 @@ export function SiteFooter() {
               </a>
               <a
                 aria-label="eSim2you on Facebook"
-                className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white/70 transition hover:border-cyan/60 hover:text-cyan"
+                className="grid h-10 w-10 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/60 hover:text-brandBlue"
                 href={socialLinks.facebook}
                 rel="me noopener noreferrer"
                 target="_blank"
@@ -76,7 +76,7 @@ export function SiteFooter() {
             <FooterLinkColumn title="Resources" links={footerResourceLinks} />
           </div>
         </div>
-        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs font-semibold text-white/45 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-3 border-t border-outline pt-6 text-xs font-semibold text-onSurfaceVariant/70 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 eSim2you. All rights reserved.</p>
           <p>eSim2you destination coverage for 200+ destinations.</p>
         </div>
@@ -94,10 +94,10 @@ function FooterLinkColumn({
 }) {
   return (
     <nav aria-label={title}>
-      <h2 className="text-xs font-black uppercase tracking-[0.08em] text-cyan">{title}</h2>
+      <h2 className="text-xs font-black uppercase tracking-[0.08em] text-brandBlue">{title}</h2>
       <div className="mt-4 grid gap-3">
         {links.map((link) => (
-          <a className="text-sm font-semibold text-white/68 transition hover:text-cyan" href={link.href} key={link.href}>
+          <a className="text-sm font-semibold text-onSurfaceVariant transition hover:text-brandBlue" href={link.href} key={link.href}>
             {link.label}
           </a>
         ))}
