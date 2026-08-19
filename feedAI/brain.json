@@ -40,6 +40,6 @@
     "commit": "303c726",
     "branch": "main",
     "date": "2026-08-19",
-    "note_latest": "Resynced after 21 commits (978b92a..303c726, no session docs written for any of them): started a mobile-design-parity migration — shared Button/LinkButton component mirroring mobile's resolveButtonVisual, new brand color + type-scale tailwind tokens, a next/font fix that made Hanken Grotesk/Inter/Geist actually render (they were configured but silently falling back to system fonts), voiceMinutes/smsCount added to package data, 6 new destination SEO pages, and an SEO rebrand pass."
+    "note_latest": "Resynced after 21 commits (978b92a..303c726, no session docs written for any of them): started a mobile-design-parity migration — shared Button/LinkButton component mirroring mobile's resolveButtonVisual, new brand color + type-scale tailwind tokens, a next/font fix that made Hanken Grotesk/Inter/Geist actually render (they were configured but silently falling back to system fonts), voiceMinutes/smsCount added to package data, 6 new destination SEO pages, and an SEO rebrand pass. Uncommitted as of this note: this repo's first CLAUDE.md was added, wiring docs/sessions + feedAI updates into a session-end checklist (f038) — the no-session-docs gap called out below should stop recurring once that's committed."
   }
 }
