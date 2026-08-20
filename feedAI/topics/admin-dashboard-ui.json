@@ -1,0 +1,28 @@
+{
+  "topic": "admin-dashboard-ui",
+  "covers": "The actual UI/behavior of the two hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
+  "facts": ["f044", "f045", "f046"],
+  "shared_shell": {
+    "component": "src/app/AdminNav.tsx, rendered at the top of both admin pages",
+    "layouts": "src/app/xloginy/layout.tsx and src/app/xerrors/layout.tsx both set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
+  },
+  "auth_pattern": {
+    "storage": "Both pages are 'use client' components that independently store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' — logging in on one page also authenticates the other on the next load, without any shared login component (f044).",
+    "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) — an XSS on either admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
+    "duplication": "xloginy/page.tsx and xerrors/page.tsx each reimplement their own login form, their own handleLogin() POST to /bff/admin/login, their own 401-triggered logout, and their own formatDate() helper — no shared admin-auth hook/component exists between them, despite identical logic (f045).",
+    "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) — this file only covers how the two Next.js pages consume it."
+  },
+  "xloginy_purchase_dashboard": {
+    "file": "src/app/xloginy/page.tsx",
+    "data_source": "GET /bff/admin/dashboard (Bearer token) -> {summary:{purchaseCount,userCount,revenueByCurrency,latestPurchaseAt}, chart:[{date,purchases,revenueCents}], purchases:Purchase[], users:DashboardUser[], recentOtpRequests:OtpRequestEvent[]}",
+    "renders": "4 summary stat cards (total purchases/revenue/latest purchase/total users), a hand-rolled inline SVG bar chart component (PurchasesChart, no charting library) for purchases-over-time, and 3 tables: Purchases (email/package/price/status/date), Users (email/created/updated/otpRequestCount/lastOtpRequestedAt), Recent OTP requests (email/status/timestamp/error).",
+    "formatting": "formatMoney uses Intl.NumberFormat with the purchase's own currency (paymentCurrency), amountCents/100; formatDate uses Intl.DateTimeFormat medium/short."
+  },
+  "xerrors_error_inbox": {
+    "file": "src/app/xerrors/page.tsx",
+    "data_source": "GET /bff/admin/errors (filterable by email/requestId/area/severity/unresolvedOnly) -> ErrorEvent[]; PATCH /bff/admin/errors/:id to set resolved/adminNotes; POST /bff/admin/errors/:id/repair to run the backend's repairAction",
+    "layout": "master-detail: a filterable table on the left (time/severity/area/email/method+path/status/message/state), clicking a row selects it and shows full detail in a right-hand aside (request id, user, API path, provider info, related payment/package/ICCID, repair action, safe request body/query as pretty-printed JSON).",
+    "safe_curl_reconstruction": "buildSafeCurl() client-side rebuilds a copy-pasteable curl command from the error's method/path/safeRequestBody for reproducing the failing request — uses a hardcoded base URL 'https://esim.uplisoft.com' (f046), so this reconstructed curl always points at production regardless of which backend the admin actually meant to test against.",
+    "actions": "Copy request id, Copy safe cURL (clipboard), Save admin notes, Mark resolved, and (only when the error has a repairAction) Run repair — a one-click trigger of the backend's idempotent provisioning retry (see E-SIM backend feedAI's admin.json 'repair_actions')."
+  }
+}

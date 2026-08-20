@@ -1,0 +1,29 @@
+{
+  "topic": "account-profile-pages",
+  "covers": "Page-level structure of /signin, /checkout, /account, /profile — the actual UI these routes render, complementing topics/auth.json and topics/account-flows.json which cover the underlying logic/endpoints, not the pages themselves.",
+  "facts": ["f047", "f048"],
+  "signin_page": {
+    "file": "src/app/signin/page.tsx + SignInForm.tsx (client component)",
+    "flow": "Two-step form: email -> 'Send code' (POST /bff/auth/otp/send, starts a 30s resend cooldown) -> 6-digit code -> 'Verify and continue' (POST /bff/auth/otp/verify, then router.replace(next) + router.refresh() since session cookies are set by the route handler, not client JS).",
+    "next_param": "?next= is sanitized through safeNextPath() (src/lib/safe-redirect.ts) before use, both for the post-verify redirect and passed down to SocialSignInButtons — prevents an open-redirect via a crafted next value.",
+    "link_challenge_state": "If a social sign-in returns linkRequired, SignInForm swaps its entire body for LinkEmailStep (topics/auth.json) instead of showing it inline — the email/code form and the link-email form are mutually exclusive views of the same card, not stacked."
+  },
+  "checkout_page": {
+    "file": "src/app/checkout/page.tsx (Server Component) + PayButton.tsx (client)",
+    "data_fetch": "getPackageOption(packageId) from src/services/server-packages.ts, server-side; notFound() if the package id in ?package= doesn't resolve.",
+    "renders": "Plan summary card (flag/country icon, destination/data/validity rows, conditionally a Voice & SMS row only when plan.voiceMinutes or plan.smsCount is set — f047, matches ui-components-styling.json's f035 HeroPackageOption fields), total price, PayButton, a 'Payments are handled by Pokpay, eSim2you never sees your card details' disclosure line, and a link back to /destinations.",
+    "not_found_and_failed": "src/app/checkout/not-found.tsx (invalid/missing package) and src/app/checkout/failed/page.tsx (payment failure landing) exist as separate route-level states, not modals."
+  },
+  "account_page": {
+    "file": "src/app/account/page.tsx (Server Component) + PlanCard.tsx",
+    "fetch_ordering": "Deliberately sequenced: GET /orders/active is awaited FIRST and alone (its read has the side effect of expiring a depleted plan server-side, per account-flows.json's f016), THEN /orders (full list) and, only if an active order exists, /orders/:id/usage are fetched together via Promise.all — so the list request already reflects any expiry the active-order read just caused (f048).",
+    "usage_scope": "Only the active plan's usage is fetched on this page (one upstream call); ready/history plan cards do not show usage here — that loads on their own /account/[orderId] detail page.",
+    "sections_rendered": "Active plan (ActivePlanCard, shows usage), Ready to use (grid of PlanCard for lifecycle_status:'ready'), History (grid of PlanCard for finished plans) — via resolveOrderSections() from src/lib/order-groups.ts (topics/account-flows.json). Empty state and a full error state (orders fetch failed) are both explicit UI branches, not just a blank page."
+  },
+  "profile_page": {
+    "file": "src/app/profile/page.tsx (Server Component)",
+    "email_display": "Reads the access-token cookie server-side via readEmailFromAccessToken() (topics/auth.json's f008 — unverified, display-only) to show 'Signed in as <email>'.",
+    "identities_fetch": "GET /auth/identities is fetched separately and treated as non-fatal — if it fails, the rest of the profile page (settings sections, sign-out, delete account) still renders; only the LinkedProviders section is affected.",
+    "sections": "Plans (link to /account), Sign-in methods (LinkedProviders — list + unlink linked Google/Apple identities), Payments (link to /profile/billing), Support (link to /support), Legal (links to /terms, /policy), and a standalone Account section with DeleteAccountCard at the bottom. All section rows use the shared SettingsSection/SettingsLinkRow primitives (topics/ui-components-styling.json)."
+  }
+}
