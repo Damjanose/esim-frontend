@@ -35,10 +35,11 @@ describe("hidden admin package pricing page", () => {
 
     expect(pageSource).toContain("/bff/admin/packages/pricing");
     expect(pageSource).toContain("response.status === 401");
-    expect(pageSource).toContain("Original price");
+    expect(pageSource).toContain("Coverage");
+    expect(pageSource).toContain("Network");
+    expect(pageSource).toContain("Validity");
     expect(pageSource).toContain("Retail price");
     expect(pageSource).toContain("Discount");
-    expect(pageSource).toContain("Final price");
     expect(pageSource).toContain("Bulk discount");
     expect(pageSource).toContain("bulk-discount");
     expect(pageSource).toContain("Apply to selected");

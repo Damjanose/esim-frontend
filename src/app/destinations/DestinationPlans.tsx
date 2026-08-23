@@ -571,16 +571,18 @@ export function DestinationPlans({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#020916] text-white">
+    <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
       <Navbar />
 
       <section className="relative isolate pb-20 pt-20">
-        <div className="pointer-events-none absolute inset-0 -z-30 bg-[radial-gradient(circle_at_72%_20%,rgba(0,112,255,0.16),transparent_34%),radial-gradient(circle_at_18%_32%,rgba(13,72,155,0.1),transparent_30%),linear-gradient(180deg,#020814_0%,#020916_62%,#020916_100%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-30 bg-[radial-gradient(circle_at_72%_20%,rgba(11,73,183,0.09),transparent_34%),radial-gradient(circle_at_18%_32%,rgba(11,73,183,0.045),transparent_30%)]" />
 
-        <div className="hero-grid pointer-events-none absolute inset-0 -z-20 opacity-[0.07]" />
+        <div className="hero-grid pointer-events-none absolute inset-0 -z-20 opacity-[0.05]" />
 
         <div className="mx-auto max-w-[1360px] px-5 md:px-8 xl:px-12">
-          <div className="relative mt-6 min-h-[430px] overflow-hidden rounded-[30px] border border-[#173d61]/70 bg-[#020916] shadow-[0_34px_95px_rgba(0,0,0,0.42)]">
+          {/* This card stays dark/photo-backed on purpose (matches CountryHero.tsx on mobile) — it's a
+              destination photo with white overlay text, not a plain section background. */}
+          <div className="relative mt-6 min-h-[430px] overflow-hidden rounded-[30px] border border-outline bg-midnight shadow-brandCard">
             <HeroCountryImage
               country={
                 selectedCountry?.country
@@ -592,7 +594,7 @@ export function DestinationPlans({
             <div className="relative z-10 grid min-h-[430px] items-end gap-10 px-6 py-9 sm:px-9 lg:grid-cols-[0.88fr_1.12fr] lg:px-11 lg:py-11">
               <div className="max-w-[610px]">
                 {selectedCountry ? (
-                  <div className="inline-flex items-center gap-3 rounded-[12px] border border-[#1d6db3]/75 bg-[#06182c]/80 px-4 py-2.5 shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+                  <div className="inline-flex items-center gap-3 rounded-[12px] border border-brandTeal/40 bg-midnight/80 px-4 py-2.5 shadow-brandCard backdrop-blur-xl">
                     {selectedCountry.flagUri ? (
                       <img
                         alt={`${selectedCountry.country} flag`}
@@ -604,7 +606,7 @@ export function DestinationPlans({
                     ) : (
                       <Globe2
                         aria-hidden="true"
-                        className="text-[#46afff]"
+                        className="text-brandTeal"
                         size={18}
                       />
                     )}
@@ -619,7 +621,7 @@ export function DestinationPlans({
                   eSIM plans for
                   <br />
 
-                  <span className="bg-gradient-to-r from-[#2874ff] via-[#279fff] to-[#2bd2ff] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal bg-clip-text text-transparent">
                     {loading
                       ? "your destination"
                       : selectedCountry?.country ??
@@ -627,7 +629,7 @@ export function DestinationPlans({
                   </span>
                 </h1>
 
-                <p className="mt-5 max-w-[470px] text-sm leading-7 text-[#acbbcd] sm:text-base">
+                <p className="mt-5 max-w-[470px] text-sm leading-7 text-white/72 sm:text-base">
                   Fast, reliable data wherever
                   you go.
                   <br />
@@ -841,8 +843,8 @@ function PlanToolbar({
             className={[
               "rounded-full border px-5 py-2.5 text-xs font-black transition",
               filter === item.value
-                ? "border-[#27baff] bg-[#0a3153] text-white shadow-[0_0_24px_rgba(34,166,255,0.27)]"
-                : "border-[#1b4266] bg-[#061427] text-[#8ca1b8] hover:border-[#347daf] hover:text-white",
+                ? "border-brandBlue bg-gradient-to-r from-brandBlue to-brandTeal text-white shadow-[0_0_24px_rgba(11,73,183,0.27)]"
+                : "border-outline bg-white text-onSurfaceVariant hover:border-brandBlue/50 hover:text-brandInk",
             ].join(" ")}
             key={item.value}
             onClick={() =>
@@ -855,19 +857,19 @@ function PlanToolbar({
         ))}
       </div>
 
-      <label className="flex h-11 w-fit items-center gap-3 rounded-full border border-[#173959] bg-[#061427] px-4">
+      <label className="flex h-11 w-fit items-center gap-3 rounded-full border border-outline bg-white px-4">
         <ArrowDownUp
           aria-hidden="true"
-          className="text-[#46afff]"
+          className="text-brandBlue"
           size={15}
         />
 
-        <span className="text-[11px] font-bold text-[#70869f]">
+        <span className="text-[11px] font-bold text-onSurfaceVariant">
           Sort by
         </span>
 
         <select
-          className="bg-[#061427] text-xs font-black text-white outline-none"
+          className="bg-white text-xs font-black text-brandInk outline-none"
           onChange={(event) =>
             onSortChange(
               event.target.value as SortOption,
@@ -935,7 +937,7 @@ function DestinationStats({
   ];
 
   return (
-    <div className="mt-5 grid overflow-hidden rounded-[18px] border border-[#1d4366] bg-[#061427]/92 shadow-[0_18px_55px_rgba(0,0,0,0.2)] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="mt-5 grid overflow-hidden rounded-[18px] border border-outline bg-white shadow-brandCard sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
 
@@ -944,12 +946,12 @@ function DestinationStats({
             className={[
               "flex items-center gap-4 px-5 py-5",
               index > 0
-                ? "border-t border-[#163650] sm:border-t-0 sm:[&:nth-child(2n)]:border-l xl:border-l"
+                ? "border-t border-outline sm:border-t-0 sm:[&:nth-child(2n)]:border-l xl:border-l"
                 : "",
             ].join(" ")}
             key={stat.title}
           >
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-[#1d527c] bg-[#09213a] text-[#42b0ff]">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[13px] border border-brandBlue/20 bg-brandBlue/8 text-brandBlue">
               <Icon
                 aria-hidden={true}
                 size={20}
@@ -957,11 +959,11 @@ function DestinationStats({
             </span>
 
             <div>
-              <p className="text-sm font-black">
+              <p className="text-sm font-black text-brandInk">
                 {stat.title}
               </p>
 
-              <p className="mt-1 text-xs text-[#778da5]">
+              <p className="mt-1 text-xs text-onSurfaceVariant">
                 {stat.description}
               </p>
             </div>
@@ -1019,31 +1021,31 @@ function FeaturedPlan({
   }
 
   return (
-    <article className="group relative mt-5 overflow-hidden rounded-[20px] border border-[#168cff]/85 bg-[linear-gradient(105deg,#07172b_0%,#08213c_46%,#061326_100%)] px-5 py-6 shadow-[0_25px_75px_rgba(0,80,190,0.2)] sm:px-7">
-      <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-[#47b9ff] to-transparent" />
+    <article className="group relative mt-5 overflow-hidden rounded-[20px] border border-brandBlue/40 bg-white px-5 py-6 shadow-brandGlow sm:px-7">
+      <div className="pointer-events-none absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-brandBlue to-transparent" />
 
-      <div className="pointer-events-none absolute -left-16 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[#0879ff]/13 blur-[70px]" />
+      <div className="pointer-events-none absolute -left-16 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-brandBlue/8 blur-[70px]" />
 
-      <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 border-b border-l border-[#168cff]/60 bg-[#0d2f51]/75 [clip-path:polygon(100%_0,100%_100%,0_0)]" />
+      <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 border-b border-l border-brandBlue/25 bg-brandBlue/6 [clip-path:polygon(100%_0,100%_100%,0_0)]" />
 
       <Star
         aria-hidden="true"
-        className="absolute right-4 top-4 fill-[#45b8ff] text-[#45b8ff]"
+        className="absolute right-4 top-4 fill-brandTeal text-brandTeal"
         size={15}
       />
 
       <div className="relative grid items-center gap-7 lg:grid-cols-[220px_1fr_220px]">
         <div>
-          <span className="inline-flex rounded-full border border-[#2ebfff]/65 bg-gradient-to-r from-[#1476ff] to-[#28bfff] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em]">
+          <span className="inline-flex rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-white">
             Best value
           </span>
 
           <div className="relative mx-auto mt-4 grid h-32 w-32 place-items-center">
-            <div className="absolute inset-0 rounded-full border border-[#20c9ff]/25 bg-[#0794ff]/5 shadow-[0_0_50px_rgba(20,173,255,0.24)]" />
+            <div className="absolute inset-0 rounded-full border border-brandBlue/20 bg-brandBlue/4 shadow-[0_0_50px_rgba(11,73,183,0.14)]" />
 
-            <div className="absolute inset-4 rounded-full border border-[#33c6ff]/75 shadow-[inset_0_0_24px_rgba(31,172,255,0.3),0_0_30px_rgba(27,158,255,0.32)]" />
+            <div className="absolute inset-4 rounded-full border border-brandTeal/60 shadow-[inset_0_0_24px_rgba(9,195,190,0.18),0_0_30px_rgba(9,195,190,0.2)]" />
 
-            <span className="relative grid h-20 w-20 place-items-center rounded-full bg-[#061326] text-[#32a9ff]">
+            <span className="relative grid h-20 w-20 place-items-center rounded-full bg-brandBlue/8 text-brandBlue">
               {unlimited ? (
                 <InfinityIcon
                   size={45}
@@ -1057,11 +1059,11 @@ function FeaturedPlan({
         </div>
 
         <div>
-          <h2 className="font-display text-2xl font-black tracking-[-0.025em] sm:text-3xl">
+          <h2 className="font-display text-2xl font-black tracking-[-0.025em] text-brandInk sm:text-3xl">
             {plan.title}
           </h2>
 
-          <p className="mt-2 text-sm text-[#8ea3ba]">
+          <p className="mt-2 text-sm text-onSurfaceVariant">
             {unlimited
               ? "High-speed data, no limits."
               : "Reliable data for your entire journey."}
@@ -1073,12 +1075,12 @@ function FeaturedPlan({
 
               return (
                 <div
-                  className="flex items-center gap-3 text-xs font-semibold text-[#9eb0c3]"
+                  className="flex items-center gap-3 text-xs font-semibold text-onSurfaceVariant"
                   key={feature.label}
                 >
                   <Icon
                     aria-hidden={true}
-                    className="text-[#58baff]"
+                    className="text-brandBlue"
                     size={15}
                   />
 
@@ -1090,16 +1092,16 @@ function FeaturedPlan({
         </div>
 
         <div className="lg:text-center">
-          <p className="font-display text-4xl font-black tracking-[-0.04em]">
+          <p className="font-display text-4xl font-black tracking-[-0.04em] text-brandInk">
             {plan.price}
           </p>
 
-          <p className="mt-1 text-xs text-[#748aa2]">
+          <p className="mt-1 text-xs text-onSurfaceVariant">
             Total price
           </p>
 
           <Link
-            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-5 text-sm font-black shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5"
+            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal px-5 text-sm font-black text-white shadow-[0_14px_34px_rgba(11,73,183,0.28)] transition hover:-translate-y-0.5"
             href={`/checkout?package=${encodeURIComponent(
               plan.id,
             )}`}
@@ -1126,17 +1128,17 @@ function CompactPlanCard({
   const Icon = getPlanIcon(plan);
 
   return (
-    <article className="group relative flex min-h-[220px] flex-col overflow-hidden rounded-[18px] border border-[#214867]/85 bg-[linear-gradient(145deg,#07182c,#051224)] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:border-[#168cff]/75">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-[#0879ff]/10 blur-[50px]" />
+    <article className="group relative flex min-h-[220px] flex-col overflow-hidden rounded-[18px] border border-outline bg-white p-5 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:border-brandBlue/50">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-brandBlue/6 blur-[50px]" />
 
       <Star
         aria-hidden="true"
-        className="absolute right-5 top-5 text-[#668099] transition group-hover:text-[#4eb5ff]"
+        className="absolute right-5 top-5 text-outline transition group-hover:text-brandBlue"
         size={19}
       />
 
       <div className="relative flex items-start gap-4 pr-8">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[15px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff] shadow-[0_0_24px_rgba(30,155,255,0.16)]">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[15px] border border-brandBlue/20 bg-brandBlue/8 text-brandBlue">
           <Icon
             aria-hidden={true}
             size={26}
@@ -1144,11 +1146,11 @@ function CompactPlanCard({
         </span>
 
         <div className="min-w-0">
-          <h3 className="truncate font-display text-xl font-black">
+          <h3 className="truncate font-display text-xl font-black text-brandInk">
             {plan.title}
           </h3>
 
-          <p className="mt-1 text-xs leading-5 text-[#8196ad]">
+          <p className="mt-1 text-xs leading-5 text-onSurfaceVariant">
             {isUnlimitedPlan(plan)
               ? "High-speed data without limits."
               : plan.durationDays <= 15
@@ -1159,16 +1161,16 @@ function CompactPlanCard({
       </div>
 
       <div className="relative mt-5 flex flex-wrap gap-2">
-        <span className="rounded-md bg-[#0a2038] px-2.5 py-1.5 text-[10px] font-bold text-[#91a7bd]">
+        <span className="rounded-md bg-mist px-2.5 py-1.5 text-[10px] font-bold text-onSurfaceVariant">
           {plan.dataLabel} data
         </span>
 
-        <span className="rounded-md bg-[#0a2038] px-2.5 py-1.5 text-[10px] font-bold text-[#91a7bd]">
+        <span className="rounded-md bg-mist px-2.5 py-1.5 text-[10px] font-bold text-onSurfaceVariant">
           {getDurationText(plan)} validity
         </span>
 
         {plan.voiceMinutes || plan.smsCount ? (
-          <span className="rounded-md bg-[#0a2038] px-2.5 py-1.5 text-[10px] font-bold text-[#4eb5ff]">
+          <span className="rounded-md bg-brandBlue/8 px-2.5 py-1.5 text-[10px] font-bold text-brandBlue">
             {[
               plan.voiceMinutes
                 ? `${plan.voiceMinutes} min`
@@ -1185,17 +1187,17 @@ function CompactPlanCard({
 
       <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
         <div>
-          <p className="font-display text-2xl font-black">
+          <p className="font-display text-2xl font-black text-brandInk">
             {plan.price}
           </p>
 
-          <p className="mt-1 text-[10px] text-[#70869e]">
+          <p className="mt-1 text-[10px] text-onSurfaceVariant">
             Total price
           </p>
         </div>
 
         <Link
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-[11px] border border-[#168cff]/75 px-4 text-xs font-black text-[#42b1ff] transition hover:bg-[#168cff] hover:text-white"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-[11px] border border-brandBlue/50 px-4 text-xs font-black text-brandBlue transition hover:bg-brandBlue hover:text-white"
           href={`/checkout?package=${encodeURIComponent(
             plan.id,
           )}`}
@@ -1214,11 +1216,11 @@ function CompactPlanCard({
 
 function PlansSupportBar() {
   return (
-    <div className="mt-6 flex flex-col gap-4 rounded-[16px] border border-[#163958] bg-[#061427]/85 px-5 py-4 text-sm text-[#8ca0b7] sm:flex-row sm:items-center sm:justify-between">
+    <div className="mt-6 flex flex-col gap-4 rounded-[16px] border border-outline bg-white px-5 py-4 text-sm text-onSurfaceVariant shadow-brandCard sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
         <ShieldCheck
           aria-hidden="true"
-          className="text-[#4eb5ff]"
+          className="text-brandBlue"
           size={21}
         />
 
@@ -1229,7 +1231,7 @@ function PlansSupportBar() {
       </div>
 
       <Link
-        className="inline-flex shrink-0 items-center gap-2 font-black text-[#4eb5ff]"
+        className="inline-flex shrink-0 items-center gap-2 font-black text-brandBlue"
         href="/support"
       >
         Visit Help Center
@@ -1246,16 +1248,16 @@ function PlansSupportBar() {
 function PlansLoading() {
   return (
     <>
-      <div className="mt-5 h-[100px] animate-pulse rounded-[18px] border border-[#173a5b] bg-[#07172a]" />
+      <div className="mt-5 h-[100px] animate-pulse rounded-[18px] border border-outline bg-mist" />
 
-      <div className="mt-5 h-[260px] animate-pulse rounded-[20px] border border-[#173a5b] bg-[#07172a]" />
+      <div className="mt-5 h-[260px] animate-pulse rounded-[20px] border border-outline bg-mist" />
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({
           length: 3,
         }).map((_, index) => (
           <div
-            className="h-[220px] animate-pulse rounded-[18px] border border-[#173a5b] bg-[#07172a]"
+            className="h-[220px] animate-pulse rounded-[18px] border border-outline bg-mist"
             key={index}
           />
         ))}
@@ -1270,18 +1272,18 @@ function ErrorState({
   message: string;
 }) {
   return (
-    <div className="mx-auto mt-12 max-w-2xl rounded-[22px] border border-[#63323d] bg-[#25151e] p-8 text-center">
+    <div className="mx-auto mt-12 max-w-2xl rounded-[22px] border border-error/30 bg-error/5 p-8 text-center">
       <Headphones
         aria-hidden="true"
-        className="mx-auto text-[#ff829b]"
+        className="mx-auto text-error"
         size={32}
       />
 
-      <h2 className="mt-4 font-display text-2xl font-black">
+      <h2 className="mt-4 font-display text-2xl font-black text-brandInk">
         Plans are temporarily unavailable
       </h2>
 
-      <p className="mt-2 text-sm leading-6 text-[#c8aab1]">
+      <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">
         {message}
       </p>
     </div>
@@ -1294,23 +1296,23 @@ function EmptyFilterState({
   onReset: () => void;
 }) {
   return (
-    <div className="mt-8 rounded-[22px] border border-[#1d4265] bg-[#061528] p-10 text-center">
+    <div className="mt-8 rounded-[22px] border border-outline bg-mist p-10 text-center">
       <Wifi
         aria-hidden="true"
-        className="mx-auto text-[#3daaff]"
+        className="mx-auto text-brandBlue"
         size={30}
       />
 
-      <h3 className="mt-4 font-display text-xl font-black">
+      <h3 className="mt-4 font-display text-xl font-black text-brandInk">
         No plans match this filter
       </h3>
 
-      <p className="mt-2 text-sm text-[#8298af]">
+      <p className="mt-2 text-sm text-onSurfaceVariant">
         Choose another data or validity option.
       </p>
 
       <button
-        className="mt-5 rounded-full bg-[#168cff] px-5 py-2.5 text-xs font-black"
+        className="mt-5 rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-5 py-2.5 text-xs font-black text-white"
         onClick={onReset}
         type="button"
       >
@@ -1322,24 +1324,24 @@ function EmptyFilterState({
 
 function MissingDestinationState() {
   return (
-    <div className="mx-auto mt-12 max-w-2xl rounded-[24px] border border-[#1d4265] bg-[#061528] p-9 text-center">
+    <div className="mx-auto mt-12 max-w-2xl rounded-[24px] border border-outline bg-mist p-9 text-center">
       <Globe2
         aria-hidden="true"
-        className="mx-auto text-[#3daaff]"
+        className="mx-auto text-brandBlue"
         size={34}
       />
 
-      <h2 className="mt-5 font-display text-2xl font-black">
+      <h2 className="mt-5 font-display text-2xl font-black text-brandInk">
         No plans found for this destination
       </h2>
 
-      <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#8298af]">
+      <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-onSurfaceVariant">
         Search for another destination or return
         to the destination directory.
-      </p>x
+      </p>
 
       <Link
-        className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#168cff] px-6 text-sm font-black"
+        className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-6 text-sm font-black text-white"
         href="/destinations"
       >
         View all destinations

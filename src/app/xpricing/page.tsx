@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { RefreshCw, LogOut } from "lucide-react";
+import { RefreshCw, LogOut, Cpu } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
@@ -12,7 +12,12 @@ type PricingRow = {
   packageId: string;
   title: string;
   country: string | null;
+  countryCode: string | null;
+  flagUrl: string | null;
   type: string;
+  network: string | null;
+  dataLabel: string;
+  durationDays: number;
   originalPrice: number;
   retailPrice: number;
   discountEnabled: boolean;
@@ -277,7 +282,7 @@ export default function AdminPricingPage() {
               Price management
             </h1>
             <p className="mt-1 text-sm font-semibold text-muted">
-              Set retail prices and discounts per package. Original price is the Airalo cost — informational only.
+              Set retail prices and discounts per package. Retail price defaults to the Airalo cost — raise it to sell above cost.
             </p>
           </div>
           {token ? (
@@ -432,10 +437,19 @@ export default function AdminPricingPage() {
                         />
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Coverage
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Type
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Network
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Package
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                        Original price
+                        Validity
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Retail price
@@ -444,7 +458,7 @@ export default function AdminPricingPage() {
                         Discount
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                        Final price
+                        Price
                       </th>
                       <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Save</th>
                     </tr>
@@ -465,12 +479,21 @@ export default function AdminPricingPage() {
                             />
                           </td>
                           <td className="px-3 py-3">
-                            <p className="font-bold text-midnight">{row.title}</p>
-                            <p className="text-xs text-muted">
-                              {row.country ?? "N/A"} · {row.type} · {row.packageId}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              {row.flagUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img alt="" className="h-4 w-6 rounded-sm object-cover" src={row.flagUrl} />
+                              ) : null}
+                              <p className="font-bold text-midnight">{row.country ?? "N/A"}</p>
+                            </div>
+                            <p className="text-xs text-muted">{row.packageId}</p>
                           </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-muted">{formatPrice(row.originalPrice)}</td>
+                          <td className="px-3 py-3 text-muted" title={row.type}>
+                            <Cpu aria-hidden="true" size={18} />
+                          </td>
+                          <td className="px-3 py-3 text-midnight">{row.network ?? "N/A"}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-midnight">{row.dataLabel}</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-midnight">{row.durationDays} days</td>
                           <td className="px-3 py-3">
                             <input
                               className="h-9 w-24 rounded-lg border border-line px-2 text-sm outline-none focus:border-cyan"
@@ -540,7 +563,7 @@ export default function AdminPricingPage() {
                     })}
                     {filtered.length === 0 ? (
                       <tr>
-                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={7}>
+                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={10}>
                           {isLoading ? "Loading packages..." : "No packages found"}
                         </td>
                       </tr>

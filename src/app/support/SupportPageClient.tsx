@@ -222,7 +222,7 @@ export function SupportPageClient() {
     filteredCategories.length > 0 || filteredFaqs.length > 0;
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#020916] text-white">
+    <main className="min-h-screen overflow-hidden bg-surface text-onSurface">
       <Navbar />
 
       <SupportHero
@@ -231,7 +231,7 @@ export function SupportPageClient() {
       />
 
       <section className="relative px-5 pb-20 md:px-8">
-        <div className="pointer-events-none absolute left-1/2 top-10 h-[420px] w-[70%] -translate-x-1/2 rounded-full bg-[#075eff]/10 blur-[130px]" />
+        <div className="pointer-events-none absolute left-1/2 top-10 h-[420px] w-[70%] -translate-x-1/2 rounded-full bg-brandBlue/6 blur-[130px]" />
 
         <div className="relative mx-auto max-w-[1280px]">
           {hasSearchResults ? (
@@ -283,40 +283,40 @@ function SupportHero({
 }: SupportHeroProps) {
   return (
     <section className="relative isolate overflow-hidden px-5 pb-28 pt-32 md:px-8 md:pb-32 md:pt-40">
-      <div className="pointer-events-none absolute inset-0 -z-30 bg-[radial-gradient(circle_at_50%_15%,rgba(20,117,255,0.23),transparent_30%),radial-gradient(circle_at_18%_70%,rgba(0,169,255,0.09),transparent_27%),linear-gradient(180deg,#031126_0%,#020916_72%,#020916_100%)]" />
-      <div className="pointer-events-none absolute left-1/2 top-[44%] -z-20 h-[540px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#166ee7]/15" />
-      <div className="pointer-events-none absolute left-1/2 top-[44%] -z-20 h-[390px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#166ee7]/10" />
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] [background-image:linear-gradient(rgba(51,147,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(51,147,255,0.6)_1px,transparent_1px)] [background-size:70px_70px]" />
+      <div className="pointer-events-none absolute inset-0 -z-30 bg-[radial-gradient(circle_at_50%_15%,rgba(11,73,183,0.1),transparent_30%),radial-gradient(circle_at_18%_70%,rgba(9,195,190,0.06),transparent_27%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-[44%] -z-20 h-[540px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-brandBlue/10" />
+      <div className="pointer-events-none absolute left-1/2 top-[44%] -z-20 h-[390px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-brandBlue/8" />
+      <div className="hero-grid pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" />
 
       <div className="mx-auto max-w-[960px] text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#205785]/75 bg-[#071a30]/80 px-4 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+        <div className="inline-flex items-center gap-2 rounded-full border border-outline bg-surface px-4 py-2 shadow-brandCard backdrop-blur-xl">
           <LifeBuoy
             aria-hidden="true"
-            className="text-[#45afff]"
+            className="text-brandBlue"
             size={15}
           />
 
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4eb5ff]">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
             eSim2you Help Center
           </span>
         </div>
 
-        <h1 className="mt-6 font-display text-4xl font-black leading-[1.02] tracking-[-0.05em] sm:text-5xl lg:text-[64px]">
+        <h1 className="mt-6 font-display text-4xl font-black leading-[1.02] tracking-[-0.05em] text-brandInk sm:text-5xl lg:text-[64px]">
           Support for the app you use
         </h1>
 
-        <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#91a4ba] sm:text-base">
+        <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-onSurfaceVariant sm:text-base">
           Find help for Email OTP sign-in, Pokpay checkout, QR or
           manual setup, remaining data, top-up availability, refunds,
           and connection troubleshooting.
         </p>
 
         <div className="relative mx-auto mt-9 max-w-[720px]">
-          <div className="rounded-full border border-[#2874a8]/90 bg-[#06162a]/90 p-2 shadow-[0_28px_80px_rgba(0,0,0,0.45),0_0_40px_rgba(23,132,255,0.12)] backdrop-blur-2xl">
-            <label className="flex min-h-[64px] items-center gap-4 rounded-full bg-[#091b31] px-5 sm:px-6">
+          <div className="rounded-full border border-outline bg-white p-2 shadow-brandCard">
+            <label className="flex min-h-[64px] items-center gap-4 rounded-full bg-mist px-5 sm:px-6">
               <Search
                 aria-hidden="true"
-                className="shrink-0 text-[#46afff]"
+                className="shrink-0 text-brandBlue"
                 size={22}
               />
 
@@ -324,7 +324,7 @@ function SupportHero({
 
               <input
                 autoComplete="off"
-                className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-white outline-none placeholder:text-[#72879e] sm:text-base"
+                className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-brandInk outline-none placeholder:text-onSurfaceVariant sm:text-base"
                 onChange={(event) => onSearchChange(event.target.value)}
                 placeholder="Search sign-in, setup, Pokpay, top-up..."
                 type="search"
@@ -334,21 +334,21 @@ function SupportHero({
               {searchQuery ? (
                 <button
                   aria-label="Clear search"
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#71879e] transition hover:bg-white/5 hover:text-white"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-onSurfaceVariant transition hover:bg-brandBlue/8 hover:text-brandInk"
                   onClick={() => onSearchChange("")}
                   type="button"
                 >
                   <X aria-hidden="true" size={17} />
                 </button>
               ) : (
-                <span className="hidden rounded-full border border-[#244b70] bg-[#0a223b] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7290ac] sm:inline-flex">
+                <span className="hidden rounded-full border border-outline bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-onSurfaceVariant sm:inline-flex">
                   Help
                 </span>
               )}
             </label>
           </div>
 
-          <p className="mt-4 text-xs text-[#60758c]">
+          <p className="mt-4 text-xs text-onSurfaceVariant">
             Popular: install, no internet, Pokpay, refund, delete account
           </p>
         </div>
@@ -370,16 +370,16 @@ function SupportCategories({
     <div>
       <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#289fff]">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
             {isSearching ? "Matching topics" : "Browse by topic"}
           </p>
 
-          <h2 className="mt-3 font-display text-3xl font-black tracking-[-0.035em]">
+          <h2 className="mt-3 font-display text-3xl font-black tracking-[-0.035em] text-brandInk">
             Find the help you need
           </h2>
         </div>
 
-        <p className="max-w-md text-sm leading-6 text-[#778ca3]">
+        <p className="max-w-md text-sm leading-6 text-onSurfaceVariant">
           These topics mirror current app flows, so the guidance matches
           what you can open in eSim2you today.
         </p>
@@ -391,39 +391,39 @@ function SupportCategories({
 
           return (
             <article
-              className="group relative overflow-hidden rounded-[22px] border border-[#1d4567]/80 bg-[linear-gradient(145deg,rgba(8,26,48,0.98),rgba(4,15,29,0.98))] p-6 shadow-[0_22px_60px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-1 hover:border-[#208ce0]/80"
+              className="group relative overflow-hidden rounded-[22px] border border-outline bg-white p-6 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:border-brandBlue/50"
               key={category.title}
             >
-              <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#087cff]/10 blur-[60px]" />
+              <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-brandBlue/8 blur-[60px]" />
 
               <div className="relative flex items-start justify-between gap-5">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[17px] border border-[#1b79b2] bg-[#082642] text-[#45b5ff] shadow-[0_0_28px_rgba(20,147,255,0.13)]">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[17px] border border-brandBlue/20 bg-brandBlue/8 text-brandBlue">
                   <Icon aria-hidden={true} size={26} strokeWidth={2} />
                 </span>
 
-                <span className="mt-2 rounded-full border border-[#244b70] bg-[#0a223b] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#7290ac]">
+                <span className="mt-2 rounded-full border border-outline bg-mist px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-onSurfaceVariant">
                   In app
                 </span>
               </div>
 
-              <h3 className="relative mt-6 font-display text-xl font-black">
+              <h3 className="relative mt-6 font-display text-xl font-black text-brandInk">
                 {category.title}
               </h3>
 
-              <p className="relative mt-2 min-h-[90px] text-sm leading-6 text-[#8296ac]">
+              <p className="relative mt-2 min-h-[90px] text-sm leading-6 text-onSurfaceVariant">
                 {category.description}
               </p>
 
-              <div className="relative mt-6 border-t border-[#173752] pt-5">
+              <div className="relative mt-6 border-t border-outline pt-5">
                 <ul className="space-y-3">
                   {category.guidance.map((item) => (
                     <li
-                      className="flex items-start gap-3 text-sm leading-6 text-[#a1b0c0]"
+                      className="flex items-start gap-3 text-sm leading-6 text-onSurfaceVariant"
                       key={item}
                     >
                       <CheckCircle2
                         aria-hidden="true"
-                        className="mt-0.5 shrink-0 text-[#38aaff]"
+                        className="mt-0.5 shrink-0 text-brandBlue"
                         size={16}
                       />
 
@@ -456,45 +456,45 @@ function FaqSection({
       <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
         <div>
           <div className="sticky top-28">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#204c71] bg-[#07182b] px-4 py-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-outline bg-white px-4 py-2">
               <CircleHelp
                 aria-hidden="true"
-                className="text-[#45afff]"
+                className="text-brandBlue"
                 size={14}
               />
 
-              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#48adff]">
+              <span className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">
                 Common questions
               </span>
             </div>
 
-            <h2 className="mt-5 font-display text-3xl font-black leading-tight tracking-[-0.04em] sm:text-4xl">
+            <h2 className="mt-5 font-display text-3xl font-black leading-tight tracking-[-0.04em] text-brandInk sm:text-4xl">
               Frequently asked questions
             </h2>
 
-            <p className="mt-4 max-w-md text-sm leading-7 text-[#8296ac]">
+            <p className="mt-4 max-w-md text-sm leading-7 text-onSurfaceVariant">
               Quick answers about sign-in, setup, connectivity, Pokpay
               checkout, plan data, refunds, and account management.
             </p>
 
-            <div className="mt-7 rounded-[18px] border border-[#1d4262] bg-[#061528] p-5">
+            <div className="mt-7 rounded-[18px] border border-outline bg-mist p-5">
               <div className="flex items-start gap-4">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-[#1e638e] bg-[#08233d] text-[#43b2ff]">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-brandBlue/20 bg-brandBlue/8 text-brandBlue">
                   <MessageCircle aria-hidden="true" size={20} />
                 </span>
 
                 <div>
-                  <p className="text-sm font-black">
+                  <p className="text-sm font-black text-brandInk">
                     Still have a question?
                   </p>
 
-                  <p className="mt-1 text-xs leading-5 text-[#758ba2]">
+                  <p className="mt-1 text-xs leading-5 text-onSurfaceVariant">
                     Email support with your order details, destination,
                     device model, and the screen where you are stuck.
                   </p>
 
                   <a
-                    className="mt-3 inline-flex items-center gap-2 text-xs font-black text-[#4ab4ff]"
+                    className="mt-3 inline-flex items-center gap-2 text-xs font-black text-brandBlue"
                     href="#contact-support"
                   >
                     Contact support
@@ -516,8 +516,8 @@ function FaqSection({
                 className={[
                   "overflow-hidden rounded-[18px] border transition",
                   isOpen
-                    ? "border-[#2689c7] bg-[#08203a] shadow-[0_18px_45px_rgba(0,70,160,0.14)]"
-                    : "border-[#1c405f] bg-[#061427] hover:border-[#286b98]",
+                    ? "border-brandBlue/50 bg-brandBlue/4 shadow-brandCard"
+                    : "border-outline bg-white hover:border-brandBlue/40",
                 ].join(" ")}
                 key={`${faq.category}-${faq.question}`}
               >
@@ -528,11 +528,11 @@ function FaqSection({
                   type="button"
                 >
                   <div>
-                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#399eef]">
+                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-brandBlue">
                       {faq.category}
                     </span>
 
-                    <h3 className="mt-2 text-sm font-black sm:text-base">
+                    <h3 className="mt-2 text-sm font-black text-brandInk sm:text-base">
                       {faq.question}
                     </h3>
                   </div>
@@ -541,8 +541,8 @@ function FaqSection({
                     className={[
                       "grid h-9 w-9 shrink-0 place-items-center rounded-full border transition",
                       isOpen
-                        ? "rotate-180 border-[#2d8fca] bg-[#0c3153] text-[#55b9ff]"
-                        : "border-[#244b69] bg-[#081a2d] text-[#7290a8]",
+                        ? "rotate-180 border-brandBlue/50 bg-brandBlue/10 text-brandBlue"
+                        : "border-outline bg-mist text-onSurfaceVariant",
                     ].join(" ")}
                   >
                     <ChevronDown aria-hidden="true" size={17} />
@@ -558,7 +558,7 @@ function FaqSection({
                   ].join(" ")}
                 >
                   <div className="overflow-hidden">
-                    <p className="border-t border-[#1a4464] px-5 py-5 text-sm leading-7 text-[#98aabd] sm:px-6">
+                    <p className="border-t border-outline px-5 py-5 text-sm leading-7 text-onSurfaceVariant sm:px-6">
                       {faq.answer}
                     </p>
                   </div>
@@ -603,11 +603,11 @@ function QuickHelp() {
   return (
     <section className="mt-24">
       <div className="text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#289fff]">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
           Quick access
         </p>
 
-        <h2 className="mt-3 font-display text-3xl font-black tracking-[-0.035em] sm:text-4xl">
+        <h2 className="mt-3 font-display text-3xl font-black tracking-[-0.035em] text-brandInk sm:text-4xl">
           Useful before you travel
         </h2>
       </div>
@@ -618,22 +618,22 @@ function QuickHelp() {
 
           return (
             <article
-              className="group flex items-start gap-5 rounded-[20px] border border-[#1e4363] bg-[#061427]/90 p-5 transition hover:border-[#247db7] hover:bg-[#071a30]"
+              className="group flex items-start gap-5 rounded-[20px] border border-outline bg-white p-5 shadow-brandCard transition hover:border-brandBlue/50"
               key={item.title}
             >
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[15px] border border-[#1d628f] bg-[#08213b] text-[#45b4ff]">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[15px] border border-brandBlue/20 bg-brandBlue/8 text-brandBlue">
                 <Icon aria-hidden={true} size={22} />
               </span>
 
               <div>
-                <h3 className="text-sm font-black">{item.title}</h3>
+                <h3 className="text-sm font-black text-brandInk">{item.title}</h3>
 
-                <p className="mt-2 text-xs leading-5 text-[#7e92a8]">
+                <p className="mt-2 text-xs leading-5 text-onSurfaceVariant">
                   {item.description}
                 </p>
 
                 <Link
-                  className="mt-4 inline-flex items-center gap-2 text-xs font-black text-[#45afff]"
+                  className="mt-4 inline-flex items-center gap-2 text-xs font-black text-brandBlue"
                   href={item.href}
                 >
                   {item.label}
@@ -656,31 +656,31 @@ function QuickHelp() {
 function ContactSupport() {
   return (
     <section
-      className="relative mt-24 overflow-hidden rounded-[30px] border border-[#1d5580] bg-[linear-gradient(125deg,#07182c_0%,#092b4d_55%,#061427_100%)] px-6 py-10 shadow-[0_32px_85px_rgba(0,0,0,0.34)] sm:px-9 lg:px-12 lg:py-12"
+      className="relative mt-24 overflow-hidden rounded-[30px] border border-outline bg-white px-6 py-10 shadow-brandGlow sm:px-9 lg:px-12 lg:py-12"
       id="contact-support"
     >
-      <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[#087fff]/20 blur-[90px]" />
-      <div className="pointer-events-none absolute bottom-0 left-[25%] h-48 w-48 rounded-full bg-[#00b8ff]/10 blur-[80px]" />
+      <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-brandBlue/10 blur-[90px]" />
+      <div className="pointer-events-none absolute bottom-0 left-[25%] h-48 w-48 rounded-full bg-brandTeal/8 blur-[80px]" />
 
       <div className="relative grid items-center gap-10 lg:grid-cols-[1fr_0.85fr]">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#2a79aa] bg-[#092742] px-4 py-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-outline bg-mist px-4 py-2">
             <Headphones
               aria-hidden="true"
-              className="text-[#55bdff]"
+              className="text-brandBlue"
               size={14}
             />
 
-            <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#63c2ff]">
+            <span className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">
               Human support
             </span>
           </div>
 
-          <h2 className="mt-5 max-w-xl font-display text-3xl font-black leading-tight tracking-[-0.04em] sm:text-4xl">
+          <h2 className="mt-5 max-w-xl font-display text-3xl font-black leading-tight tracking-[-0.04em] text-brandInk sm:text-4xl">
             Still need help with your eSIM?
           </h2>
 
-          <p className="mt-4 max-w-xl text-sm leading-7 text-[#9aadc0]">
+          <p className="mt-4 max-w-xl text-sm leading-7 text-onSurfaceVariant">
             Send your order details, destination, phone model, and a
             screenshot or description of the issue. We will help with
             installation, activation, connectivity, payments, or refund
@@ -689,7 +689,7 @@ function ContactSupport() {
 
           <div className="mt-7 flex flex-wrap gap-3">
             <a
-              className="inline-flex min-h-12 flex-wrap items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c8ff] px-6 py-3 text-sm font-black shadow-[0_14px_32px_rgba(18,104,255,0.3)] transition hover:-translate-y-0.5"
+              className="inline-flex min-h-12 flex-wrap items-center justify-center gap-3 rounded-full bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal px-6 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(11,73,183,0.28)] transition hover:-translate-y-0.5"
               href={`mailto:${supportEmail}`}
             >
               <Mail aria-hidden="true" size={17} />
