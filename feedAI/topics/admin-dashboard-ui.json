@@ -1,16 +1,16 @@
 {
   "topic": "admin-dashboard-ui",
-  "covers": "The actual UI/behavior of the two hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
-  "facts": ["f044", "f045", "f046"],
+  "covers": "The actual UI/behavior of the three hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
+  "facts": ["f044", "f045", "f046", "f049", "f050"],
   "shared_shell": {
-    "component": "src/app/AdminNav.tsx, rendered at the top of both admin pages",
-    "layouts": "src/app/xloginy/layout.tsx and src/app/xerrors/layout.tsx both set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
+    "component": "src/app/AdminNav.tsx, rendered at the top of all three admin pages",
+    "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {
-    "storage": "Both pages are 'use client' components that independently store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' — logging in on one page also authenticates the other on the next load, without any shared login component (f044).",
-    "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) — an XSS on either admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
-    "duplication": "xloginy/page.tsx and xerrors/page.tsx each reimplement their own login form, their own handleLogin() POST to /bff/admin/login, their own 401-triggered logout, and their own formatDate() helper — no shared admin-auth hook/component exists between them, despite identical logic (f045).",
-    "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) — this file only covers how the two Next.js pages consume it."
+    "storage": "All three pages store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' — logging in on one page also authenticates the others on the next load.",
+    "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) — an XSS on any admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
+    "duplication": "xloginy/page.tsx and xerrors/page.tsx each still reimplement their own login form, handleLogin(), 401-triggered logout, and formatDate() helper (f045) — xpricing/page.tsx instead uses the shared src/app/useAdminSession.ts hook (f050), but the other two were not retrofitted onto it, so the duplication f045 flagged still exists for those two.",
+    "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) — this file only covers how the Next.js pages consume it."
   },
   "xloginy_purchase_dashboard": {
     "file": "src/app/xloginy/page.tsx",
@@ -24,5 +24,11 @@
     "layout": "master-detail: a filterable table on the left (time/severity/area/email/method+path/status/message/state), clicking a row selects it and shows full detail in a right-hand aside (request id, user, API path, provider info, related payment/package/ICCID, repair action, safe request body/query as pretty-printed JSON).",
     "safe_curl_reconstruction": "buildSafeCurl() client-side rebuilds a copy-pasteable curl command from the error's method/path/safeRequestBody for reproducing the failing request — uses a hardcoded base URL 'https://esim.uplisoft.com' (f046), so this reconstructed curl always points at production regardless of which backend the admin actually meant to test against.",
     "actions": "Copy request id, Copy safe cURL (clipboard), Save admin notes, Mark resolved, and (only when the error has a repairAction) Run repair — a one-click trigger of the backend's idempotent provisioning retry (see E-SIM backend feedAI's admin.json 'repair_actions')."
+  },
+  "xpricing_price_management": {
+    "file": "src/app/xpricing/page.tsx",
+    "data_source": "GET /bff/admin/packages/pricing -> {packages:[{packageId,title,country,type,originalPrice,retailPrice,discountEnabled,discountType,discountValue,finalPrice}]}; PUT /bff/admin/packages/pricing/:packageId to save one row; POST /bff/admin/packages/pricing/bulk-discount ({packageIds:'all'|string[], discountEnabled, discountType, discountValue}) to apply a discount to many rows at once without touching retailPrice.",
+    "renders": "3 summary stat cards (total packages/with discount/selected), a bulk-discount panel (enable toggle, percentage|flat, value, 'Apply to selected (N)' / 'Apply to ALL packages'), and a searchable, checkbox-selectable table with per-row inline-editable retailPrice and discount fields, a client-computed finalPrice preview (previewFinalPrice(), mirrors the backend's computeFinalPrice formula so the row updates live before Save), and a per-row Save button.",
+    "auth": "uses src/app/useAdminSession.ts (see auth_pattern.duplication) rather than its own copy of the login logic."
   }
 }

@@ -2,7 +2,8 @@ import Link from "next/link";
 
 const adminLinks = [
   { href: "/xloginy", label: "Purchase dashboard" },
-  { href: "/xerrors", label: "Error Inbox" }
+  { href: "/xerrors", label: "Error Inbox" },
+  { href: "/xpricing", label: "Price management" }
 ];
 
 export function AdminNav() {

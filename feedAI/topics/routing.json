@@ -31,7 +31,7 @@
     "note": "cookie presence is a cheap routing convenience only — every backend call is still independently validated server-side, this is NOT the authorization boundary"
   },
   "hidden_admin_routes": {
-    "routes": ["/xloginy (purchase/user/OTP admin dashboard, backed by bff/admin/dashboard, bff/admin/login)", "/xerrors (sanitized backend error inbox: filter/inspect/resolve/repair, backed by bff/admin/errors/**)"],
+    "routes": ["/xloginy (purchase/user/OTP admin dashboard, backed by bff/admin/dashboard, bff/admin/login)", "/xerrors (sanitized backend error inbox: filter/inspect/resolve/repair, backed by bff/admin/errors/**)", "/xpricing (package retail price/discount admin table, backed by bff/admin/packages/pricing/**)"],
     "discoverability": "deliberately unlinked from any nav; kept out of crawl/sitemap via privateRoutePrefixes"
   },
   "seo_private_prefixes": {

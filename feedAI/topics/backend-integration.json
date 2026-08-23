@@ -23,7 +23,8 @@
       "bff/user/account, bff/user/billing-address",
       "bff/payments/intent, bff/payments/topups/intent",
       "bff/country-image",
-      "bff/admin/dashboard, bff/admin/errors, bff/admin/errors/[id], bff/admin/errors/[id]/repair, bff/admin/login (power /xloginy, /xerrors)"
+      "bff/admin/dashboard, bff/admin/errors, bff/admin/errors/[id], bff/admin/errors/[id]/repair, bff/admin/login (power /xloginy, /xerrors)",
+      "bff/admin/packages/pricing, bff/admin/packages/pricing/[packageId], bff/admin/packages/pricing/bulk-discount (power /xpricing)"
     ],
     "trap": "src/app/checkout/return/route.ts and src/app/account/topup/return/route.ts are OUTSIDE app/bff (they are page-adjacent return handlers reached directly by Pokpay redirect, not browser fetch calls)."
   },
