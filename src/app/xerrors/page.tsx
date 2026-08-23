@@ -1,15 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { RefreshCw, LogOut } from "lucide-react";
 import { AdminNav } from "../AdminNav";
-
-type AdminLoginResponse = {
-  status?: string;
-  data?: {
-    token?: string;
-  };
-  message?: string;
-};
+import { AdminLoginCard } from "../AdminLoginCard";
+import { useAdminSession } from "../useAdminSession";
 
 type ErrorEvent = {
   id: string;
@@ -50,8 +45,6 @@ type ErrorListPayload = {
   message?: string;
 };
 
-const ADMIN_TOKEN_STORAGE_KEY = "velocity-admin-dashboard-token";
-
 function formatDate(value: string | null) {
   if (!value) return "N/A";
   return new Intl.DateTimeFormat("en", {
@@ -77,10 +70,29 @@ function buildSafeCurl(error: ErrorEvent) {
   return lines.join(" \\\n");
 }
 
+function severityBadgeClass(severity: string) {
+  if (severity === "critical") return "bg-red-50 text-red-700 border border-red-200";
+  if (severity === "warning") return "bg-amber-50 text-amber-700 border border-amber-200";
+  return "bg-[#eafcff] text-cyanDeep border border-line";
+}
+
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <article className="relative overflow-hidden rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(0,217,245,0.14),transparent_70%)]"
+      />
+      <p className="text-[10px] font-black uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-1 font-display text-2xl font-black text-midnight">{value}</p>
+    </article>
+  );
+}
+
 export default function AdminErrorInboxPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
+  const session = useAdminSession();
+  const { token, handleUnauthorized } = session;
+
   const [errors, setErrors] = useState<ErrorEvent[]>([]);
   const [selectedError, setSelectedError] = useState<ErrorEvent | null>(null);
   const [filterEmail, setFilterEmail] = useState("");
@@ -89,7 +101,6 @@ export default function AdminErrorInboxPage() {
   const [filterSeverity, setFilterSeverity] = useState("");
   const [unresolvedOnly, setUnresolvedOnly] = useState(true);
   const [adminNotes, setAdminNotes] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState("");
@@ -124,8 +135,7 @@ export default function AdminErrorInboxPage() {
       const payload = (await response.json()) as ErrorListPayload;
 
       if (response.status === 401) {
-        sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
-        setToken("");
+        handleUnauthorized();
         throw new Error("Session expired. Sign in again.");
       }
 
@@ -149,44 +159,13 @@ export default function AdminErrorInboxPage() {
   }
 
   useEffect(() => {
-    const storedToken = sessionStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
-    if (!storedToken) return;
-    setToken(storedToken);
-    void loadErrors(storedToken);
-  }, []);
+    if (token) void loadErrors(token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   useEffect(() => {
     setAdminNotes(selectedError?.adminNotes ?? "");
   }, [selectedError]);
-
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsLoggingIn(true);
-    setError("");
-
-    try {
-      const response = await fetch("/bff/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const payload = (await response.json()) as AdminLoginResponse;
-      const nextToken = payload.data?.token;
-
-      if (!response.ok || payload.status !== "success" || !nextToken) {
-        throw new Error(payload.message ?? "Invalid admin credentials");
-      }
-
-      sessionStorage.setItem(ADMIN_TOKEN_STORAGE_KEY, nextToken);
-      setToken(nextToken);
-      setPassword("");
-      await loadErrors(nextToken);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid admin credentials");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  }
 
   async function updateSelected(body: { resolved?: boolean; adminNotes?: string }) {
     if (!selectedError) return;
@@ -244,28 +223,37 @@ export default function AdminErrorInboxPage() {
     }
   }
 
-  function logout() {
-    sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
-    setToken("");
-    setErrors([]);
-    setSelectedError(null);
-  }
-
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950">
-      <div className="mx-auto max-w-7xl">
-        <AdminNav />
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="flex min-h-screen bg-cloud">
+      <AdminNav />
+      <div className="min-w-0 flex-1 px-6 py-7 md:px-9">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black">Error Inbox</h1>
-            <p className="text-sm font-semibold text-slate-600">Admin debugging for failed API requests.</p>
+            <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-cyanDeep">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-cyan shadow-[0_0_8px_#00d9f5]" />
+              Admin · Live
+            </p>
+            <h1 className="mt-1 font-display text-[26px] font-black tracking-tight text-midnight md:text-[30px]">
+              Error Inbox
+            </h1>
+            <p className="mt-1 text-sm font-semibold text-muted">Admin debugging for failed API requests.</p>
           </div>
           {token ? (
             <div className="flex gap-2">
-              <button className="rounded border bg-white px-3 py-2 text-sm font-bold" onClick={() => void loadErrors()} type="button">
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan"
+                onClick={() => void loadErrors()}
+                type="button"
+              >
+                <RefreshCw aria-hidden="true" size={14} />
                 Refresh
               </button>
-              <button className="rounded border bg-white px-3 py-2 text-sm font-bold" onClick={logout} type="button">
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua shadow-glow transition hover:opacity-90"
+                onClick={session.logout}
+                type="button"
+              >
+                <LogOut aria-hidden="true" size={14} />
                 Logout
               </button>
             </div>
@@ -273,123 +261,273 @@ export default function AdminErrorInboxPage() {
         </div>
 
         {!token ? (
-          <form className="max-w-md rounded border bg-white p-4" onSubmit={handleLogin}>
-            <label className="block text-sm font-bold" htmlFor="admin-email">Email</label>
-            <input className="mt-1 h-10 w-full rounded border px-3" id="admin-email" onChange={(event) => setEmail(event.target.value)} required type="email" value={email} />
-            <label className="mt-3 block text-sm font-bold" htmlFor="admin-password">Password</label>
-            <input className="mt-1 h-10 w-full rounded border px-3" id="admin-password" onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />
-            {error ? <p className="mt-3 text-sm font-bold text-red-700">{error}</p> : null}
-            <button className="mt-4 h-10 w-full rounded bg-slate-950 px-3 text-sm font-black text-white" disabled={isLoggingIn} type="submit">
-              {isLoggingIn ? "Signing in..." : "Sign in"}
-            </button>
-          </form>
+          <AdminLoginCard
+            email={session.email}
+            error={session.error}
+            isLoggingIn={session.isLoggingIn}
+            onSubmit={session.login}
+            password={session.password}
+            setEmail={session.setEmail}
+            setPassword={session.setPassword}
+          />
         ) : (
-          <div className="grid gap-4">
-            {error ? <div className="rounded border border-red-300 bg-red-50 p-3 text-sm font-bold text-red-800">{error}</div> : null}
-            {notice ? <div className="rounded border border-green-300 bg-green-50 p-3 text-sm font-bold text-green-800">{notice}</div> : null}
+          <div className="grid gap-5">
+            {error ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                {error}
+              </div>
+            ) : null}
+            {notice ? (
+              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-700">
+                {notice}
+              </div>
+            ) : null}
 
-            <div className="grid gap-2 sm:grid-cols-4">
-              <div className="rounded border bg-white p-3"><p className="text-xs font-bold uppercase text-slate-500">Unresolved</p><p className="text-2xl font-black">{summary.unresolved}</p></div>
-              <div className="rounded border bg-white p-3"><p className="text-xs font-bold uppercase text-slate-500">Critical</p><p className="text-2xl font-black">{summary.critical}</p></div>
-              <div className="rounded border bg-white p-3"><p className="text-xs font-bold uppercase text-slate-500">Payment/Provision</p><p className="text-2xl font-black">{summary.payments}</p></div>
-              <div className="rounded border bg-white p-3"><p className="text-xs font-bold uppercase text-slate-500">Loaded</p><p className="text-2xl font-black">{errors.length}</p></div>
+            <div className="grid gap-4 sm:grid-cols-4">
+              <StatCard label="Unresolved" value={summary.unresolved} />
+              <StatCard label="Critical" value={summary.critical} />
+              <StatCard label="Payment/Provision" value={summary.payments} />
+              <StatCard label="Loaded" value={errors.length} />
             </div>
 
-            <section className="rounded border bg-white p-3">
-              <div className="grid gap-2 md:grid-cols-6">
-                <label className="text-sm font-bold">Email<input className="mt-1 h-10 w-full rounded border px-2 font-normal" onChange={(event) => setFilterEmail(event.target.value)} value={filterEmail} /></label>
-                <label className="text-sm font-bold">Request ID<input className="mt-1 h-10 w-full rounded border px-2 font-normal" onChange={(event) => setFilterRequestId(event.target.value)} value={filterRequestId} /></label>
-                <label className="text-sm font-bold">Area<select className="mt-1 h-10 w-full rounded border px-2 font-normal" onChange={(event) => setFilterArea(event.target.value)} value={filterArea}><option value="">All</option><option value="payments">payments</option><option value="auth">auth</option><option value="packages">packages</option><option value="orders">orders</option><option value="user">user</option><option value="admin">admin</option></select></label>
-                <label className="text-sm font-bold">Severity<select className="mt-1 h-10 w-full rounded border px-2 font-normal" onChange={(event) => setFilterSeverity(event.target.value)} value={filterSeverity}><option value="">All</option><option value="critical">critical</option><option value="warning">warning</option><option value="info">info</option></select></label>
-                <label className="mt-7 flex items-center gap-2 text-sm font-bold"><input checked={unresolvedOnly} onChange={(event) => setUnresolvedOnly(event.target.checked)} type="checkbox" /> Unresolved only</label>
-                <button className="mt-6 h-10 rounded bg-slate-950 px-3 text-sm font-black text-white" disabled={isLoading} onClick={() => void loadErrors()} type="button">{isLoading ? "Loading..." : "Apply"}</button>
+            <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
+              <div className="grid gap-3 md:grid-cols-6 md:items-end">
+                <label className="text-xs font-bold text-muted">
+                  Email
+                  <input
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2.5 text-sm font-normal text-midnight outline-none focus:border-cyan"
+                    onChange={(event) => setFilterEmail(event.target.value)}
+                    value={filterEmail}
+                  />
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  Request ID
+                  <input
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2.5 text-sm font-normal text-midnight outline-none focus:border-cyan"
+                    onChange={(event) => setFilterRequestId(event.target.value)}
+                    value={filterRequestId}
+                  />
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  Area
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    onChange={(event) => setFilterArea(event.target.value)}
+                    value={filterArea}
+                  >
+                    <option value="">All</option>
+                    <option value="payments">payments</option>
+                    <option value="auth">auth</option>
+                    <option value="packages">packages</option>
+                    <option value="orders">orders</option>
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  Severity
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    onChange={(event) => setFilterSeverity(event.target.value)}
+                    value={filterSeverity}
+                  >
+                    <option value="">All</option>
+                    <option value="critical">critical</option>
+                    <option value="warning">warning</option>
+                    <option value="info">info</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-xs font-bold text-midnight">
+                  <input
+                    checked={unresolvedOnly}
+                    onChange={(event) => setUnresolvedOnly(event.target.checked)}
+                    type="checkbox"
+                  />
+                  Unresolved only
+                </label>
+                <button
+                  className="h-10 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-black text-aqua shadow-glow transition hover:opacity-90 disabled:opacity-50"
+                  disabled={isLoading}
+                  onClick={() => void loadErrors()}
+                  type="button"
+                >
+                  {isLoading ? "Loading..." : "Apply"}
+                </button>
               </div>
             </section>
 
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)]">
-              <section className="overflow-hidden rounded border bg-white">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)]">
+              <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
                 <div className="overflow-x-auto">
                   <table className="min-w-full border-collapse text-left text-sm">
-                    <thead className="bg-slate-900 text-white">
-                      <tr>
-                        <th className="px-3 py-2">Time</th>
-                        <th className="px-3 py-2">Severity</th>
-                        <th className="px-3 py-2">Area</th>
-                        <th className="px-3 py-2">Email</th>
-                        <th className="px-3 py-2">API</th>
-                        <th className="px-3 py-2">Status</th>
-                        <th className="px-3 py-2">Message</th>
-                        <th className="px-3 py-2">State</th>
+                    <thead>
+                      <tr className="bg-[#f8fdfe]">
+                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Time</th>
+                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                          Severity
+                        </th>
+                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Area</th>
+                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                          Email
+                        </th>
+                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">API</th>
+                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                          Status
+                        </th>
+                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                          Message
+                        </th>
+                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                          State
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {errors.map((item) => (
-                        <tr className={`cursor-pointer border-t ${selectedError?.id === item.id ? "bg-cyan-50" : ""}`} key={item.id} onClick={() => setSelectedError(item)}>
-                          <td className="px-3 py-2 whitespace-nowrap">{formatDate(item.createdAt)}</td>
-                          <td className="px-3 py-2 font-bold">{item.severity}</td>
-                          <td className="px-3 py-2">{item.area}</td>
-                          <td className="px-3 py-2">{item.userEmail ?? "N/A"}</td>
-                          <td className="px-3 py-2 font-mono text-xs">{item.method} {item.path}</td>
-                          <td className="px-3 py-2 font-bold">{item.statusCode}</td>
-                          <td className="px-3 py-2">{item.message}</td>
-                          <td className="px-3 py-2">{item.resolvedAt ? "Resolved" : "Open"}</td>
+                        <tr
+                          className={`cursor-pointer border-t border-line/60 transition hover:bg-[#fbfeff] ${
+                            selectedError?.id === item.id ? "bg-[#eafcff]" : ""
+                          }`}
+                          key={item.id}
+                          onClick={() => setSelectedError(item)}
+                        >
+                          <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDate(item.createdAt)}</td>
+                          <td className="px-3 py-3">
+                            <span
+                              className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${severityBadgeClass(item.severity)}`}
+                            >
+                              {item.severity}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-muted">{item.area}</td>
+                          <td className="px-3 py-3 text-midnight">{item.userEmail ?? "N/A"}</td>
+                          <td className="px-3 py-3 font-mono text-xs text-muted">
+                            {item.method} {item.path}
+                          </td>
+                          <td className="px-3 py-3 font-bold text-midnight">{item.statusCode}</td>
+                          <td className="px-3 py-3 text-midnight">{item.message}</td>
+                          <td className="px-4 py-3 text-muted">{item.resolvedAt ? "Resolved" : "Open"}</td>
                         </tr>
                       ))}
                       {errors.length === 0 ? (
-                        <tr><td className="px-3 py-6 text-center font-bold text-slate-500" colSpan={8}>No errors found</td></tr>
+                        <tr>
+                          <td className="px-4 py-8 text-center font-bold text-muted" colSpan={8}>
+                            No errors found
+                          </td>
+                        </tr>
                       ) : null}
                     </tbody>
                   </table>
                 </div>
               </section>
 
-              <aside className="rounded border bg-white p-3">
+              <aside className="rounded-2xl border border-line bg-white p-5 shadow-card">
                 {selectedError ? (
                   <div className="grid gap-3">
-                    <h2 className="text-lg font-black">Error Details</h2>
+                    <h2 className="font-display text-lg font-black text-midnight">Error Details</h2>
                     <dl className="grid grid-cols-[130px_1fr] gap-2 text-sm">
-                      <dt className="font-bold">Request ID</dt><dd className="font-mono text-xs">{selectedError.requestId}</dd>
-                      <dt className="font-bold">User</dt><dd>{selectedError.userEmail ?? "N/A"}</dd>
-                      <dt className="font-bold">API</dt><dd className="font-mono text-xs">{selectedError.method} {selectedError.path}</dd>
-                      <dt className="font-bold">Provider</dt><dd>{selectedError.providerName ?? "N/A"} {selectedError.providerStatusCode ?? ""}</dd>
-                      <dt className="font-bold">Payment</dt><dd>{selectedError.relatedPaymentReference ?? "N/A"}</dd>
-                      <dt className="font-bold">Package</dt><dd>{selectedError.relatedPackageId ?? "N/A"}</dd>
-                      <dt className="font-bold">ICCID</dt><dd>{selectedError.relatedIccid ?? "N/A"}</dd>
-                      <dt className="font-bold">Repair action</dt><dd>{selectedError.repairAction ?? "N/A"}</dd>
+                      <dt className="font-bold text-muted">Request ID</dt>
+                      <dd className="font-mono text-xs text-midnight">{selectedError.requestId}</dd>
+                      <dt className="font-bold text-muted">User</dt>
+                      <dd className="text-midnight">{selectedError.userEmail ?? "N/A"}</dd>
+                      <dt className="font-bold text-muted">API</dt>
+                      <dd className="font-mono text-xs text-midnight">
+                        {selectedError.method} {selectedError.path}
+                      </dd>
+                      <dt className="font-bold text-muted">Provider</dt>
+                      <dd className="text-midnight">
+                        {selectedError.providerName ?? "N/A"} {selectedError.providerStatusCode ?? ""}
+                      </dd>
+                      <dt className="font-bold text-muted">Payment</dt>
+                      <dd className="text-midnight">{selectedError.relatedPaymentReference ?? "N/A"}</dd>
+                      <dt className="font-bold text-muted">Package</dt>
+                      <dd className="text-midnight">{selectedError.relatedPackageId ?? "N/A"}</dd>
+                      <dt className="font-bold text-muted">ICCID</dt>
+                      <dd className="text-midnight">{selectedError.relatedIccid ?? "N/A"}</dd>
+                      <dt className="font-bold text-muted">Repair action</dt>
+                      <dd className="text-midnight">{selectedError.repairAction ?? "N/A"}</dd>
                     </dl>
 
                     <div>
-                      <p className="text-sm font-black">Safe request body</p>
-                      <pre className="mt-1 max-h-40 overflow-auto rounded bg-slate-100 p-2 text-xs">{stringifyJson(selectedError.safeRequestBody)}</pre>
+                      <p className="text-xs font-black uppercase tracking-wide text-muted">Safe request body</p>
+                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
+                        {stringifyJson(selectedError.safeRequestBody)}
+                      </pre>
                     </div>
                     <div>
-                      <p className="text-sm font-black">Safe query</p>
-                      <pre className="mt-1 max-h-32 overflow-auto rounded bg-slate-100 p-2 text-xs">{stringifyJson(selectedError.safeQuery)}</pre>
+                      <p className="text-xs font-black uppercase tracking-wide text-muted">Safe query</p>
+                      <pre className="mt-1 max-h-32 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
+                        {stringifyJson(selectedError.safeQuery)}
+                      </pre>
                     </div>
                     <div>
-                      <p className="text-sm font-black">Copy safe cURL</p>
-                      <pre className="mt-1 max-h-40 overflow-auto rounded bg-slate-100 p-2 text-xs">{buildSafeCurl(selectedError)}</pre>
+                      <p className="text-xs font-black uppercase tracking-wide text-muted">Copy safe cURL</p>
+                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
+                        {buildSafeCurl(selectedError)}
+                      </pre>
                     </div>
 
-                    <label className="text-sm font-black">Admin notes<textarea className="mt-1 min-h-24 w-full rounded border p-2 font-normal" onChange={(event) => setAdminNotes(event.target.value)} value={adminNotes} /></label>
+                    <label className="text-xs font-black uppercase tracking-wide text-muted">
+                      Admin notes
+                      <textarea
+                        className="mt-1 min-h-24 w-full rounded-xl border border-line p-2.5 text-sm font-normal text-midnight outline-none focus:border-cyan"
+                        onChange={(event) => setAdminNotes(event.target.value)}
+                        value={adminNotes}
+                      />
+                    </label>
                     <div className="flex flex-wrap gap-2">
-                      <button className="rounded border bg-white px-3 py-2 text-sm font-bold" disabled={isMutating} onClick={() => navigator.clipboard?.writeText(selectedError.requestId)} type="button">Copy request id</button>
-                      <button className="rounded border bg-white px-3 py-2 text-sm font-bold" disabled={isMutating} onClick={() => navigator.clipboard?.writeText(buildSafeCurl(selectedError))} type="button">Copy safe cURL</button>
-                      <button className="rounded bg-slate-950 px-3 py-2 text-sm font-bold text-white" disabled={isMutating} onClick={() => void updateSelected({ adminNotes })} type="button">Save notes</button>
-                      <button className="rounded bg-green-700 px-3 py-2 text-sm font-bold text-white" disabled={isMutating} onClick={() => void updateSelected({ resolved: true, adminNotes })} type="button">Mark resolved</button>
+                      <button
+                        className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                        disabled={isMutating}
+                        onClick={() => navigator.clipboard?.writeText(selectedError.requestId)}
+                        type="button"
+                      >
+                        Copy request id
+                      </button>
+                      <button
+                        className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                        disabled={isMutating}
+                        onClick={() => navigator.clipboard?.writeText(buildSafeCurl(selectedError))}
+                        type="button"
+                      >
+                        Copy safe cURL
+                      </button>
+                      <button
+                        className="rounded-lg bg-gradient-to-r from-midnight to-ink px-3 py-2 text-xs font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                        disabled={isMutating}
+                        onClick={() => void updateSelected({ adminNotes })}
+                        type="button"
+                      >
+                        Save notes
+                      </button>
+                      <button
+                        className="rounded-lg bg-green-700 px-3 py-2 text-xs font-black text-white transition hover:bg-green-800 disabled:opacity-50"
+                        disabled={isMutating}
+                        onClick={() => void updateSelected({ resolved: true, adminNotes })}
+                        type="button"
+                      >
+                        Mark resolved
+                      </button>
                       {selectedError.repairAction ? (
-                        <button className="rounded bg-red-700 px-3 py-2 text-sm font-bold text-white" disabled={isMutating} onClick={() => void repairSelected()} type="button">Run repair</button>
+                        <button
+                          className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
+                          disabled={isMutating}
+                          onClick={() => void repairSelected()}
+                          type="button"
+                        >
+                          Run repair
+                        </button>
                       ) : null}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm font-bold text-slate-500">Select an error row to inspect details.</p>
+                  <p className="text-sm font-bold text-muted">Select an error row to inspect details.</p>
                 )}
               </aside>
             </div>
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

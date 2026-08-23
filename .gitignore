@@ -8,3 +8,6 @@ coverage/
 .DS_Store
 *.log
 tsconfig.tsbuildinfo
+
+# Claude brainstorming companion screens
+.superpowers/

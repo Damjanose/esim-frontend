@@ -12,6 +12,8 @@ const config: Config = {
         cloud: "#f4fbfd",
         mist: "#dff6fa",
         line: "#c7e9ef",
+        muted: "#5a8b93",
+        cyanDeep: "#00b8cf",
         brandBlue: "#0B49B7",
         brandTeal: "#09C3BE",
         error: "#BA1A1A",

@@ -1,16 +1,10 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { BarChart3, LockKeyhole, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { BarChart3, LogOut, RefreshCw } from "lucide-react";
 import { AdminNav } from "../AdminNav";
-
-type AdminLoginResponse = {
-  status?: string;
-  data?: {
-    token?: string;
-  };
-  message?: string;
-};
+import { AdminLoginCard } from "../AdminLoginCard";
+import { useAdminSession } from "../useAdminSession";
 
 type Purchase = {
   id: string;
@@ -63,8 +57,6 @@ type DashboardPayload = {
   message?: string;
 };
 
-const ADMIN_TOKEN_STORAGE_KEY = "velocity-admin-dashboard-token";
-
 function formatMoney(amountCents: number | null, currency: string | null) {
   if (amountCents == null || !currency) return "N/A";
   return new Intl.NumberFormat("en", {
@@ -100,7 +92,7 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
 
   if (data.length === 0) {
     return (
-      <div className="grid min-h-56 place-items-center rounded-lg border border-dashed border-line bg-white text-sm font-semibold text-slate-500">
+      <div className="grid min-h-56 place-items-center rounded-xl border border-dashed border-line bg-[#fbfeff] text-sm font-semibold text-muted">
         No purchases yet
       </div>
     );
@@ -109,7 +101,13 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
   return (
     <div className="overflow-x-auto">
       <svg aria-label="Purchases over time" className="min-w-full" role="img" viewBox={`0 0 ${width} ${height}`}>
-        <line x1="24" x2={width - 18} y1="172" y2="172" stroke="#c7e9ef" strokeWidth="2" />
+        <defs>
+          <linearGradient id="barGradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#00d9f5" />
+            <stop offset="100%" stopColor="#71efff" />
+          </linearGradient>
+        </defs>
+        <line x1="24" x2={width - 18} y1="172" y2="172" stroke="#dff6fa" strokeWidth="2" />
         {data.map((point, index) => {
           const x = 36 + index * (width / data.length);
           const barHeight = Math.max(8, (point.purchases / maxPurchases) * chartHeight);
@@ -117,18 +115,11 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
 
           return (
             <g key={point.date}>
-              <rect
-                className="fill-cyan transition hover:fill-aqua"
-                height={barHeight}
-                rx="6"
-                width={barWidth}
-                x={x}
-                y={y}
-              />
+              <rect fill="url(#barGradient)" height={barHeight} rx="6" width={barWidth} x={x} y={y} />
               <text fill="#001f26" fontSize="13" fontWeight="800" textAnchor="middle" x={x + barWidth / 2} y={y - 8}>
                 {point.purchases}
               </text>
-              <text fill="#64748b" fontSize="11" textAnchor="middle" x={x + barWidth / 2} y="198">
+              <text fill="#5a8b93" fontSize="11" textAnchor="middle" x={x + barWidth / 2} y="198">
                 {point.date.slice(5)}
               </text>
             </g>
@@ -139,12 +130,24 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
   );
 }
 
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <article className="relative overflow-hidden rounded-2xl border border-line bg-white p-4 shadow-card">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(0,217,245,0.14),transparent_70%)]"
+      />
+      <p className="text-[10px] font-black uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-1 font-display text-2xl font-black text-midnight">{value}</p>
+    </article>
+  );
+}
+
 export default function AdminDashboardPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
+  const session = useAdminSession();
+  const { token, handleUnauthorized } = session;
+
   const [dashboard, setDashboard] = useState<DashboardPayload["data"] | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
   const [error, setError] = useState("");
 
@@ -178,8 +181,7 @@ export default function AdminDashboardPage() {
       const payload = (await response.json()) as DashboardPayload;
 
       if (response.status === 401) {
-        sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
-        setToken("");
+        handleUnauthorized();
         throw new Error("Session expired. Sign in again.");
       }
 
@@ -197,79 +199,41 @@ export default function AdminDashboardPage() {
   }
 
   useEffect(() => {
-    const storedToken = sessionStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
-    if (!storedToken) return;
-    setToken(storedToken);
-    void loadDashboard(storedToken);
-  }, []);
-
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsLoggingIn(true);
-    setError("");
-
-    try {
-      const response = await fetch("/bff/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const payload = (await response.json()) as AdminLoginResponse;
-      const nextToken = payload.data?.token;
-
-      if (!response.ok || payload.status !== "success" || !nextToken) {
-        throw new Error(payload.message ?? "Invalid admin credentials");
-      }
-
-      sessionStorage.setItem(ADMIN_TOKEN_STORAGE_KEY, nextToken);
-      setToken(nextToken);
-      setPassword("");
-      await loadDashboard(nextToken);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid admin credentials");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  }
-
-  function handleLogout() {
-    sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
-    setToken("");
-    setDashboard(null);
-    setError("");
-  }
+    if (token) void loadDashboard(token);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   return (
-    <main className="min-h-screen bg-cloud text-ink">
-      <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
-        <AdminNav />
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div className="flex min-h-screen bg-cloud">
+      <AdminNav />
+      <div className="min-w-0 flex-1 px-6 py-7 md:px-9">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="flex items-center gap-2 text-sm font-black uppercase text-cyan">
-              <ShieldCheck aria-hidden="true" size={18} />
-              Admin
+            <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-cyanDeep">
+              <BarChart3 aria-hidden="true" size={13} />
+              Admin · Live
             </p>
-            <h1 className="mt-2 font-display text-3xl font-black text-midnight md:text-5xl">
+            <h1 className="mt-1 font-display text-[26px] font-black tracking-tight text-midnight md:text-[30px]">
               Purchase dashboard
             </h1>
           </div>
           {token ? (
             <div className="flex gap-2">
               <button
-                className="inline-flex h-11 items-center gap-2 rounded-lg border border-line bg-white px-4 text-sm font-bold text-midnight transition hover:border-cyan"
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
                 disabled={isLoadingDashboard}
                 onClick={() => void loadDashboard()}
                 type="button"
               >
-                <RefreshCw aria-hidden="true" size={16} />
-                Refresh
+                <RefreshCw aria-hidden="true" size={14} />
+                {isLoadingDashboard ? "Loading..." : "Refresh"}
               </button>
               <button
-                className="inline-flex h-11 items-center gap-2 rounded-lg bg-midnight px-4 text-sm font-bold text-white transition hover:bg-ink"
-                onClick={handleLogout}
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua shadow-glow transition hover:opacity-90"
+                onClick={session.logout}
                 type="button"
               >
-                <LogOut aria-hidden="true" size={16} />
+                <LogOut aria-hidden="true" size={14} />
                 Logout
               </button>
             </div>
@@ -277,110 +241,66 @@ export default function AdminDashboardPage() {
         </div>
 
         {!token ? (
-          <form
-            className="mx-auto max-w-md rounded-lg border border-line bg-white p-6 shadow-sm"
-            onSubmit={handleLogin}
-          >
-            <span className="mb-5 grid h-12 w-12 place-items-center rounded-lg bg-cyan/15 text-midnight">
-              <LockKeyhole aria-hidden="true" size={22} />
-            </span>
-            <label className="block text-sm font-bold text-midnight" htmlFor="admin-email">
-              Email
-            </label>
-            <input
-              autoComplete="email"
-              className="mt-2 h-12 w-full rounded-lg border border-line px-4 text-sm outline-none transition focus:border-cyan"
-              id="admin-email"
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              type="email"
-              value={email}
-            />
-            <label className="mt-4 block text-sm font-bold text-midnight" htmlFor="admin-password">
-              Password
-            </label>
-            <input
-              autoComplete="current-password"
-              className="mt-2 h-12 w-full rounded-lg border border-line px-4 text-sm outline-none transition focus:border-cyan"
-              id="admin-password"
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              type="password"
-              value={password}
-            />
-            {error ? <p className="mt-4 text-sm font-semibold text-red-600">{error}</p> : null}
-            <button
-              className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-lg bg-midnight px-5 text-sm font-black text-cyan transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={isLoggingIn}
-              type="submit"
-            >
-              {isLoggingIn ? "Signing in..." : "Sign in"}
-            </button>
-          </form>
+          <AdminLoginCard
+            email={session.email}
+            error={session.error}
+            isLoggingIn={session.isLoggingIn}
+            onSubmit={session.login}
+            password={session.password}
+            setEmail={session.setEmail}
+            setPassword={session.setPassword}
+          />
         ) : (
-          <div className="grid gap-6">
+          <div className="grid gap-5">
             {error ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
                 {error}
               </div>
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-4">
-              <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
-                <p className="text-xs font-black uppercase text-slate-500">Total purchases</p>
-                <p className="mt-2 font-display text-3xl font-black text-midnight">
-                  {summary.purchaseCount}
-                </p>
-              </article>
-              <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
-                <p className="text-xs font-black uppercase text-slate-500">Total revenue</p>
-                <p className="mt-2 font-display text-3xl font-black text-midnight">{totalRevenue}</p>
-              </article>
-              <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
-                <p className="text-xs font-black uppercase text-slate-500">Latest purchase</p>
-                <p className="mt-2 text-lg font-black text-midnight">{latestPurchase}</p>
-              </article>
-              <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
-                <p className="text-xs font-black uppercase text-slate-500">Total users</p>
-                <p className="mt-2 font-display text-3xl font-black text-midnight">
-                  {summary.userCount ?? users.length}
-                </p>
-              </article>
+              <StatCard label="Total purchases" value={summary.purchaseCount} />
+              <StatCard label="Total revenue" value={totalRevenue} />
+              <StatCard label="Latest purchase" value={latestPurchase} />
+              <StatCard label="Total users" value={summary.userCount ?? users.length} />
             </div>
 
-            <section className="rounded-lg border border-line bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <BarChart3 aria-hidden="true" className="text-cyan" size={22} />
-                <h2 className="font-display text-xl font-black text-midnight">Purchases over time</h2>
+            <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
+              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Purchases over time</h2>
+              <div className="mt-3">
+                <PurchasesChart data={chart} />
               </div>
-              <PurchasesChart data={chart} />
             </section>
 
-            <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
-              <div className="border-b border-line px-4 py-3">
-                <h2 className="font-display text-xl font-black text-midnight">Purchases</h2>
+            <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+              <div className="border-b border-line/70 px-5 py-3.5">
+                <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Purchases</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse text-left text-sm">
-                  <thead className="bg-midnight text-white">
-                    <tr>
-                      <th className="px-4 py-3 font-black">Email</th>
-                      <th className="px-4 py-3 font-black">Package</th>
-                      <th className="px-4 py-3 font-black">Price</th>
-                      <th className="px-4 py-3 font-black">Status</th>
-                      <th className="px-4 py-3 font-black">Purchased At</th>
+                  <thead>
+                    <tr className="bg-[#f8fdfe]">
+                      <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Email</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Package
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Price</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Status</th>
+                      <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Purchased At
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {purchases.map((purchase) => (
-                      <tr className="border-t border-line" key={purchase.id}>
-                        <td className="px-4 py-3 font-semibold text-midnight">{purchase.userEmail}</td>
-                        <td className="px-4 py-3 text-slate-600">{purchase.packageId}</td>
-                        <td className="px-4 py-3 font-bold text-midnight">
+                      <tr className="border-t border-line/60 hover:bg-[#fbfeff]" key={purchase.id}>
+                        <td className="px-5 py-3 font-semibold text-midnight">{purchase.userEmail}</td>
+                        <td className="px-3 py-3 text-muted">{purchase.packageId}</td>
+                        <td className="px-3 py-3 font-bold text-midnight">
                           {formatMoney(purchase.paymentAmountCents, purchase.paymentCurrency)}
                         </td>
-                        <td className="px-4 py-3 text-slate-600">{purchase.paymentStatus ?? "unknown"}</td>
-                        <td className="px-4 py-3 text-slate-600">{formatDate(purchase.providerCreatedAt)}</td>
+                        <td className="px-3 py-3 text-muted">{purchase.paymentStatus ?? "unknown"}</td>
+                        <td className="px-5 py-3 text-muted">{formatDate(purchase.providerCreatedAt)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -388,35 +308,43 @@ export default function AdminDashboardPage() {
               </div>
             </section>
 
-            <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
-              <div className="border-b border-line px-4 py-3">
-                <h2 className="font-display text-xl font-black text-midnight">Users</h2>
+            <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+              <div className="border-b border-line/70 px-5 py-3.5">
+                <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Users</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse text-left text-sm">
-                  <thead className="bg-midnight text-white">
-                    <tr>
-                      <th className="px-4 py-3 font-black">Email</th>
-                      <th className="px-4 py-3 font-black">Created</th>
-                      <th className="px-4 py-3 font-black">Updated</th>
-                      <th className="px-4 py-3 font-black">OTP requests</th>
-                      <th className="px-4 py-3 font-black">Latest OTP</th>
+                  <thead>
+                    <tr className="bg-[#f8fdfe]">
+                      <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Email</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Created
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Updated
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        OTP requests
+                      </th>
+                      <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Latest OTP
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.length > 0 ? (
                       users.map((user) => (
-                        <tr className="border-t border-line" key={user.email}>
-                          <td className="px-4 py-3 font-semibold text-midnight">{user.email}</td>
-                          <td className="px-4 py-3 text-slate-600">{formatDate(user.createdAt)}</td>
-                          <td className="px-4 py-3 text-slate-600">{formatDate(user.updatedAt)}</td>
-                          <td className="px-4 py-3 font-bold text-midnight">{user.otpRequestCount}</td>
-                          <td className="px-4 py-3 text-slate-600">{formatDate(user.lastOtpRequestedAt)}</td>
+                        <tr className="border-t border-line/60 hover:bg-[#fbfeff]" key={user.email}>
+                          <td className="px-5 py-3 font-semibold text-midnight">{user.email}</td>
+                          <td className="px-3 py-3 text-muted">{formatDate(user.createdAt)}</td>
+                          <td className="px-3 py-3 text-muted">{formatDate(user.updatedAt)}</td>
+                          <td className="px-3 py-3 font-bold text-midnight">{user.otpRequestCount}</td>
+                          <td className="px-5 py-3 text-muted">{formatDate(user.lastOtpRequestedAt)}</td>
                         </tr>
                       ))
                     ) : (
-                      <tr className="border-t border-line">
-                        <td className="px-4 py-5 text-center text-sm font-semibold text-slate-500" colSpan={5}>
+                      <tr className="border-t border-line/60">
+                        <td className="px-5 py-6 text-center text-sm font-semibold text-muted" colSpan={5}>
                           No users yet
                         </td>
                       </tr>
@@ -426,33 +354,35 @@ export default function AdminDashboardPage() {
               </div>
             </section>
 
-            <section className="overflow-hidden rounded-lg border border-line bg-white shadow-sm">
-              <div className="border-b border-line px-4 py-3">
-                <h2 className="font-display text-xl font-black text-midnight">Recent OTP requests</h2>
+            <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+              <div className="border-b border-line/70 px-5 py-3.5">
+                <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Recent OTP requests</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse text-left text-sm">
-                  <thead className="bg-midnight text-white">
-                    <tr>
-                      <th className="px-4 py-3 font-black">Email</th>
-                      <th className="px-4 py-3 font-black">Status</th>
-                      <th className="px-4 py-3 font-black">Timestamp</th>
-                      <th className="px-4 py-3 font-black">Error</th>
+                  <thead>
+                    <tr className="bg-[#f8fdfe]">
+                      <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Email</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Status</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Timestamp
+                      </th>
+                      <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Error</th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentOtpRequests.length > 0 ? (
                       recentOtpRequests.map((request) => (
-                        <tr className="border-t border-line" key={request.id}>
-                          <td className="px-4 py-3 font-semibold text-midnight">{request.email}</td>
-                          <td className="px-4 py-3 font-bold text-midnight">{formatOtpStatus(request.status)}</td>
-                          <td className="px-4 py-3 text-slate-600">{formatDate(request.createdAt)}</td>
-                          <td className="px-4 py-3 text-slate-600">{request.errorMessage ?? "N/A"}</td>
+                        <tr className="border-t border-line/60 hover:bg-[#fbfeff]" key={request.id}>
+                          <td className="px-5 py-3 font-semibold text-midnight">{request.email}</td>
+                          <td className="px-3 py-3 font-bold text-midnight">{formatOtpStatus(request.status)}</td>
+                          <td className="px-3 py-3 text-muted">{formatDate(request.createdAt)}</td>
+                          <td className="px-5 py-3 text-muted">{request.errorMessage ?? "N/A"}</td>
                         </tr>
                       ))
                     ) : (
-                      <tr className="border-t border-line">
-                        <td className="px-4 py-5 text-center text-sm font-semibold text-slate-500" colSpan={4}>
+                      <tr className="border-t border-line/60">
+                        <td className="px-5 py-6 text-center text-sm font-semibold text-muted" colSpan={4}>
                           No OTP requests yet
                         </td>
                       </tr>
@@ -463,7 +393,7 @@ export default function AdminDashboardPage() {
             </section>
           </div>
         )}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

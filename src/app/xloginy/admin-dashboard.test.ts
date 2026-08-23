@@ -7,19 +7,22 @@ describe("hidden admin purchase dashboard", () => {
 
     const homeSource = readFileSync("src/app/page.tsx", "utf8");
     const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
+    const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
 
     expect(homeSource).not.toContain("/xloginy");
     expect(dashboardSource).toContain('"use client"');
-    expect(dashboardSource).toContain("sessionStorage");
+    expect(dashboardSource).toContain("useAdminSession");
+    expect(hookSource).toContain("sessionStorage");
   });
 
   it("renders an admin login, purchase table, and SVG purchases-over-time chart", () => {
     const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
+    const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
 
-    expect(dashboardSource).toContain("/bff/admin/login");
+    expect(hookSource).toContain("/bff/admin/login");
     expect(dashboardSource).toContain("/bff/admin/dashboard");
     expect(dashboardSource).toContain("response.status === 401");
-    expect(dashboardSource).toContain("sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY)");
+    expect(dashboardSource).toContain("handleUnauthorized");
     expect(dashboardSource).toContain("Purchases over time");
     expect(dashboardSource).toContain("<svg");
     expect(dashboardSource).toContain("Email");

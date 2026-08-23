@@ -7,16 +7,19 @@ describe("hidden admin error inbox", () => {
 
     const homeSource = readFileSync("src/app/page.tsx", "utf8");
     const errorInboxSource = readFileSync("src/app/xerrors/page.tsx", "utf8");
+    const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
 
     expect(homeSource).not.toContain("/xerrors");
     expect(errorInboxSource).toContain('"use client"');
-    expect(errorInboxSource).toContain("sessionStorage");
+    expect(errorInboxSource).toContain("useAdminSession");
+    expect(hookSource).toContain("sessionStorage");
   });
 
   it("renders utility filters, table columns, and plain error detail actions", () => {
     const errorInboxSource = readFileSync("src/app/xerrors/page.tsx", "utf8");
+    const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
 
-    expect(errorInboxSource).toContain("/bff/admin/login");
+    expect(hookSource).toContain("/bff/admin/login");
     expect(errorInboxSource).toContain("/bff/admin/errors");
     expect(errorInboxSource).toContain("Error Inbox");
     expect(errorInboxSource).toContain("Email");

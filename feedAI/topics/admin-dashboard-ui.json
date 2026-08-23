@@ -1,15 +1,15 @@
 {
   "topic": "admin-dashboard-ui",
   "covers": "The actual UI/behavior of the three hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
-  "facts": ["f044", "f045", "f046", "f049", "f050"],
+  "facts": ["f044", "f045", "f046", "f049", "f050", "f051", "f052"],
   "shared_shell": {
-    "component": "src/app/AdminNav.tsx, rendered at the top of all three admin pages",
+    "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all three admin pages as of the 2026-08-23 premium redesign — see f051.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {
     "storage": "All three pages store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' — logging in on one page also authenticates the others on the next load.",
     "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) — an XSS on any admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
-    "duplication": "xloginy/page.tsx and xerrors/page.tsx each still reimplement their own login form, handleLogin(), 401-triggered logout, and formatDate() helper (f045) — xpricing/page.tsx instead uses the shared src/app/useAdminSession.ts hook (f050), but the other two were not retrofitted onto it, so the duplication f045 flagged still exists for those two.",
+    "duplication": "RESOLVED (f052): all three pages now use the shared src/app/useAdminSession.ts hook + AdminLoginCard.tsx — xloginy and xerrors were retrofitted onto it during the 2026-08-23 premium redesign, closing out what f045 originally flagged.",
     "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) — this file only covers how the Next.js pages consume it."
   },
   "xloginy_purchase_dashboard": {
