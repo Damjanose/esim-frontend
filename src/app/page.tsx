@@ -291,7 +291,7 @@ function HeroVisual() {
         height={638}
         priority
         sizes="(max-width: 1024px) 100vw, 850px"
-        src="/images/hero-map.png"
+        src="/images/hero-map.webp"
         width={850}
       />
 

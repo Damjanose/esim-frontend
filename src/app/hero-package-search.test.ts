@@ -23,8 +23,11 @@ describe("HeroPackageSearch", () => {
     const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
     const componentSource = readFileSync(join(process.cwd(), "src/app/HeroPackageSearch.tsx"), "utf8");
 
-    expect(pageSource).toContain('className="relative z-20"');
-    expect(pageSource).toContain('className="relative z-0 mx-auto w-full max-w-[440px]"');
-    expect(componentSource).toContain("z-50 overflow-hidden");
+    // Left content column (holds HeroPackageSearch) vs. the hero device mockup image (z-10) —
+    // the column must stack above the mockup, and the search results dropdown (z-[100]/z-[70])
+    // must stack above the column itself.
+    expect(pageSource).toContain('className="relative z-20 mx-auto w-full max-w-[610px] text-center lg:mx-0 lg:text-left"');
+    expect(pageSource).toContain('src="/images/hero-map.webp"');
+    expect(componentSource).toContain('className="relative z-[100] mt-8 w-full max-w-[620px]"');
   });
 });

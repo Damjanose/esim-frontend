@@ -37,20 +37,25 @@ describe("landingContent", () => {
   it("routes the header CTA to the download section and both app CTAs to their store listings", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 
-    expect(pageSource).toContain('href="#download"');
-    expect(pageSource).toContain("href={landingContent.appLinks.ios.href}");
-    expect(pageSource).toContain("href={landingContent.appLinks.android.href}");
+    // Both the hero and bottom CTAs jump to the App Download section (#download-app),
+    // which is where the store badges below actually live.
+    expect(pageSource).toContain('href="#download-app"');
+    // The store badge hrefs are literal URLs rather than landingContent.appLinks.*.href
+    // references, so pin them against the single source of truth here instead —
+    // catches drift if either side changes without the other.
+    expect(pageSource).toContain(`href="${landingContent.appLinks.ios.href}"`);
+    expect(pageSource).toContain(`href="${landingContent.appLinks.android.href}"`);
   });
 
   it("renders premium store buttons with platform icons", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 
-    expect(pageSource).toContain("function AppleStoreIcon");
-    expect(pageSource).toContain("function GooglePlayIcon");
-    expect(pageSource).toContain("<AppleStoreIcon />");
-    expect(pageSource).toContain("<GooglePlayIcon />");
+    // Apple/Google logos are inlined as <svg> markup directly on each store link
+    // rather than extracted into named icon components.
     expect(pageSource).toContain('aria-label="Download eSim2you on the App Store"');
-    expect(pageSource).toContain('aria-label="Download eSim2you on Google Play"');
+    expect(pageSource).toContain('aria-label="Get eSim2you on Google Play"');
+    expect(pageSource).toMatch(/aria-label="Download eSim2you on the App Store"[\s\S]*?<svg/);
+    expect(pageSource).toMatch(/aria-label="Get eSim2you on Google Play"[\s\S]*?<svg/);
   });
 
   it("organizes footer links without duplicate footer download actions", () => {
@@ -78,16 +83,28 @@ describe("landingContent", () => {
   });
 
   it("uses app logo assets for favicon, header, and footer branding", () => {
-    const pageSource = readFileSync("src/app/page.tsx", "utf8");
+    // The header/nav bar was extracted out of page.tsx into its own component
+    // (src/app/components/Navbar.tsx) — the real logo lives there now.
+    const navSource = readFileSync("src/app/components/Navbar.tsx", "utf8");
     const footerSource = readFileSync("src/app/SiteFooter.tsx", "utf8");
     const layoutSource = readFileSync("src/app/layout.tsx", "utf8");
 
     expect(existsSync("src/app/icon.png")).toBe(true);
     expect(existsSync("public/favicon.png")).toBe(true);
     expect(existsSync("public/app-logo.png")).toBe(true);
-    expect(pageSource).toContain('src="/app-logo.png"');
+    expect(existsSync("public/logo-no-bg.png")).toBe(true);
+    // Navbar renders transparently over the hero image, so it deliberately uses the
+    // no-background mark rather than app-logo.png's solid square (which the footer,
+    // on a plain white background, uses instead).
+    expect(navSource).toContain('src="/logo-no-bg.png"');
     expect(footerSource).toContain('src="/app-logo.png"');
-    expect(pageSource).not.toContain("Globe2");
+    // Globe2 is legitimately reused elsewhere (language selector, "Global Coverage"
+    // benefit icons) now that the logo itself is a real image — only the brand-mark
+    // link itself must never fall back to an icon instead of the logo image.
+    const homeLinkMatch = navSource.match(/<a[^>]*aria-label="eSim2you home"[\s\S]*?<\/a>/);
+    expect(homeLinkMatch).not.toBeNull();
+    expect(homeLinkMatch![0]).not.toContain("Globe2");
+    expect(homeLinkMatch![0]).toContain("<img");
     expect(layoutSource).toContain('url: "/favicon.png"');
   });
 });
