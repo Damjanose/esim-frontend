@@ -27,7 +27,7 @@ describe("HeroPackageSearch", () => {
     // the column must stack above the mockup, and the search results dropdown (z-[100]/z-[70])
     // must stack above the column itself.
     expect(pageSource).toContain('className="relative z-20 mx-auto w-full max-w-[610px] text-center lg:mx-0 lg:text-left"');
-    expect(pageSource).toContain('src="/images/hero-map.webp"');
+    expect(pageSource).toContain('src="/images/hero-map-and-phone.webp"');
     expect(componentSource).toContain('className="relative z-[100] mt-8 w-full max-w-[620px]"');
   });
 });

@@ -162,16 +162,6 @@ function Hero() {
       <div className="mx-auto grid min-h-[700px] max-w-[1480px] items-center gap-10 px-5 pb-20 pt-12 md:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:pb-16 lg:pt-8 xl:px-14">
         {/* Left content */}
         <div className="relative z-20 mx-auto w-full max-w-[610px] text-center lg:mx-0 lg:text-left">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-outline bg-surface px-4 py-2 text-xs font-semibold text-onSurfaceVariant shadow-brandCard">
-            <Star
-              aria-hidden="true"
-              className="fill-[#ffd54a] text-[#ffd54a]"
-              size={14}
-            />
-
-            Trusted by 1M+ Travelers Worldwide
-          </div>
-
           <h1 className="mx-auto max-w-[590px] font-display text-[44px] font-black leading-[1.04] tracking-[-0.045em] text-brandInk sm:text-[56px] lg:mx-0 lg:text-[61px] xl:text-[68px]">
             Stay Connected
             <br />
@@ -291,7 +281,7 @@ function HeroVisual() {
         height={638}
         priority
         sizes="(max-width: 1024px) 100vw, 850px"
-        src="/images/hero-map.webp"
+        src="/images/hero-map-and-phone.webp"
         width={850}
       />
 
@@ -384,12 +374,12 @@ function DestinationBubble({
       </div>
 
       <div className="min-w-[92px]">
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-onSurface">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]">
           <span>{flag}</span>
           {city}
         </p>
 
-        <p className="mt-1 text-xs text-onSurfaceVariant">
+        <p className="mt-1 text-xs text-white/75 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]">
           {country}
         </p>
       </div>
@@ -791,7 +781,7 @@ function JourneyAndCoverage() {
           </div>
 
           <div
-            className={`${cardClassName} bg-[image:url('/images/6__.webp')] bg-cover bg-center bg-no-repeat`}
+            className={`${cardClassName} bg-[image:url('/images/usage-map.png')] bg-cover bg-center bg-no-repeat`}
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(11,73,183,0.1),transparent_58%)]" />
 
@@ -869,7 +859,7 @@ function TestimonialsAndFaq() {
               alt="eSim2you mobile applications"
               className="pointer-events-none absolute bottom-[-5px] left-1/2 h-[116%] w-[142%] max-w-none -translate-x-1/2 object-contain object-bottom drop-shadow-[0_24px_32px_rgba(0,0,0,0.45)]"
               loading="lazy"
-              src="/images/a6.png"
+              src="/images/2-iphones.png"
             />
           </div>
 
@@ -1072,7 +1062,7 @@ function AppDownload() {
                 alt="eSim2you mobile application"
                 className="relative z-10 max-h-[390px] w-full max-w-[520px] object-contain object-bottom drop-shadow-[0_35px_45px_rgba(0,0,0,0.5)]"
                 loading="lazy"
-                src="/images/6c.png"
+                src="/images/app-store.png"
               />
             </div>
           </div>
@@ -1097,7 +1087,7 @@ function Cta() {
             loading="lazy"
             referrerPolicy="no-referrer"
             sizes="(max-width: 768px) 100vw, 1280px"
-            src="/images/3.webp"
+            src="/images/mountain.webp"
           />
 
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[linear-gradient(90deg,rgba(6,17,49,0.88)_0%,rgba(6,17,49,0.66)_45%,rgba(6,17,49,0.5)_100%)]" />
@@ -1107,7 +1097,7 @@ function Cta() {
             className="pointer-events-none absolute bottom-0 left-[58%] z-20 hidden h-[145%] max-w-none -translate-x-1/2 object-contain object-bottom md:block lg:left-[60%]"
             loading="lazy"
             referrerPolicy="no-referrer"
-            src="/images/4-.png"
+            src="/images/person.png"
           />
 
           <div className="relative z-10 flex min-h-[220px] flex-col justify-center gap-7 overflow-hidden rounded-[22px] px-7 py-9 md:min-h-[190px] md:flex-row md:items-center md:justify-between md:px-12 md:py-8">
