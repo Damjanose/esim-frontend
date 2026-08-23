@@ -46,6 +46,15 @@ describe("hidden admin package pricing page", () => {
     expect(pageSource).toContain("Apply to ALL packages");
   });
 
+  it("renders a reset-to-default panel and per-row reset action", () => {
+    const pageSource = readFileSync("src/app/xpricing/page.tsx", "utf8");
+
+    expect(pageSource).toContain("/bff/admin/packages/pricing/reset");
+    expect(pageSource).toContain("Reset to default");
+    expect(pageSource).toContain("Reset ALL to default");
+    expect(pageSource).toContain("Reset selected");
+  });
+
   it("renders hidden admin navigation including price management", () => {
     expect(existsSync("src/app/AdminNav.tsx")).toBe(true);
 
@@ -61,10 +70,12 @@ describe("hidden admin package pricing page", () => {
     expect(existsSync("src/app/bff/admin/packages/pricing/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/[packageId]/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/bulk-discount/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/packages/pricing/reset/route.ts")).toBe(true);
 
     const listProxy = readFileSync("src/app/bff/admin/packages/pricing/route.ts", "utf8");
     const editProxy = readFileSync("src/app/bff/admin/packages/pricing/[packageId]/route.ts", "utf8");
     const bulkProxy = readFileSync("src/app/bff/admin/packages/pricing/bulk-discount/route.ts", "utf8");
+    const resetProxy = readFileSync("src/app/bff/admin/packages/pricing/reset/route.ts", "utf8");
 
     expect(listProxy).toContain("/admin/packages/pricing");
     expect(listProxy).toContain("backendFetch");
@@ -74,5 +85,8 @@ describe("hidden admin package pricing page", () => {
     expect(bulkProxy).toContain("/admin/packages/pricing/bulk-discount");
     expect(bulkProxy).toContain("backendFetch");
     expect(bulkProxy).toContain('method: "POST"');
+    expect(resetProxy).toContain("/admin/packages/pricing/reset");
+    expect(resetProxy).toContain("backendFetch");
+    expect(resetProxy).toContain('method: "POST"');
   });
 });

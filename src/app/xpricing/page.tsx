@@ -44,6 +44,12 @@ type BulkDiscountPayload = {
   message?: string;
 };
 
+type ResetPricingPayload = {
+  status?: string;
+  data?: { resetCount?: number; packages?: PricingRow[] };
+  message?: string;
+};
+
 type Draft = {
   retailPrice: string;
   discountEnabled: boolean;
@@ -95,6 +101,7 @@ export default function AdminPricingPage() {
   const [bulkType, setBulkType] = useState<DiscountType>("percentage");
   const [bulkValue, setBulkValue] = useState("10");
   const [isBulkApplying, setIsBulkApplying] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   async function loadPricing(nextToken = token) {
     if (!nextToken) return;
@@ -268,6 +275,41 @@ export default function AdminPricingPage() {
     }
   }
 
+  async function resetPricing(packageIds: "all" | string[]) {
+    if (packageIds !== "all" && packageIds.length === 0) {
+      setError("Select at least one package first.");
+      return;
+    }
+
+    setIsResetting(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/bff/admin/packages/pricing/reset", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ packageIds })
+      });
+      const payload = (await response.json()) as ResetPricingPayload;
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not reset package pricing");
+      }
+
+      setNotice(`Reset ${payload.data?.resetCount ?? 0} package(s) to the Airalo default price.`);
+      await loadPricing();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reset package pricing");
+    } finally {
+      setIsResetting(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-cloud">
       <AdminNav />
@@ -413,6 +455,32 @@ export default function AdminPricingPage() {
               </p>
             </section>
 
+            <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
+              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Reset to default</h2>
+              <p className="mt-1 text-xs font-semibold text-muted">
+                Clears any admin-set retail price and discount, reverting the buy and sell price back to what
+                Airalo returns for the package.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  className="h-10 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
+                  disabled={isResetting}
+                  onClick={() => void resetPricing(Array.from(selectedIds))}
+                  type="button"
+                >
+                  {isResetting ? "Resetting..." : `Reset selected (${selectedIds.size})`}
+                </button>
+                <button
+                  className="h-10 rounded-xl border border-red-200 bg-white px-4 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
+                  disabled={isResetting}
+                  onClick={() => void resetPricing("all")}
+                  type="button"
+                >
+                  {isResetting ? "Resetting..." : "Reset ALL to default"}
+                </button>
+              </div>
+            </section>
+
             <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line/70 px-5 py-3.5">
                 <input
@@ -549,14 +617,24 @@ export default function AdminPricingPage() {
                             )}
                           </td>
                           <td className="px-5 py-3">
-                            <button
-                              className="h-9 rounded-lg bg-gradient-to-r from-midnight to-ink px-3 text-xs font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
-                              disabled={savingId === row.packageId}
-                              onClick={() => void saveRow(row.packageId)}
-                              type="button"
-                            >
-                              {savingId === row.packageId ? "Saving..." : "Save"}
-                            </button>
+                            <div className="flex gap-1.5">
+                              <button
+                                className="h-9 rounded-lg bg-gradient-to-r from-midnight to-ink px-3 text-xs font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                                disabled={savingId === row.packageId}
+                                onClick={() => void saveRow(row.packageId)}
+                                type="button"
+                              >
+                                {savingId === row.packageId ? "Saving..." : "Save"}
+                              </button>
+                              <button
+                                className="h-9 rounded-lg border border-line px-3 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                                disabled={isResetting}
+                                onClick={() => void resetPricing([row.packageId])}
+                                type="button"
+                              >
+                                Reset
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
