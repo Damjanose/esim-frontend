@@ -36,7 +36,7 @@
   ],
   "phase": {
     "current": "Mid-migration to a mobile-parity design system on top of the existing public site + BFF + auth/checkout/account stack: Phase 1 (shared Button/LinkButton, migrated PayButton/SignOutButton/Navbar CTA/DeleteAccountCard) and Phase 2 (brand color + type-scale tokens, next/font loading fix) are done as of 2026-08-18 (f032-f034).",
-    "next": "Continue the mobile-parity redesign (docs/design/mobile-design-system.md phases beyond 2 — light-theme conversion of remaining screens); verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); no session docs have been written since 2026-08-13 — recommend resuming that habit (f037).",
+    "next": "Phase 2 light-theme conversion is now complete for all public content pages (destinations, support, guides, use-cases — f056); the only remaining dark-theme tokens are the hidden admin surfaces' own separate design system (f058), not a leftover to finish. Verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); no session docs have been written since 2026-08-13 — recommend resuming that habit (f037).",
     "order": ["landing + SEO content pages", "hero/destination package search", "checkout + Pokpay payments", "hidden admin dashboards (/xloginy, /xerrors)", "BFF migration for nginx /api collision", "profile/account area + social sign-in (5 phases)", "mobile-parity design system migration (in progress)", "hidden admin package pricing (/xpricing)"]
   },
   "sync": {

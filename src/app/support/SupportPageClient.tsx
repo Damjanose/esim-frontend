@@ -30,6 +30,7 @@ import Link from "next/link";
 import { useMemo, useState, type ComponentType } from "react";
 import { supportEmail } from "@/lib/seo";
 import { Navbar } from "../components/Navbar";
+import { Button, LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
 
 type SupportCategory = {
@@ -688,15 +689,12 @@ function ContactSupport() {
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
-            <a
-              className="inline-flex min-h-12 flex-wrap items-center justify-center gap-3 rounded-full bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal px-6 py-3 text-sm font-black text-white shadow-[0_14px_32px_rgba(11,73,183,0.28)] transition hover:-translate-y-0.5"
-              href={`mailto:${supportEmail}`}
-            >
+            <LinkButton className="flex-wrap" href={`mailto:${supportEmail}`} size="lg">
               <Mail aria-hidden="true" size={17} />
 
               <span>Email support</span>
               <span className="text-xs text-white/80">esim@uplisoft.com</span>
-            </a>
+            </LinkButton>
           </div>
         </div>
 
@@ -747,15 +745,15 @@ function SupportInfo({
   icon: Icon,
 }: SupportInfoProps) {
   return (
-    <div className="flex items-start gap-4 rounded-[17px] border border-[#28648c]/65 bg-[#071b31]/72 p-4 backdrop-blur-xl">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-[#287ba8] bg-[#092842] text-[#52baff]">
+    <div className="flex items-start gap-4 rounded-[17px] border border-outline bg-mist p-4">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-brandBlue/20 bg-white text-brandBlue">
         <Icon aria-hidden={true} size={18} />
       </span>
 
       <div>
-        <p className="text-sm font-black">{title}</p>
+        <p className="text-sm font-black text-brandInk">{title}</p>
 
-        <p className="mt-1 text-xs leading-5 text-[#8398ae]">
+        <p className="mt-1 text-xs leading-5 text-onSurfaceVariant">
           {description}
         </p>
       </div>
@@ -770,29 +768,25 @@ type NoResultsProps = {
 
 function NoResults({ query, onClear }: NoResultsProps) {
   return (
-    <div className="mx-auto max-w-2xl rounded-[26px] border border-[#1d4568] bg-[#061528] px-6 py-14 text-center shadow-[0_24px_70px_rgba(0,0,0,0.25)]">
-      <span className="mx-auto grid h-16 w-16 place-items-center rounded-[20px] border border-[#216693] bg-[#08223c] text-[#48b2ff]">
+    <div className="mx-auto max-w-2xl rounded-[26px] border border-outline bg-mist px-6 py-14 text-center shadow-brandCard">
+      <span className="mx-auto grid h-16 w-16 place-items-center rounded-[20px] border border-brandBlue/20 bg-white text-brandBlue">
         <HelpCircle aria-hidden="true" size={29} />
       </span>
 
-      <h2 className="mt-6 font-display text-2xl font-black">
+      <h2 className="mt-6 font-display text-2xl font-black text-brandInk">
         No support results found
       </h2>
 
-      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#8398ae]">
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-onSurfaceVariant">
         We could not find anything matching “{query}”. Try a shorter
         search or browse all support topics.
       </p>
 
-      <button
-        className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#168cff] px-6 text-sm font-black"
-        onClick={onClear}
-        type="button"
-      >
+      <Button className="mt-6" onClick={onClear} size="md">
         <Sparkles aria-hidden="true" size={16} />
 
         View all help topics
-      </button>
+      </Button>
     </div>
   );
 }

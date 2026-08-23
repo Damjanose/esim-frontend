@@ -33,6 +33,7 @@ import {
   type HeroPackageOption,
 } from "@/services/packages";
 import { Navbar } from "../components/Navbar";
+import { Button, LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
 
 type DestinationPlansProps = {
@@ -1100,11 +1101,12 @@ function FeaturedPlan({
             Total price
           </p>
 
-          <Link
-            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal px-5 text-sm font-black text-white shadow-[0_14px_34px_rgba(11,73,183,0.28)] transition hover:-translate-y-0.5"
+          <LinkButton
+            className="group mt-5 w-full"
             href={`/checkout?package=${encodeURIComponent(
               plan.id,
             )}`}
+            size="md"
           >
             Choose plan
 
@@ -1113,7 +1115,7 @@ function FeaturedPlan({
               className="transition-transform group-hover:translate-x-1"
               size={17}
             />
-          </Link>
+          </LinkButton>
         </div>
       </div>
     </article>
@@ -1196,11 +1198,13 @@ function CompactPlanCard({
           </p>
         </div>
 
-        <Link
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-[11px] border border-brandBlue/50 px-4 text-xs font-black text-brandBlue transition hover:bg-brandBlue hover:text-white"
+        <LinkButton
           href={`/checkout?package=${encodeURIComponent(
             plan.id,
           )}`}
+          size="sm"
+          tone="brand"
+          variant="flat"
         >
           Choose plan
 
@@ -1208,7 +1212,7 @@ function CompactPlanCard({
             aria-hidden="true"
             size={15}
           />
-        </Link>
+        </LinkButton>
       </div>
     </article>
   );
@@ -1311,13 +1315,9 @@ function EmptyFilterState({
         Choose another data or validity option.
       </p>
 
-      <button
-        className="mt-5 rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-5 py-2.5 text-xs font-black text-white"
-        onClick={onReset}
-        type="button"
-      >
+      <Button className="mt-5" onClick={onReset} size="sm">
         Show all plans
-      </button>
+      </Button>
     </div>
   );
 }
@@ -1340,12 +1340,9 @@ function MissingDestinationState() {
         to the destination directory.
       </p>
 
-      <Link
-        className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-6 text-sm font-black text-white"
-        href="/destinations"
-      >
+      <LinkButton className="mt-6" href="/destinations" size="md">
         View all destinations
-      </Link>
+      </LinkButton>
     </div>
   );
 }

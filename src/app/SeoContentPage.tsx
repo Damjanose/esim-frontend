@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import { JsonLd } from "./JsonLd";
 import { Navbar } from "./components/Navbar";
+import { LinkButton } from "./components/Button";
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import type { SeoContentPage } from "@/content/seo-pages";
@@ -47,22 +48,24 @@ export function SeoContentPageView({
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">{page.intro}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a
+              <LinkButton
                 aria-label="Download eSim2you on the App Store"
-                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline bg-surface px-5 font-bold text-brandInk shadow-brandCard transition hover:-translate-y-0.5 hover:border-brandBlue/50"
                 href={landingContent.appLinks.ios.href}
+                size="lg"
+                tone="brand"
+                variant="flat"
               >
                 {landingContent.appLinks.ios.label}
                 <ArrowRight aria-hidden="true" size={18} />
-              </a>
-              <a
+              </LinkButton>
+              <LinkButton
                 aria-label="Download eSim2you on Google Play"
-                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-brandBlue to-brandTeal px-5 font-bold text-white transition hover:-translate-y-0.5 hover:opacity-90"
                 href={landingContent.appLinks.android.href}
+                size="lg"
               >
                 {landingContent.appLinks.android.label}
                 <ArrowRight aria-hidden="true" size={18} />
-              </a>
+              </LinkButton>
             </div>
           </div>
         </section>
