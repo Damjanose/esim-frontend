@@ -58,9 +58,9 @@ export function PayButton({ packageId }: { packageId: string }) {
         {busy ? "Opening secure checkout…" : "Pay with Pokpay"}
       </Button>
 
-      {error ? <p className="mt-3 text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm font-semibold text-error">{error}</p> : null}
 
-      <p className="mt-3 text-center text-xs text-[#748aa2]">
+      <p className="mt-3 text-center text-xs text-onSurfaceVariant">
         You will be redirected to Pokpay to complete your payment securely.
       </p>
     </div>

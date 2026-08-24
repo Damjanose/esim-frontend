@@ -66,12 +66,12 @@ export function TopUpPanel({
   }
 
   return (
-    <div className="mt-5 rounded-[20px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] p-6 sm:p-8">
-      <h2 className="flex items-center gap-2.5 font-display text-xl font-black">
-        <Plus aria-hidden="true" className="text-[#58baff]" size={20} />
+    <div className="mt-5 rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+      <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
+        <Plus aria-hidden="true" className="text-brandBlue" size={20} />
         Add more data
       </h2>
-      <p className="mt-2 text-sm text-[#8ea3ba]">
+      <p className="mt-2 text-sm text-onSurfaceVariant">
         Top up this eSIM without installing a new one.
       </p>
 
@@ -82,22 +82,22 @@ export function TopUpPanel({
           return (
             <li key={pkg.id}>
               <button
-                className="flex w-full items-center justify-between gap-4 rounded-[14px] border border-[#214867] bg-[#061427]/85 px-5 py-4 text-left transition hover:border-[#168cff]/75 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-between gap-4 rounded-[14px] border border-outline bg-mist px-5 py-4 text-left transition hover:border-brandBlue/75 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={pendingId !== null}
                 onClick={() => void startTopup(pkg.id)}
                 type="button"
               >
                 <span className="min-w-0">
-                  <span className="block font-display text-base font-black text-white">
+                  <span className="block font-display text-base font-black text-brandInk">
                     {describeAllowance(pkg)}
                   </span>
-                  <span className="mt-0.5 block text-xs text-[#8ea3ba]">
+                  <span className="mt-0.5 block text-xs text-onSurfaceVariant">
                     {pkg.title ?? pkg.id}
                     {typeof pkg.day === "number" ? ` · ${pkg.day} days` : ""}
                   </span>
                 </span>
 
-                <span className="flex shrink-0 items-center gap-2 text-sm font-black text-[#42b1ff]">
+                <span className="flex shrink-0 items-center gap-2 text-sm font-black text-brandBlue">
                   {busy ? (
                     <Loader2 aria-hidden="true" className="animate-spin" size={16} />
                   ) : (
@@ -111,9 +111,9 @@ export function TopUpPanel({
         })}
       </ul>
 
-      {error ? <p className="mt-4 text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm font-semibold text-error">{error}</p> : null}
 
-      <p className="mt-4 text-xs text-[#748aa2]">
+      <p className="mt-4 text-xs text-onSurfaceVariant">
         You will be redirected to Pokpay to complete your payment securely.
       </p>
     </div>

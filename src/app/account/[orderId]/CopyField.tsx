@@ -17,15 +17,15 @@ export function CopyField({ label, value }: { label: string; value: string }) {
   }
 
   return (
-    <div className="rounded-[12px] border border-[#163958] bg-[#040d1a] px-4 py-3">
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#748aa2]">{label}</p>
+    <div className="rounded-[12px] border border-outline bg-mist px-4 py-3">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">{label}</p>
 
       <div className="mt-1.5 flex items-center gap-3">
-        <code className="min-w-0 flex-1 break-all font-mono text-xs text-[#c7d6e5]">{value}</code>
+        <code className="min-w-0 flex-1 break-all font-mono text-xs text-brandInk">{value}</code>
 
         <button
           aria-label={`Copy ${label}`}
-          className="shrink-0 rounded-[8px] border border-[#214867] p-2 text-[#8ea3ba] transition hover:border-[#168cff]/75 hover:text-white"
+          className="shrink-0 rounded-[8px] border border-outline p-2 text-onSurfaceVariant transition hover:border-brandBlue/75 hover:text-brandInk"
           onClick={() => void copy()}
           type="button"
         >

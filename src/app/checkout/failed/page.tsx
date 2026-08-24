@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { AlertTriangle, LifeBuoy } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 import { Navbar } from "../../components/Navbar";
+import { LinkButton } from "../../components/Button";
 import { SiteFooter } from "../../SiteFooter";
 
 export const metadata: Metadata = createMetadata({
@@ -57,56 +57,51 @@ export default async function CheckoutFailedPage({
   const copy = copyFor(reason);
 
   return (
-    <main className="min-h-screen bg-[#040d1a] text-white">
+    <main className="min-h-screen bg-surface text-onSurface">
       <Navbar />
 
       <section className="mx-auto flex w-full max-w-[1440px] justify-center px-5 pb-24 pt-28 lg:px-10">
-        <div className="w-full max-w-[560px] rounded-[20px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] p-7 shadow-[0_24px_60px_rgba(0,0,0,0.3)] sm:p-9">
-          <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-[#7a4b1c] bg-[#2a1a07] text-[#ffb454]">
+        <div className="w-full max-w-[560px] rounded-[20px] border border-outline bg-white p-7 shadow-brandCard sm:p-9">
+          <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-amber-600/30 bg-amber-50 text-amber-600">
             <AlertTriangle size={22} />
           </span>
 
-          <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] sm:text-3xl">
+          <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
             {copy.heading}
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-[#8ea3ba]">{copy.body}</p>
+          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">{copy.body}</p>
 
-          <p className="mt-4 rounded-[12px] border border-[#163958] bg-[#061427]/85 px-4 py-3 text-sm font-semibold text-[#c7d6e5]">
+          <p className="mt-4 rounded-[12px] border border-outline bg-mist px-4 py-3 text-sm font-semibold text-brandInk">
             {copy.chargeNote}
           </p>
 
           {payment ? (
-            <p className="mt-4 text-xs text-[#748aa2]">
+            <p className="mt-4 text-xs text-onSurfaceVariant">
               Payment reference:{" "}
-              <span className="font-mono font-bold text-[#c7d6e5]">{payment}</span>
+              <span className="font-mono font-bold text-brandInk">{payment}</span>
             </p>
           ) : null}
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             {reason === "unpaid" && packageId ? (
-              <Link
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white transition hover:-translate-y-0.5"
+              <LinkButton
+                className="flex-1"
                 href={`/checkout?package=${encodeURIComponent(packageId)}`}
+                size="lg"
               >
                 Try again
-              </Link>
+              </LinkButton>
             ) : (
-              <Link
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white transition hover:-translate-y-0.5"
-                href="/account"
-              >
+              <LinkButton className="flex-1" href="/account" size="lg">
                 Go to my eSIMs
-              </Link>
+              </LinkButton>
             )}
 
-            <Link
-              className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-[12px] border border-[#168cff]/75 text-sm font-black text-[#42b1ff] transition hover:bg-[#168cff] hover:text-white"
-              href="/support"
-            >
+            <LinkButton className="flex-1" href="/support" size="lg" tone="brand" variant="flat">
               <LifeBuoy size={17} />
               Contact support
-            </Link>
+            </LinkButton>
           </div>
         </div>
       </section>

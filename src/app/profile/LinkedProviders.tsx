@@ -51,7 +51,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
 
   if (identities.length === 0) {
     return (
-      <p className="px-5 py-4 text-sm text-[#8ea3ba]">
+      <p className="px-5 py-4 text-sm text-onSurfaceVariant">
         No sign-in providers linked. You sign in with an emailed code.
       </p>
     );
@@ -62,20 +62,20 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
       <ul>
         {identities.map((identity) => (
           <li
-            className="flex items-center gap-4 border-b border-[#214867]/50 px-5 py-4 last:border-b-0"
+            className="flex items-center gap-4 border-b border-outline/70 px-5 py-4 last:border-b-0"
             key={identity.provider}
           >
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-bold text-white">
+              <span className="block text-sm font-bold text-brandInk">
                 {PROVIDER_LABELS[identity.provider]}
               </span>
-              <span className="mt-0.5 block truncate text-xs text-[#8ea3ba]">
+              <span className="mt-0.5 block truncate text-xs text-onSurfaceVariant">
                 {describeIdentity(identity)}
               </span>
             </span>
 
             <button
-              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-[#214867] px-4 text-xs font-black text-[#8ea3ba] transition hover:border-[#168cff]/75 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-outline px-4 text-xs font-black text-onSurfaceVariant transition hover:border-brandBlue/75 hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending !== null}
               onClick={() => void unlink(identity.provider)}
               type="button"
@@ -90,7 +90,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
       </ul>
 
       {error ? (
-        <p className="px-5 pb-4 text-sm font-semibold text-[#ff8792]">{error}</p>
+        <p className="px-5 pb-4 text-sm font-semibold text-error">{error}</p>
       ) : null}
     </>
   );

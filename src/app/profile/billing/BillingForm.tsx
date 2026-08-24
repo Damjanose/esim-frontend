@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
+import { Button } from "@/app/components/Button";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 
 const FIELDS: { autoComplete: string; key: keyof BillingAddress; label: string }[] = [
@@ -57,13 +58,13 @@ export function BillingForm({ initialAddress }: { initialAddress: BillingAddress
     <form className="mt-6 space-y-4" onSubmit={save}>
       {FIELDS.map((field) => (
         <label
-          className="block text-xs font-bold uppercase tracking-[0.14em] text-[#748aa2]"
+          className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant"
           key={field.key}
         >
           {field.label}
           <input
             autoComplete={field.autoComplete}
-            className="mt-2 h-12 w-full rounded-[12px] border border-[#214867] bg-[#040d1a] px-4 text-sm font-medium text-white outline-none transition focus:border-[#168cff]"
+            className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
             onChange={(event) => {
               setSaved(false);
               setAddress((current) => ({ ...current, [field.key]: event.target.value }));
@@ -74,20 +75,16 @@ export function BillingForm({ initialAddress }: { initialAddress: BillingAddress
         </label>
       ))}
 
-      {error ? <p className="text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+      {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
       <div className="flex items-center gap-4 pt-1">
-        <button
-          className="inline-flex h-12 items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-7 text-sm font-black text-white shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={busy}
-          type="submit"
-        >
+        <Button disabled={busy} type="submit">
           {busy ? <Loader2 className="animate-spin" size={18} /> : null}
           Save address
-        </button>
+        </Button>
 
         {saved ? (
-          <span className="inline-flex items-center gap-2 text-sm font-bold text-[#4ade80]">
+          <span className="inline-flex items-center gap-2 text-sm font-bold text-brandTeal">
             <Check size={16} />
             Saved
           </span>

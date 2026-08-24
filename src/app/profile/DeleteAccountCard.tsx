@@ -39,15 +39,15 @@ export function DeleteAccountCard() {
   }
 
   return (
-    <div className="mt-3 rounded-[18px] border border-[#7a1c2c]/70 bg-[#1b0710] p-6">
-      <h3 className="flex items-center gap-2.5 font-display text-lg font-black text-[#ff8792]">
+    <div className="mt-3 rounded-[18px] border border-error/30 bg-error/5 p-6">
+      <h3 className="flex items-center gap-2.5 font-display text-lg font-black text-error">
         <Trash2 aria-hidden="true" size={19} />
         Delete account
       </h3>
 
       {confirming ? (
         <>
-          <p className="mt-3 text-sm leading-6 text-[#e0b6bd]">
+          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
             This removes your eSim2you account and the account data we store. Purchased
             eSIM service records may be retained where required for payment, fraud
             prevention, tax, or provider obligations. Any eSIM you have already installed
@@ -55,7 +55,7 @@ export function DeleteAccountCard() {
           </p>
 
           {error ? (
-            <p className="mt-4 text-sm font-semibold text-[#ff8792]">{error}</p>
+            <p className="mt-4 text-sm font-semibold text-error">{error}</p>
           ) : null}
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -80,7 +80,7 @@ export function DeleteAccountCard() {
         </>
       ) : (
         <>
-          <p className="mt-3 text-sm leading-6 text-[#c99aa3]">
+          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
             Permanently remove your account and its data. This cannot be undone.
           </p>
 

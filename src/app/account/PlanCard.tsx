@@ -4,9 +4,9 @@ import type { UsageSummary } from "@/lib/esim-install";
 import type { OrderSummary } from "@/lib/order-groups";
 
 const STATUS_STYLES: Record<string, string> = {
-  active: "border-[#1c7a4b] bg-[#07281a] text-[#4ade80]",
-  ready: "border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]",
-  expired: "border-[#4a4a58] bg-[#16161d] text-[#9ca3af]"
+  active: "border-brandTeal/40 bg-brandTeal/10 text-brandTeal",
+  ready: "border-outline bg-mist text-brandBlue",
+  expired: "border-outline bg-mist text-onSurfaceVariant"
 };
 
 export function formatDate(value: string | null): string {
@@ -19,31 +19,31 @@ export function formatDate(value: string | null): string {
 
 export function UsageBar({ usage }: { usage: UsageSummary }) {
   if (!usage.available) {
-    return <p className="mt-4 text-sm leading-6 text-[#8ea3ba]">{usage.message}</p>;
+    return <p className="mt-4 text-sm leading-6 text-onSurfaceVariant">{usage.message}</p>;
   }
 
   return (
     <div className="mt-5">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="font-display text-3xl font-black tracking-[-0.04em]">
+        <p className="font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
           {usage.remainingLabel}
         </p>
-        <p className="text-xs text-[#748aa2]">of {usage.totalLabel} remaining</p>
+        <p className="text-xs text-onSurfaceVariant">of {usage.totalLabel} remaining</p>
       </div>
 
       <div
         aria-label={`${usage.usedPercent}% of data used`}
-        className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#0a2038]"
+        className="mt-3 h-2 w-full overflow-hidden rounded-full bg-mist"
         role="img"
       >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#1857ff] to-[#29c9ff]"
+          className="h-full rounded-full bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal"
           style={{ width: `${Math.min(100, Math.max(0, usage.usedPercent))}%` }}
         />
       </div>
 
       {usage.expiresAt ? (
-        <p className="mt-3 text-xs text-[#748aa2]">
+        <p className="mt-3 text-xs text-onSurfaceVariant">
           Expires {formatDate(usage.expiresAt)}
         </p>
       ) : null}
@@ -61,25 +61,25 @@ export function ActivePlanCard({
 }) {
   return (
     <Link
-      className="group block rounded-[20px] border border-[#1c7a4b]/70 bg-[linear-gradient(150deg,#07231c,#051520)] p-6 transition duration-300 hover:-translate-y-1 hover:border-[#4ade80]/60 sm:p-7"
+      className="group block rounded-[20px] border border-brandTeal/40 bg-brandTeal/5 p-6 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:border-brandTeal/70 sm:p-7"
       href={`/account/${order.id}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-[#1c7a4b] bg-[#07281a] text-[#4ade80]">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-brandTeal/40 bg-white text-brandTeal">
           <Globe2 size={22} />
         </span>
 
-        <span className="rounded-full border border-[#1c7a4b] bg-[#07281a] px-3 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-[#4ade80]">
+        <span className="rounded-full border border-brandTeal/40 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-brandTeal">
           Active
         </span>
       </div>
 
-      <p className="mt-4 font-display text-xl font-black">{order.package_id}</p>
-      <p className="mt-1 text-xs text-[#8196ad]">Order {order.code}</p>
+      <p className="mt-4 font-display text-xl font-black text-brandInk">{order.package_id}</p>
+      <p className="mt-1 text-xs text-onSurfaceVariant">Order {order.code}</p>
 
       <UsageBar usage={usage} />
 
-      <span className="mt-6 inline-flex items-center gap-2 text-xs font-black text-[#4ade80]">
+      <span className="mt-6 inline-flex items-center gap-2 text-xs font-black text-brandTeal">
         View eSIM
         <ArrowRight className="transition-transform group-hover:translate-x-1" size={14} />
       </span>
@@ -90,11 +90,11 @@ export function ActivePlanCard({
 export function PlanCard({ order }: { order: OrderSummary }) {
   return (
     <Link
-      className="group flex h-full flex-col rounded-[18px] border border-[#214867]/85 bg-[linear-gradient(145deg,#07182c,#051224)] p-5 transition duration-300 hover:-translate-y-1 hover:border-[#168cff]/75"
+      className="group flex h-full flex-col rounded-[18px] border border-outline bg-white p-5 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:border-brandBlue/50"
       href={`/account/${order.id}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-outline bg-mist text-brandBlue">
           <Globe2 size={22} />
         </span>
 
@@ -107,20 +107,20 @@ export function PlanCard({ order }: { order: OrderSummary }) {
         </span>
       </div>
 
-      <p className="mt-4 font-display text-lg font-black">{order.package_id}</p>
+      <p className="mt-4 font-display text-lg font-black text-brandInk">{order.package_id}</p>
 
-      <dl className="mt-3 space-y-1.5 text-xs text-[#8196ad]">
+      <dl className="mt-3 space-y-1.5 text-xs text-onSurfaceVariant">
         <div className="flex justify-between gap-3">
           <dt>Order</dt>
-          <dd className="font-semibold text-[#c7d6e5]">{order.code}</dd>
+          <dd className="font-semibold text-brandInk">{order.code}</dd>
         </div>
         <div className="flex justify-between gap-3">
           <dt>Purchased</dt>
-          <dd className="font-semibold text-[#c7d6e5]">{formatDate(order.created_at)}</dd>
+          <dd className="font-semibold text-brandInk">{formatDate(order.created_at)}</dd>
         </div>
       </dl>
 
-      <span className="mt-5 inline-flex items-center gap-2 text-xs font-black text-[#42b1ff]">
+      <span className="mt-5 inline-flex items-center gap-2 text-xs font-black text-brandBlue">
         View eSIM
         <ArrowRight className="transition-transform group-hover:translate-x-1" size={14} />
       </span>

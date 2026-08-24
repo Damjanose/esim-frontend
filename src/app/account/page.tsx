@@ -6,6 +6,7 @@ import { resolveOrderSections, type OrderSummary } from "@/lib/order-groups";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
 import { Navbar } from "../components/Navbar";
+import { LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
 import { ActivePlanCard, PlanCard } from "./PlanCard";
 
@@ -27,8 +28,8 @@ function Section({
 }) {
   return (
     <section className="mt-12">
-      <h2 className="font-display text-xl font-black tracking-[-0.02em]">{title}</h2>
-      <p className="mt-1 text-sm text-[#8ea3ba]">{description}</p>
+      <h2 className="font-display text-xl font-black tracking-[-0.02em] text-brandInk">{title}</h2>
+      <p className="mt-1 text-sm text-onSurfaceVariant">{description}</p>
       {children}
     </section>
   );
@@ -64,16 +65,16 @@ export default async function AccountPage() {
     sections.history.length === 0;
 
   return (
-    <main className="min-h-screen bg-[#040d1a] text-white">
+    <main className="min-h-screen bg-surface text-onSurface">
       <Navbar />
 
       <section className="mx-auto w-full max-w-[1100px] px-5 pb-24 pt-28 lg:px-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-black tracking-[-0.03em] sm:text-4xl">
+            <h1 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
               My eSIMs
             </h1>
-            <p className="mt-2 text-sm text-[#8ea3ba]">
+            <p className="mt-2 text-sm text-onSurfaceVariant">
               Your plans, installation details, and remaining data.
             </p>
           </div>
@@ -81,7 +82,7 @@ export default async function AccountPage() {
           {/* Sign-out lives on the profile, so the account area has one place
               that owns the session. */}
           <Link
-            className="inline-flex h-10 items-center gap-2 rounded-[11px] border border-[#214867] px-4 text-xs font-black text-[#8ea3ba] transition hover:border-[#168cff]/75 hover:text-white"
+            className="inline-flex h-10 items-center gap-2 rounded-[11px] border border-outline px-4 text-xs font-black text-onSurfaceVariant transition hover:border-brandBlue/75 hover:text-brandInk"
             href="/profile"
           >
             <UserRound size={15} />
@@ -90,31 +91,28 @@ export default async function AccountPage() {
         </div>
 
         {sections === null ? (
-          <div className="mt-10 flex items-center gap-4 rounded-[18px] border border-[#7a4b1c] bg-[#1b1207] px-6 py-5">
-            <WifiOff aria-hidden="true" className="shrink-0 text-[#ffb454]" size={22} />
+          <div className="mt-10 flex items-center gap-4 rounded-[18px] border border-amber-600/30 bg-amber-50 px-6 py-5">
+            <WifiOff aria-hidden="true" className="shrink-0 text-amber-600" size={22} />
             <div>
-              <p className="font-bold">We couldn&apos;t load your plans</p>
-              <p className="mt-1 text-sm text-[#c9b393]">
+              <p className="font-bold text-brandInk">We couldn&apos;t load your plans</p>
+              <p className="mt-1 text-sm text-amber-700">
                 {ordersResult.ok ? "" : ordersResult.message}
               </p>
             </div>
           </div>
         ) : isEmpty ? (
-          <div className="mt-10 flex flex-col items-center rounded-[20px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] px-6 py-14 text-center">
-            <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
+          <div className="mt-10 flex flex-col items-center rounded-[20px] border border-outline bg-white px-6 py-14 text-center shadow-brandCard">
+            <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-outline bg-mist text-brandBlue">
               <Inbox size={26} />
             </span>
-            <p className="mt-5 font-display text-xl font-black">No eSIMs yet</p>
-            <p className="mt-2 max-w-[380px] text-sm text-[#8ea3ba]">
+            <p className="mt-5 font-display text-xl font-black text-brandInk">No eSIMs yet</p>
+            <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
               Once you buy a plan it will appear here with its QR code and remaining data.
             </p>
-            <Link
-              className="mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] px-6 text-sm font-black transition hover:-translate-y-0.5"
-              href="/destinations"
-            >
+            <LinkButton className="mt-7" href="/destinations">
               Browse plans
               <ArrowRight size={16} />
-            </Link>
+            </LinkButton>
           </div>
         ) : (
           <>

@@ -32,26 +32,26 @@ export default async function ProfilePage() {
   const identities = identitiesResult.ok ? identitiesResult.data.identities : [];
 
   return (
-    <main className="min-h-screen bg-[#040d1a] text-white">
+    <main className="min-h-screen bg-surface text-onSurface">
       <Navbar />
 
       <section className="mx-auto w-full max-w-[720px] px-5 pb-24 pt-28 lg:px-10">
-        <h1 className="font-display text-3xl font-black tracking-[-0.03em] sm:text-4xl">
+        <h1 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
           Profile
         </h1>
-        <p className="mt-2 text-sm text-[#8ea3ba]">
+        <p className="mt-2 text-sm text-onSurfaceVariant">
           Your account, plans, and preferences.
         </p>
 
-        <div className="mt-8 flex flex-col items-center rounded-[20px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] px-6 py-9 text-center">
-          <span className="grid h-[72px] w-[72px] place-items-center rounded-full border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
+        <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline bg-white px-6 py-9 text-center shadow-brandCard">
+          <span className="grid h-[72px] w-[72px] place-items-center rounded-full border border-outline bg-mist text-brandBlue">
             <UserRound size={32} />
           </span>
 
-          <p className="mt-5 text-[11px] font-black uppercase tracking-[0.12em] text-[#748aa2]">
+          <p className="mt-5 text-[11px] font-black uppercase tracking-[0.12em] text-onSurfaceVariant">
             Signed in as
           </p>
-          <p className="mt-1.5 break-all font-display text-lg font-black text-[#42b1ff]">
+          <p className="mt-1.5 break-all font-display text-lg font-black text-brandBlue">
             {email ?? "Your eSim2you account"}
           </p>
 
@@ -97,7 +97,7 @@ export default async function ProfilePage() {
         </SettingsSection>
 
         <section className="mt-8">
-          <h2 className="text-[11px] font-black uppercase tracking-[0.12em] text-[#748aa2]">
+          <h2 className="text-[11px] font-black uppercase tracking-[0.12em] text-onSurfaceVariant">
             Account
           </h2>
           <DeleteAccountCard />
