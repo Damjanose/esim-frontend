@@ -7,6 +7,7 @@ import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
 
 type DiscountType = "percentage" | "flat";
+type DiscountDirection = "decrease" | "increase";
 
 type PricingRow = {
   packageId: string;
@@ -23,6 +24,7 @@ type PricingRow = {
   discountEnabled: boolean;
   discountType: DiscountType;
   discountValue: number;
+  discountDirection: DiscountDirection;
   finalPrice: number;
 };
 
@@ -55,6 +57,7 @@ type Draft = {
   discountEnabled: boolean;
   discountType: DiscountType;
   discountValue: string;
+  discountDirection: DiscountDirection;
 };
 
 function toDraft(row: PricingRow): Draft {
@@ -62,7 +65,8 @@ function toDraft(row: PricingRow): Draft {
     retailPrice: String(row.retailPrice),
     discountEnabled: row.discountEnabled,
     discountType: row.discountType,
-    discountValue: String(row.discountValue)
+    discountValue: String(row.discountValue),
+    discountDirection: row.discountDirection
   };
 }
 
@@ -77,10 +81,8 @@ function previewFinalPrice(draft: Draft): number | null {
   if (!draft.discountEnabled) return retailPrice;
   if (!Number.isFinite(discountValue) || discountValue < 0) return null;
 
-  const raw =
-    draft.discountType === "flat"
-      ? retailPrice - discountValue
-      : retailPrice * (1 - discountValue / 100);
+  const delta = draft.discountType === "flat" ? discountValue : retailPrice * (discountValue / 100);
+  const raw = draft.discountDirection === "increase" ? retailPrice + delta : retailPrice - delta;
   return Math.max(0, Math.round(raw * 100) / 100);
 }
 
@@ -100,6 +102,7 @@ export default function AdminPricingPage() {
   const [bulkEnabled, setBulkEnabled] = useState(true);
   const [bulkType, setBulkType] = useState<DiscountType>("percentage");
   const [bulkValue, setBulkValue] = useState("10");
+  const [bulkDirection, setBulkDirection] = useState<DiscountDirection>("decrease");
   const [isBulkApplying, setIsBulkApplying] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -185,7 +188,7 @@ export default function AdminPricingPage() {
     const retailPrice = Number(draft.retailPrice);
     const discountValue = Number(draft.discountValue);
     if (!Number.isFinite(retailPrice) || retailPrice < 0) {
-      setError("Retail price must be a number of 0 or more.");
+      setError("Sell price must be a number of 0 or more.");
       return;
     }
     if (draft.discountEnabled && (!Number.isFinite(discountValue) || discountValue < 0)) {
@@ -205,7 +208,8 @@ export default function AdminPricingPage() {
           retailPrice,
           discountEnabled: draft.discountEnabled,
           discountType: draft.discountType,
-          discountValue
+          discountValue,
+          discountDirection: draft.discountDirection
         })
       });
       const payload = (await response.json()) as PricingRowPayload;
@@ -253,7 +257,8 @@ export default function AdminPricingPage() {
           packageIds: scope === "all" ? "all" : Array.from(selectedIds),
           discountEnabled: bulkEnabled,
           discountType: bulkType,
-          discountValue: bulkEnabled ? value : 0
+          discountValue: bulkEnabled ? value : 0,
+          discountDirection: bulkDirection
         })
       });
       const payload = (await response.json()) as BulkDiscountPayload;
@@ -324,7 +329,8 @@ export default function AdminPricingPage() {
               Price management
             </h1>
             <p className="mt-1 text-sm font-semibold text-muted">
-              Set retail prices and discounts per package. Retail price defaults to the Airalo cost — raise it to sell above cost.
+              Set the sell price and adjustments per package. Buy price is what Airalo charges us; sell price is
+              what you set to charge customers; Price is the final amount shown in the marketplace.
             </p>
           </div>
           {token ? (
@@ -402,14 +408,26 @@ export default function AdminPricingPage() {
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Bulk discount</h2>
-              <div className="mt-3 grid gap-3 md:grid-cols-5 md:items-end">
+              <div className="mt-3 grid gap-3 md:grid-cols-6 md:items-end">
                 <label className="flex items-center gap-2 text-sm font-bold text-midnight">
                   <input
                     checked={bulkEnabled}
                     onChange={(event) => setBulkEnabled(event.target.checked)}
                     type="checkbox"
                   />
-                  Enable discount
+                  Enable adjustment
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  Direction
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight disabled:opacity-50"
+                    disabled={!bulkEnabled}
+                    onChange={(event) => setBulkDirection(event.target.value as DiscountDirection)}
+                    value={bulkDirection}
+                  >
+                    <option value="decrease">Decrease (discount)</option>
+                    <option value="increase">Increase (markup)</option>
+                  </select>
                 </label>
                 <label className="text-xs font-bold text-muted">
                   Type
@@ -451,15 +469,15 @@ export default function AdminPricingPage() {
                 </button>
               </div>
               <p className="mt-3 text-xs font-semibold text-muted">
-                Bulk discount only changes the discount fields — retail prices are left as they are.
+                Bulk discount only changes the adjustment fields — sell prices are left as they are.
               </p>
             </section>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Reset to default</h2>
               <p className="mt-1 text-xs font-semibold text-muted">
-                Clears any admin-set retail price and discount, reverting the buy and sell price back to what
-                Airalo returns for the package.
+                Clears any admin-set sell price and adjustment, reverting the sell price back to the Airalo buy
+                price for the package.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
@@ -520,10 +538,13 @@ export default function AdminPricingPage() {
                         Validity
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                        Retail price
+                        Buy price
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                        Discount
+                        Sell price
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Adjustment
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Price
@@ -535,7 +556,8 @@ export default function AdminPricingPage() {
                     {filtered.map((row) => {
                       const draft = drafts[row.packageId] ?? toDraft(row);
                       const preview = previewFinalPrice(draft);
-                      const discounted = draft.discountEnabled && preview != null && preview < Number(draft.retailPrice);
+                      const discounted =
+                        draft.discountEnabled && preview != null && preview !== Number(draft.retailPrice);
 
                       return (
                         <tr className="border-t border-line/60 align-top hover:bg-[#fbfeff]" key={row.packageId}>
@@ -562,6 +584,9 @@ export default function AdminPricingPage() {
                           <td className="px-3 py-3 text-midnight">{row.network ?? "N/A"}</td>
                           <td className="whitespace-nowrap px-3 py-3 text-midnight">{row.dataLabel}</td>
                           <td className="whitespace-nowrap px-3 py-3 text-midnight">{row.durationDays} days</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-muted" title="What Airalo charges us for this package">
+                            {formatPrice(row.originalPrice)}
+                          </td>
                           <td className="px-3 py-3">
                             <input
                               className="h-9 w-24 rounded-lg border border-line px-2 text-sm outline-none focus:border-cyan"
@@ -579,9 +604,22 @@ export default function AdminPricingPage() {
                                 }
                                 type="checkbox"
                               />
-                              Has discount
+                              Adjust
                             </label>
                             <div className="mt-1.5 flex gap-1">
+                              <select
+                                className="h-9 rounded-lg border border-line px-1 text-xs disabled:opacity-50"
+                                disabled={!draft.discountEnabled}
+                                onChange={(event) =>
+                                  updateDraft(row.packageId, {
+                                    discountDirection: event.target.value as DiscountDirection
+                                  })
+                                }
+                                value={draft.discountDirection}
+                              >
+                                <option value="decrease">−</option>
+                                <option value="increase">+</option>
+                              </select>
                               <select
                                 className="h-9 rounded-lg border border-line px-1 text-xs disabled:opacity-50"
                                 disabled={!draft.discountEnabled}
@@ -641,7 +679,7 @@ export default function AdminPricingPage() {
                     })}
                     {filtered.length === 0 ? (
                       <tr>
-                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={10}>
+                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={11}>
                           {isLoading ? "Loading packages..." : "No packages found"}
                         </td>
                       </tr>
