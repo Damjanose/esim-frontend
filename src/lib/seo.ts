@@ -5,8 +5,12 @@ import { publicSeoPages, type SeoPageFaq } from "@/content/seo-pages";
 export const siteUrl = "https://esim.uplisoft.com";
 export const siteName = "eSim2you";
 export const supportEmail = "esim@uplisoft.com";
+// Bump this whenever public/og/esim2you-og.png changes so link-preview
+// crawlers (iMessage, WhatsApp, Slack, Facebook, LinkedIn, X) fetch the
+// new image instead of serving a stale cached copy of the old URL.
+const ogImageVersion = "3";
 export const ogImage = {
-  url: `${siteUrl}/og/esim2you-og.png`,
+  url: `${siteUrl}/og/esim2you-og.png?v=${ogImageVersion}`,
   width: 1200,
   height: 630,
   alt: "eSim2you travel data app preview"
