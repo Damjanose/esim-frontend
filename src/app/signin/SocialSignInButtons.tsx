@@ -187,7 +187,7 @@ export function SocialSignInButtons({
     if (!window.google) return;
 
     window.google.accounts.id.renderButton(googleButtonRef.current, {
-      theme: "filled_black",
+      theme: "outline",
       size: "large",
       shape: "pill",
       text: "continue_with",
@@ -241,11 +241,11 @@ export function SocialSignInButtons({
   return (
     <div className="mt-8">
       <div className="flex items-center gap-4">
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#214867]" />
-        <span className="text-[10px] font-black uppercase tracking-[0.22em] text-[#6d849c]">
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent to-outline" />
+        <span className="text-[10px] font-black uppercase tracking-[0.22em] text-onSurfaceVariant">
           or
         </span>
-        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#214867]" />
+        <span className="h-px flex-1 bg-gradient-to-l from-transparent to-outline" />
       </div>
 
       {/* Providers are a matched pair: Google's own button is 40px tall and
@@ -260,7 +260,7 @@ export function SocialSignInButtons({
 
         {APPLE_SERVICES_ID ? (
           <button
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-white text-sm font-semibold text-black transition hover:bg-[#e8e8e8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#42b1ff] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-outline bg-white text-sm font-semibold text-brandInk transition hover:bg-mist focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue disabled:cursor-not-allowed disabled:opacity-60"
             disabled={busy !== null}
             onClick={() => void signInWithApple()}
             type="button"
@@ -281,14 +281,14 @@ export function SocialSignInButtons({
       </div>
 
       {busy === "google" ? (
-        <p className="mt-4 flex items-center justify-center gap-2 text-sm text-[#8ea3ba]">
+        <p className="mt-4 flex items-center justify-center gap-2 text-sm text-onSurfaceVariant">
           <Loader2 className="animate-spin" size={15} />
           Signing you in…
         </p>
       ) : null}
 
       {error ? (
-        <p className="mt-4 text-center text-sm font-semibold text-[#ff8792]">{error}</p>
+        <p className="mt-4 text-center text-sm font-semibold text-error">{error}</p>
       ) : null}
     </div>
   );

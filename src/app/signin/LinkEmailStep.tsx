@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Loader2, MailCheck } from "lucide-react";
+import { Button } from "../components/Button";
 import type { LinkChallenge } from "./SocialSignInButtons";
 
 type Step = "email" | "code";
@@ -91,15 +92,15 @@ export function LinkEmailStep({
 
   return (
     <>
-      <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
+      <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-outline bg-mist text-brandBlue">
         <MailCheck size={22} />
       </span>
 
-      <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-white sm:text-3xl">
+      <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
         {step === "email" ? "Confirm your email" : "Enter your code"}
       </h1>
 
-      <p className="mt-2 text-sm leading-6 text-[#8ea3ba]">
+      <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">
         {step === "email"
           ? "Almost there. Tell us the email address for your eSim2you account and we'll send a 6-digit code to confirm it."
           : `We sent a 6-digit code to ${email}.`}
@@ -107,11 +108,11 @@ export function LinkEmailStep({
 
       {step === "email" ? (
         <form className="mt-7 space-y-4" onSubmit={requestCode}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#748aa2]">
+          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
             Email address
             <input
               autoComplete="email"
-              className="mt-2 h-12 w-full rounded-[12px] border border-[#214867] bg-[#040d1a] px-4 text-sm font-medium text-white outline-none transition focus:border-[#168cff]"
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition placeholder:text-onSurfaceVariant/60 focus:border-brandBlue"
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               required
@@ -120,24 +121,20 @@ export function LinkEmailStep({
             />
           </label>
 
-          {error ? <p className="text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+          {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-          <button
-            className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={busy || !email}
-            type="submit"
-          >
+          <Button className="w-full" disabled={busy || !email} size="lg" type="submit">
             {busy ? <Loader2 className="animate-spin" size={18} /> : null}
             Send code
-          </button>
+          </Button>
         </form>
       ) : (
         <form className="mt-7 space-y-4" onSubmit={verifyCode}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#748aa2]">
+          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
             6-digit code
             <input
               autoComplete="one-time-code"
-              className="mt-2 h-12 w-full rounded-[12px] border border-[#214867] bg-[#040d1a] px-4 text-center font-display text-xl font-black tracking-[0.4em] text-white outline-none transition focus:border-[#168cff]"
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-center font-display text-xl font-black tracking-[0.4em] text-brandInk outline-none transition focus:border-brandBlue"
               inputMode="numeric"
               maxLength={6}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
@@ -147,20 +144,16 @@ export function LinkEmailStep({
             />
           </label>
 
-          {error ? <p className="text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+          {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-          <button
-            className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={busy || code.length !== 6}
-            type="submit"
-          >
+          <Button className="w-full" disabled={busy || code.length !== 6} size="lg" type="submit">
             {busy ? <Loader2 className="animate-spin" size={18} /> : null}
             Confirm and continue
-          </button>
+          </Button>
 
           <div className="flex items-center justify-between pt-1 text-xs font-semibold">
             <button
-              className="text-[#8ea3ba] transition hover:text-white"
+              className="text-onSurfaceVariant transition hover:text-brandInk"
               onClick={() => {
                 setStep("email");
                 setCode("");
@@ -172,7 +165,7 @@ export function LinkEmailStep({
             </button>
 
             <button
-              className="text-[#42b1ff] transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-brandBlue transition hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-50"
               disabled={busy || cooldown > 0}
               onClick={() => void requestCode()}
               type="button"
@@ -184,7 +177,7 @@ export function LinkEmailStep({
       )}
 
       <button
-        className="mt-6 text-xs font-bold text-[#748aa2] transition hover:text-white"
+        className="mt-6 text-xs font-bold text-onSurfaceVariant transition hover:text-brandInk"
         onClick={onRestart}
         type="button"
       >

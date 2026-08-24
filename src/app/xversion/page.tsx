@@ -14,6 +14,13 @@ type AppVersionPayload = {
   message?: string;
 };
 
+type ReportRow = { platform: string; version: string; deviceCount: number };
+type ReportPayload = {
+  status?: string;
+  data?: { report?: ReportRow[] };
+  message?: string;
+};
+
 function formatUpdatedAt(value: string | null | undefined) {
   if (!value) return "Never set";
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -30,6 +37,10 @@ export default function AdminVersionPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  const [report, setReport] = useState<ReportRow[]>([]);
+  const [isReportLoading, setIsReportLoading] = useState(false);
+  const [reportError, setReportError] = useState("");
 
   async function loadVersion(nextToken = token) {
     if (!nextToken) return;
@@ -61,8 +72,39 @@ export default function AdminVersionPage() {
     }
   }
 
+  async function loadReport(nextToken = token) {
+    if (!nextToken) return;
+    setIsReportLoading(true);
+    setReportError("");
+
+    try {
+      const response = await fetch("/bff/admin/app-version/report", {
+        headers: { Authorization: `Bearer ${nextToken}` },
+        cache: "no-store"
+      });
+      const payload = (await response.json()) as ReportPayload;
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success" || !payload.data?.report) {
+        throw new Error(payload.message ?? "Could not load the app version report");
+      }
+
+      setReport(payload.data.report);
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Could not load the app version report");
+    } finally {
+      setIsReportLoading(false);
+    }
+  }
+
   useEffect(() => {
-    if (token) void loadVersion(token);
+    if (token) {
+      void loadVersion(token);
+      void loadReport(token);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
@@ -191,6 +233,59 @@ export default function AdminVersionPage() {
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
+            </section>
+
+            <section className="max-w-2xl rounded-2xl border border-line bg-white p-5 shadow-card">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-[10px] font-black uppercase tracking-wide text-muted">
+                  Installed versions by platform
+                </p>
+                <button
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-white px-3 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                  disabled={isReportLoading}
+                  onClick={() => void loadReport()}
+                  type="button"
+                >
+                  <RefreshCw aria-hidden="true" size={12} />
+                  {isReportLoading ? "Loading..." : "Refresh"}
+                </button>
+              </div>
+
+              {reportError ? (
+                <p className="mt-3 text-xs font-semibold text-red-700">{reportError}</p>
+              ) : null}
+
+              <div className="mt-4 grid gap-6 sm:grid-cols-2">
+                {(["android", "ios"] as const).map((platform) => {
+                  const rows = report.filter((row) => row.platform === platform);
+                  return (
+                    <div key={platform}>
+                      <p className="text-xs font-black uppercase tracking-wide text-midnight">
+                        {platform === "android" ? "Android" : "iOS"}
+                      </p>
+                      {rows.length === 0 ? (
+                        <p className="mt-2 text-xs font-semibold text-muted">
+                          {isReportLoading ? "Loading..." : "No data yet"}
+                        </p>
+                      ) : (
+                        <ul className="mt-2 grid gap-1.5">
+                          {rows.map((row) => (
+                            <li
+                              className="flex items-center justify-between text-xs font-semibold text-midnight"
+                              key={row.version}
+                            >
+                              <span>{row.version}</span>
+                              <span className="text-muted">
+                                {row.deviceCount} device{row.deviceCount === 1 ? "" : "s"}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </section>
           </div>
         )}

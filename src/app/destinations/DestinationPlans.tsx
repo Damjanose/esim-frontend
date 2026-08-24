@@ -612,13 +612,13 @@ export function DestinationPlans({
                       />
                     )}
 
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white">
                       {selectedCountry.country}
                     </span>
                   </div>
                 ) : null}
 
-                <h1 className="mt-5 font-display text-[46px] font-black leading-[0.98] tracking-[-0.045em] sm:text-[58px] lg:text-[68px]">
+                <h1 className="mt-5 font-display text-[46px] font-black leading-[0.98] tracking-[-0.045em] text-white sm:text-[58px] lg:text-[68px]">
                   eSIM plans for
                   <br />
 
@@ -630,7 +630,7 @@ export function DestinationPlans({
                   </span>
                 </h1>
 
-                <p className="mt-5 max-w-[470px] text-sm leading-7 text-white/72 sm:text-base">
+                <p className="mt-5 max-w-[470px] text-sm leading-7 text-white/[72%] sm:text-base">
                   Fast, reliable data wherever
                   you go.
                   <br />

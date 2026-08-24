@@ -51,4 +51,20 @@ describe("hidden admin app version page", () => {
     expect(proxy).toContain("backendFetch");
     expect(proxy).toContain('method: "PUT"');
   });
+
+  it("loads and renders the app version usage report grouped by platform", () => {
+    const pageSource = readFileSync("src/app/xversion/page.tsx", "utf8");
+
+    expect(pageSource).toContain("/bff/admin/app-version/report");
+    expect(pageSource).toContain("deviceCount");
+  });
+
+  it("adds a local admin API proxy route for the app version report", () => {
+    expect(existsSync("src/app/bff/admin/app-version/report/route.ts")).toBe(true);
+
+    const proxy = readFileSync("src/app/bff/admin/app-version/report/route.ts", "utf8");
+
+    expect(proxy).toContain("/admin/app-version/report");
+    expect(proxy).toContain("backendFetch");
+  });
 });

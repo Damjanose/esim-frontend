@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2, MailCheck, ShieldCheck } from "lucide-react";
 import { safeNextPath } from "@/lib/safe-redirect";
+import { Button } from "../components/Button";
 import { LinkEmailStep } from "./LinkEmailStep";
 import { SocialSignInButtons, type LinkChallenge } from "./SocialSignInButtons";
 
@@ -86,7 +87,7 @@ export function SignInForm() {
 
   if (linkChallenge) {
     return (
-      <div className="relative w-full max-w-[460px] rounded-[22px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] p-7 shadow-[0_28px_70px_rgba(0,0,0,0.35)] sm:p-9">
+      <div className="relative w-full max-w-[460px] rounded-[22px] border border-outline bg-white p-7 shadow-brandCard sm:p-9">
         <LinkEmailStep
           challenge={linkChallenge}
           next={next}
@@ -97,16 +98,16 @@ export function SignInForm() {
   }
 
   return (
-    <div className="relative w-full max-w-[460px] rounded-[22px] border border-[#214867]/85 bg-[linear-gradient(150deg,#07182c,#050f1e)] p-7 shadow-[0_28px_70px_rgba(0,0,0,0.35)] sm:p-9">
-      <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-[#1c8dc5] bg-[#07213a] text-[#3db7ff]">
+    <div className="relative w-full max-w-[460px] rounded-[22px] border border-outline bg-white p-7 shadow-brandCard sm:p-9">
+      <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-outline bg-mist text-brandBlue">
         {step === "email" ? <ShieldCheck size={22} /> : <MailCheck size={22} />}
       </span>
 
-      <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-white sm:text-3xl">
+      <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
         {step === "email" ? "Sign in to eSim2you" : "Enter your code"}
       </h1>
 
-      <p className="mt-2 text-sm leading-6 text-[#8ea3ba]">
+      <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">
         {step === "email"
           ? "We'll email you a 6-digit code. No password required."
           : `We sent a 6-digit code to ${email}.`}
@@ -115,11 +116,11 @@ export function SignInForm() {
       {step === "email" ? (
         <>
           <form className="mt-7 space-y-4" onSubmit={requestCode}>
-            <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#748aa2]">
+            <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
               Email address
               <input
                 autoComplete="email"
-                className="mt-2 h-12 w-full rounded-[12px] border border-[#214867] bg-[#040d1a] px-4 text-sm font-medium text-white outline-none transition focus:border-[#168cff] focus:ring-4 focus:ring-[#168cff]/15"
+                className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition placeholder:text-onSurfaceVariant/60 focus:border-brandBlue focus:ring-4 focus:ring-brandBlue/15"
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@example.com"
                 required
@@ -128,30 +129,26 @@ export function SignInForm() {
               />
             </label>
 
-            {error ? <p className="text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+            {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-            <button
-              className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#42b1ff] motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-              disabled={busy || !email}
-              type="submit"
-            >
+            <Button className="w-full" disabled={busy || !email} size="lg" type="submit">
               {busy ? <Loader2 className="animate-spin" size={18} /> : null}
               Send code
               {busy ? null : <ArrowRight size={17} />}
-            </button>
+            </Button>
           </form>
 
           {/* Outside the form: a provider button is its own sign-in path, not a
               second control of the email one. */}
           <SocialSignInButtons next={next} onLinkRequired={setLinkChallenge} />
 
-          <p className="mt-7 text-center text-xs leading-5 text-[#6d849c]">
+          <p className="mt-7 text-center text-xs leading-5 text-onSurfaceVariant">
             By continuing you agree to our{" "}
-            <Link className="text-[#8ea3ba] underline underline-offset-2 transition hover:text-white" href="/terms">
+            <Link className="text-onSurfaceVariant underline underline-offset-2 transition hover:text-brandInk" href="/terms">
               Terms
             </Link>{" "}
             and{" "}
-            <Link className="text-[#8ea3ba] underline underline-offset-2 transition hover:text-white" href="/policy">
+            <Link className="text-onSurfaceVariant underline underline-offset-2 transition hover:text-brandInk" href="/policy">
               Privacy Policy
             </Link>
             .
@@ -159,11 +156,11 @@ export function SignInForm() {
         </>
       ) : (
         <form className="mt-7 space-y-4" onSubmit={verifyCode}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#748aa2]">
+          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
             6-digit code
             <input
               autoComplete="one-time-code"
-              className="mt-2 h-12 w-full rounded-[12px] border border-[#214867] bg-[#040d1a] px-4 text-center font-display text-xl font-black tracking-[0.4em] text-white outline-none transition focus:border-[#168cff] focus:ring-4 focus:ring-[#168cff]/15"
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-center font-display text-xl font-black tracking-[0.4em] text-brandInk outline-none transition focus:border-brandBlue focus:ring-4 focus:ring-brandBlue/15"
               inputMode="numeric"
               maxLength={6}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
@@ -173,20 +170,16 @@ export function SignInForm() {
             />
           </label>
 
-          {error ? <p className="text-sm font-semibold text-[#ff8792]">{error}</p> : null}
+          {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-          <button
-            className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-[12px] bg-gradient-to-r from-[#1857ff] to-[#29c9ff] text-sm font-black text-white shadow-[0_14px_34px_rgba(18,102,255,0.28)] transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#42b1ff] motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-            disabled={busy || code.length !== 6}
-            type="submit"
-          >
+          <Button className="w-full" disabled={busy || code.length !== 6} size="lg" type="submit">
             {busy ? <Loader2 className="animate-spin" size={18} /> : null}
             Verify and continue
-          </button>
+          </Button>
 
           <div className="flex items-center justify-between pt-1 text-xs font-semibold">
             <button
-              className="text-[#8ea3ba] transition hover:text-white"
+              className="text-onSurfaceVariant transition hover:text-brandInk"
               onClick={() => {
                 setStep("email");
                 setCode("");
@@ -198,7 +191,7 @@ export function SignInForm() {
             </button>
 
             <button
-              className="text-[#42b1ff] transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-brandBlue transition hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-50"
               disabled={busy || cooldown > 0}
               onClick={() => void requestCode()}
               type="button"

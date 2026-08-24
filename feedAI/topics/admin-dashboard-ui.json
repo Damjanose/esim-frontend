@@ -1,7 +1,17 @@
 {
   "topic": "admin-dashboard-ui",
   "covers": "The actual UI/behavior of the three hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
-  "facts": ["f044", "f045", "f046", "f049", "f050", "f051", "f052", "f059"],
+  "facts": [
+    "f044",
+    "f045",
+    "f046",
+    "f049",
+    "f050",
+    "f051",
+    "f052",
+    "f059",
+    "f060"
+  ],
   "shared_shell": {
     "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all three admin pages as of the 2026-08-23 premium redesign — see f051.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
@@ -31,5 +41,15 @@
     "renders": "3 summary stat cards (total packages/with discount/selected), a bulk-discount panel (enable toggle, percentage|flat, value, 'Apply to selected (N)' / 'Apply to ALL packages'), a 'Reset to default' panel (added 2026-08-24, f059: 'Reset selected (N)' / 'Reset ALL to default' buttons, POST /bff/admin/packages/pricing/reset {packageIds:'all'|string[]}), and a searchable, checkbox-selectable table: Coverage (flag+country), Type (icon), Network, Package (dataLabel), Validity (durationDays), then per-row inline-editable retailPrice and discount fields, a client-computed finalPrice preview under the 'Price' header (previewFinalPrice(), mirrors the backend's computeFinalPrice formula so the row updates live before Save), and a per-row action cell with Save plus a Reset button (calls the same reset endpoint scoped to just that packageId).",
     "reset_to_default": "resetPricing(packageIds) in page.tsx takes an explicit id array/'all' rather than reading selectedIds from closure state, so the per-row Reset button can pass [row.packageId] directly without a stale-state race against setSelectedIds. Reset deletes the backend's PackagePricing override row entirely (not just setting retailPrice=originalPrice), so the package reverts live to whatever Airalo currently returns as net cost, for both the displayed retail price and (since f098 in the backend) the actual checkout charge.",
     "auth": "uses src/app/useAdminSession.ts (see auth_pattern.duplication) rather than its own copy of the login logic."
+  },
+  "xversion_app_version": {
+    "file": "src/app/xversion/page.tsx",
+    "note": "min-version setter + usage report never got a feedAI entry when built (earlier 2026-08-24 commits) — backfilled here alongside the report addition (f060).",
+    "min_version_setter": "GET/PUT /bff/admin/app-version -> {version, updatedAt}, proxying backend GET/PUT /admin/app-version. Text input + Save, same load/error/notice pattern as the other x* pages.",
+    "usage_report": "added 2026-08-24 (f060). Second section on the same page: GET /bff/admin/app-version/report -> {report:[{platform,version,deviceCount}]}, proxying backend GET /admin/app-version/report. Rendered as two grouped lists (Android, iOS), version -> device count, newest version first (pre-sorted server-side). Own Refresh button; loaded in the same useEffect as the version setter.",
+    "proxies": [
+      "src/app/bff/admin/app-version/route.ts",
+      "src/app/bff/admin/app-version/report/route.ts"
+    ]
   }
 }
