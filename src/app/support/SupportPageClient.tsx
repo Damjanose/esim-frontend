@@ -693,7 +693,7 @@ function ContactSupport() {
               <Mail aria-hidden="true" size={17} />
 
               <span>Email support</span>
-              <span className="text-xs text-white/80">esim@uplisoft.com</span>
+              <span className="text-xs text-white/80">esim2you@uplisoft.com</span>
             </LinkButton>
           </div>
         </div>

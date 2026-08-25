@@ -6,7 +6,7 @@ describe("legal pages and hydration-safe shell", () => {
   it("publishes footer links for support, contact, policy, and terms", () => {
     expect(landingContent.supportLinks).toEqual([
       { label: "Support", href: "#faq" },
-      { label: "Contact", href: "mailto:esim@uplisoft.com" },
+      { label: "Contact", href: "mailto:esim2you@uplisoft.com" },
       { label: "Policy", href: "/policy" },
       { label: "Terms", href: "/terms" }
     ]);

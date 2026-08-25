@@ -1,4 +1,4 @@
-export const SUPPORT_EMAIL = "esim@uplisoft.com";
+export const SUPPORT_EMAIL = "esim2you@uplisoft.com";
 
 export type LegalSection = {
   title: string;
