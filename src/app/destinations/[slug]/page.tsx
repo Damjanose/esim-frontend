@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SeoContentPageView } from "../../SeoContentPage";
 import { destinationPages } from "@/content/seo-pages";
 import { createMetadata } from "@/lib/seo";
+import { getDestinationOffer } from "@/lib/destinationPricing";
 
 type PageProps = {
   params: Promise<{
@@ -37,5 +38,13 @@ export default async function DestinationPage({ params }: PageProps) {
     notFound();
   }
 
-  return <SeoContentPageView page={page} parent={{ name: "Destinations", path: "/destinations" }} />;
+  const offer = await getDestinationOffer(page.slug);
+
+  return (
+    <SeoContentPageView
+      offer={offer ?? undefined}
+      page={page}
+      parent={{ name: "Destinations", path: "/destinations" }}
+    />
+  );
 }

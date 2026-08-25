@@ -5,17 +5,19 @@ import { LinkButton } from "./components/Button";
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import type { SeoContentPage } from "@/content/seo-pages";
-import { createContentPageJsonLd } from "@/lib/seo";
+import { createContentPageJsonLd, type DestinationOfferInput } from "@/lib/seo";
 
 export function SeoContentPageView({
   page,
-  parent
+  parent,
+  offer
 }: {
   page: SeoContentPage;
   parent: {
     name: string;
     path: string;
   };
+  offer?: DestinationOfferInput;
 }) {
   return (
     <main className="min-h-screen bg-white text-onSurface">
@@ -26,7 +28,8 @@ export function SeoContentPageView({
           description: page.description,
           breadcrumbName: page.heading,
           parent,
-          faqs: page.faqs
+          faqs: page.faqs,
+          offer
         })}
       />
       <Navbar />
@@ -46,6 +49,11 @@ export function SeoContentPageView({
             <h1 className="mt-4 max-w-4xl font-display text-5xl font-black leading-tight text-brandInk md:text-7xl">
               {page.heading}
             </h1>
+            {offer ? (
+              <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brandBlue/30 bg-brandBlue/5 px-4 py-2 text-sm font-black text-brandBlue">
+                eSIM plans from €{offer.lowPrice.toFixed(2)}
+              </p>
+            ) : null}
             <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">{page.intro}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <LinkButton

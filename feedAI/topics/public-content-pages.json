@@ -10,7 +10,9 @@
     "f056",
     "f057",
     "f062",
-    "f063"
+    "f063",
+    "f064",
+    "f065"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim \u2014 it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
@@ -23,7 +25,8 @@
     "counts": "18 destinationPages (usa, europe, japan, turkey, france, uk, germany, italy, spain, greece, portugal, switzerland, thailand, uae, mexico, canada, australia, indonesia), 5 guidePages (what-is-an-esim, esim-vs-roaming, how-to-install-esim, internet-abroad, esim-vs-local-sim), 2 useCasePages (business-travel, remote-work) = 25 total SEO content pages as of 2026-08-19.",
     "shared_renderer": "ALL 25 pages render through one component, SeoContentPageView (src/app/SeoContentPage.tsx), consumed by src/app/destinations/[slug]/page.tsx, src/app/guides/[slug]/page.tsx, src/app/use-cases/[slug]/page.tsx \u2014 same layout for all three content kinds, only the data differs (f042).",
     "static_generation": "Each [slug] route calls generateStaticParams() returning every slug from its respective array, so all 25 pages are statically generated at build time, not rendered per-request (f043).",
-    "destinations_index": "src/app/destinations/page.tsx: with no ?country= query param, renders a static hero + a card grid of all 18 destinationPages linking to their detail pages. With a ?country= param present, it instead renders DestinationPlans (src/app/destinations/DestinationPlans.tsx, live package search for that country \u2014 covered in ui-components-styling.json's data-shaping section) instead of the static grid \u2014 same route, two very different render paths gated on a query param."
+    "destinations_index": "src/app/destinations/page.tsx: with no ?country= query param, renders a static hero + a card grid of all 18 destinationPages linking to their detail pages. With a ?country= param present, it instead renders DestinationPlans (src/app/destinations/DestinationPlans.tsx, live package search for that country \u2014 covered in ui-components-styling.json's data-shaping section) instead of the static grid \u2014 same route, two very different render paths gated on a query param.",
+    "pricing_and_schema": "As of 2026-08-25 (f064/f065), both render paths show a real 'from EUR X.XX' price backed by Product/AggregateOffer JSON-LD: static [slug] pages via src/lib/destinationPricing.ts:getDestinationOffer (server fetch, next:{revalidate:3600}), the live ?country=XX view via the already-loaded client package list. /api/packages' countryCode is a slugified country name (not ISO), not always equal to the destinationPages slug (usa/uk/uae differ), and there is no `region` field \u2014 'europe' is its own countryCode with real regional packages. Prices are EUR."
   },
   "guides_and_use_cases": {
     "note": "Same SeoContentPageView pattern as destinations; guides parent breadcrumb is '/' (home) rather than a guides index page \u2014 there is no src/app/guides/page.tsx index, only the [slug] detail route. Same for use-cases: no index page, only src/app/use-cases/[slug]/page.tsx."

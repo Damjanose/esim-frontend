@@ -35,6 +35,8 @@ import {
 import { Navbar } from "../components/Navbar";
 import { Button, LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
+import { JsonLd } from "../JsonLd";
+import { absoluteUrl, createOfferProductJsonLd } from "@/lib/seo";
 
 type DestinationPlansProps = {
   countryCode: string;
@@ -449,6 +451,22 @@ export function DestinationPlans({
     );
   }, [packages, countryCode]);
 
+  const selectedCountryOffer = useMemo(() => {
+    const prices = selectedCountryPlans
+      .map((plan) => plan.priceNumeric)
+      .filter((price) => price > 0);
+
+    if (prices.length === 0) {
+      return null;
+    }
+
+    return {
+      lowPrice: Math.min(...prices),
+      currency: "EUR",
+      offerCount: prices.length,
+    };
+  }, [selectedCountryPlans]);
+
   const matchingCountries = useMemo(() => {
     const normalizedQuery =
       normalizeValue(debouncedQuery);
@@ -573,6 +591,19 @@ export function DestinationPlans({
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
+      {selectedCountry && selectedCountryOffer ? (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            ...createOfferProductJsonLd({
+              url: absoluteUrl(`/destinations?country=${countryCode}`),
+              name: `${selectedCountry.country} eSIM data plans`,
+              description: `Prepaid travel eSIM data plans for ${selectedCountry.country}.`,
+              offer: selectedCountryOffer,
+            }),
+          }}
+        />
+      ) : null}
       <Navbar />
 
       <section className="relative isolate pb-20 pt-20">

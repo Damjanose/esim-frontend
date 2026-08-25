@@ -251,13 +251,53 @@ export function createWebPageJsonLd({
   };
 }
 
+export type DestinationOfferInput = {
+  lowPrice: number;
+  currency: string;
+  offerCount: number;
+};
+
+/**
+ * Product + AggregateOffer node for a page with a real, visibly-rendered
+ * "from $X" price. Only call this where that price is on the page — schema
+ * that doesn't match visible content risks a Google structured-data penalty.
+ */
+export function createOfferProductJsonLd({
+  url,
+  name,
+  description,
+  offer
+}: {
+  url: string;
+  name: string;
+  description: string;
+  offer: DestinationOfferInput;
+}) {
+  return {
+    "@type": "Product",
+    "@id": `${url}#product`,
+    name,
+    description,
+    brand: { "@id": `${siteUrl}/#organization` },
+    offers: {
+      "@type": "AggregateOffer",
+      url,
+      priceCurrency: offer.currency,
+      lowPrice: offer.lowPrice.toFixed(2),
+      offerCount: offer.offerCount,
+      availability: "https://schema.org/InStock"
+    }
+  };
+}
+
 export function createContentPageJsonLd({
   path,
   name,
   description,
   breadcrumbName,
   parent,
-  faqs = []
+  faqs = [],
+  offer
 }: {
   path: string;
   name: string;
@@ -268,6 +308,7 @@ export function createContentPageJsonLd({
     path: string;
   };
   faqs?: SeoPageFaq[];
+  offer?: DestinationOfferInput;
 }) {
   const url = absoluteUrl(path);
   const breadcrumbItems = [
@@ -325,6 +366,10 @@ export function createContentPageJsonLd({
         }
       }))
     });
+  }
+
+  if (offer) {
+    graph.push(createOfferProductJsonLd({ url, name, description, offer }));
   }
 
   return {
