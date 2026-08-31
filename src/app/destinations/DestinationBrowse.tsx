@@ -148,7 +148,7 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
   }
 
   return (
-    <section className="relative px-5 pb-20 pt-4 md:px-8">
+    <section className="relative px-5 pb-20 pt-4 md:px-8" id="plans">
       <div className="relative mx-auto max-w-[1180px]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

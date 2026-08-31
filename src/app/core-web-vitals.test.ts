@@ -6,12 +6,12 @@ import { describe, expect, it } from "vitest";
 describe("Core Web Vitals performance contract", () => {
   it("serves the homepage hero through next/image with a lightweight WebP source", async () => {
     const pageSource = await readFile(join(process.cwd(), "src/app/page.tsx"), "utf8");
-    const heroWebpPath = join(process.cwd(), "public/images/hero-map-and-phone.webp");
+    const heroWebpPath = join(process.cwd(), "public/images/mountain.webp");
 
     expect(pageSource).toContain('import Image from "next/image"');
-    expect(pageSource).toContain('src="/images/hero-map-and-phone.webp"');
+    expect(pageSource).toContain('src="/images/mountain.webp"');
     expect(pageSource).toContain("priority");
-    expect(pageSource).toContain('sizes="(max-width: 1024px) 100vw, 850px"');
+    expect(pageSource).toContain('sizes="100vw"');
     expect(existsSync(heroWebpPath)).toBe(true);
     expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
   });

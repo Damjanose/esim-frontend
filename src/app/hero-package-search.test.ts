@@ -19,15 +19,25 @@ describe("HeroPackageSearch", () => {
     expect(backendSource).not.toContain('"http://localhost:4000/api"');
   });
 
-  it("keeps the mobile package results layered above the hero device mockup", () => {
+  it("keeps the search results dropdown layered above the hero's background photo", () => {
     const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
     const componentSource = readFileSync(join(process.cwd(), "src/app/HeroPackageSearch.tsx"), "utf8");
 
-    // Left content column (holds HeroPackageSearch) vs. the hero device mockup image (z-10) —
-    // the column must stack above the mockup, and the search results dropdown (z-[100]/z-[70])
-    // must stack above the column itself.
-    expect(pageSource).toContain('className="relative z-20 mx-auto w-full max-w-[610px] text-center lg:mx-0 lg:text-left"');
-    expect(pageSource).toContain('src="/images/hero-map-and-phone.webp"');
-    expect(componentSource).toContain('className="relative z-[100] mt-8 w-full max-w-[620px]"');
+    // The hero photo sits behind the content at -z-20/-z-10; the search pill and its
+    // results dropdown (z-[100]/z-[70]) must stack above both the photo and the section.
+    expect(pageSource).toContain('className="relative isolate z-20 overflow-hidden bg-brandInk text-white"');
+    expect(pageSource).toContain('src="/images/mountain.webp"');
+    expect(componentSource).toContain('className="relative z-[100] w-full max-w-[620px]"');
+  });
+
+  it("no longer renders the deleted static hero graphic or non-live plan cards", () => {
+    const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
+
+    expect(pageSource).not.toContain("function HeroVisual");
+    expect(pageSource).not.toContain("function DestinationBubble");
+    expect(pageSource).not.toContain("function FeatureCard");
+    expect(pageSource).not.toContain("function Plans");
+    expect(pageSource).toContain("import { DestinationBrowse }");
+    expect(pageSource).toContain("<DestinationBrowse");
   });
 });

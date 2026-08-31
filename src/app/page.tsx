@@ -1,7 +1,6 @@
 import {
   ArrowRight,
   Check,
-  ChevronDown,
   Globe2,
   Headphones,
   QrCode,
@@ -10,10 +9,6 @@ import {
   Star,
   Wifi,
   Zap,
-  CalendarDays,
-  Infinity as InfinityIcon,
-  Plane,
-  SlidersHorizontal,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -25,6 +20,8 @@ import { Navbar } from './components/Navbar'
 import { LinkButton } from "./components/Button";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 import { HeroPackageSearch } from "./HeroPackageSearch";
+import { HeroDestinationChips } from "./HeroDestinationChips";
+import { DestinationBrowse } from "./destinations/DestinationBrowse";
 
 const travelerImages = [
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=85",
@@ -32,36 +29,6 @@ const travelerImages = [
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=85",
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=85",
   "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&h=120&q=85"
-];
-
-const heroDestinations = [
-  {
-    city: "New York",
-    country: "USA",
-    flag: "🇺🇸",
-    image:
-      "https://images.unsplash.com/photo-1522083165195-3424ed129620?auto=format&fit=crop&w=240&q=90",
-    className:
-      "left-[2%] top-[9%] lg:left-[4%] lg:top-[7%]",
-  },
-  {
-    city: "Paris",
-    country: "France",
-    flag: "🇫🇷",
-    image:
-      "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=240&q=90",
-    className:
-      "right-[0%] top-[12%] lg:right-[-1%] lg:top-[10%]",
-  },
-  {
-    city: "Bali",
-    country: "Indonesia",
-    flag: "🇮🇩",
-    image:
-      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=240&q=90",
-    className:
-      "bottom-[5%] left-[4%] lg:bottom-[7%] lg:left-[3%]",
-  },
 ];
 
 const benefits = [
@@ -136,9 +103,9 @@ export default function Home() {
     <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
       <JsonLd data={createLandingJsonLd()} />
 
-      <Navbar />
+      <Navbar theme="dark" />
       <Hero />
-      <Plans />
+      <DestinationBrowse urlFilters={{}} />
       <Benefits />
       <JourneyAndCoverage />
       <TestimonialsAndFaq />
@@ -151,72 +118,54 @@ export default function Home() {
 
 function Hero() {
   return (
-    <section className="relative isolate z-20 overflow-hidden bg-surface pt-20 text-onSurface" id="home">
-      {/* Background lighting */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_73%_43%,rgba(11,73,183,0.09),transparent_34%),radial-gradient(circle_at_18%_23%,rgba(11,73,183,0.045),transparent_30%)]" />
+    <section className="relative isolate z-20 overflow-hidden bg-brandInk text-white" id="home">
+      <Image
+        alt="Mountain traveler destination at dusk"
+        className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover"
+        fill
+        priority
+        sizes="100vw"
+        src="/images/mountain.webp"
+      />
 
-      <div className="pointer-events-none absolute left-[55%] top-[34%] -z-10 h-[620px] w-[620px] rounded-full bg-brandBlue/8 blur-[150px]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(6,17,49,0.55)_0%,rgba(6,17,49,0.72)_55%,rgba(6,17,49,0.92)_100%)]" />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-surface via-surface/75 to-transparent" />
+      <div className="mx-auto flex min-h-[640px] max-w-[1180px] flex-col items-center justify-center px-5 pb-16 pt-28 text-center md:px-8">
+        <h1 className="max-w-[720px] font-display text-[38px] font-black leading-[1.08] tracking-[-0.04em] sm:text-[52px] lg:text-[62px]">
+          A better way to stay
+          <br />
+          connected while you travel
+        </h1>
 
-      <div className="mx-auto grid min-h-[700px] max-w-[1480px] items-center gap-10 px-5 pb-20 pt-12 md:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:pb-16 lg:pt-8 xl:px-14">
-        {/* Left content */}
-        <div className="relative z-20 mx-auto w-full max-w-[610px] text-center lg:mx-0 lg:text-left">
-          <h1 className="mx-auto max-w-[590px] font-display text-[44px] font-black leading-[1.04] tracking-[-0.045em] text-brandInk sm:text-[56px] lg:mx-0 lg:text-[61px] xl:text-[68px]">
-            Stay Connected
-            <br />
-            Worldwide with
-            <br />
+        <p className="mt-5 max-w-[540px] text-[15px] leading-7 text-white/80 sm:text-base">
+          Premium eSIMs with high-speed data in 200+ countries and regions.
+          Instant activation. No SIM card. No roaming fees.
+        </p>
 
-            <span className="bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal bg-clip-text text-transparent">
-              Premium eSIMs
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-7 max-w-[530px] text-[15px] leading-7 text-onSurfaceVariant sm:text-[17px] lg:mx-0">
-            Premium eSIMs with high-speed data in 200+ countries and regions.
-            <br className="hidden sm:block" />
-            Instant activation. No SIM card. No roaming fees.
-          </p>
-
-          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
-            <LinkButton className="group min-w-[210px]" href="#download-app" size="lg">
-              Get eSIM Now
-
-              <ArrowRight
-                aria-hidden="true"
-                className="transition-transform group-hover:translate-x-1"
-                size={19}
-              />
-            </LinkButton>
-
-            <LinkButton className="min-w-[170px]" href="#plans" size="lg" tone="brand" variant="flat">
-              View Plans
-            </LinkButton>
-          </div>
-
+        <div className="mt-8 w-full max-w-[620px]">
           <HeroPackageSearch />
-          <TravelerReviews />
         </div>
 
-        <HeroVisual />
+        <HeroDestinationChips />
+
+        <HeroTrustSignals />
       </div>
     </section>
   );
 }
 
-function TravelerReviews() {
+function HeroTrustSignals() {
   return (
-    <div className="mt-11 flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-7 lg:justify-start">
+    <div className="mt-9 flex flex-col items-center gap-5 sm:flex-row sm:gap-7">
       <div>
-        <p className="mb-3 text-xs font-medium text-onSurfaceVariant">
+        <p className="mb-3 text-xs font-medium text-white/70">
           Trusted by travelers from
         </p>
 
-        <div className="flex justify-center -space-x-2 lg:justify-start">
+        <div className="flex justify-center -space-x-2">
           {travelerImages.map((image, index) => (
             <div
-              className="h-10 w-10 overflow-hidden rounded-full border-2 border-surface bg-outline/20 shadow-[0_6px_14px_rgba(0,0,0,0.12)]"
+              className="h-10 w-10 overflow-hidden rounded-full border-2 border-white/80 bg-outline/20 shadow-[0_6px_14px_rgba(0,0,0,0.25)]"
               key={image}
             >
               <Image
@@ -234,11 +183,11 @@ function TravelerReviews() {
       </div>
 
       <div>
-        <p className="mb-2 text-xs text-onSurfaceVariant">
+        <p className="mb-2 text-xs text-white/70">
           and 50,000+ reviews
         </p>
 
-        <div className="flex items-center justify-center gap-3 lg:justify-start">
+        <div className="flex items-center justify-center gap-3">
           <div className="flex gap-1">
             {Array.from({ length: 5 }).map((_, index) => (
               <span
@@ -254,399 +203,12 @@ function TravelerReviews() {
             ))}
           </div>
 
-          <span className="text-xs font-semibold text-onSurface">
+          <span className="text-xs font-semibold text-white">
             4.8/5
           </span>
         </div>
       </div>
     </div>
-  );
-}
-
-function HeroVisual() {
-  return (
-    <div className="relative mx-auto h-[520px] w-full max-w-[850px] sm:h-[610px] lg:h-[660px]">
-      {/* Main glow */}
-      <div className="pointer-events-none absolute left-1/2 top-[49%] h-[65%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brandBlue/9 blur-[100px]" />
-
-      {/* Orbit lines */}
-      <div className="pointer-events-none absolute left-1/2 top-[48%] hidden h-[500px] w-[740px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-brandBlue/15 sm:block" />
-
-      <div className="pointer-events-none absolute left-1/2 top-[51%] hidden h-[390px] w-[610px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-brandBlue/10 sm:block" />
-
-      {/* Premium phone and map artwork */}
-      <Image
-        alt="eSim2you mobile application with worldwide coverage"
-        className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[610px] max-w-none -translate-x-1/2 -translate-y-[48%] object-contain drop-shadow-[0_40px_65px_rgba(0,0,0,0.6)] sm:w-[750px] lg:w-[850px]"
-        height={638}
-        priority
-        sizes="(max-width: 1024px) 100vw, 850px"
-        src="/images/hero-map-and-phone.webp"
-        width={850}
-      />
-
-      {/* Country bubbles */}
-      {heroDestinations.map((destination) => (
-        <DestinationBubble
-          city={destination.city}
-          className={destination.className}
-          country={destination.country}
-          flag={destination.flag}
-          image={destination.image}
-          key={destination.city}
-        />
-      ))}
-
-      {/* Coverage card */}
-      <FeatureCard
-        className="bottom-[18%] left-[1%] lg:bottom-[17%] lg:left-[2%]"
-        description="Worldwide Coverage"
-        icon={<Globe2 size={22} />}
-        title={
-          <>
-            200+
-            <br />
-            Countries
-          </>
-        }
-      />
-
-      {/* Activation card */}
-      <FeatureCard
-        className="right-[0%] top-[31%] lg:right-[-2%] lg:top-[30%]"
-        description="In Under 1 Minute"
-        icon={<Zap size={22} />}
-        title={
-          <>
-            Instant
-            <br />
-            Activation
-          </>
-        }
-      />
-
-      {/* Plans card */}
-      <FeatureCard
-        className="bottom-[13%] right-[4%] lg:bottom-[13%] lg:right-[2%]"
-        description="1GB to Unlimited"
-        icon={<SlidersHorizontal size={22} />}
-        title={
-          <>
-            Flexible
-            <br />
-            Data Plans
-          </>
-        }
-      />
-    </div>
-  );
-}
-
-type DestinationBubbleProps = {
-  city: string;
-  country: string;
-  flag: string;
-  image: string;
-  className: string;
-};
-
-function DestinationBubble({
-  city,
-  country,
-  flag,
-  image,
-  className,
-}: DestinationBubbleProps) {
-  return (
-    <div
-      className={`absolute z-30 hidden items-center gap-3 sm:flex ${className}`}
-    >
-      <div className="h-[68px] w-[68px] overflow-hidden rounded-full border-2 border-brandBlue/50 bg-surface p-1 shadow-[0_0_30px_rgba(11,73,183,0.18)]">
-        <Image
-          alt={`${city}, ${country}`}
-          className="h-full w-full rounded-full object-cover"
-          height={60}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          src={image}
-          width={60}
-        />
-      </div>
-
-      <div className="min-w-[92px]">
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]">
-          <span>{flag}</span>
-          {city}
-        </p>
-
-        <p className="mt-1 text-xs text-white/75 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]">
-          {country}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-type FeatureCardProps = {
-  title: React.ReactNode;
-  description: string;
-  icon: React.ReactNode;
-  className: string;
-};
-
-function FeatureCard({
-  title,
-  description,
-  icon,
-  className,
-}: FeatureCardProps) {
-  return (
-    <div
-      className={`absolute z-30 hidden w-[145px] rounded-[20px] border border-outline bg-surface p-4 shadow-brandCard backdrop-blur-xl sm:block lg:w-[158px] lg:p-5 ${className}`}
-    >
-      <div className="grid h-10 w-10 place-items-center rounded-full border border-brandBlue/45 bg-[linear-gradient(145deg,#0B49B7,#0E86C0)] text-white shadow-[0_0_22px_rgba(11,73,183,0.2)]">
-        {icon}
-      </div>
-
-      <p className="mt-4 text-[17px] font-black leading-[1.2] text-brandInk lg:text-[19px]">
-        {title}
-      </p>
-
-      <p className="mt-2 text-[11px] leading-4 text-onSurfaceVariant">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-
-function Plans() {
-  const planTypes = [
-    {
-      title: "Short Trips",
-      subtitle: "For weekends and quick getaways",
-      icon: CalendarDays,
-      eyebrow: "1–7 days",
-      description:
-        "Stay connected for navigation, messaging, bookings, and essential travel apps.",
-      features: [
-        "Flexible short-term validity",
-        "Light and medium data options",
-        "Instant digital activation",
-      ],
-      accent:
-        "from-brandBlue/13 via-brandBlue/10 to-transparent",
-      iconClass:
-        "border-brandBlue/50 bg-brandBlue/10 text-brandBlue",
-    },
-    {
-      title: "Longer Journeys",
-      subtitle: "For holidays and business travel",
-      icon: Plane,
-      eyebrow: "8–30 days",
-      description:
-        "Choose larger data allowances designed for longer stays and frequent daily usage.",
-      features: [
-        "More data for longer stays",
-        "Ideal for work and entertainment",
-        "Premium local network access",
-      ],
-      accent:
-        "from-brandBlue/13 via-brandBlue/10 to-transparent",
-      iconClass:
-        "border-brandBlue/50 bg-brandBlue/10 text-brandBlue",
-      highlighted: true,
-    },
-    {
-      title: "Unlimited Data",
-      subtitle: "For maximum flexibility abroad",
-      icon: InfinityIcon,
-      eyebrow: "No data limits",
-      description:
-        "Browse, stream, navigate, and stay online without monitoring every megabyte.",
-      features: [
-        "Unlimited data options",
-        "Perfect for heavy daily usage",
-        "Available in selected destinations",
-      ],
-      accent:
-        "from-brandTeal/10 via-brandTeal/10 to-transparent",
-      iconClass:
-        "border-brandTeal/50 bg-brandTeal/10 text-brandTeal",
-    },
-  ];
-
-  return (
-    <section
-      className="relative z-0 overflow-hidden bg-surface px-5 pb-16 pt-8 text-onSurface md:px-8 md:pb-20"
-      id="plans"
-    >
-      <div className="pointer-events-none absolute left-1/2 top-20 h-72 w-[70%] -translate-x-1/2 rounded-full bg-brandBlue/6 blur-[120px]" />
-
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-outline to-transparent" />
-
-      <div className="relative mx-auto max-w-[1280px]">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-outline bg-surface px-4 py-2 shadow-brandCard">
-            <Wifi
-              aria-hidden="true"
-              className="text-brandBlue"
-              size={14}
-            />
-
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
-              Flexible connectivity
-            </span>
-          </div>
-
-          <h2 className="mt-5 font-display text-3xl font-black tracking-[-0.04em] text-brandInk sm:text-4xl lg:text-[46px]">
-            A plan for every kind of journey
-          </h2>
-
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-onSurfaceVariant sm:text-base">
-            Select your destination first, then compare the
-            available data and validity options for your trip.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {planTypes.map((plan) => {
-            const Icon = plan.icon;
-
-            return (
-              <article
-                className={[
-                  "group relative flex min-h-[390px] flex-col overflow-hidden rounded-[24px]",
-                  "border bg-surface",
-                  "p-6 shadow-brandCard transition duration-300",
-                  "hover:-translate-y-1",
-                  plan.highlighted
-                    ? "border-brandBlue shadow-brandGlow"
-                    : "border-outline hover:border-brandBlue/40",
-                ].join(" ")}
-                key={plan.title}
-              >
-                <div
-                  className={`pointer-events-none absolute inset-x-0 top-0 h-52 bg-gradient-to-b ${plan.accent}`}
-                />
-
-                <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full border border-brandBlue/10" />
-
-                <div className="pointer-events-none absolute -right-9 -top-9 h-28 w-28 rounded-full border border-brandBlue/10" />
-
-                {plan.highlighted ? (
-                  <span className="absolute right-5 top-5 rounded-full border border-brandBlue/50 bg-brandBlue/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.13em] text-brandBlue">
-                    Most popular
-                  </span>
-                ) : null}
-
-                <div className="relative">
-                  <span
-                    className={[
-                      "grid h-14 w-14 place-items-center rounded-[17px] border",
-                      "shadow-[0_12px_32px_rgba(0,0,0,0.22)]",
-                      plan.iconClass,
-                    ].join(" ")}
-                  >
-                    <Icon
-                      aria-hidden="true"
-                      size={27}
-                      strokeWidth={2}
-                    />
-                  </span>
-
-                  <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">
-                    {plan.eyebrow}
-                  </p>
-
-                  <h3 className="mt-3 font-display text-2xl font-black tracking-[-0.025em] text-brandInk">
-                    {plan.title}
-                  </h3>
-
-                  <p className="mt-1 text-sm font-semibold text-onSurfaceVariant">
-                    {plan.subtitle}
-                  </p>
-
-                  <p className="mt-5 min-h-[72px] text-sm leading-6 text-onSurfaceVariant">
-                    {plan.description}
-                  </p>
-                </div>
-
-                <div className="relative mt-6 border-t border-outline pt-5">
-                  <ul className="space-y-3">
-                    {plan.features.map((feature) => (
-                      <li
-                        className="flex items-center gap-3 text-sm text-onSurfaceVariant"
-                        key={feature}
-                      >
-                        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-brandBlue/40 bg-brandBlue/10 text-brandBlue">
-                          <Check
-                            aria-hidden="true"
-                            size={11}
-                            strokeWidth={3}
-                          />
-                        </span>
-
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {plan.highlighted ? (
-                  <LinkButton className="group mt-5 w-full" href="#home" size="md">
-                    Find plans for your destination
-
-                    <ArrowRight
-                      aria-hidden="true"
-                      className="transition-transform group-hover:translate-x-1"
-                      size={16}
-                    />
-                  </LinkButton>
-                ) : (
-                  <LinkButton className="group mt-5 w-full" href="#home" size="md" tone="brand" variant="flat">
-                    Find plans for your destination
-
-                    <ArrowRight
-                      aria-hidden="true"
-                      className="transition-transform group-hover:translate-x-1"
-                      size={16}
-                    />
-                  </LinkButton>
-                )}
-              </article>
-            );
-          })}
-        </div>
-
-        {/* <div className="mt-6 flex flex-col items-center justify-between gap-4 rounded-[18px] border border-outline bg-surface px-5 py-4 text-center shadow-brandCard sm:flex-row sm:text-left">
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-brandBlue/40 bg-brandBlue/10 text-brandBlue">
-              <Globe2 aria-hidden="true" size={19} />
-            </span>
-
-            <div>
-              <p className="text-sm font-black text-brandInk">
-                Plans and prices depend on your destination
-              </p>
-
-              <p className="mt-1 text-xs text-onSurfaceVariant">
-                Search a country to view live packages and exact
-                pricing.
-              </p>
-            </div>
-          </div>
-
-          <a
-            className="inline-flex shrink-0 items-center gap-2 text-sm font-black text-brandBlue transition hover:text-brandBlue/70"
-            href="#home"
-          >
-            Search destinations
-            <ArrowRight aria-hidden="true" size={16} />
-          </a>
-        </div> */}
-      </div>
-    </section>
   );
 }
 
