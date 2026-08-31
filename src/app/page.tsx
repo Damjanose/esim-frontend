@@ -143,7 +143,6 @@ export default function Home() {
       <JourneyAndCoverage />
       <TestimonialsAndFaq />
       <AppDownload />
-      <ProductHuntFeature />
       <Cta />
       <SiteFooter />
     </main>
@@ -1067,92 +1066,6 @@ function AppDownload() {
               />
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ProductHuntFeature() {
-  return (
-    <section className="bg-surface px-5 py-10 text-onSurface md:px-8">
-      <div className="mx-auto flex max-w-[1280px] justify-center">
-        {/* Product Hunt's official launch embed — inline styles kept as-is (their
-            branded card, not restyled with our design tokens). */}
-        <div
-          style={{
-            fontFamily:
-              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            border: "1px solid #e0e0e0",
-            borderRadius: 12,
-            padding: 20,
-            maxWidth: 500,
-            width: "100%",
-            background: "#fff",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt="eSIM2you"
-              src="https://ph-files.imgix.net/d5812421-b27c-41db-9181-5b78ff2da594.png?auto=compress,format&codec=mozjpeg&cs=strip&fit=crop&h=80&w=80"
-              style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover", flexShrink: 0 }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: "#1a1a1a",
-                  lineHeight: 1.3,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap"
-                }}
-              >
-                eSIM2you
-              </h3>
-              <p
-                style={{
-                  margin: "4px 0 0",
-                  fontSize: 14,
-                  color: "#666",
-                  lineHeight: 1.4,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical"
-                }}
-              >
-                Affordable travel eSIMs, instantly on your phone
-              </p>
-            </div>
-          </div>
-
-          <a
-            href="https://www.producthunt.com/products/esim2you?embed=true&utm_source=embed&utm_medium=post_embed"
-            rel="noopener"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: 12,
-              padding: "8px 16px",
-              background: "#ff6154",
-              color: "#fff",
-              textDecoration: "none",
-              borderRadius: 9999,
-              fontSize: 16,
-              fontWeight: 600,
-              lineHeight: 1.5
-            }}
-            target="_blank"
-          >
-            Check it out on Product Hunt →
-          </a>
         </div>
       </div>
     </section>

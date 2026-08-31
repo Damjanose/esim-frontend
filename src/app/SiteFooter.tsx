@@ -79,6 +79,14 @@ export function SiteFooter() {
         <div className="mt-10 flex flex-col gap-3 border-t border-outline pt-6 text-xs font-semibold text-onSurfaceVariant/70 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 eSim2you. All rights reserved.</p>
           <p>eSim2you destination coverage for 200+ destinations.</p>
+          <a
+            className="transition hover:text-brandBlue"
+            href="https://www.producthunt.com/products/esim2you?embed=true&utm_source=embed&utm_medium=post_embed"
+            rel="noopener"
+            target="_blank"
+          >
+            Featured on Product Hunt
+          </a>
         </div>
       </div>
     </footer>

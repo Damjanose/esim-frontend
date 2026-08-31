@@ -6,35 +6,47 @@
       "symptom": "Signed-out visitor on prod clicking a guarded link (e.g. /profile) lands on https://localhost:3020/signin?... (dead URL)",
       "root_cause": "middleware built redirect URLs from url.origin, which Next resolves from the internal bind address (127.0.0.1:3020) not the Host header",
       "fix": "derive all redirect URLs from getPublicOrigin(request); applied to src/middleware.ts and the auth refresh route",
-      "facts": ["f009"],
+      "facts": [
+        "f009"
+      ],
       "source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"
     },
     {
       "symptom": "Any /api/* Next route handler answers with Express's 'Cannot GET /api/...' in production only (works in dev)",
       "root_cause": "nginx proxies the entire /api/* prefix to the Express backend before Next ever sees the request; per-path carve-out is impossible because BFF paths intentionally mirror backend paths (e.g. /auth/otp/send exists on both)",
       "fix": "moved all route handlers from src/app/api/** to src/app/bff/** (git mv); repointed every browser call site; added /bff to seo.ts privateRoutePrefixes",
-      "facts": ["f003", "f028"],
+      "facts": [
+        "f003",
+        "f028"
+      ],
       "source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"
     },
     {
       "symptom": "Apple sign-in button renders on /signin but fails immediately with invalid_client",
-      "root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (…apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity",
+      "root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (\u2026apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity",
       "fix": "set NEXT_PUBLIC_APPLE_SERVICES_ID=com.uplisoft.velocityesim.web in .env.local and .env.production; also required creating the Services ID in Apple Developer portal (cannot be done from code) and adding APPLE_BUNDLE_ID/APPLE_SERVICES_ID to the backend .env",
-      "facts": ["f012", "f013"],
+      "facts": [
+        "f012",
+        "f013"
+      ],
       "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
     },
     {
-      "symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' — works fine on localhost",
+      "symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' \u2014 works fine on localhost",
       "root_cause": "that message is Google's generic body text for redirect_uri_mismatch; https://esim.uplisoft.com was missing from the OAuth client's Authorized JavaScript origins. Worked locally because Google ignores the port for localhost origins (masked that localhost:3000 wasn't registered either)",
-      "fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console — NO code change",
-      "facts": ["f014"],
+      "fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console \u2014 NO code change",
+      "facts": [
+        "f014"
+      ],
       "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
     },
     {
       "symptom": "Neither Google nor Apple button appears on /signin at all",
       "root_cause": "SocialSignInButtons returns null when both NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID and NEXT_PUBLIC_APPLE_SERVICES_ID are empty; repo had no env file at all",
       "fix": "added .env.local with NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID copied from backend's GOOGLE_WEB_CLIENT_ID (must match or backend rejects token aud); added .env.example documenting all vars",
-      "facts": ["f012"],
+      "facts": [
+        "f012"
+      ],
       "source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"
     },
     {
@@ -47,10 +59,21 @@
     {
       "symptom": "A local .env.local change 'works on my machine' but has no effect after deploying with update.sh",
       "root_cause": ".env.local is gitignored and never exists on the server; update.sh deploys via git pull then builds, so only committed env files (.env.production) reach prod",
-      "fix": "n/a — this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod",
-      "facts": ["f029"],
+      "fix": "n/a \u2014 this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod",
+      "facts": [
+        "f029"
+      ],
       "source": ".env.production comment, docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    },
+    {
+      "symptom": "The Product Hunt banner on the homepage shows an old/outdated eSim2you logo even after the brand's local logo assets were updated",
+      "root_cause": "ProductHuntFeature (src/app/page.tsx) hot-linked its logo image from ph-files.imgix.net (a Product-Hunt-hosted snapshot taken at launch time) instead of using a local public/*.png asset, so it never picked up later logo changes",
+      "fix": "Point the section at public/logo-icon.png (same mark Navbar.tsx uses) instead of the ph-files.imgix.net URL; any future logo update to that asset now propagates here automatically",
+      "facts": [
+        "f066"
+      ],
+      "source": "src/app/page.tsx ProductHuntFeature"
     }
   ],
-  "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs."
+  "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs."
 }
