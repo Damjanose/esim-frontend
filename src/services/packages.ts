@@ -285,3 +285,62 @@ export async function fetchPackageOptions(): Promise<
 
   return mapPackagesPayload(payload);
 }
+
+export type PackageGroupsRailId =
+  | "popular"
+  | "bestValue"
+  | "unlimited"
+  | "longStay";
+
+export type PackageGroupOptions = Record<
+  PackageGroupsRailId,
+  HeroPackageOption[]
+>;
+
+type PackageGroupsResponse = {
+  status?: string;
+  data?: Partial<Record<PackageGroupsRailId, ApiPackage[]>>;
+};
+
+/**
+ * Shared by the browser fetch below and any future server-side lookup, same
+ * split as `mapPackagesPayload` / `fetchPackageOptions`.
+ */
+function hasEnvelope(
+  payload: PackageGroupsResponse | Partial<Record<PackageGroupsRailId, ApiPackage[]>>,
+): payload is PackageGroupsResponse {
+  return "data" in payload || "status" in payload;
+}
+
+export function mapPackageGroupsPayload(
+  payload: PackageGroupsResponse | Partial<Record<PackageGroupsRailId, ApiPackage[]>>,
+): PackageGroupOptions {
+  const data = hasEnvelope(payload) ? payload.data ?? {} : payload;
+
+  return {
+    popular: mapPackagesPayload({ packages: data.popular ?? [] }),
+    bestValue: mapPackagesPayload({ packages: data.bestValue ?? [] }),
+    unlimited: mapPackagesPayload({ packages: data.unlimited ?? [] }),
+    longStay: mapPackagesPayload({ packages: data.longStay ?? [] }),
+  };
+}
+
+export async function fetchPackageGroups(): Promise<PackageGroupOptions> {
+  const response = await fetch("/bff/packages/groups", {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load package groups: ${response.status}`,
+    );
+  }
+
+  const payload = (await response.json()) as PackageGroupsResponse;
+
+  return mapPackageGroupsPayload(payload);
+}
