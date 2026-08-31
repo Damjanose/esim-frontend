@@ -16,7 +16,8 @@
     "f066",
     "f067",
     "f068",
-    "f069"
+    "f069",
+    "f070"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim \u2014 it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
@@ -48,7 +49,7 @@
     "content_summary_policy": "Overview, information collected (account/verification, profile/usage, transaction data, support comms, optional biometrics \u2014 kept on-device only), how used, sharing (operators/payment processors/infra, never sold), retention, security, user rights, international transfers, children (under-13 not targeted), changes, contact."
   },
   "branding": {
-    "navbar_logo": "Navbar.tsx uses public/logo-icon.png (transparent AND colored, cropped from logo-full.png) as of 2026-08-24 (f062) \u2014 the earlier public/logo-no-bg.png rendered white-on-white/invisible once content pages went light-themed (f056). SiteFooter.tsx still uses the solid-background public/app-logo.png on its plain white background; the two marks are intentionally different assets, not an inconsistency to 'fix'.",
+    "navbar_logo": "Navbar.tsx uses public/logo-icon.png (transparent AND colored, cropped from logo-full.png) as of 2026-08-24 (f062) \u2014 the earlier public/logo-no-bg.png rendered white-on-white/invisible once content pages went light-themed (f056). SiteFooter.tsx still uses the solid-background public/app-logo.png on its plain white background; the two marks are intentionally different assets, not an inconsistency to 'fix'. public/logo-no-bg.png (the pre-f062 asset) was deleted from the repo on 2026-08-31 (f070) since nothing referenced it anymore.",
     "og_image_cache_busting": "src/lib/seo.ts's ogImage.url appends a manual ?v=<ogImageVersion> query string (currently '3'). Bump ogImageVersion whenever public/og/esim2you-og.png's bytes change, or link-preview crawlers keep serving a cached copy of the old image since the URL is otherwise static (f063).",
     "producthunt_section": "No standalone Product Hunt UI anywhere on the page (two earlier attempts \u2014 a full-width banner, then an AppDownload pill \u2014 were both rejected in review). Final: a plain text link 'Featured on Product Hunt' in SiteFooter.tsx's bottom bar, styled like the copyright/coverage lines next to it (f069)."
   }
