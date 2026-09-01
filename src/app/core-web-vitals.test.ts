@@ -6,12 +6,12 @@ import { describe, expect, it } from "vitest";
 describe("Core Web Vitals performance contract", () => {
   it("serves the homepage hero through next/image with a lightweight WebP source", async () => {
     const pageSource = await readFile(join(process.cwd(), "src/app/page.tsx"), "utf8");
-    const heroWebpPath = join(process.cwd(), "public/images/hero-map-and-phone.webp");
+    const heroWebpPath = join(process.cwd(), "public/images/mountain.webp");
 
     expect(pageSource).toContain('import Image from "next/image"');
-    expect(pageSource).toContain('src="/images/hero-map-and-phone.webp"');
+    expect(pageSource).toContain('src="/images/mountain.webp"');
     expect(pageSource).toContain("priority");
-    expect(pageSource).toContain('sizes="(max-width: 1024px) 100vw, 850px"');
+    expect(pageSource).toContain('sizes="100vw"');
     expect(existsSync(heroWebpPath)).toBe(true);
     expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
   });
@@ -20,6 +20,10 @@ describe("Core Web Vitals performance contract", () => {
     const configSource = await readFile(join(process.cwd(), "next.config.mjs"), "utf8");
 
     expect(configSource).toContain('hostname: "images.unsplash.com"');
-    expect(configSource).toContain('hostname: "upload.wikimedia.org"');
+    // Wildcarded rather than a single literal host: Wikimedia serves country
+    // images from more than one subdomain (upload.wikimedia.org for
+    // originals, thumb.wikimedia.org for thumbnails, ...) depending on what
+    // its imageinfo API returns for a given image.
+    expect(configSource).toContain('hostname: "*.wikimedia.org"');
   });
 });

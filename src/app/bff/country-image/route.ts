@@ -372,7 +372,11 @@ function isSuitableImage(
       return false;
     }
 
-    if (aspectRatio < 1.25) {
+    if (image.height < 500) {
+      return false;
+    }
+
+    if (aspectRatio < 1.25 || aspectRatio > 3.5) {
       return false;
     }
   }

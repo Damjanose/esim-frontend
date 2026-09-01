@@ -32,6 +32,12 @@ import {
   fetchPackageOptions,
   type HeroPackageOption,
 } from "@/services/packages";
+import { discountPercentOff, formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
+import {
+  isDestinationFiltersActive,
+  matchesDestinationFilters,
+  parseDestinationFiltersFromParams,
+} from "@/services/destinationFilters";
 import { Navbar } from "../components/Navbar";
 import { Button, LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
@@ -40,6 +46,8 @@ import { absoluteUrl, createOfferProductJsonLd } from "@/lib/seo";
 
 type DestinationPlansProps = {
   countryCode: string;
+  /** The wizard's `daysMin`/`daysMax`/`dataMin`/`dataMax`/`unlimited` query params, if it handed off a destination. */
+  searchFilters?: Record<string, string | undefined>;
 };
 
 type CountryOption = {
@@ -309,6 +317,7 @@ function useCountryHeroImage(country?: string) {
 
 export function DestinationPlans({
   countryCode,
+  searchFilters,
 }: DestinationPlansProps) {
   const router = useRouter();
 
@@ -442,14 +451,18 @@ export function DestinationPlans({
     );
   }, [countries, countryCode]);
 
+  const wizardFilters = useMemo(
+    () => parseDestinationFiltersFromParams(searchFilters ?? {}),
+    [searchFilters],
+  );
+
   const selectedCountryPlans = useMemo(() => {
-    return packages.filter((plan) =>
-      countryCodesMatch(
-        plan.countryCode,
-        countryCode,
-      ),
+    return packages.filter(
+      (plan) =>
+        countryCodesMatch(plan.countryCode, countryCode) &&
+        matchesDestinationFilters(plan, wizardFilters),
     );
-  }, [packages, countryCode]);
+  }, [packages, countryCode, wizardFilters]);
 
   const selectedCountryOffer = useMemo(() => {
     const prices = selectedCountryPlans
@@ -697,12 +710,14 @@ export function DestinationPlans({
                 }
               />
 
-              <PlanToolbar
-                filter={filter}
-                onFilterChange={setFilter}
-                onSortChange={setSort}
-                sort={sort}
-              />
+              {!isDestinationFiltersActive(wizardFilters) ? (
+                <PlanToolbar
+                  filter={filter}
+                  onFilterChange={setFilter}
+                  onSortChange={setSort}
+                  sort={sort}
+                />
+              ) : null}
 
               {featuredPlan ? (
                 <FeaturedPlan
@@ -764,7 +779,7 @@ function HeroCountryImage({
             `${country ?? "International"} travel destination`
           }
           className={[
-            "object-cover object-center transition duration-500",
+            "object-cover object-bottom transition duration-500",
             loading
               ? "scale-[1.02] opacity-70"
               : "scale-100 opacity-100",
@@ -1124,6 +1139,19 @@ function FeaturedPlan({
         </div>
 
         <div className="lg:text-center">
+          {hasActiveDiscount(plan) ? (
+            <div className="flex items-center gap-2 lg:justify-center">
+              {discountPercentOff(plan) != null ? (
+                <span className="rounded-full bg-error/10 px-2 py-1 text-[10px] font-black text-error">
+                  -{discountPercentOff(plan)}%
+                </span>
+              ) : null}
+              <span className="text-sm font-semibold text-onSurfaceVariant line-through">
+                {formatOriginalPrice(plan)}
+              </span>
+            </div>
+          ) : null}
+
           <p className="font-display text-4xl font-black tracking-[-0.04em] text-brandInk">
             {plan.price}
           </p>
@@ -1132,6 +1160,7 @@ function FeaturedPlan({
             Total price
           </p>
 
+          {/* Showroom mode: no purchase functionality yet.
           <LinkButton
             className="group mt-5 w-full"
             href={`/checkout?package=${encodeURIComponent(
@@ -1147,6 +1176,7 @@ function FeaturedPlan({
               size={17}
             />
           </LinkButton>
+          */}
         </div>
       </div>
     </article>
@@ -1220,6 +1250,19 @@ function CompactPlanCard({
 
       <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
         <div>
+          {hasActiveDiscount(plan) ? (
+            <div className="mb-1 flex items-center gap-1.5">
+              {discountPercentOff(plan) != null ? (
+                <span className="rounded-full bg-error/10 px-1.5 py-0.5 text-[9px] font-black text-error">
+                  -{discountPercentOff(plan)}%
+                </span>
+              ) : null}
+              <span className="text-xs font-semibold text-onSurfaceVariant line-through">
+                {formatOriginalPrice(plan)}
+              </span>
+            </div>
+          ) : null}
+
           <p className="font-display text-2xl font-black text-brandInk">
             {plan.price}
           </p>
@@ -1229,6 +1272,7 @@ function CompactPlanCard({
           </p>
         </div>
 
+        {/* Showroom mode: no purchase functionality yet.
         <LinkButton
           href={`/checkout?package=${encodeURIComponent(
             plan.id,
@@ -1244,6 +1288,7 @@ function CompactPlanCard({
             size={15}
           />
         </LinkButton>
+        */}
       </div>
     </article>
   );

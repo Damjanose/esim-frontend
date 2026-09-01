@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CalendarClock, Database, Globe2, Phone, ShieldCheck } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 import { getPackageOption } from "@/services/server-packages";
+import { discountPercentOff, formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
 import { Navbar } from "../components/Navbar";
 import { SiteFooter } from "../SiteFooter";
 import { PayButton } from "./PayButton";
@@ -99,8 +100,22 @@ export default async function CheckoutPage({
 
             <div className="mt-6 flex items-end justify-between border-t border-outline pt-6">
               <span className="text-sm text-onSurfaceVariant">Total</span>
-              <span className="font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
-                {plan.price}
+              <span className="flex items-center gap-2.5">
+                {hasActiveDiscount(plan) ? (
+                  <>
+                    {discountPercentOff(plan) != null ? (
+                      <span className="rounded-full bg-error/10 px-2 py-1 text-[10px] font-black text-error">
+                        -{discountPercentOff(plan)}%
+                      </span>
+                    ) : null}
+                    <span className="text-sm font-semibold text-onSurfaceVariant line-through">
+                      {formatOriginalPrice(plan)}
+                    </span>
+                  </>
+                ) : null}
+                <span className="font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
+                  {plan.price}
+                </span>
               </span>
             </div>
 

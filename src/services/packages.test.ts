@@ -25,7 +25,8 @@ describe("mapPackageGroupsPayload", () => {
         popular: [apiPackage],
         bestValue: [],
         unlimited: [apiPackage],
-        longStay: [apiPackage]
+        longStay: [apiPackage],
+        regional: [apiPackage]
       }
     });
 
@@ -38,6 +39,7 @@ describe("mapPackageGroupsPayload", () => {
     expect(groups.bestValue).toEqual([]);
     expect(groups.unlimited).toHaveLength(1);
     expect(groups.longStay).toHaveLength(1);
+    expect(groups.regional).toHaveLength(1);
   });
 
   it("defaults every rail to an empty array when the backend omits one", () => {
@@ -47,7 +49,8 @@ describe("mapPackageGroupsPayload", () => {
       popular: [],
       bestValue: [],
       unlimited: [],
-      longStay: []
+      longStay: [],
+      regional: []
     });
   });
 
@@ -55,5 +58,24 @@ describe("mapPackageGroupsPayload", () => {
     const groups = mapPackageGroupsPayload({ popular: [apiPackage] });
 
     expect(groups.popular).toHaveLength(1);
+  });
+
+  it("carries hasDiscount/retailPrice through unconditionally when the backend sets hasDiscount, with no magnitude comparison against priceNumeric", () => {
+    // retailPrice (8) is *lower* than priceNumeric (9) here — an admin markup
+    // (discountDirection: 'increase'), not a markdown. hasDiscount must still
+    // come through so the UI can show the strikethrough original price;
+    // only the "-N%" badge (discountPricing.ts's discountPercentOff) hides
+    // itself for this case.
+    const markedUpPackage = { ...apiPackage, hasDiscount: true, retailPrice: 8 };
+    const groups = mapPackageGroupsPayload({ popular: [markedUpPackage] });
+
+    expect(groups.popular[0]).toMatchObject({ hasDiscount: true, retailPrice: 8 });
+  });
+
+  it("omits hasDiscount/retailPrice when the backend doesn't set hasDiscount", () => {
+    const groups = mapPackageGroupsPayload({ popular: [apiPackage] });
+
+    expect(groups.popular[0]?.hasDiscount).toBeUndefined();
+    expect(groups.popular[0]?.retailPrice).toBeUndefined();
   });
 });
