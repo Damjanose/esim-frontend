@@ -119,7 +119,6 @@ describe("parseDestinationFiltersFromParams", () => {
 describe("wizardFiltersToQueryParams", () => {
   it("round-trips a preset days + finite data bucket answer through parseDestinationFiltersFromParams", () => {
     const params = wizardFiltersToQueryParams({
-      kind: "filters",
       days: { kind: "preset", days: 30 },
       data: { kind: "range", fromGb: 20, toGb: null },
     });
@@ -137,7 +136,6 @@ describe("wizardFiltersToQueryParams", () => {
 
   it("encodes an unlimited data answer so only unlimited plans pass the filter", () => {
     const params = wizardFiltersToQueryParams({
-      kind: "filters",
       days: { kind: "any" },
       data: { kind: "unlimited" },
     });
@@ -157,7 +155,6 @@ describe("wizardFiltersToQueryParams", () => {
 
   it("produces no params for an all-'any' answer", () => {
     const params = wizardFiltersToQueryParams({
-      kind: "filters",
       days: { kind: "any" },
       data: { kind: "any" },
     });

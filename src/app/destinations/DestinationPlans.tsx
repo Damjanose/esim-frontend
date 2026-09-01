@@ -33,6 +33,10 @@ import {
   type HeroPackageOption,
 } from "@/services/packages";
 import { discountPercentOff, formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
+import {
+  matchesDestinationFilters,
+  parseDestinationFiltersFromParams,
+} from "@/services/destinationFilters";
 import { Navbar } from "../components/Navbar";
 import { Button, LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
@@ -41,6 +45,8 @@ import { absoluteUrl, createOfferProductJsonLd } from "@/lib/seo";
 
 type DestinationPlansProps = {
   countryCode: string;
+  /** The wizard's `daysMin`/`daysMax`/`dataMin`/`dataMax`/`unlimited` query params, if it handed off a destination. */
+  searchFilters?: Record<string, string | undefined>;
 };
 
 type CountryOption = {
@@ -310,6 +316,7 @@ function useCountryHeroImage(country?: string) {
 
 export function DestinationPlans({
   countryCode,
+  searchFilters,
 }: DestinationPlansProps) {
   const router = useRouter();
 
@@ -443,14 +450,18 @@ export function DestinationPlans({
     );
   }, [countries, countryCode]);
 
+  const wizardFilters = useMemo(
+    () => parseDestinationFiltersFromParams(searchFilters ?? {}),
+    [searchFilters],
+  );
+
   const selectedCountryPlans = useMemo(() => {
-    return packages.filter((plan) =>
-      countryCodesMatch(
-        plan.countryCode,
-        countryCode,
-      ),
+    return packages.filter(
+      (plan) =>
+        countryCodesMatch(plan.countryCode, countryCode) &&
+        matchesDestinationFilters(plan, wizardFilters),
     );
-  }, [packages, countryCode]);
+  }, [packages, countryCode, wizardFilters]);
 
   const selectedCountryOffer = useMemo(() => {
     const prices = selectedCountryPlans
@@ -765,7 +776,7 @@ function HeroCountryImage({
             `${country ?? "International"} travel destination`
           }
           className={[
-            "object-cover object-center transition duration-500",
+            "object-cover object-bottom transition duration-500",
             loading
               ? "scale-[1.02] opacity-70"
               : "scale-100 opacity-100",

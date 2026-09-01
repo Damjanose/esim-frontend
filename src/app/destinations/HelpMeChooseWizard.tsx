@@ -13,14 +13,14 @@ type CountryOption = {
   flagUri: string;
 };
 
-type DaysAnswer = { kind: "any" } | { kind: "preset"; days: number } | { kind: "custom"; days: number };
-type DataAnswer =
+export type DaysAnswer = { kind: "any" } | { kind: "preset"; days: number } | { kind: "custom"; days: number };
+export type DataAnswer =
   | { kind: "any" }
   | { kind: "range"; fromGb: number; toGb: number | null }
   | { kind: "unlimited" };
 
 export type WizardResult =
-  | { kind: "country"; countryCode: string }
+  | { kind: "country"; countryCode: string; days: DaysAnswer; data: DataAnswer }
   | {
       kind: "filters";
       days: DaysAnswer;
@@ -74,10 +74,15 @@ export function HelpMeChooseWizard({
   useEffect(() => {
     if (!searchingCountry) return;
     const timer = setTimeout(() => {
-      onFinishRef.current({ kind: "country", countryCode: searchingCountry.countryCode });
+      onFinishRef.current({
+        kind: "country",
+        countryCode: searchingCountry.countryCode,
+        days,
+        data,
+      });
     }, 2000);
     return () => clearTimeout(timer);
-  }, [searchingCountry]);
+  }, [searchingCountry, days, data]);
 
   const filteredCountries = destinationQuery.trim()
     ? countries.filter((c) =>

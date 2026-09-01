@@ -185,7 +185,9 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
     setWizardOpen(false);
 
     if (result.kind === "country") {
-      router.push(`/destinations?country=${encodeURIComponent(result.countryCode)}`);
+      const params = wizardFiltersToQueryParams(result);
+      params.set("country", result.countryCode);
+      router.push(`/destinations?${params.toString()}`);
       return;
     }
 

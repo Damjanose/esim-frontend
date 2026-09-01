@@ -50,6 +50,25 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
 
     expect(source).toContain("<DestinationBrowse autoOpenWizard");
   });
+
+  it("carries the wizard's trip-length/data filters alongside a picked country, instead of dropping them", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/destinations/DestinationBrowse.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('if (result.kind === "country") {');
+    expect(source).toContain("const params = wizardFiltersToQueryParams(result);");
+    expect(source).toContain('params.set("country", result.countryCode);');
+  });
+
+  it("the destinations page forwards the wizard's filter query params to the per-country plans list", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/destinations/page.tsx"), "utf8");
+
+    expect(source).toContain(
+      "<DestinationPlans countryCode={countryCode} searchFilters={wizardFilterParams} />",
+    );
+  });
 });
 
 describe("HeroDestinationChips error handling", () => {

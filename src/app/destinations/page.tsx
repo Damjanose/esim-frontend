@@ -67,7 +67,7 @@ export default async function DestinationsPage({
       />
 
       {hasSelectedCountry ? (
-        <DestinationPlans countryCode={countryCode} />
+        <DestinationPlans countryCode={countryCode} searchFilters={wizardFilterParams} />
       ) : (
         <>
           <Navbar />
