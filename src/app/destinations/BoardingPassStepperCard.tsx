@@ -109,7 +109,7 @@ function StepNode({
         )}
       </div>
       <span
-        className={`w-16 text-center text-[9.5px] font-bold leading-tight ${
+        className={`max-w-[15vw] truncate text-center text-[9.5px] font-bold leading-tight sm:max-w-none ${
           isActive ? "opacity-100" : isDone ? "opacity-90" : "opacity-70"
         }`}
       >
@@ -141,11 +141,14 @@ function CheckmarkStamp({ reduceMotion }: { reduceMotion: boolean }) {
 
 function DashTrack({ filled, reduceMotion }: { filled: boolean; reduceMotion: boolean }) {
   return (
-    <div className="mx-1.5 flex flex-1 items-center justify-center gap-[5px]" aria-hidden="true">
+    <div
+      className="mx-1.5 flex min-w-[10px] flex-1 items-center justify-center gap-[5px] overflow-hidden"
+      aria-hidden="true"
+    >
       {Array.from({ length: DASH_COUNT }).map((_, dashIndex) => (
         <span
           key={dashIndex}
-          className={`h-[2.5px] w-2 rounded-full transition-colors ${
+          className={`h-[2.5px] min-w-[3px] flex-1 rounded-full transition-colors ${
             reduceMotion ? "duration-0" : "duration-150"
           } ${filled ? "bg-white" : "bg-white/25"}`}
           style={

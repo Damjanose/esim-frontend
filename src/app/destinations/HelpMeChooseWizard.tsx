@@ -106,11 +106,11 @@ export function HelpMeChooseWizard({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-end justify-center bg-midnight/60 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-midnight/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-outline bg-surface p-6 shadow-brandCard sm:rounded-[28px]"
+        className="relative max-h-[85vh] w-full max-w-[95vw] overflow-y-auto rounded-[28px] border border-outline bg-surface p-6 shadow-brandCard sm:max-w-lg"
         onClick={(event) => event.stopPropagation()}
       >
         <button
