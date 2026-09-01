@@ -13,6 +13,7 @@ import { Navbar } from "../components/Navbar";
 import { LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
 import { DestinationPlans } from "./DestinationPlans";
+import { DestinationBrowse } from "./DestinationBrowse";
 
 export const metadata: Metadata = createMetadata({
   path: "/destinations",
@@ -24,19 +25,34 @@ export const metadata: Metadata = createMetadata({
 type DestinationsPageProps = {
   searchParams: Promise<{
     country?: string | string[];
+    daysMin?: string | string[];
+    daysMax?: string | string[];
+    dataMin?: string | string[];
+    dataMax?: string | string[];
+    unlimited?: string | string[];
   }>;
 };
+
+function firstValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
 
 export default async function DestinationsPage({
   searchParams,
 }: DestinationsPageProps) {
   const resolvedSearchParams = await searchParams;
 
-  const countryCode = Array.isArray(resolvedSearchParams.country)
-    ? resolvedSearchParams.country[0] ?? ""
-    : resolvedSearchParams.country ?? "";
+  const countryCode = firstValue(resolvedSearchParams.country) ?? "";
 
   const hasSelectedCountry = countryCode.trim().length > 0;
+
+  const wizardFilterParams = {
+    daysMin: firstValue(resolvedSearchParams.daysMin),
+    daysMax: firstValue(resolvedSearchParams.daysMax),
+    dataMin: firstValue(resolvedSearchParams.dataMin),
+    dataMax: firstValue(resolvedSearchParams.dataMax),
+    unlimited: firstValue(resolvedSearchParams.unlimited),
+  };
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
@@ -93,6 +109,8 @@ export default async function DestinationsPage({
               </div>
             </div>
           </section>
+
+          <DestinationBrowse urlFilters={wizardFilterParams} />
 
           <section className="relative px-5 pb-24 md:px-8">
             <div className="pointer-events-none absolute left-1/2 top-24 h-72 w-[70%] -translate-x-1/2 rounded-full bg-brandBlue/6 blur-[130px]" />
