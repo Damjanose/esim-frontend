@@ -23,7 +23,7 @@ describe("hidden admin purchase dashboard", () => {
     expect(dashboardSource).toContain("/bff/admin/dashboard");
     expect(dashboardSource).toContain("response.status === 401");
     expect(dashboardSource).toContain("handleUnauthorized");
-    expect(dashboardSource).toContain("Purchases over time");
+    expect(dashboardSource).toContain("Purchases &amp; revenue");
     expect(dashboardSource).toContain("<svg");
     expect(dashboardSource).toContain("Email");
     expect(dashboardSource).toContain("Package");

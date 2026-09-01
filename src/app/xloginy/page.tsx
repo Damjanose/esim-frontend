@@ -95,20 +95,34 @@ function formatOtpStatus(status: string) {
 }
 
 const CHART_LEFT_PAD = 44;
-const CHART_RIGHT_PAD = 18;
+const CHART_RIGHT_PAD = 54;
 const CHART_TOP_PAD = 20;
 const CHART_BASELINE = 172;
 const CHART_BAND = 150;
+const CHART_HEIGHT = 220;
 
-function PurchasesChart({ data }: { data: ChartPoint[] }) {
-  const maxPurchases = Math.max(1, ...data.map((point) => point.purchases));
-  const width = Math.max(420, data.length * 64);
-  const height = 220;
-  const barWidth = data.length > 0 ? Math.max(18, Math.min(42, width / data.length - 18)) : 32;
-  const gridSteps = 4;
-  const gridValues = Array.from({ length: gridSteps + 1 }, (_, i) =>
-    Math.round((maxPurchases / gridSteps) * i)
-  );
+function compactMoney(amountCents: number, currency: string | null) {
+  const amount = amountCents / 100;
+  if (!currency) return amount >= 1000 ? `${(amount / 1000).toFixed(1)}k` : amount.toFixed(0);
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    notation: amount >= 1000 ? "compact" : "standard",
+    maximumFractionDigits: amount >= 1000 ? 1 : 0
+  }).format(amount);
+}
+
+function PurchasesRevenueChart({
+  data,
+  revenueByCurrency
+}: {
+  data: ChartPoint[];
+  revenueByCurrency: Record<string, number>;
+}) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const currencies = Object.keys(revenueByCurrency);
+  const primaryCurrency = currencies[0] ?? null;
+  const hasMixedCurrencies = currencies.length > 1;
 
   if (data.length === 0) {
     return (
@@ -118,73 +132,175 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
     );
   }
 
+  const totalPurchases = data.reduce((sum, point) => sum + point.purchases, 0);
+  const totalRevenueCents = data.reduce((sum, point) => sum + point.revenueCents, 0);
+  const avgPerDay = totalPurchases / data.length;
+  const busiestDay = data.reduce((best, point) => (point.purchases > best.purchases ? point : best), data[0]);
+
+  const maxPurchases = Math.max(1, ...data.map((point) => point.purchases));
+  const maxRevenue = Math.max(1, ...data.map((point) => point.revenueCents));
+  const width = Math.max(480, data.length * 64);
+  const columnWidth = (width - CHART_LEFT_PAD - CHART_RIGHT_PAD) / data.length;
+  const barWidth = Math.max(14, Math.min(36, columnWidth - 16));
+  const gridSteps = 4;
+  const gridFractions = Array.from({ length: gridSteps + 1 }, (_, i) => i / gridSteps);
+
+  function columnX(index: number) {
+    return CHART_LEFT_PAD + index * columnWidth;
+  }
+
+  const linePoints = data.map((point, index) => {
+    const x = columnX(index) + columnWidth / 2;
+    const y = CHART_BASELINE - (point.revenueCents / maxRevenue) * CHART_BAND;
+    return { x, y };
+  });
+  const linePath = linePoints.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+  const areaPath = `${linePath} L${linePoints[linePoints.length - 1].x},${CHART_BASELINE} L${linePoints[0].x},${CHART_BASELINE} Z`;
+
+  const hovered = hoveredIndex != null ? data[hoveredIndex] : null;
+
   return (
-    <div className="overflow-x-auto">
-      <svg
-        aria-label="Purchases over time"
-        className="min-w-full"
-        role="img"
-        viewBox={`0 0 ${width} ${height}`}
-      >
-        <defs>
-          <linearGradient id="barGradient" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#00d9f5" />
-            <stop offset="100%" stopColor="#71efff" />
-          </linearGradient>
-        </defs>
+    <div>
+      <div className="mb-3 flex flex-wrap items-center gap-4 text-[11px] font-bold text-muted">
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden="true" className="h-2 w-2 rounded-sm bg-[#00d9f5]" />
+          Purchases
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-brandTeal" />
+          Revenue
+        </span>
+      </div>
 
-        {gridValues.map((value) => {
-          const y = CHART_BASELINE - (value / maxPurchases) * CHART_BAND;
-          return (
-            <g key={value}>
-              <line
-                stroke={value === 0 ? "#c7e9ef" : "#eef8fa"}
-                strokeWidth="1"
-                x1={CHART_LEFT_PAD}
-                x2={width - CHART_RIGHT_PAD}
-                y1={y}
-                y2={y}
-              />
-              <text fill="#5a8b93" fontSize="10" textAnchor="end" x={CHART_LEFT_PAD - 8} y={y + 3}>
-                {value}
-              </text>
-            </g>
-          );
-        })}
+      <div className="overflow-x-auto">
+        <svg
+          aria-label="Purchases and revenue over time"
+          className="min-w-full"
+          onMouseLeave={() => setHoveredIndex(null)}
+          role="img"
+          viewBox={`0 0 ${width} ${CHART_HEIGHT}`}
+        >
+          <defs>
+            <linearGradient id="barGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#00d9f5" />
+              <stop offset="100%" stopColor="#71efff" />
+            </linearGradient>
+            <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#09C3BE" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#09C3BE" stopOpacity="0" />
+            </linearGradient>
+          </defs>
 
-        {data.map((point, index) => {
-          const x = CHART_LEFT_PAD + 8 + index * ((width - CHART_LEFT_PAD - CHART_RIGHT_PAD) / data.length);
-          const barHeight = point.purchases > 0 ? Math.max(6, (point.purchases / maxPurchases) * CHART_BAND) : 0;
-          const y = CHART_BASELINE - barHeight;
-          const revenueLabel = point.revenueCents > 0 ? ` · ${(point.revenueCents / 100).toFixed(2)} revenue` : "";
+          {gridFractions.map((fraction) => {
+            const y = CHART_BASELINE - fraction * CHART_BAND;
+            return (
+              <g key={fraction}>
+                <line
+                  stroke={fraction === 0 ? "#c7e9ef" : "#eef8fa"}
+                  strokeWidth="1"
+                  x1={CHART_LEFT_PAD}
+                  x2={width - CHART_RIGHT_PAD}
+                  y1={y}
+                  y2={y}
+                />
+                <text fill="#5a8b93" fontSize="10" textAnchor="end" x={CHART_LEFT_PAD - 8} y={y + 3}>
+                  {Math.round(fraction * maxPurchases)}
+                </text>
+                <text fill="#0a8a86" fontSize="10" textAnchor="start" x={width - CHART_RIGHT_PAD + 8} y={y + 3}>
+                  {compactMoney(fraction * maxRevenue, primaryCurrency)}
+                </text>
+              </g>
+            );
+          })}
 
-          return (
-            <g key={point.date}>
-              <rect fill="transparent" height={CHART_BAND + CHART_TOP_PAD} width={barWidth + 12} x={x - 6} y={CHART_TOP_PAD}>
-                <title>
-                  {point.date} · {point.purchases} purchase{point.purchases === 1 ? "" : "s"}
-                  {revenueLabel}
-                </title>
-              </rect>
+          {data.map((point, index) => {
+            const x = columnX(index) + (columnWidth - barWidth) / 2;
+            const barHeight = point.purchases > 0 ? Math.max(4, (point.purchases / maxPurchases) * CHART_BAND) : 0;
+            const y = CHART_BASELINE - barHeight;
+            const isHovered = hoveredIndex === index;
+
+            return (
               <rect
-                className="transition-opacity hover:opacity-80"
-                fill="url(#barGradient)"
+                fill={isHovered ? "#001f26" : "url(#barGradient)"}
                 height={barHeight}
+                key={`bar-${point.date}`}
                 rx="6"
                 width={barWidth}
                 x={x}
                 y={y}
               />
-              <text fill="#001f26" fontSize="13" fontWeight="800" textAnchor="middle" x={x + barWidth / 2} y={y - 8}>
-                {point.purchases}
-              </text>
-              <text fill="#5a8b93" fontSize="11" textAnchor="middle" x={x + barWidth / 2} y="198">
-                {point.date.slice(5)}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+            );
+          })}
+
+          <path d={areaPath} fill="url(#areaGradient)" />
+          <path d={linePath} fill="none" stroke="#09C3BE" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
+          {linePoints.map((p, index) => (
+            <circle
+              cx={p.x}
+              cy={p.y}
+              fill={hoveredIndex === index ? "#09C3BE" : "#ffffff"}
+              key={`dot-${data[index].date}`}
+              r={hoveredIndex === index ? 4.5 : 3}
+              stroke="#09C3BE"
+              strokeWidth="2"
+            />
+          ))}
+
+          {data.map((point, index) => (
+            <text
+              fill="#5a8b93"
+              fontSize="11"
+              key={`label-${point.date}`}
+              textAnchor="middle"
+              x={columnX(index) + columnWidth / 2}
+              y="198"
+            >
+              {point.date.slice(5)}
+            </text>
+          ))}
+
+          {data.map((point, index) => (
+            <rect
+              fill="transparent"
+              height={CHART_HEIGHT}
+              key={`hit-${point.date}`}
+              onMouseEnter={() => setHoveredIndex(index)}
+              width={columnWidth}
+              x={columnX(index)}
+              y={0}
+            />
+          ))}
+
+          {hoveredIndex != null ? (
+            <line
+              stroke="#c7e9ef"
+              strokeDasharray="3 3"
+              x1={columnX(hoveredIndex) + columnWidth / 2}
+              x2={columnX(hoveredIndex) + columnWidth / 2}
+              y1={CHART_TOP_PAD}
+              y2={CHART_BASELINE}
+            />
+          ) : null}
+        </svg>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#f8fdfe] px-4 py-3">
+        {hovered ? (
+          <p className="text-xs font-bold text-midnight">
+            {hovered.date} · {hovered.purchases} purchase{hovered.purchases === 1 ? "" : "s"} ·{" "}
+            {compactMoney(hovered.revenueCents, primaryCurrency)} revenue
+          </p>
+        ) : (
+          <p className="text-xs font-bold text-midnight">
+            {totalPurchases} purchases over {data.length} day{data.length === 1 ? "" : "s"} ·{" "}
+            {compactMoney(totalRevenueCents, primaryCurrency)} total ·{" "}
+            {avgPerDay.toFixed(1)} avg/day · busiest {busiestDay.date} ({busiestDay.purchases})
+          </p>
+        )}
+        {hasMixedCurrencies ? (
+          <p className="text-[10px] font-semibold text-muted">Revenue mixes multiple currencies; totals are approximate.</p>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -414,9 +530,9 @@ export default function AdminDashboardPage() {
             </div>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
-              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Purchases over time</h2>
+              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Purchases &amp; revenue</h2>
               <div className="mt-3">
-                <PurchasesChart data={chart} />
+                <PurchasesRevenueChart data={chart} revenueByCurrency={summary.revenueByCurrency} />
               </div>
             </section>
 
