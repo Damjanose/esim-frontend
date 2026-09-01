@@ -103,9 +103,11 @@ export function Navbar({ theme = "light" }: NavbarProps) {
             <ChevronDown aria-hidden="true" size={14} />
           </button>
 
-          {/* Static on purpose: the navbar renders on statically generated public
+          {/* Showroom mode: no purchase/account functionality yet, so the profile
+              entry point is commented out rather than deleted.
+              Static on purpose: the navbar renders on statically generated public
               pages, so it must not read cookies. Signed-out visitors are sent on
-              to sign-in by the route guard. */}
+              to sign-in by the route guard.
           <a
             aria-label="Your profile"
             className={[
@@ -118,6 +120,7 @@ export function Navbar({ theme = "light" }: NavbarProps) {
           >
             <UserRound aria-hidden="true" size={19} />
           </a>
+          */}
 
           <LinkButton className="px-5 sm:px-7" href="/#download-app">
             Get eSIM Now
