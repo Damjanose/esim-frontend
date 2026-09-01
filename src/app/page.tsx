@@ -21,6 +21,7 @@ import { LinkButton } from "./components/Button";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { HeroDestinationChips } from "./HeroDestinationChips";
+import { CoverageFlagMosaic } from "./CoverageFlagMosaic";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
 
 const travelerImages = [
@@ -105,7 +106,7 @@ export default function Home() {
 
       <Navbar theme="dark" />
       <Hero />
-      <DestinationBrowse urlFilters={{}} />
+      <DestinationBrowse autoOpenWizard urlFilters={{}} />
       <Benefits />
       <JourneyAndCoverage />
       <TestimonialsAndFaq />
@@ -257,9 +258,6 @@ function Benefits() {
 }
 
 function JourneyAndCoverage() {
-  const cardClassName =
-    "relative mt-7 h-auto min-h-[420px] w-full overflow-hidden rounded-[22px] border border-outline bg-surface shadow-brandCard sm:h-[420px]";
-
   return (
     <section
       className="overflow-hidden bg-surface px-5 py-14 text-onSurface md:px-8 md:py-20"
@@ -278,55 +276,37 @@ function JourneyAndCoverage() {
             </h2>
           </div>
 
-          <div
-            className={`${cardClassName} flex items-center justify-center px-6 py-10 sm:px-8`}
-          >
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[230px] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brandBlue/8 blur-[90px]" />
+          <div className="mt-7 flex flex-col gap-3">
+            {installationSteps.map((step, index) => {
+              const Icon = step.icon;
 
-            <div className="relative z-10 grid w-full gap-10 sm:grid-cols-3 sm:gap-0">
-              {installationSteps.map((step, index) => {
-                const Icon = step.icon;
-                const isLastStep = index === installationSteps.length - 1;
+              return (
+                <div
+                  className="flex items-center gap-4 rounded-[18px] border border-outline bg-surface p-4 shadow-brandCard transition duration-300 hover:-translate-y-0.5 hover:border-brandBlue/40 sm:p-5"
+                  key={step.title}
+                >
+                  <div className="relative shrink-0">
+                    <span className="absolute -left-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-brandBlue to-[#0E86C0] text-[11px] font-black text-white shadow-[0_0_18px_rgba(11,73,183,0.35)]">
+                      {index + 1}
+                    </span>
 
-                return (
-                  <div
-                    className="relative flex min-w-0 flex-col items-center text-center"
-                    key={step.title}
-                  >
-                    {!isLastStep && (
-                      <div className="pointer-events-none absolute left-[calc(50%+48px)] top-[36px] z-0 hidden w-[calc(100%-96px)] items-center sm:flex">
-                        <span className="h-px flex-1 bg-gradient-to-r from-brandBlue/40 via-brandBlue/55 to-brandBlue/30" />
+                    <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-outline bg-brandBlue/10 text-brandBlue">
+                      <Icon aria-hidden="true" size={26} strokeWidth={2.2} />
+                    </span>
+                  </div>
 
-                        <ArrowRight
-                          aria-hidden="true"
-                          className="-ml-[2px] shrink-0 text-brandBlue"
-                          size={18}
-                          strokeWidth={1.7}
-                        />
-                      </div>
-                    )}
-
-                    <div className="relative z-10">
-                      <span className="absolute -left-3 -top-3 grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-brandBlue to-[#0E86C0] text-xs font-black text-white shadow-[0_0_22px_rgba(11,73,183,0.35)]">
-                        {index + 1}
-                      </span>
-
-                      <span className="grid h-[74px] w-[74px] place-items-center rounded-[18px] border border-outline bg-brandBlue/10 text-brandBlue shadow-brandCard">
-                        <Icon aria-hidden="true" size={30} strokeWidth={2.2} />
-                      </span>
-                    </div>
-
-                    <h3 className="mt-5 whitespace-nowrap font-display text-sm font-black text-brandInk">
+                  <div className="min-w-0">
+                    <h3 className="font-display text-base font-black text-brandInk">
                       {step.title}
                     </h3>
 
-                    <p className="mt-2 max-w-[165px] text-xs leading-5 text-onSurfaceVariant">
+                    <p className="mt-1 text-sm leading-5 text-onSurfaceVariant">
                       {step.description}
                     </p>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -342,44 +322,38 @@ function JourneyAndCoverage() {
             </h2>
           </div>
 
-          <div
-            className={`${cardClassName} bg-[image:url('/images/usage-map.png')] bg-cover bg-center bg-no-repeat`}
-          >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(11,73,183,0.1),transparent_58%)]" />
+          <div className="mt-7 rounded-[22px] border border-outline bg-surface p-5 shadow-brandCard sm:p-6">
+            <CoverageFlagMosaic />
 
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-brandInk/25" />
+            <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-[16px] border border-outline text-center">
+              <div className="flex flex-col items-center justify-center px-2 py-4">
+                <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
+                  200+
+                </p>
 
-            <div className="relative z-10 flex h-full items-end p-4 sm:p-5">
-              <div className="grid h-[92px] w-full grid-cols-3 overflow-hidden rounded-[18px] border border-outline bg-surface/90 text-center shadow-brandCard backdrop-blur-xl">
-                <div className="flex flex-col items-center justify-center px-2">
-                  <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
-                    200+
-                  </p>
+                <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
+                  Countries
+                </p>
+              </div>
 
-                  <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
-                    Countries
-                  </p>
-                </div>
+              <div className="flex flex-col items-center justify-center border-x border-outline px-2 py-4">
+                <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
+                  500+
+                </p>
 
-                <div className="my-4 flex flex-col items-center justify-center border-x border-outline px-2">
-                  <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
-                    500+
-                  </p>
+                <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
+                  Networks
+                </p>
+              </div>
 
-                  <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
-                    Networks
-                  </p>
-                </div>
+              <div className="flex flex-col items-center justify-center px-2 py-4">
+                <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
+                  99%
+                </p>
 
-                <div className="flex flex-col items-center justify-center px-2">
-                  <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
-                    99%
-                  </p>
-
-                  <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
-                    Global Coverage
-                  </p>
-                </div>
+                <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
+                  Global Coverage
+                </p>
               </div>
             </div>
           </div>

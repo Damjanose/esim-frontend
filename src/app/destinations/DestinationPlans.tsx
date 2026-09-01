@@ -32,6 +32,7 @@ import {
   fetchPackageOptions,
   type HeroPackageOption,
 } from "@/services/packages";
+import { discountPercentOff, formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
 import { Navbar } from "../components/Navbar";
 import { Button, LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
@@ -1124,6 +1125,19 @@ function FeaturedPlan({
         </div>
 
         <div className="lg:text-center">
+          {hasActiveDiscount(plan) ? (
+            <div className="flex items-center gap-2 lg:justify-center">
+              {discountPercentOff(plan) != null ? (
+                <span className="rounded-full bg-error/10 px-2 py-1 text-[10px] font-black text-error">
+                  -{discountPercentOff(plan)}%
+                </span>
+              ) : null}
+              <span className="text-sm font-semibold text-onSurfaceVariant line-through">
+                {formatOriginalPrice(plan)}
+              </span>
+            </div>
+          ) : null}
+
           <p className="font-display text-4xl font-black tracking-[-0.04em] text-brandInk">
             {plan.price}
           </p>
@@ -1220,6 +1234,19 @@ function CompactPlanCard({
 
       <div className="relative mt-auto flex items-end justify-between gap-4 pt-6">
         <div>
+          {hasActiveDiscount(plan) ? (
+            <div className="mb-1 flex items-center gap-1.5">
+              {discountPercentOff(plan) != null ? (
+                <span className="rounded-full bg-error/10 px-1.5 py-0.5 text-[9px] font-black text-error">
+                  -{discountPercentOff(plan)}%
+                </span>
+              ) : null}
+              <span className="text-xs font-semibold text-onSurfaceVariant line-through">
+                {formatOriginalPrice(plan)}
+              </span>
+            </div>
+          ) : null}
+
           <p className="font-display text-2xl font-black text-brandInk">
             {plan.price}
           </p>

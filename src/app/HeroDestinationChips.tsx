@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Globe2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Globe2, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchPackageGroups, type HeroPackageOption } from "@/services/packages";
 
 const CHIP_COUNT = 8;
@@ -29,22 +29,42 @@ function dedupeByCountry(packages: readonly HeroPackageOption[]): HeroPackageOpt
 
 export function HeroDestinationChips() {
   const [popular, setPopular] = useState<HeroPackageOption[]>([]);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let active = true;
 
     fetchPackageGroups()
       .then((groups) => {
-        if (active) setPopular(dedupeByCountry(groups.popular).slice(0, CHIP_COUNT));
+        if (!active) return;
+        setLoadError(false);
+        setPopular(dedupeByCountry(groups.popular).slice(0, CHIP_COUNT));
       })
       .catch((error) => {
         console.error("Failed to load popular destinations:", error);
+        if (active) setLoadError(true);
       });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [retryCount]);
+
+  const handleRetry = useCallback(() => setRetryCount((count) => count + 1), []);
+
+  if (loadError) {
+    return (
+      <button
+        className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-bold text-white/85 backdrop-blur-md transition hover:border-white/50 hover:bg-white/20"
+        onClick={handleRetry}
+        type="button"
+      >
+        <RefreshCw aria-hidden="true" size={13} />
+        Popular destinations unavailable — try again
+      </button>
+    );
+  }
 
   if (popular.length === 0) return null;
 

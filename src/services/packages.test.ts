@@ -56,4 +56,23 @@ describe("mapPackageGroupsPayload", () => {
 
     expect(groups.popular).toHaveLength(1);
   });
+
+  it("carries hasDiscount/retailPrice through unconditionally when the backend sets hasDiscount, with no magnitude comparison against priceNumeric", () => {
+    // retailPrice (8) is *lower* than priceNumeric (9) here — an admin markup
+    // (discountDirection: 'increase'), not a markdown. hasDiscount must still
+    // come through so the UI can show the strikethrough original price;
+    // only the "-N%" badge (discountPricing.ts's discountPercentOff) hides
+    // itself for this case.
+    const markedUpPackage = { ...apiPackage, hasDiscount: true, retailPrice: 8 };
+    const groups = mapPackageGroupsPayload({ popular: [markedUpPackage] });
+
+    expect(groups.popular[0]).toMatchObject({ hasDiscount: true, retailPrice: 8 });
+  });
+
+  it("omits hasDiscount/retailPrice when the backend doesn't set hasDiscount", () => {
+    const groups = mapPackageGroupsPayload({ popular: [apiPackage] });
+
+    expect(groups.popular[0]?.hasDiscount).toBeUndefined();
+    expect(groups.popular[0]?.retailPrice).toBeUndefined();
+  });
 });

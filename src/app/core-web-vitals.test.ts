@@ -20,6 +20,10 @@ describe("Core Web Vitals performance contract", () => {
     const configSource = await readFile(join(process.cwd(), "next.config.mjs"), "utf8");
 
     expect(configSource).toContain('hostname: "images.unsplash.com"');
-    expect(configSource).toContain('hostname: "upload.wikimedia.org"');
+    // Wildcarded rather than a single literal host: Wikimedia serves country
+    // images from more than one subdomain (upload.wikimedia.org for
+    // originals, thumb.wikimedia.org for thumbnails, ...) depending on what
+    // its imageinfo API returns for a given image.
+    expect(configSource).toContain('hostname: "*.wikimedia.org"');
   });
 });
