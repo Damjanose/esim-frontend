@@ -34,6 +34,7 @@ import {
 } from "@/services/packages";
 import { discountPercentOff, formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
 import {
+  isDestinationFiltersActive,
   matchesDestinationFilters,
   parseDestinationFiltersFromParams,
 } from "@/services/destinationFilters";
@@ -709,12 +710,14 @@ export function DestinationPlans({
                 }
               />
 
-              <PlanToolbar
-                filter={filter}
-                onFilterChange={setFilter}
-                onSortChange={setSort}
-                sort={sort}
-              />
+              {!isDestinationFiltersActive(wizardFilters) ? (
+                <PlanToolbar
+                  filter={filter}
+                  onFilterChange={setFilter}
+                  onSortChange={setSort}
+                  sort={sort}
+                />
+              ) : null}
 
               {featuredPlan ? (
                 <FeaturedPlan
