@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, LogOut, RefreshCw } from "lucide-react";
+import { BarChart3, DollarSign, LogOut, RefreshCw, ShoppingBag, Users, type LucideIcon } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
@@ -94,12 +94,21 @@ function formatOtpStatus(status: string) {
   return status.replaceAll("_", " ");
 }
 
+const CHART_LEFT_PAD = 44;
+const CHART_RIGHT_PAD = 18;
+const CHART_TOP_PAD = 20;
+const CHART_BASELINE = 172;
+const CHART_BAND = 150;
+
 function PurchasesChart({ data }: { data: ChartPoint[] }) {
   const maxPurchases = Math.max(1, ...data.map((point) => point.purchases));
-  const width = Math.max(360, data.length * 64);
+  const width = Math.max(420, data.length * 64);
   const height = 220;
-  const chartHeight = 150;
   const barWidth = data.length > 0 ? Math.max(18, Math.min(42, width / data.length - 18)) : 32;
+  const gridSteps = 4;
+  const gridValues = Array.from({ length: gridSteps + 1 }, (_, i) =>
+    Math.round((maxPurchases / gridSteps) * i)
+  );
 
   if (data.length === 0) {
     return (
@@ -111,22 +120,61 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
 
   return (
     <div className="overflow-x-auto">
-      <svg aria-label="Purchases over time" className="min-w-full" role="img" viewBox={`0 0 ${width} ${height}`}>
+      <svg
+        aria-label="Purchases over time"
+        className="min-w-full"
+        role="img"
+        viewBox={`0 0 ${width} ${height}`}
+      >
         <defs>
           <linearGradient id="barGradient" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="#00d9f5" />
             <stop offset="100%" stopColor="#71efff" />
           </linearGradient>
         </defs>
-        <line x1="24" x2={width - 18} y1="172" y2="172" stroke="#dff6fa" strokeWidth="2" />
+
+        {gridValues.map((value) => {
+          const y = CHART_BASELINE - (value / maxPurchases) * CHART_BAND;
+          return (
+            <g key={value}>
+              <line
+                stroke={value === 0 ? "#c7e9ef" : "#eef8fa"}
+                strokeWidth="1"
+                x1={CHART_LEFT_PAD}
+                x2={width - CHART_RIGHT_PAD}
+                y1={y}
+                y2={y}
+              />
+              <text fill="#5a8b93" fontSize="10" textAnchor="end" x={CHART_LEFT_PAD - 8} y={y + 3}>
+                {value}
+              </text>
+            </g>
+          );
+        })}
+
         {data.map((point, index) => {
-          const x = 36 + index * (width / data.length);
-          const barHeight = Math.max(8, (point.purchases / maxPurchases) * chartHeight);
-          const y = 172 - barHeight;
+          const x = CHART_LEFT_PAD + 8 + index * ((width - CHART_LEFT_PAD - CHART_RIGHT_PAD) / data.length);
+          const barHeight = point.purchases > 0 ? Math.max(6, (point.purchases / maxPurchases) * CHART_BAND) : 0;
+          const y = CHART_BASELINE - barHeight;
+          const revenueLabel = point.revenueCents > 0 ? ` · ${(point.revenueCents / 100).toFixed(2)} revenue` : "";
 
           return (
             <g key={point.date}>
-              <rect fill="url(#barGradient)" height={barHeight} rx="6" width={barWidth} x={x} y={y} />
+              <rect fill="transparent" height={CHART_BAND + CHART_TOP_PAD} width={barWidth + 12} x={x - 6} y={CHART_TOP_PAD}>
+                <title>
+                  {point.date} · {point.purchases} purchase{point.purchases === 1 ? "" : "s"}
+                  {revenueLabel}
+                </title>
+              </rect>
+              <rect
+                className="transition-opacity hover:opacity-80"
+                fill="url(#barGradient)"
+                height={barHeight}
+                rx="6"
+                width={barWidth}
+                x={x}
+                y={y}
+              />
               <text fill="#001f26" fontSize="13" fontWeight="800" textAnchor="middle" x={x + barWidth / 2} y={y - 8}>
                 {point.purchases}
               </text>
@@ -141,14 +189,36 @@ function PurchasesChart({ data }: { data: ChartPoint[] }) {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string | number }) {
+const STAT_ACCENTS = {
+  cyan: { icon: "text-cyanDeep", glow: "rgba(0,217,245,0.14)" },
+  teal: { icon: "text-brandTeal", glow: "rgba(9,195,190,0.16)" },
+  blue: { icon: "text-brandBlue", glow: "rgba(11,73,183,0.14)" },
+  ink: { icon: "text-midnight", glow: "rgba(0,31,38,0.12)" }
+} as const;
+
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  accent
+}: {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  accent: keyof typeof STAT_ACCENTS;
+}) {
+  const { icon: iconClass, glow } = STAT_ACCENTS[accent];
   return (
     <article className="relative overflow-hidden rounded-2xl border border-line bg-white p-4 shadow-card">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(0,217,245,0.14),transparent_70%)]"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full"
+        style={{ background: `radial-gradient(circle, ${glow}, transparent 70%)` }}
       />
-      <p className="text-[10px] font-black uppercase tracking-wide text-muted">{label}</p>
+      <div className="flex items-center gap-1.5">
+        <Icon aria-hidden="true" className={iconClass} size={13} />
+        <p className="text-[10px] font-black uppercase tracking-wide text-muted">{label}</p>
+      </div>
       <p className="mt-1 font-display text-2xl font-black text-midnight">{value}</p>
     </article>
   );
@@ -203,6 +273,7 @@ export default function AdminDashboardPage() {
   const [purchasesPage, setPurchasesPage] = useState(1);
   const [usersPage, setUsersPage] = useState(1);
   const [otpPage, setOtpPage] = useState(1);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const purchases = dashboard?.purchases ?? [];
   const chart = dashboard?.chart ?? [];
@@ -251,6 +322,7 @@ export default function AdminDashboardPage() {
       }
 
       setDashboard(payload.data);
+      setLastRefreshedAt(new Date());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load dashboard");
       setDashboard(null);
@@ -279,14 +351,19 @@ export default function AdminDashboardPage() {
             </h1>
           </div>
           {token ? (
-            <div className="flex gap-2">
+            <div className="flex items-center gap-3">
+              {lastRefreshedAt ? (
+                <p className="hidden text-[11px] font-semibold text-muted sm:block">
+                  Updated {new Intl.DateTimeFormat("en", { timeStyle: "medium" }).format(lastRefreshedAt)}
+                </p>
+              ) : null}
               <button
                 className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
                 disabled={isLoadingDashboard}
                 onClick={() => void loadDashboard()}
                 type="button"
               >
-                <RefreshCw aria-hidden="true" size={14} />
+                <RefreshCw aria-hidden="true" className={isLoadingDashboard ? "animate-spin" : ""} size={14} />
                 {isLoadingDashboard ? "Loading..." : "Refresh"}
               </button>
               <button
@@ -311,6 +388,16 @@ export default function AdminDashboardPage() {
             setEmail={session.setEmail}
             setPassword={session.setPassword}
           />
+        ) : !dashboard && isLoadingDashboard ? (
+          <div className="grid gap-5">
+            <div className="grid gap-4 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div className="h-[74px] animate-pulse rounded-2xl border border-line bg-white/60" key={i} />
+              ))}
+            </div>
+            <div className="h-64 animate-pulse rounded-2xl border border-line bg-white/60" />
+            <div className="h-48 animate-pulse rounded-2xl border border-line bg-white/60" />
+          </div>
         ) : (
           <div className="grid gap-5">
             {error ? (
@@ -320,10 +407,10 @@ export default function AdminDashboardPage() {
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-4">
-              <StatCard label="Total purchases" value={summary.purchaseCount} />
-              <StatCard label="Total revenue" value={totalRevenue} />
-              <StatCard label="Latest purchase" value={latestPurchase} />
-              <StatCard label="Total users" value={summary.userCount ?? users.length} />
+              <StatCard accent="cyan" icon={ShoppingBag} label="Total purchases" value={summary.purchaseCount} />
+              <StatCard accent="teal" icon={DollarSign} label="Total revenue" value={totalRevenue} />
+              <StatCard accent="blue" icon={BarChart3} label="Latest purchase" value={latestPurchase} />
+              <StatCard accent="ink" icon={Users} label="Total users" value={summary.userCount ?? users.length} />
             </div>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">

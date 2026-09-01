@@ -41,6 +41,9 @@ describe("hidden admin purchase dashboard", () => {
     expect(dashboardSource).toContain("Recent OTP requests");
     expect(dashboardSource).toContain("userCount");
     expect(dashboardSource).toContain("recentOtpRequests");
+    // Total users must come from the backend's unpaginated summary.userCount, never the
+    // current page's users.length, so the stat stays accurate across pagination.
+    expect(dashboardSource).toContain("summary.userCount ?? users.length");
   });
 
   it("renders hidden admin navigation between dashboard and error inbox", () => {
