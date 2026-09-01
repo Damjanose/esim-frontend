@@ -3,11 +3,8 @@ import {
   Check,
   Globe2,
   Headphones,
-  QrCode,
   ShieldCheck,
-  ShoppingCart,
   Star,
-  Wifi,
   Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -21,7 +18,6 @@ import { LinkButton } from "./components/Button";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { HeroDestinationChips } from "./HeroDestinationChips";
-import { CoverageFlagMosaic } from "./CoverageFlagMosaic";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
 
 const travelerImages = [
@@ -57,19 +53,16 @@ const benefits = [
 
 const installationSteps = [
   {
-    icon: ShoppingCart,
-    title: "Choose Your Plan",
-    description: "Select your destination and the data plan that fits your trip."
+    title: "Choose your plan",
+    description: "Pick your destination and the data plan that fits your trip — real, live prices, no surprises."
   },
   {
-    icon: QrCode,
-    title: "Scan & Install",
-    description: "Scan the QR code and install your eSIM in just a few seconds."
+    title: "Scan & install",
+    description: "Scan the QR code from your order. Installs itself in seconds."
   },
   {
-    icon: Wifi,
-    title: "Connect & Go",
-    description: "Enjoy high-speed mobile data when you arrive."
+    title: "Connect & go",
+    description: "Track data and manage every eSIM from one dashboard."
   }
 ];
 
@@ -108,7 +101,7 @@ export default function Home() {
       <Hero />
       <DestinationBrowse autoOpenWizard urlFilters={{}} />
       <Benefits />
-      <JourneyAndCoverage />
+      <HowItWorks />
       <TestimonialsAndFaq />
       <AppDownload />
       <Cta />
@@ -257,119 +250,225 @@ function Benefits() {
   );
 }
 
-function JourneyAndCoverage() {
+const marketplaceRows = [
+  { code: "af", country: "Afghanistan", plans: "5 plans · up to 10GB", price: "€4.73" },
+  { code: "al", country: "Albania", plans: "12 plans · Unlimited", price: "€3.44" },
+  { code: "dz", country: "Algeria", plans: "12 plans · Unlimited", price: "€3.87" },
+  { code: "ad", country: "Andorra", plans: "12 plans · Unlimited", price: "€3.87" }
+];
+
+function PhoneFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={`relative h-[452px] w-[216px] shrink-0 rounded-[36px] bg-brandInk p-[11px] shadow-[0_24px_50px_rgba(6,17,49,0.28)] ${className}`}
+    >
+      <span className="absolute left-1/2 top-[11px] z-10 h-[18px] w-[84px] -translate-x-1/2 rounded-b-xl bg-brandInk" />
+
+      <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[26px] bg-white">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function PhoneStatusBar() {
+  return (
+    <div className="flex justify-between px-3.5 pb-1 pt-6 text-[9.5px] font-bold text-onSurfaceVariant">
+      <span>9:41</span>
+      <span>●●●●&nbsp;&nbsp;📶&nbsp;&nbsp;🔋</span>
+    </div>
+  );
+}
+
+function ChoosePlanScreen() {
+  return (
+    <>
+      <div
+        className="relative h-[152px] bg-cover bg-top"
+        style={{ backgroundImage: "url('/images/how-it-works-marketplace.jpg')" }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-70% to-brandInk/35" />
+
+        <span className="absolute right-3 top-[30px] grid h-[26px] w-[26px] place-items-center overflow-hidden rounded-full border-2 border-white/85 bg-white">
+          <Image alt="United States flag" className="h-full w-full object-cover" height={26} src="https://flagcdn.com/w80/us.png" unoptimized width={26} />
+        </span>
+      </div>
+
+      <div className="relative z-[3] -mt-5 mx-3 flex items-center gap-1.5 rounded-2xl border border-outline bg-white/95 px-3 py-2 text-[9px] text-onSurfaceVariant shadow-[0_8px_20px_rgba(6,17,49,0.12)] backdrop-blur">
+        🔍 Search countries or region
+      </div>
+
+      <div className="mx-3 mb-2 mt-2 flex gap-1.5 overflow-hidden">
+        <span className="whitespace-nowrap rounded-xl border border-outline px-2 py-1 text-[8px] font-extrabold text-onSurfaceVariant">Favorites 3</span>
+        <span className="whitespace-nowrap rounded-xl border border-brandBlue bg-brandBlue px-2 py-1 text-[8px] font-extrabold text-white">Countries 204</span>
+        <span className="whitespace-nowrap rounded-xl border border-outline px-2 py-1 text-[8px] font-extrabold text-onSurfaceVariant">Popular 8</span>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-1.5 overflow-hidden px-3">
+        {marketplaceRows.map((row) => (
+          <div className="flex items-center gap-2 rounded-[13px] border border-outline px-2.5 py-2" key={row.code}>
+            <span className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-full bg-[#eef0f7]">
+              <Image alt={`${row.country} flag`} className="h-full w-full object-cover" height={22} src={`https://flagcdn.com/w80/${row.code}.png`} unoptimized width={22} />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <b className="block truncate font-display text-[10px] font-black text-brandInk">{row.country}</b>
+              <span className="text-[8px] text-onSurfaceVariant">{row.plans}</span>
+            </div>
+
+            <div className="shrink-0 text-right">
+              <small className="block text-[6.5px] font-bold text-onSurfaceVariant">FROM</small>
+              <b className="font-display text-[10px] font-black text-brandBlue">{row.price}</b>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-auto flex items-center justify-around border-t border-outline px-2.5 pb-3 pt-2">
+        <span className="flex flex-col items-center gap-0.5 text-[7.5px] text-onSurfaceVariant">
+          <span className="text-xs">🏠</span>Plans
+        </span>
+
+        <span className="-mt-[18px] grid h-[34px] w-[34px] place-items-center rounded-full border-[3px] border-white bg-brandBlue text-sm text-white shadow-[0_8px_18px_rgba(11,73,183,0.4)]">
+          🏪
+        </span>
+
+        <span className="flex flex-col items-center gap-0.5 text-[7.5px] text-onSurfaceVariant">
+          <span className="text-xs">👤</span>Profile
+        </span>
+      </div>
+    </>
+  );
+}
+
+function ScanInstallScreen() {
+  return (
+    <>
+      <PhoneStatusBar />
+
+      <p className="px-3.5 pb-2.5 font-display text-sm font-black text-brandInk">Scan to activate</p>
+
+      <div className="mx-3.5 flex flex-col items-center gap-2 rounded-2xl border border-brandBlue/20 bg-gradient-to-br from-brandBlue/[0.06] to-brandTeal/[0.06] p-3.5 text-center">
+        <p className="flex items-center gap-1.5 font-display text-[10px] font-black text-brandInk">
+          <Image alt="Italy flag" className="inline-block h-[13px] w-[13px] rounded-full object-cover align-[-2px]" height={13} src="https://flagcdn.com/w80/it.png" unoptimized width={13} />
+          Italy · Unlimited / 7 days
+        </p>
+
+        <div className="rounded-[10px] bg-white p-1.5 shadow-[0_8px_20px_rgba(6,17,49,0.12)]">
+          <Image alt="QR code linking to esim.uplisoft.com" className="h-[118px] w-[118px]" height={118} src="/images/qr-esim-uplisoft.svg" unoptimized width={118} />
+        </div>
+
+        <p className="max-w-[160px] text-[9.5px] leading-[1.4] text-onSurfaceVariant">
+          Scan with your phone&apos;s camera to open Settings and install this eSIM.
+        </p>
+
+        <span className="flex items-center gap-1 rounded-full bg-brandTeal/10 px-2.5 py-1 text-[9.5px] font-extrabold text-brandTeal">
+          ⟳ Installing eSIM…
+        </span>
+      </div>
+
+      <ul className="mx-3.5 mt-3.5 flex flex-col gap-1.5">
+        {["Settings → Cellular → Add eSIM", "Scan the QR code above", "Confirm and you're connected"].map((line) => (
+          <li className="flex items-center gap-1.5 text-[9px] text-onSurfaceVariant" key={line}>
+            <span className="h-[5px] w-[5px] shrink-0 rounded-full bg-brandBlue" />
+            {line}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function ConnectedScreen() {
+  return (
+    <>
+      <PhoneStatusBar />
+
+      <p className="px-3.5 pb-2.5 font-display text-sm font-black text-brandInk">My eSIMs</p>
+
+      <div className="flex flex-col gap-2.5 px-3.5 pb-3.5">
+        <div className="rounded-2xl border border-brandBlue/20 bg-gradient-to-br from-brandBlue/[0.06] to-brandTeal/[0.06] p-3">
+          <div className="mb-2 flex items-center gap-2">
+            <Image alt="Italy flag" className="h-4 w-4 rounded-full object-cover" height={16} src="https://flagcdn.com/w80/it.png" unoptimized width={16} />
+            <b className="font-display text-[11.5px] font-black text-brandInk">Italy · 5GB / 7 days</b>
+            <span className="ml-auto rounded-full bg-brandTeal px-1.5 py-0.5 text-[8.5px] font-extrabold text-white">ACTIVE</span>
+          </div>
+
+          <div className="h-1.5 overflow-hidden rounded-full bg-outline">
+            <div className="h-full w-[62%] bg-gradient-to-r from-brandBlue to-brandTeal" />
+          </div>
+
+          <div className="mt-1.5 flex justify-between text-[9px] text-onSurfaceVariant">
+            <span>3.1 GB used</span>
+            <span>4 days left</span>
+          </div>
+
+          <p className="mt-2.5 text-[8.5px] text-onSurfaceVariant">eSim2you · Data plan</p>
+        </div>
+
+        <div className="rounded-2xl border border-outline/70 bg-outline/10 p-3 opacity-55">
+          <div className="mb-2 flex items-center gap-2">
+            <Image alt="France flag" className="h-4 w-4 rounded-full object-cover" height={16} src="https://flagcdn.com/w80/fr.png" unoptimized width={16} />
+            <b className="font-display text-[11.5px] font-black text-brandInk">France · 10GB / 15 days</b>
+            <span className="ml-auto rounded-full bg-outline px-1.5 py-0.5 text-[8.5px] font-extrabold text-onSurfaceVariant">EXPIRED</span>
+          </div>
+
+          <div className="flex justify-between text-[9px] text-onSurfaceVariant">
+            <span>Used 9.4 GB</span>
+            <span>Expired</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function HowItWorks() {
   return (
     <section
       className="overflow-hidden bg-surface px-5 py-14 text-onSurface md:px-8 md:py-20"
       id="how-it-works"
     >
-      <div className="mx-auto grid max-w-[1320px] items-start gap-12 lg:grid-cols-2 lg:gap-8">
-        {/* How it works */}
-        <div className="mx-auto w-full max-w-[630px]">
-          <div className="text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
-              How it works
-            </p>
+      <div className="mx-auto max-w-[720px] text-center">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
+          How it works
+        </p>
 
-            <h2 className="mt-2 font-display text-3xl font-black text-brandInk">
-              3 Simple Steps
-            </h2>
+        <h2 className="mt-2 font-display text-3xl font-black text-brandInk sm:text-4xl">
+          Set up your eSIM in minutes
+        </h2>
+
+        <p className="mx-auto mt-3 max-w-[480px] text-sm text-onSurfaceVariant">
+          No store visit, no physical SIM. Everything happens on your phone before you land.
+        </p>
+      </div>
+
+      <div className="mx-auto mt-10 flex flex-col items-center gap-10 sm:mt-14 sm:flex-row sm:items-center sm:justify-center sm:gap-0">
+        <PhoneFrame className="z-10 sm:-mr-6 sm:translate-y-2 sm:-rotate-[7deg]">
+          <ChoosePlanScreen />
+        </PhoneFrame>
+
+        <PhoneFrame className="z-20">
+          <ScanInstallScreen />
+        </PhoneFrame>
+
+        <PhoneFrame className="z-10 sm:-ml-6 sm:translate-y-2 sm:rotate-[7deg]">
+          <ConnectedScreen />
+        </PhoneFrame>
+      </div>
+
+      <div className="mx-auto mt-8 grid max-w-[720px] gap-8 sm:mt-4 sm:grid-cols-3 sm:gap-10">
+        {installationSteps.map((step, index) => (
+          <div className="text-center" key={step.title}>
+            <span className="mb-2 inline-grid h-[22px] w-[22px] place-items-center rounded-full bg-brandBlue text-[11px] font-black text-white">
+              {index + 1}
+            </span>
+
+            <h3 className="font-display text-sm font-black text-brandInk">{step.title}</h3>
+
+            <p className="mt-1 text-[12.5px] leading-[1.4] text-onSurfaceVariant">{step.description}</p>
           </div>
-
-          <div className="mt-7 flex flex-col gap-3">
-            {installationSteps.map((step, index) => {
-              const Icon = step.icon;
-
-              return (
-                <div
-                  className="flex items-center gap-4 rounded-[18px] border border-outline bg-surface p-4 shadow-brandCard transition duration-300 hover:-translate-y-0.5 hover:border-brandBlue/40 sm:p-5"
-                  key={step.title}
-                >
-                  <div className="relative shrink-0">
-                    <span className="absolute -left-2 -top-2 grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-brandBlue to-[#0E86C0] text-[11px] font-black text-white shadow-[0_0_18px_rgba(11,73,183,0.35)]">
-                      {index + 1}
-                    </span>
-
-                    <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-outline bg-brandBlue/10 text-brandBlue">
-                      <Icon aria-hidden="true" size={26} strokeWidth={2.2} />
-                    </span>
-                  </div>
-
-                  <div className="min-w-0">
-                    <h3 className="font-display text-base font-black text-brandInk">
-                      {step.title}
-                    </h3>
-
-                    <p className="mt-1 text-sm leading-5 text-onSurfaceVariant">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Coverage */}
-        <div className="mx-auto w-full max-w-[630px]" id="coverage">
-          <div className="text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
-              Global coverage
-            </p>
-
-            <h2 className="mt-2 font-display text-3xl font-black text-brandInk">
-              Where Will You Go Next?
-            </h2>
-          </div>
-
-          <div className="mt-7 rounded-[22px] border border-outline bg-surface p-5 shadow-brandCard sm:p-6">
-            <CoverageFlagMosaic />
-
-            <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-[16px] border border-outline text-center">
-              <div className="flex flex-col items-center justify-center px-2 py-4">
-                <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
-                  200+
-                </p>
-
-                <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
-                  Countries
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center justify-center border-x border-outline px-2 py-4">
-                <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
-                  500+
-                </p>
-
-                <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
-                  Networks
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center justify-center px-2 py-4">
-                <p className="font-display text-xl font-black text-brandInk sm:text-2xl">
-                  99%
-                </p>
-
-                <p className="mt-1 text-[9px] text-onSurfaceVariant sm:text-[10px]">
-                  Global Coverage
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 flex justify-center">
-            <LinkButton className="group min-w-[230px]" href="/destinations" size="md" tone="brand" variant="flat">
-              <span>View All Destinations</span>
-
-              <ArrowRight
-                aria-hidden="true"
-                className="shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-                size={17}
-              />
-            </LinkButton>
-          </div>
-        </div>
+        ))}
       </div>
     </section>
   );
