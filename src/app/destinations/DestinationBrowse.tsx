@@ -40,6 +40,7 @@ const RAILS: RailDef[] = [
   { id: "bestValue", label: "Best value" },
   { id: "unlimited", label: "Unlimited data" },
   { id: "longStay", label: "Long stay (30+ days)" },
+  { id: "regional", label: "Regional & global bundles" },
 ];
 
 const EMPTY_GROUPS: PackageGroupOptions = {
@@ -47,6 +48,7 @@ const EMPTY_GROUPS: PackageGroupOptions = {
   bestValue: [],
   unlimited: [],
   longStay: [],
+  regional: [],
 };
 
 function normalizeCountryCode(value: string) {

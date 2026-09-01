@@ -25,7 +25,8 @@ describe("mapPackageGroupsPayload", () => {
         popular: [apiPackage],
         bestValue: [],
         unlimited: [apiPackage],
-        longStay: [apiPackage]
+        longStay: [apiPackage],
+        regional: [apiPackage]
       }
     });
 
@@ -38,6 +39,7 @@ describe("mapPackageGroupsPayload", () => {
     expect(groups.bestValue).toEqual([]);
     expect(groups.unlimited).toHaveLength(1);
     expect(groups.longStay).toHaveLength(1);
+    expect(groups.regional).toHaveLength(1);
   });
 
   it("defaults every rail to an empty array when the backend omits one", () => {
@@ -47,7 +49,8 @@ describe("mapPackageGroupsPayload", () => {
       popular: [],
       bestValue: [],
       unlimited: [],
-      longStay: []
+      longStay: [],
+      regional: []
     });
   });
 

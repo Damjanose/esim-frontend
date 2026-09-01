@@ -305,7 +305,8 @@ export type PackageGroupsRailId =
   | "popular"
   | "bestValue"
   | "unlimited"
-  | "longStay";
+  | "longStay"
+  | "regional";
 
 export type PackageGroupOptions = Record<
   PackageGroupsRailId,
@@ -337,6 +338,7 @@ export function mapPackageGroupsPayload(
     bestValue: mapPackagesPayload({ packages: data.bestValue ?? [] }),
     unlimited: mapPackagesPayload({ packages: data.unlimited ?? [] }),
     longStay: mapPackagesPayload({ packages: data.longStay ?? [] }),
+    regional: mapPackagesPayload({ packages: data.regional ?? [] }),
   };
 }
 
