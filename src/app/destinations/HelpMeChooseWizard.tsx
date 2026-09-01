@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "../components/Button";
+import { BoardingPassStepper } from "./BoardingPassStepperCard";
 
 type CountryOption = {
   country: string;
@@ -52,6 +53,15 @@ export function HelpMeChooseWizard({
   const [showCustomDays, setShowCustomDays] = useState(false);
   const [data, setData] = useState<DataAnswer>({ kind: "any" });
   const [destinationQuery, setDestinationQuery] = useState("");
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduceMotion(query.matches);
+    const onChange = () => setReduceMotion(query.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
 
   const filteredCountries = destinationQuery.trim()
     ? countries.filter((c) =>
@@ -91,9 +101,11 @@ export function HelpMeChooseWizard({
           <X aria-hidden="true" size={18} />
         </button>
 
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">
-          Help me choose · step {step + 1} of 3
-        </p>
+        <BoardingPassStepper
+          activeIndex={step}
+          stepLabels={["Trip length", "Data need", "Destination"]}
+          reduceMotion={reduceMotion}
+        />
 
         {step === 0 ? (
           <div className="mt-4">
