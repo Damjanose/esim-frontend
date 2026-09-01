@@ -1,16 +1,4 @@
-/**
- * Which frame of the route animation represents `activeIndex`'s progress
- * through `totalSteps`. Step 0 lands at 1/totalSteps of the way through
- * (not 0) so the first step still reads as "underway," not "not started."
- */
-export function frameForStep(
-  activeIndex: number,
-  totalSteps: number,
-  totalFrames: number,
-): number {
-  const progress = (activeIndex + 1) / totalSteps;
-  return Math.round((totalFrames - 1) * progress);
-}
+// E-SIM-frontend/src/app/destinations/boardingPassStepper.ts
 
 /**
  * Every tick index that transitioned from active/pending to done when the

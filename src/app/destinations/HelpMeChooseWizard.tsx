@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
+import Lottie from "lottie-react";
+import searchPackageAnimation from "@/../public/lottie/search-package.json";
 import { Button } from "../components/Button";
 import { BoardingPassStepper } from "./BoardingPassStepperCard";
 
@@ -63,6 +65,20 @@ export function HelpMeChooseWizard({
     return () => query.removeEventListener("change", onChange);
   }, []);
 
+  const [searchingCountry, setSearchingCountry] = useState<{ countryCode: string } | null>(
+    null,
+  );
+  const onFinishRef = useRef(onFinish);
+  onFinishRef.current = onFinish;
+
+  useEffect(() => {
+    if (!searchingCountry) return;
+    const timer = setTimeout(() => {
+      onFinishRef.current({ kind: "country", countryCode: searchingCountry.countryCode });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [searchingCountry]);
+
   const filteredCountries = destinationQuery.trim()
     ? countries.filter((c) =>
         c.country.toLowerCase().includes(destinationQuery.trim().toLowerCase()),
@@ -101,155 +117,175 @@ export function HelpMeChooseWizard({
           <X aria-hidden="true" size={18} />
         </button>
 
-        <BoardingPassStepper
-          activeIndex={step}
-          stepLabels={["Trip length", "Data need", "Destination"]}
-          reduceMotion={reduceMotion}
-        />
+        {searchingCountry ? (
+          <SearchingBeat reduceMotion={reduceMotion} />
+        ) : (
+          <>
+            <BoardingPassStepper
+              activeIndex={step}
+              stepLabels={["Trip length", "Data need", "Destination"]}
+              reduceMotion={reduceMotion}
+            />
 
-        {step === 0 ? (
-          <div className="mt-4">
-            <h2 className="font-display text-2xl font-black text-brandInk">
-              How many days is your trip?
-            </h2>
+            {step === 0 ? (
+              <div className="mt-4">
+                <h2 className="font-display text-2xl font-black text-brandInk">
+                  How many days is your trip?
+                </h2>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {DAY_PRESETS.map((preset) => (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {DAY_PRESETS.map((preset) => (
+                    <button
+                      className="rounded-full border border-outline px-5 py-2.5 text-sm font-black text-brandInk transition hover:border-brandBlue"
+                      key={preset}
+                      onClick={() => goToDataStep({ kind: "preset", days: preset })}
+                      type="button"
+                    >
+                      {preset} days
+                    </button>
+                  ))}
+
+                  <button
+                    className="rounded-full border border-outline px-5 py-2.5 text-sm font-black text-brandInk transition hover:border-brandBlue"
+                    onClick={() => setShowCustomDays(true)}
+                    type="button"
+                  >
+                    Custom
+                  </button>
+                </div>
+
+                {showCustomDays ? (
+                  <div className="mt-4 flex items-center gap-3">
+                    <input
+                      className="w-24 rounded-xl border border-outline bg-white px-3 py-2 text-sm font-bold text-brandInk"
+                      max={CUSTOM_DAYS_MAX}
+                      min={CUSTOM_DAYS_MIN}
+                      onChange={(e) => {
+                        const value = Number.parseInt(e.target.value, 10);
+                        if (Number.isFinite(value)) {
+                          setCustomDays(
+                            Math.min(CUSTOM_DAYS_MAX, Math.max(CUSTOM_DAYS_MIN, value)),
+                          );
+                        }
+                      }}
+                      type="number"
+                      value={customDays}
+                    />
+                    <span className="text-xs text-onSurfaceVariant">
+                      days ({CUSTOM_DAYS_MIN}–{CUSTOM_DAYS_MAX})
+                    </span>
+                    <Button onClick={() => goToDataStep({ kind: "custom", days: customDays })} size="sm">
+                      Continue
+                    </Button>
+                  </div>
+                ) : null}
+
                 <button
-                  className="rounded-full border border-outline px-5 py-2.5 text-sm font-black text-brandInk transition hover:border-brandBlue"
-                  key={preset}
-                  onClick={() => goToDataStep({ kind: "preset", days: preset })}
+                  className="mt-6 text-xs font-black uppercase tracking-wide text-onSurfaceVariant hover:text-brandInk"
+                  onClick={() => goToDataStep({ kind: "any" })}
                   type="button"
                 >
-                  {preset} days
+                  Any duration →
                 </button>
-              ))}
-
-              <button
-                className="rounded-full border border-outline px-5 py-2.5 text-sm font-black text-brandInk transition hover:border-brandBlue"
-                onClick={() => setShowCustomDays(true)}
-                type="button"
-              >
-                Custom
-              </button>
-            </div>
-
-            {showCustomDays ? (
-              <div className="mt-4 flex items-center gap-3">
-                <input
-                  className="w-24 rounded-xl border border-outline bg-white px-3 py-2 text-sm font-bold text-brandInk"
-                  max={CUSTOM_DAYS_MAX}
-                  min={CUSTOM_DAYS_MIN}
-                  onChange={(e) => {
-                    const value = Number.parseInt(e.target.value, 10);
-                    if (Number.isFinite(value)) {
-                      setCustomDays(
-                        Math.min(CUSTOM_DAYS_MAX, Math.max(CUSTOM_DAYS_MIN, value)),
-                      );
-                    }
-                  }}
-                  type="number"
-                  value={customDays}
-                />
-                <span className="text-xs text-onSurfaceVariant">
-                  days ({CUSTOM_DAYS_MIN}–{CUSTOM_DAYS_MAX})
-                </span>
-                <Button onClick={() => goToDataStep({ kind: "custom", days: customDays })} size="sm">
-                  Continue
-                </Button>
               </div>
             ) : null}
 
-            <button
-              className="mt-6 text-xs font-black uppercase tracking-wide text-onSurfaceVariant hover:text-brandInk"
-              onClick={() => goToDataStep({ kind: "any" })}
-              type="button"
-            >
-              Any duration →
-            </button>
-          </div>
-        ) : null}
+            {step === 1 ? (
+              <div className="mt-4">
+                <h2 className="font-display text-2xl font-black text-brandInk">
+                  How much data do you need?
+                </h2>
 
-        {step === 1 ? (
-          <div className="mt-4">
-            <h2 className="font-display text-2xl font-black text-brandInk">
-              How much data do you need?
-            </h2>
+                <div className="mt-5 flex flex-col gap-2">
+                  {DATA_BUCKETS.map((bucket) => (
+                    <button
+                      className="rounded-2xl border border-outline px-5 py-3 text-left text-sm font-black text-brandInk transition hover:border-brandBlue"
+                      key={bucket.label}
+                      onClick={() => goToDestinationStep(bucket.answer)}
+                      type="button"
+                    >
+                      {bucket.label}
+                    </button>
+                  ))}
+                </div>
 
-            <div className="mt-5 flex flex-col gap-2">
-              {DATA_BUCKETS.map((bucket) => (
                 <button
-                  className="rounded-2xl border border-outline px-5 py-3 text-left text-sm font-black text-brandInk transition hover:border-brandBlue"
-                  key={bucket.label}
-                  onClick={() => goToDestinationStep(bucket.answer)}
+                  className="mt-6 text-xs font-black uppercase tracking-wide text-onSurfaceVariant hover:text-brandInk"
+                  onClick={() => goToDestinationStep({ kind: "any" })}
                   type="button"
                 >
-                  {bucket.label}
+                  Any amount →
                 </button>
-              ))}
-            </div>
+              </div>
+            ) : null}
 
-            <button
-              className="mt-6 text-xs font-black uppercase tracking-wide text-onSurfaceVariant hover:text-brandInk"
-              onClick={() => goToDestinationStep({ kind: "any" })}
-              type="button"
-            >
-              Any amount →
-            </button>
-          </div>
-        ) : null}
+            {step === 2 ? (
+              <div className="mt-4">
+                <h2 className="font-display text-2xl font-black text-brandInk">
+                  Where are you traveling to?
+                </h2>
 
-        {step === 2 ? (
-          <div className="mt-4">
-            <h2 className="font-display text-2xl font-black text-brandInk">
-              Where are you traveling to?
-            </h2>
+                <input
+                  autoFocus
+                  className="mt-5 w-full rounded-2xl border border-outline bg-white px-4 py-3 text-sm font-semibold text-onSurface outline-none focus:border-brandBlue"
+                  onChange={(e) => setDestinationQuery(e.target.value)}
+                  placeholder="Search country..."
+                  type="text"
+                  value={destinationQuery}
+                />
 
-            <input
-              autoFocus
-              className="mt-5 w-full rounded-2xl border border-outline bg-white px-4 py-3 text-sm font-semibold text-onSurface outline-none focus:border-brandBlue"
-              onChange={(e) => setDestinationQuery(e.target.value)}
-              placeholder="Search country..."
-              type="text"
-              value={destinationQuery}
-            />
+                <div className="mt-3 max-h-64 overflow-y-auto">
+                  {filteredCountries.map((country) => (
+                    <button
+                      className="flex w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left text-sm font-bold text-brandInk transition hover:bg-brandBlue/5"
+                      key={country.countryCode}
+                      onClick={() => setSearchingCountry({ countryCode: country.countryCode })}
+                      type="button"
+                    >
+                      {country.flagUri ? (
+                        <img
+                          alt=""
+                          className="h-8 w-8 rounded-full border border-outline object-cover"
+                          src={country.flagUri}
+                        />
+                      ) : null}
+                      {country.country}
+                    </button>
+                  ))}
 
-            <div className="mt-3 max-h-64 overflow-y-auto">
-              {filteredCountries.map((country) => (
-                <button
-                  className="flex w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left text-sm font-bold text-brandInk transition hover:bg-brandBlue/5"
-                  key={country.countryCode}
-                  onClick={() =>
-                    onFinish({ kind: "country", countryCode: country.countryCode })
-                  }
-                  type="button"
-                >
-                  {country.flagUri ? (
-                    <img
-                      alt=""
-                      className="h-8 w-8 rounded-full border border-outline object-cover"
-                      src={country.flagUri}
-                    />
+                  {filteredCountries.length === 0 ? (
+                    <p className="px-2 py-4 text-sm text-onSurfaceVariant">No destination found.</p>
                   ) : null}
-                  {country.country}
+                </div>
+
+                <button
+                  className="mt-4 text-xs font-black uppercase tracking-wide text-onSurfaceVariant hover:text-brandInk"
+                  onClick={() => finishWithFilters()}
+                  type="button"
+                >
+                  Skip — show all matching destinations →
                 </button>
-              ))}
-
-              {filteredCountries.length === 0 ? (
-                <p className="px-2 py-4 text-sm text-onSurfaceVariant">No destination found.</p>
-              ) : null}
-            </div>
-
-            <button
-              className="mt-4 text-xs font-black uppercase tracking-wide text-onSurfaceVariant hover:text-brandInk"
-              onClick={() => finishWithFilters()}
-              type="button"
-            >
-              Skip — show all matching destinations →
-            </button>
-          </div>
-        ) : null}
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
+    </div>
+  );
+}
+
+function SearchingBeat({ reduceMotion }: { reduceMotion: boolean }) {
+  return (
+    <div className="flex flex-col items-center py-10 text-center" role="status" aria-live="polite">
+      <div className="h-32 w-64" aria-hidden="true">
+        <Lottie animationData={searchPackageAnimation} loop={!reduceMotion} autoplay />
+      </div>
+      <h2 className="mt-2 font-display text-xl font-black text-brandInk">
+        Finding your plans...
+      </h2>
+      <p className="mt-1 text-sm text-onSurfaceVariant">
+        Matching eSIMs for your destination
+      </p>
     </div>
   );
 }

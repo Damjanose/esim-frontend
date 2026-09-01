@@ -1,24 +1,6 @@
+// E-SIM-frontend/src/app/destinations/boardingPassStepper.test.ts
 import { describe, expect, it } from "vitest";
-import { frameForStep, newlyDoneIndices } from "./boardingPassStepper";
-
-describe("frameForStep", () => {
-  it("maps the first step to one third of the way through the animation", () => {
-    expect(frameForStep(0, 3, 90)).toBe(Math.round(89 * (1 / 3)));
-  });
-
-  it("maps the middle step to two thirds of the way through", () => {
-    expect(frameForStep(1, 3, 90)).toBe(Math.round(89 * (2 / 3)));
-  });
-
-  it("maps the last step to the final frame", () => {
-    expect(frameForStep(2, 3, 90)).toBe(89);
-  });
-
-  it("rounds to the nearest whole frame", () => {
-    // 7 frames total (indices 0-6), step 0 of 3 -> 6 * (1/3) = 2
-    expect(frameForStep(0, 3, 7)).toBe(2);
-  });
-});
+import { newlyDoneIndices } from "./boardingPassStepper";
 
 describe("newlyDoneIndices", () => {
   it("returns nothing when the step hasn't advanced", () => {

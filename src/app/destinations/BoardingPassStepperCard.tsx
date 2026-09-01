@@ -2,12 +2,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Plane } from "lucide-react";
 import Lottie, { type LottieRefCurrentProps } from "lottie-react";
-import planePathAnimation from "@/../public/lottie/plane-path.json";
 import stampAnimation from "@/../public/lottie/stamp.json";
-import { frameForStep, newlyDoneIndices } from "./boardingPassStepper";
+import { newlyDoneIndices } from "./boardingPassStepper";
 
 const TOTAL_STEPS = 3;
+const DASH_COUNT = 5;
+const DASH_STAGGER_MS = 90;
 
 type BoardingPassStepperProps = {
   activeIndex: 0 | 1 | 2;
@@ -16,27 +18,18 @@ type BoardingPassStepperProps = {
 };
 
 /**
- * The wizard's step header, styled as a boarding pass to match
- * WizardWelcomeIntro's loader. The route strip is driven imperatively to a
- * frame representing progress (never freely animated), so there's no tween
- * to disable for reduced motion. The stamp badge is the one genuinely
- * animated beat, and only it checks `reduceMotion`.
+ * The wizard's step header, styled as a boarding pass. Each step is a node
+ * (pending number / bouncing plane / stamped checkmark) connected by a
+ * 5-dash track that lights up, one dash at a time, when the preceding step
+ * completes.
  */
 export function BoardingPassStepper({
   activeIndex,
   stepLabels,
   reduceMotion,
 }: BoardingPassStepperProps) {
-  const planeRef = useRef<LottieRefCurrentProps>(null);
-  const [planeTotalFrames, setPlaneTotalFrames] = useState<number | null>(null);
   const previousIndexRef = useRef(activeIndex);
   const [doneIndices, setDoneIndices] = useState<ReadonlySet<number>>(new Set());
-
-  useEffect(() => {
-    if (planeTotalFrames === null) return;
-    const frame = frameForStep(activeIndex, TOTAL_STEPS, planeTotalFrames);
-    planeRef.current?.goToAndStop(frame, true);
-  }, [activeIndex, planeTotalFrames]);
 
   useEffect(() => {
     const newlyDone = newlyDoneIndices(previousIndexRef.current, activeIndex);
@@ -46,52 +39,32 @@ export function BoardingPassStepper({
   }, [activeIndex]);
 
   return (
-    <div className="relative mb-5 overflow-hidden rounded-[18px] bg-gradient-to-br from-brandBlue to-brandTeal px-[18px] pb-[14px] pt-4 text-white">
+    <div className="relative mb-5 overflow-hidden rounded-[18px] bg-gradient-to-br from-brandBlue to-brandTeal px-[18px] pb-4 pt-4 text-white">
       <span className="absolute left-[-9px] top-1/2 h-[18px] w-[18px] -translate-y-1/2 rounded-full bg-white" />
       <span className="absolute right-[-9px] top-1/2 h-[18px] w-[18px] -translate-y-1/2 rounded-full bg-white" />
 
-      <div className="mb-2.5 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.14em] opacity-85">
+      <div className="mb-3.5 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.14em] opacity-85">
         <span>Help me choose</span>
         <span>
           Step {activeIndex + 1} / {TOTAL_STEPS}
         </span>
       </div>
 
-      <div
-        className={`rounded-xl bg-white/95 px-2.5 py-1.5 transition-opacity duration-150 ${
-          planeTotalFrames === null ? "opacity-0" : "opacity-100"
-        }`}
-        aria-hidden="true"
-      >
-        <Lottie
-          lottieRef={planeRef}
-          animationData={planePathAnimation}
-          loop={false}
-          autoplay={false}
-          className="h-10 w-full"
-          onDOMLoaded={() => {
-            const frames = planeRef.current?.animationItem?.totalFrames;
-            if (frames) setPlaneTotalFrames(frames);
-          }}
-        />
-      </div>
-
-      <div className="mt-2 flex justify-between">
+      <div className="flex items-center">
         {stepLabels.map((label, index) => {
           const isActive = index === activeIndex;
           const isDone = doneIndices.has(index);
+          const isLast = index === stepLabels.length - 1;
           return (
-            <div
-              key={label}
-              className={`relative flex-1 text-center text-[9.5px] font-bold ${
-                isActive ? "opacity-100" : isDone ? "opacity-90" : "opacity-70"
-              }`}
-            >
-              {isDone ? <StampBadge reduceMotion={reduceMotion} /> : null}
-              <span className="mb-0.5 block text-[8px] opacity-70">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              {label}
+            <div className={`flex items-center ${isLast ? "" : "flex-1"}`} key={label}>
+              <StepNode
+                index={index}
+                isActive={isActive}
+                isDone={isDone}
+                label={label}
+                reduceMotion={reduceMotion}
+              />
+              {isLast ? null : <DashTrack filled={isDone} reduceMotion={reduceMotion} />}
             </div>
           );
         })}
@@ -100,14 +73,57 @@ export function BoardingPassStepper({
   );
 }
 
-function StampBadge({ reduceMotion }: { reduceMotion: boolean }) {
+function StepNode({
+  index,
+  isActive,
+  isDone,
+  label,
+  reduceMotion,
+}: {
+  index: number;
+  isActive: boolean;
+  isDone: boolean;
+  label: string;
+  reduceMotion: boolean;
+}) {
+  return (
+    <div className="flex shrink-0 flex-col items-center gap-1.5">
+      <div
+        className={`flex h-9 w-9 items-center justify-center rounded-full border-[1.5px] text-xs font-black ${
+          isDone
+            ? "border-white bg-white text-brandBlue"
+            : isActive
+              ? "border-white bg-white/15"
+              : "border-white/40 bg-white/10 text-white/80"
+        }`}
+      >
+        {isDone ? (
+          <CheckmarkStamp reduceMotion={reduceMotion} />
+        ) : isActive ? (
+          <Plane
+            aria-hidden="true"
+            className={`h-4 w-4 ${reduceMotion ? "" : "animate-bounce"}`}
+          />
+        ) : (
+          index + 1
+        )}
+      </div>
+      <span
+        className={`w-16 text-center text-[9.5px] font-bold leading-tight ${
+          isActive ? "opacity-100" : isDone ? "opacity-90" : "opacity-70"
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function CheckmarkStamp({ reduceMotion }: { reduceMotion: boolean }) {
   const stampRef = useRef<LottieRefCurrentProps>(null);
 
   return (
-    <div
-      className="absolute left-1/2 top-[-30px] h-11 w-11 -translate-x-1/2"
-      aria-hidden="true"
-    >
+    <div className="h-6 w-6" aria-hidden="true">
       <Lottie
         lottieRef={stampRef}
         animationData={stampAnimation}
@@ -119,6 +135,26 @@ function StampBadge({ reduceMotion }: { reduceMotion: boolean }) {
           if (frames) stampRef.current?.goToAndStop(frames - 1, true);
         }}
       />
+    </div>
+  );
+}
+
+function DashTrack({ filled, reduceMotion }: { filled: boolean; reduceMotion: boolean }) {
+  return (
+    <div className="mx-1.5 flex flex-1 items-center justify-center gap-[5px]" aria-hidden="true">
+      {Array.from({ length: DASH_COUNT }).map((_, dashIndex) => (
+        <span
+          key={dashIndex}
+          className={`h-[2.5px] w-2 rounded-full transition-colors ${
+            reduceMotion ? "duration-0" : "duration-150"
+          } ${filled ? "bg-white" : "bg-white/25"}`}
+          style={
+            !reduceMotion && filled
+              ? { transitionDelay: `${dashIndex * DASH_STAGGER_MS}ms` }
+              : undefined
+          }
+        />
+      ))}
     </div>
   );
 }
