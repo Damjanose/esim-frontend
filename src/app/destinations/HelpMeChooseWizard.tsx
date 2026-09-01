@@ -74,8 +74,14 @@ export function HelpMeChooseWizard({
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-midnight/60 backdrop-blur-sm sm:items-center">
-      <div className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-outline bg-surface p-6 shadow-brandCard sm:rounded-[28px]">
+    <div
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-midnight/60 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-outline bg-surface p-6 shadow-brandCard sm:rounded-[28px]"
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
           aria-label="Close"
           className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full text-onSurfaceVariant hover:bg-outline/10"

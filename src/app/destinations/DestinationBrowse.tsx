@@ -337,7 +337,9 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
         )}
       </div>
 
-      {showWelcome ? <WizardWelcomeIntro /> : null}
+      {showWelcome ? (
+        <WizardWelcomeIntro onDismiss={() => setShowWelcome(false)} />
+      ) : null}
 
       {wizardOpen ? (
         <HelpMeChooseWizard
