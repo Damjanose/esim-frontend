@@ -63,4 +63,15 @@ describe("hidden admin notifications page", () => {
     expect(sendProxy).toContain("/send");
     expect(sendProxy).toContain('method: "POST"');
   });
+
+  it("allows a title-only or body-only notification and shows per-field errors only when both are empty", () => {
+    const pageSource = readFileSync("src/app/xnotificationy/page.tsx", "utf8");
+
+    expect(pageSource).not.toContain("!newTitle.trim() || !newBody.trim()");
+    expect(pageSource).not.toContain("!editTitle.trim() || !editBody.trim()");
+    expect(pageSource).toContain("!newTitle.trim() && !newBody.trim()");
+    expect(pageSource).toContain("!editTitle.trim() && !editBody.trim()");
+    expect(pageSource).toContain("newFieldsInvalid");
+    expect(pageSource).toContain("editFieldsInvalid");
+  });
 });

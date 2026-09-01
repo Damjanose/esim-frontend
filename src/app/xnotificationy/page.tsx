@@ -8,8 +8,8 @@ import { useAdminSession } from "../useAdminSession";
 
 type NotificationMessage = {
   id: string;
-  title: string;
-  body: string;
+  title: string | null;
+  body: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -43,11 +43,13 @@ export default function AdminNotificationsPage() {
 
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
+  const [newFieldsInvalid, setNewFieldsInvalid] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
+  const [editFieldsInvalid, setEditFieldsInvalid] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -88,11 +90,13 @@ export default function AdminNotificationsPage() {
 
   async function createNotification(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!newTitle.trim() || !newBody.trim()) {
-      setError("Title and body are required.");
+    if (!newTitle.trim() && !newBody.trim()) {
+      setNewFieldsInvalid(true);
+      setError("Enter a title, a body, or both.");
       return;
     }
 
+    setNewFieldsInvalid(false);
     setIsCreating(true);
     setError("");
     setNotice("");
@@ -126,22 +130,26 @@ export default function AdminNotificationsPage() {
 
   function startEditing(row: NotificationMessage) {
     setEditingId(row.id);
-    setEditTitle(row.title);
-    setEditBody(row.body);
+    setEditTitle(row.title ?? "");
+    setEditBody(row.body ?? "");
+    setEditFieldsInvalid(false);
   }
 
   function cancelEditing() {
     setEditingId(null);
     setEditTitle("");
     setEditBody("");
+    setEditFieldsInvalid(false);
   }
 
   async function saveEdit(id: string) {
-    if (!editTitle.trim() || !editBody.trim()) {
-      setError("Title and body are required.");
+    if (!editTitle.trim() && !editBody.trim()) {
+      setEditFieldsInvalid(true);
+      setError("Enter a title, a body, or both.");
       return;
     }
 
+    setEditFieldsInvalid(false);
     setIsSaving(true);
     setError("");
     setNotice("");
@@ -290,27 +298,40 @@ export default function AdminNotificationsPage() {
               onSubmit={createNotification}
             >
               <h2 className="mb-3 text-sm font-black uppercase tracking-wide text-midnight">Add notification</h2>
+              <p className="mb-3 text-xs font-semibold text-muted">Fill in a title, a body, or both.</p>
               <label className="block text-sm font-bold text-midnight" htmlFor="new-title">
                 Title
               </label>
               <input
-                className="mt-1.5 h-11 w-full rounded-xl border border-line px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
+                aria-invalid={newFieldsInvalid}
+                className={`mt-1.5 h-11 w-full rounded-xl border px-3.5 text-sm outline-none transition focus:ring-2 focus:ring-cyan/20 ${
+                  newFieldsInvalid ? "border-red-400 focus:border-red-400" : "border-line focus:border-cyan"
+                }`}
                 id="new-title"
-                onChange={(event) => setNewTitle(event.target.value)}
-                required
+                onChange={(event) => {
+                  setNewTitle(event.target.value);
+                  if (newFieldsInvalid) setNewFieldsInvalid(false);
+                }}
                 value={newTitle}
               />
+              {newFieldsInvalid ? <p className="mt-1 text-xs font-bold text-red-700">Enter a title, a body, or both.</p> : null}
               <label className="mt-4 block text-sm font-bold text-midnight" htmlFor="new-body">
                 Body
               </label>
               <textarea
-                className="mt-1.5 w-full rounded-xl border border-line px-3.5 py-2.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
+                aria-invalid={newFieldsInvalid}
+                className={`mt-1.5 w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-cyan/20 ${
+                  newFieldsInvalid ? "border-red-400 focus:border-red-400" : "border-line focus:border-cyan"
+                }`}
                 id="new-body"
-                onChange={(event) => setNewBody(event.target.value)}
-                required
+                onChange={(event) => {
+                  setNewBody(event.target.value);
+                  if (newFieldsInvalid) setNewFieldsInvalid(false);
+                }}
                 rows={2}
                 value={newBody}
               />
+              {newFieldsInvalid ? <p className="mt-1 text-xs font-bold text-red-700">Enter a title, a body, or both.</p> : null}
               <button
                 className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua shadow-glow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isCreating}
@@ -330,16 +351,31 @@ export default function AdminNotificationsPage() {
                       {editingId === row.id ? (
                         <div>
                           <input
-                            className="mb-2 h-10 w-full rounded-xl border border-line px-3 text-sm outline-none focus:border-cyan"
-                            onChange={(event) => setEditTitle(event.target.value)}
+                            aria-invalid={editFieldsInvalid}
+                            className={`mb-1 h-10 w-full rounded-xl border px-3 text-sm outline-none ${
+                              editFieldsInvalid ? "border-red-400 focus:border-red-400" : "border-line focus:border-cyan"
+                            }`}
+                            onChange={(event) => {
+                              setEditTitle(event.target.value);
+                              if (editFieldsInvalid) setEditFieldsInvalid(false);
+                            }}
                             value={editTitle}
                           />
                           <textarea
-                            className="mb-3 w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-cyan"
-                            onChange={(event) => setEditBody(event.target.value)}
+                            aria-invalid={editFieldsInvalid}
+                            className={`mb-1 w-full rounded-xl border px-3 py-2 text-sm outline-none ${
+                              editFieldsInvalid ? "border-red-400 focus:border-red-400" : "border-line focus:border-cyan"
+                            }`}
+                            onChange={(event) => {
+                              setEditBody(event.target.value);
+                              if (editFieldsInvalid) setEditFieldsInvalid(false);
+                            }}
                             rows={2}
                             value={editBody}
                           />
+                          {editFieldsInvalid ? (
+                            <p className="mb-2 text-xs font-bold text-red-700">Enter a title, a body, or both.</p>
+                          ) : null}
                           <div className="flex gap-2">
                             <button
                               className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-midnight px-3 text-xs font-bold text-aqua disabled:opacity-50"
@@ -362,11 +398,15 @@ export default function AdminNotificationsPage() {
                       ) : (
                         <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <Bell aria-hidden="true" className="text-cyanDeep" size={16} />
-                              <p className="font-bold text-midnight">{row.title}</p>
-                            </div>
-                            <p className="mt-1 text-sm text-muted">{row.body}</p>
+                            {row.title ? (
+                              <div className="flex items-center gap-2">
+                                <Bell aria-hidden="true" className="text-cyanDeep" size={16} />
+                                <p className="font-bold text-midnight">{row.title}</p>
+                              </div>
+                            ) : null}
+                            {row.body ? (
+                              <p className={row.title ? "mt-1 text-sm text-muted" : "text-sm text-muted"}>{row.body}</p>
+                            ) : null}
                           </div>
                           <div className="flex shrink-0 gap-2">
                             <button
