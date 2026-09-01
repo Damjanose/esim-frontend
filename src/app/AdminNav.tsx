@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Bug, Percent, Rocket, type LucideIcon } from "lucide-react";
+import { BarChart3, Bell, Bug, Percent, Rocket, type LucideIcon } from "lucide-react";
 
 const adminLinks: Array<{
   href: string;
@@ -13,7 +13,8 @@ const adminLinks: Array<{
   { href: "/xloginy", label: "Sales", full: "Purchase dashboard", Icon: BarChart3 },
   { href: "/xpricing", label: "Pricing", full: "Price management", Icon: Percent },
   { href: "/xerrors", label: "Errors", full: "Error Inbox", Icon: Bug },
-  { href: "/xversion", label: "Version", full: "App version", Icon: Rocket }
+  { href: "/xversion", label: "Version", full: "App version", Icon: Rocket },
+  { href: "/xnotificationy", label: "Notify", full: "Push notifications", Icon: Bell }
 ];
 
 export function AdminNav() {
