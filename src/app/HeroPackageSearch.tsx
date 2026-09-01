@@ -10,7 +10,6 @@ import {
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  Check,
   ChevronDown,
   Globe2,
   Search,
@@ -233,7 +232,7 @@ export function HeroPackageSearch() {
 
   return (
     <div
-    className="relative z-[100] mt-8 w-full max-w-[620px]"
+    className="relative z-[100] w-full max-w-[620px]"
     ref={rootRef}
     >
       <div
@@ -413,23 +412,6 @@ export function HeroPackageSearch() {
           )}
         </div>
       ) : null}
-
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 px-1 text-[11px] font-semibold text-onSurfaceVariant">
-        <span className="inline-flex items-center gap-1.5">
-          <Check aria-hidden="true" className="text-brandBlue" size={13} />
-          200+ destinations
-        </span>
-
-        <span className="inline-flex items-center gap-1.5">
-          <Check aria-hidden="true" className="text-brandBlue" size={13} />
-          Instant activation
-        </span>
-
-        <span className="inline-flex items-center gap-1.5">
-          <Check aria-hidden="true" className="text-brandBlue" size={13} />
-          No roaming fees
-        </span>
-      </div>
     </div>
   );
 }

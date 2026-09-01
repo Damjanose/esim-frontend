@@ -1,7 +1,14 @@
 {
   "topic": "backend-integration",
   "covers": "How this frontend talks to the Express eSIM backend ('E-SIM backend' sibling repo): BFF layer, backend client, env wiring.",
-  "facts": ["f003", "f004", "f005", "f023", "f028"],
+  "facts": [
+    "f003",
+    "f004",
+    "f005",
+    "f023",
+    "f028",
+    "f079"
+  ],
   "why_bff_exists": "nginx in production proxies the ENTIRE /api/* prefix to the Express backend, including paths Next never claims. Next route handlers used to live at src/app/api/** and were silently unreachable in prod (Express 404 'Cannot GET ...'). Fixed 2026-08-13 by git-mv'ing all 20 route handlers to src/app/bff/**. See f003, f028.",
   "core_module": {
     "file": "src/lib/backend.ts",
@@ -37,5 +44,5 @@
     "NEXT_PUBLIC_API_URL": "fallback used if BACKEND_API_URL unset; becomes public if set (NEXT_PUBLIC_ prefix)",
     "note": "Never read/copy actual values from .env.local or .env.production into feedAI."
   },
-  "mobile_coupling_constraint": "velocity-eSim mobile app has https://esim.uplisoft.com/api baked into shipped builds (EXPO_PUBLIC_API_URL) and api.uplisoft.com does not resolve, so /api can never be repointed at this Next app — this is a hard, load-bearing constraint on any future routing change (f028)."
+  "mobile_coupling_constraint": "velocity-eSim mobile app has https://esim.uplisoft.com/api baked into shipped builds (EXPO_PUBLIC_API_URL) and api.uplisoft.com does not resolve, so /api can never be repointed at this Next app \u2014 this is a hard, load-bearing constraint on any future routing change (f028)."
 }

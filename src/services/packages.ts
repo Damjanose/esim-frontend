@@ -17,6 +17,10 @@ export type HeroPackageOption = {
   voiceMinutes?: number;
   /** SMS included. Undefined on data-only packages. */
   smsCount?: number;
+  /** True when an admin discount is active; `price`/`priceNumeric` are already the discounted amount. */
+  hasDiscount?: boolean;
+  /** Pre-discount price, same currency/units as `priceNumeric`. Only meaningful when `hasDiscount` is true. */
+  retailPrice?: number;
 };
 
 type ApiPackage = {
@@ -38,6 +42,8 @@ type ApiPackage = {
   filters?: string[];
   voiceMinutes?: number;
   smsCount?: number;
+  hasDiscount?: boolean;
+  retailPrice?: number;
 };
 
 type PackagesResponse = {
@@ -213,6 +219,15 @@ function mapPackageToOption(
       typeof pkg.smsCount === "number" && pkg.smsCount > 0
         ? pkg.smsCount
         : undefined,
+    // Matches the mobile app's formatRetailPriceLabel (src/currency/formatPrice.ts):
+    // trust the backend's hasDiscount flag directly, no magnitude comparison
+    // against priceNumeric — an admin discount can also mark a price *up*
+    // (discountDirection: 'increase'), and requiring retailPrice > priceNumeric
+    // here would silently drop that case (and any other where the two happen
+    // to be equal/inverted) instead of just hiding the percent badge for it.
+    ...(pkg.hasDiscount && typeof pkg.retailPrice === "number"
+      ? { hasDiscount: true, retailPrice: pkg.retailPrice }
+      : {}),
   };
 }
 
@@ -290,7 +305,8 @@ export type PackageGroupsRailId =
   | "popular"
   | "bestValue"
   | "unlimited"
-  | "longStay";
+  | "longStay"
+  | "regional";
 
 export type PackageGroupOptions = Record<
   PackageGroupsRailId,
@@ -322,6 +338,7 @@ export function mapPackageGroupsPayload(
     bestValue: mapPackagesPayload({ packages: data.bestValue ?? [] }),
     unlimited: mapPackagesPayload({ packages: data.unlimited ?? [] }),
     longStay: mapPackagesPayload({ packages: data.longStay ?? [] }),
+    regional: mapPackagesPayload({ packages: data.regional ?? [] }),
   };
 }
 

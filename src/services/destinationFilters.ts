@@ -1,5 +1,5 @@
 import type { HeroPackageOption } from "./packages";
-import type { WizardResult } from "../app/destinations/HelpMeChooseWizard";
+import type { DaysAnswer, DataAnswer } from "../app/destinations/HelpMeChooseWizard";
 
 export type DestinationBrowseFilters = {
   daysFrom: number | null;
@@ -77,27 +77,33 @@ export function parseDestinationFiltersFromParams(
 }
 
 /**
- * Maps a "filters" wizard result onto the `/destinations` query params
- * `parseDestinationFiltersFromParams` reads back. A "country" result is
- * handled separately by the caller (it navigates via `?country=` instead).
+ * Maps the wizard's trip-length/data-need answers onto the `/destinations`
+ * query params `parseDestinationFiltersFromParams` reads back. Used both for
+ * a "filters" wizard result (no country chosen) and alongside `?country=`
+ * when the user did pick a destination, so the country page can narrow to
+ * plans matching what the wizard asked for instead of showing everything.
  */
-export function wizardFiltersToQueryParams(
-  result: Extract<WizardResult, { kind: "filters" }>,
-): URLSearchParams {
+export function wizardFiltersToQueryParams({
+  days,
+  data,
+}: {
+  days: DaysAnswer;
+  data: DataAnswer;
+}): URLSearchParams {
   const params = new URLSearchParams();
 
-  if (result.days.kind === "preset" || result.days.kind === "custom") {
-    params.set("daysMin", String(result.days.days));
-    params.set("daysMax", String(result.days.days));
+  if (days.kind === "preset" || days.kind === "custom") {
+    params.set("daysMin", String(days.days));
+    params.set("daysMax", String(days.days));
   }
 
-  if (result.data.kind === "range") {
-    params.set("dataMin", String(result.data.fromGb));
-    if (result.data.toGb != null) {
-      params.set("dataMax", String(result.data.toGb));
+  if (data.kind === "range") {
+    params.set("dataMin", String(data.fromGb));
+    if (data.toGb != null) {
+      params.set("dataMax", String(data.toGb));
     }
     params.set("unlimited", "false");
-  } else if (result.data.kind === "unlimited") {
+  } else if (data.kind === "unlimited") {
     params.set("unlimited", "true");
     params.set("dataMin", "999");
   }

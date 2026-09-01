@@ -1,9 +1,9 @@
 "use client";
 
-import { Globe2, Sparkles } from "lucide-react";
+import { ChevronDown, ChevronUp, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchPackageGroups,
   fetchPackageOptions,
@@ -17,6 +17,11 @@ import {
   type DestinationBrowseFilters,
 } from "@/services/destinationFilters";
 import { HelpMeChooseWizard, type WizardResult } from "./HelpMeChooseWizard";
+import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
+
+/** Minimum time the welcome intro stays on screen before the wizard opens. */
+const WELCOME_MIN_DELAY_MS = 2000;
+const DESTINATIONS_COLLAPSED_COUNT = 20;
 
 type CountryOption = {
   country: string;
@@ -36,6 +41,7 @@ const RAILS: RailDef[] = [
   { id: "bestValue", label: "Best value" },
   { id: "unlimited", label: "Unlimited data" },
   { id: "longStay", label: "Long stay (30+ days)" },
+  { id: "regional", label: "Regional & global bundles" },
 ];
 
 const EMPTY_GROUPS: PackageGroupOptions = {
@@ -43,6 +49,7 @@ const EMPTY_GROUPS: PackageGroupOptions = {
   bestValue: [],
   unlimited: [],
   longStay: [],
+  regional: [],
 };
 
 function normalizeCountryCode(value: string) {
@@ -78,15 +85,35 @@ function toCountryOptions(packages: readonly HeroPackageOption[]): CountryOption
 type DestinationBrowseProps = {
   /** Wizard filters carried in from the URL (see `parseDestinationFiltersFromParams`). */
   urlFilters: Record<string, string | undefined>;
+  /**
+   * Opens the "Help me choose" wizard as soon as this component mounts,
+   * instead of waiting for the button to be clicked — used on the homepage
+   * only. `/destinations` keeps the button-only behavior (`false`, the
+   * default) since a visitor already navigated there to browse.
+   */
+  autoOpenWizard?: boolean;
 };
 
-export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
+export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: DestinationBrowseProps) {
   const router = useRouter();
   const [packages, setPackages] = useState<HeroPackageOption[]>([]);
   const [groups, setGroups] = useState<PackageGroupOptions>(EMPTY_GROUPS);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  /**
+   * Shown instead of the wizard for the first `WELCOME_MIN_DELAY_MS` on an
+   * auto-opened wizard, so it doesn't just snap open the instant the page
+   * loads. Also gates the actual wizard open on data having finished
+   * loading (see the effect below) — opening it before `packages` has
+   * arrived would show "No destination found" for every real query.
+   */
+  const [showWelcome, setShowWelcome] = useState(autoOpenWizard);
+  const [welcomeMinDelayDone, setWelcomeMinDelayDone] = useState(false);
   const [gridSearch, setGridSearch] = useState("");
+  const [showAllDestinations, setShowAllDestinations] = useState(false);
+  /** Bumped to re-run the load effect when the user clicks "Try again". */
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -94,6 +121,7 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
     async function load() {
       try {
         setLoading(true);
+        setLoadError(false);
         const [packageOptions, groupOptions] = await Promise.all([
           fetchPackageOptions(),
           fetchPackageGroups(),
@@ -104,6 +132,7 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
         }
       } catch (error) {
         console.error("Failed to load marketplace destinations:", error);
+        if (active) setLoadError(true);
       } finally {
         if (active) setLoading(false);
       }
@@ -113,7 +142,27 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [retryCount]);
+
+  const handleRetry = useCallback(() => setRetryCount((count) => count + 1), []);
+
+  // Minimum time the welcome intro stays visible, independent of how fast
+  // (or slow) the data fetch settles.
+  useEffect(() => {
+    if (!showWelcome) return;
+    const timer = setTimeout(() => setWelcomeMinDelayDone(true), WELCOME_MIN_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [showWelcome]);
+
+  // Once both the minimum delay has elapsed AND the fetch has settled,
+  // hand off from the welcome intro to the actual wizard — never open it
+  // while `packages` is still empty, or every destination search would
+  // come back "No destination found" regardless of what was typed.
+  useEffect(() => {
+    if (!showWelcome || !welcomeMinDelayDone || loading) return;
+    setShowWelcome(false);
+    if (!loadError) setWizardOpen(true);
+  }, [showWelcome, welcomeMinDelayDone, loading, loadError]);
 
   const filters: DestinationBrowseFilters = useMemo(
     () => parseDestinationFiltersFromParams(urlFilters),
@@ -134,11 +183,20 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
     return countries.filter((c) => c.country.toLowerCase().includes(q));
   }, [filteredPackages, gridSearch]);
 
+  const isGridSearching = gridSearch.trim().length > 0;
+  const visibleCountries =
+    isGridSearching || showAllDestinations
+      ? filteredCountries
+      : filteredCountries.slice(0, DESTINATIONS_COLLAPSED_COUNT);
+  const hasMoreDestinations = !isGridSearching && filteredCountries.length > DESTINATIONS_COLLAPSED_COUNT;
+
   function handleWizardFinish(result: WizardResult) {
     setWizardOpen(false);
 
     if (result.kind === "country") {
-      router.push(`/destinations?country=${encodeURIComponent(result.countryCode)}`);
+      const params = wizardFiltersToQueryParams(result);
+      params.set("country", result.countryCode);
+      router.push(`/destinations?${params.toString()}`);
       return;
     }
 
@@ -148,7 +206,7 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
   }
 
   return (
-    <section className="relative px-5 pb-20 pt-4 md:px-8">
+    <section className="relative px-5 pb-20 pt-4 md:px-8" id="plans">
       <div className="relative mx-auto max-w-[1180px]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -162,7 +220,8 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
 
           <div className="flex items-center gap-3">
             <button
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-5 py-3 text-xs font-black uppercase tracking-wide text-white shadow-brandCard transition hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-5 py-3 text-xs font-black uppercase tracking-wide text-white shadow-brandCard transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={loading}
               onClick={() => setWizardOpen(true)}
               type="button"
             >
@@ -177,6 +236,27 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div className="h-24 animate-pulse rounded-[18px] border border-outline bg-mist" key={i} />
             ))}
+          </div>
+        ) : loadError ? (
+          <div className="mt-8 flex flex-col items-center gap-3 rounded-[18px] border border-outline bg-mist px-6 py-10 text-center">
+            <span className="grid h-11 w-11 place-items-center rounded-full border border-outline bg-white text-onSurfaceVariant">
+              <WifiOff aria-hidden="true" size={20} />
+            </span>
+            <p className="text-sm font-black text-brandInk">
+              Destinations couldn&apos;t be loaded
+            </p>
+            <p className="max-w-sm text-xs text-onSurfaceVariant">
+              We couldn&apos;t reach the eSIM service just now. Check your connection and try
+              again.
+            </p>
+            <button
+              className="mt-1 inline-flex items-center gap-2 rounded-full border border-outline bg-white px-4 py-2 text-xs font-black text-brandInk transition hover:border-brandBlue/50"
+              onClick={handleRetry}
+              type="button"
+            >
+              <RefreshCw aria-hidden="true" size={14} />
+              Try again
+            </button>
           </div>
         ) : (
           <>
@@ -237,38 +317,66 @@ export function DestinationBrowse({ urlFilters }: DestinationBrowseProps) {
                   No destinations match these filters.
                 </p>
               ) : (
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {filteredCountries.map((country) => (
-                    <Link
-                      className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
-                      href={`/destinations?country=${encodeURIComponent(country.countryCode)}`}
-                      key={country.countryCode}
-                    >
-                      {country.flagUri ? (
-                        <img
-                          alt=""
-                          className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-                          src={country.flagUri}
-                        />
-                      ) : (
-                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                          <Globe2 aria-hidden="true" size={16} />
-                        </span>
-                      )}
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-brandInk">{country.country}</p>
-                        <p className="text-xs font-bold text-onSurfaceVariant">
-                          {country.planCount} {country.planCount === 1 ? "plan" : "plans"}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                <>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {visibleCountries.map((country) => (
+                      <Link
+                        className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
+                        href={`/destinations?country=${encodeURIComponent(country.countryCode)}`}
+                        key={country.countryCode}
+                      >
+                        {country.flagUri ? (
+                          <img
+                            alt=""
+                            className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
+                            src={country.flagUri}
+                          />
+                        ) : (
+                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
+                            <Globe2 aria-hidden="true" size={16} />
+                          </span>
+                        )}
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-brandInk">{country.country}</p>
+                          <p className="text-xs font-bold text-onSurfaceVariant">
+                            {country.planCount} {country.planCount === 1 ? "plan" : "plans"}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {hasMoreDestinations || showAllDestinations ? (
+                    <div className="mt-5 flex justify-center">
+                      <button
+                        className="flex items-center gap-1.5 rounded-full border border-outline bg-white px-5 py-2 text-sm font-bold text-brandBlue transition hover:border-brandBlue/50"
+                        onClick={() => setShowAllDestinations((prev) => !prev)}
+                        type="button"
+                      >
+                        {showAllDestinations ? (
+                          <>
+                            Show less
+                            <ChevronUp aria-hidden="true" size={16} />
+                          </>
+                        ) : (
+                          <>
+                            Show all {filteredCountries.length} destinations
+                            <ChevronDown aria-hidden="true" size={16} />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ) : null}
+                </>
               )}
             </div>
           </>
         )}
       </div>
+
+      {showWelcome ? (
+        <WizardWelcomeIntro onDismiss={() => setShowWelcome(false)} />
+      ) : null}
 
       {wizardOpen ? (
         <HelpMeChooseWizard
