@@ -40,6 +40,12 @@ type OtpRequestEvent = {
   createdAt: string;
 };
 
+type Pagination = {
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
 type DashboardPayload = {
   status?: string;
   data?: {
@@ -51,11 +57,16 @@ type DashboardPayload = {
     };
     chart?: ChartPoint[];
     purchases?: Purchase[];
+    purchasesPagination?: Pagination;
     users?: DashboardUser[];
+    usersPagination?: Pagination;
     recentOtpRequests?: OtpRequestEvent[];
+    otpPagination?: Pagination;
   };
   message?: string;
 };
+
+const TABLE_PAGE_SIZE = 10;
 
 function formatMoney(amountCents: number | null, currency: string | null) {
   if (amountCents == null || !currency) return "N/A";
@@ -143,6 +154,45 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function TablePagination({
+  pagination,
+  isLoading,
+  onPageChange
+}: {
+  pagination?: Pagination;
+  isLoading: boolean;
+  onPageChange: (page: number) => void;
+}) {
+  if (!pagination || pagination.total === 0) return null;
+  const totalPages = Math.max(1, Math.ceil(pagination.total / pagination.pageSize));
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line/60 px-5 py-3">
+      <p className="text-[11px] font-bold text-muted">
+        Page {pagination.page} of {totalPages} · {pagination.total} total
+      </p>
+      <div className="flex gap-2">
+        <button
+          className="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-bold text-midnight transition hover:border-cyan disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={isLoading || pagination.page <= 1}
+          onClick={() => onPageChange(pagination.page - 1)}
+          type="button"
+        >
+          Prev
+        </button>
+        <button
+          className="rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-bold text-midnight transition hover:border-cyan disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={isLoading || pagination.page >= totalPages}
+          onClick={() => onPageChange(pagination.page + 1)}
+          type="button"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const session = useAdminSession();
   const { token, handleUnauthorized } = session;
@@ -150,6 +200,9 @@ export default function AdminDashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardPayload["data"] | null>(null);
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(false);
   const [error, setError] = useState("");
+  const [purchasesPage, setPurchasesPage] = useState(1);
+  const [usersPage, setUsersPage] = useState(1);
+  const [otpPage, setOtpPage] = useState(1);
 
   const purchases = dashboard?.purchases ?? [];
   const chart = dashboard?.chart ?? [];
@@ -174,7 +227,15 @@ export default function AdminDashboardPage() {
     setError("");
 
     try {
-      const response = await fetch("/bff/admin/dashboard", {
+      const params = new URLSearchParams({
+        purchasesPage: String(purchasesPage),
+        purchasesPageSize: String(TABLE_PAGE_SIZE),
+        usersPage: String(usersPage),
+        usersPageSize: String(TABLE_PAGE_SIZE),
+        otpPage: String(otpPage),
+        otpPageSize: String(TABLE_PAGE_SIZE)
+      });
+      const response = await fetch(`/bff/admin/dashboard?${params.toString()}`, {
         headers: { Authorization: `Bearer ${nextToken}` },
         cache: "no-store"
       });
@@ -201,7 +262,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (token) void loadDashboard(token);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, purchasesPage, usersPage, otpPage]);
 
   return (
     <div className="flex min-h-screen bg-cloud">
@@ -306,6 +367,11 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
               </div>
+              <TablePagination
+                isLoading={isLoadingDashboard}
+                onPageChange={setPurchasesPage}
+                pagination={dashboard?.purchasesPagination}
+              />
             </section>
 
             <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
@@ -352,6 +418,7 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
               </div>
+              <TablePagination isLoading={isLoadingDashboard} onPageChange={setUsersPage} pagination={dashboard?.usersPagination} />
             </section>
 
             <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
@@ -390,6 +457,7 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
               </div>
+              <TablePagination isLoading={isLoadingDashboard} onPageChange={setOtpPage} pagination={dashboard?.otpPagination} />
             </section>
           </div>
         )}

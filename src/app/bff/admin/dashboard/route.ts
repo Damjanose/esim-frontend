@@ -5,7 +5,8 @@ export async function GET(request: Request) {
   const authorization = request.headers.get("Authorization") ?? "";
   const token = authorization.replace(/^Bearer\s+/i, "").trim();
 
-  const result = await backendFetch<unknown>("/admin/dashboard", { token });
+  const query = new URL(request.url).search;
+  const result = await backendFetch<unknown>(`/admin/dashboard${query}`, { token });
 
   if (!result.ok) {
     return NextResponse.json(
