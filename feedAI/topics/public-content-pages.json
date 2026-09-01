@@ -18,7 +18,8 @@
     "f068",
     "f069",
     "f070",
-    "f083"
+    "f083",
+    "f084"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim — it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
@@ -54,5 +55,6 @@
     "og_image_cache_busting": "src/lib/seo.ts's ogImage.url appends a manual ?v=<ogImageVersion> query string (currently '3'). Bump ogImageVersion whenever public/og/esim2you-og.png's bytes change, or link-preview crawlers keep serving a cached copy of the old image since the URL is otherwise static (f063).",
     "producthunt_section": "No standalone Product Hunt UI anywhere on the page (two earlier attempts — a full-width banner, then an AppDownload pill — were both rejected in review). Final: a plain text link 'Featured on Product Hunt' in SiteFooter.tsx's bottom bar, styled like the copyright/coverage lines next to it (f069)."
   },
-  "how_it_works_section": "Homepage HowItWorks (page.tsx, was JourneyAndCoverage) is 3 fanned real-device phone mockups, not icon cards -- ChoosePlanScreen uses a real user screenshot as its hero photo + real flagcdn.com flags/pricing, ScanInstallScreen has a real static QR (public/images/qr-esim-uplisoft.svg -> esim.uplisoft.com), ConnectedScreen mirrors mobile MyEsimsScreen copy. The old \"Where Will You Go Next?\" coverage column and CoverageFlagMosaic.tsx are deleted, not restyled (f083, supersedes f075's coverage-mosaic description)."
+  "how_it_works_section": "Homepage HowItWorks (page.tsx, was JourneyAndCoverage) is 3 fanned real-device phone mockups, not icon cards -- ChoosePlanScreen uses a real user screenshot as its hero photo + real flagcdn.com flags/pricing, ScanInstallScreen has a real static QR (public/images/qr-esim-uplisoft.svg -> esim.uplisoft.com), ConnectedScreen mirrors mobile MyEsimsScreen copy. The old \"Where Will You Go Next?\" coverage column and CoverageFlagMosaic.tsx are deleted, not restyled (f083, supersedes f075's coverage-mosaic description).",
+  "destinations_grid_collapse": "DestinationBrowse.tsx's flat \"All destinations\" grid (215 countries) collapses to the first 20 by default, with a \"Show all N / Show less\" toggle (showAllDestinations state, DESTINATIONS_COLLAPSED_COUNT=20). The cap is skipped while the grid search box has text, so searching always shows every match (f084)."
 }

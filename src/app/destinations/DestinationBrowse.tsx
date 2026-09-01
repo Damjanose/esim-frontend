@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
+import { ChevronDown, ChevronUp, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,6 +21,7 @@ import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
 
 /** Minimum time the welcome intro stays on screen before the wizard opens. */
 const WELCOME_MIN_DELAY_MS = 2000;
+const DESTINATIONS_COLLAPSED_COUNT = 20;
 
 type CountryOption = {
   country: string;
@@ -110,6 +111,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   const [showWelcome, setShowWelcome] = useState(autoOpenWizard);
   const [welcomeMinDelayDone, setWelcomeMinDelayDone] = useState(false);
   const [gridSearch, setGridSearch] = useState("");
+  const [showAllDestinations, setShowAllDestinations] = useState(false);
   /** Bumped to re-run the load effect when the user clicks "Try again". */
   const [retryCount, setRetryCount] = useState(0);
 
@@ -180,6 +182,13 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
     if (!q) return countries;
     return countries.filter((c) => c.country.toLowerCase().includes(q));
   }, [filteredPackages, gridSearch]);
+
+  const isGridSearching = gridSearch.trim().length > 0;
+  const visibleCountries =
+    isGridSearching || showAllDestinations
+      ? filteredCountries
+      : filteredCountries.slice(0, DESTINATIONS_COLLAPSED_COUNT);
+  const hasMoreDestinations = !isGridSearching && filteredCountries.length > DESTINATIONS_COLLAPSED_COUNT;
 
   function handleWizardFinish(result: WizardResult) {
     setWizardOpen(false);
@@ -308,33 +317,57 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                   No destinations match these filters.
                 </p>
               ) : (
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {filteredCountries.map((country) => (
-                    <Link
-                      className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
-                      href={`/destinations?country=${encodeURIComponent(country.countryCode)}`}
-                      key={country.countryCode}
-                    >
-                      {country.flagUri ? (
-                        <img
-                          alt=""
-                          className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-                          src={country.flagUri}
-                        />
-                      ) : (
-                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                          <Globe2 aria-hidden="true" size={16} />
-                        </span>
-                      )}
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-brandInk">{country.country}</p>
-                        <p className="text-xs font-bold text-onSurfaceVariant">
-                          {country.planCount} {country.planCount === 1 ? "plan" : "plans"}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                <>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {visibleCountries.map((country) => (
+                      <Link
+                        className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
+                        href={`/destinations?country=${encodeURIComponent(country.countryCode)}`}
+                        key={country.countryCode}
+                      >
+                        {country.flagUri ? (
+                          <img
+                            alt=""
+                            className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
+                            src={country.flagUri}
+                          />
+                        ) : (
+                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
+                            <Globe2 aria-hidden="true" size={16} />
+                          </span>
+                        )}
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-brandInk">{country.country}</p>
+                          <p className="text-xs font-bold text-onSurfaceVariant">
+                            {country.planCount} {country.planCount === 1 ? "plan" : "plans"}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {hasMoreDestinations || showAllDestinations ? (
+                    <div className="mt-5 flex justify-center">
+                      <button
+                        className="flex items-center gap-1.5 rounded-full border border-outline bg-white px-5 py-2 text-sm font-bold text-brandBlue transition hover:border-brandBlue/50"
+                        onClick={() => setShowAllDestinations((prev) => !prev)}
+                        type="button"
+                      >
+                        {showAllDestinations ? (
+                          <>
+                            Show less
+                            <ChevronUp aria-hidden="true" size={16} />
+                          </>
+                        ) : (
+                          <>
+                            Show all {filteredCountries.length} destinations
+                            <ChevronDown aria-hidden="true" size={16} />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ) : null}
+                </>
               )}
             </div>
           </>
