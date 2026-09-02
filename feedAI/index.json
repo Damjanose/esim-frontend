@@ -33,6 +33,10 @@
     "topics/troubleshooting.json": {
       "covers": "Symptom -> root cause -> fix log for diagnosed incidents (routing, auth, env)",
       "keywords": ["localhost:3020 redirect", "Cannot GET /api", "invalid_client", "redirect_uri_mismatch", "env not deployed", "google button left-aligned"]
+    },
+    "topics/troubleshooting-destinations.json": {
+      "covers": "Symptom -> root cause -> fix log for /destinations page, Help Me Choose wizard, and pricing/discount display bugs",
+      "keywords": ["No destination found", "empty destinations", "wizard filters lost", "wikimedia hostname", "discount badge missing", "retailPrice guard"]
     }
   },
   "facts": "facts.jsonl — append-only. grep it before assuming a topic file is current.",

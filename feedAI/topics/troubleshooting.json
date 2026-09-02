@@ -1,1 +1,89 @@
-{"topic": "troubleshooting","covers": "Symptom -> root cause -> fix history. Check here first for anything that smells like a repeat of a diagnosed issue.","entries": [{"symptom": "Signed-out visitor on prod clicking a guarded link (e.g. /profile) lands on https://localhost:3020/signin?... (dead URL)","root_cause": "middleware built redirect URLs from url.origin, which Next resolves from the internal bind address (127.0.0.1:3020) not the Host header","fix": "derive all redirect URLs from getPublicOrigin(request); applied to src/middleware.ts and the auth refresh route","facts": ["f009"],"source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"},{"symptom": "Any /api/* Next route handler answers with Express's 'Cannot GET /api/...' in production only (works in dev)","root_cause": "nginx proxies the entire /api/* prefix to the Express backend before Next ever sees the request; per-path carve-out is impossible because BFF paths intentionally mirror backend paths (e.g. /auth/otp/send exists on both)","fix": "moved all route handlers from src/app/api/** to src/app/bff/** (git mv); repointed every browser call site; added /bff to seo.ts privateRoutePrefixes","facts": ["f003","f028"],"source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"},{"symptom": "Apple sign-in button renders on /signin but fails immediately with invalid_client","root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (…apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity","fix": "set NEXT_PUBLIC_APPLE_SERVICES_ID=com.uplisoft.velocityesim.web in .env.local and .env.production; also required creating the Services ID in Apple Developer portal (cannot be done from code) and adding APPLE_BUNDLE_ID/APPLE_SERVICES_ID to the backend .env","facts": ["f012","f013"],"source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"},{"symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' — works fine on localhost","root_cause": "that message is Google's generic body text for redirect_uri_mismatch; https://esim.uplisoft.com was missing from the OAuth client's Authorized JavaScript origins. Worked locally because Google ignores the port for localhost origins (masked that localhost:3000 wasn't registered either)","fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console — NO code change","facts": ["f014"],"source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"},{"symptom": "Neither Google nor Apple button appears on /signin at all","root_cause": "SocialSignInButtons returns null when both NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID and NEXT_PUBLIC_APPLE_SERVICES_ID are empty; repo had no env file at all","fix": "added .env.local with NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID copied from backend's GOOGLE_WEB_CLIENT_ID (must match or backend rejects token aud); added .env.example documenting all vars","facts": ["f012"],"source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"},{"symptom": "Google sign-in button visually left-aligned instead of centered/full-width","root_cause": "Google Identity Services renders into a fixed-pixel-width iframe; CSS utility classes on the wrapper don't affect the iframe's own rendered width","fix": "measure the row with ResizeObserver, pass real pixel width to renderButton() (capped at Google's 400px max), re-render on resize","facts": [],"source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"},{"symptom": "A local .env.local change 'works on my machine' but has no effect after deploying with update.sh","root_cause": ".env.local is gitignored and never exists on the server; update.sh deploys via git pull then builds, so only committed env files (.env.production) reach prod","fix": "n/a — this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod","facts": ["f029"],"source": ".env.production comment, docs/sessions/2026-08-13_social_signin_env_wiring.md"},{"symptom": "The Product Hunt banner on the homepage shows an old/outdated eSim2you logo even after the brand's local logo assets were updated","root_cause": "ProductHuntFeature (src/app/page.tsx) hot-linked its logo image from ph-files.imgix.net (a Product-Hunt-hosted snapshot taken at launch time) instead of using a local public/*.png asset, so it never picked up later logo changes","fix": "Point the section at public/logo-icon.png (same mark Navbar.tsx uses) instead of the ph-files.imgix.net URL; any future logo update to that asset now propagates here automatically","facts": ["f066"],"source": "src/app/page.tsx ProductHuntFeature"},{"symptom": "All destination lists on the homepage and /destinations appear empty (\"ALL DESTINATIONS (0)\", \"No destinations match these filters\"), and the Help Me Choose wizard's country search returns \"No destination found\" for every query, even a real country name","root_cause": "GET /bff/packages/groups (and /bff/packages) returned 502 because the local backend dev server (E-SIM backend, feature/package-groups-api) wasn't running while the frontend dev server was pointed at BACKEND_API_URL=http://127.0.0.1:4000/api -- a local dev-environment gap, not an application bug. A stale orphaned `next dev` process from an earlier session (different/unknown env at its own startup time) compounded the confusion by still answering on :3000 with the same symptom even after the backend was restarted, until it was killed and a fresh dev server was started.","fix": "Start the backend dev server (`cd \"E-SIM backend\" && pnpm dev`) before the frontend when developing locally against it, and if a request still 502s after confirming the backend answers curl http://127.0.0.1:4000/health directly, check for and kill a stale/orphaned `next dev` process on :3000 (lsof -ti:3000) rather than assuming the code is broken -- verify the frontend's own request (curl http://localhost:3000/bff/packages/groups) succeeds before debugging further. Separately, DestinationBrowse.tsx and HeroDestinationChips.tsx now surface a distinct 'couldn't load, try again' UI on a fetch failure (f073) instead of rendering the same empty-state copy a genuinely zero-result response would show, so this class of failure is visibly distinguishable from 'there really are no matches' going forward.","facts": ["f073"],"source": "src/app/destinations/DestinationBrowse.tsx; src/app/HeroDestinationChips.tsx; src/lib/backend.ts getBackendApiUrl"},{"symptom": "Help Me Choose wizard's destination search (step 3) returns 'No destination found' for real country names even though the backend is confirmed healthy and GET /bff/packages/groups returns real data","root_cause": "DestinationBrowse.tsx's autoOpenWizard path used to seed wizardOpen straight from the prop (useState(autoOpenWizard)), opening the wizard the instant the component mounted -- on a slow connection this could render HelpMeChooseWizard with an empty `countries` array before fetchPackageOptions() had resolved, so any query in step 3 matched nothing regardless of whether the data eventually arrived fine.","fix": "The wizard's auto-open is now gated on two effects: a WELCOME_MIN_DELAY_MS (2000ms) timer AND `!loading`, both must be true before setWizardOpen(true) fires (f074) -- a slow fetch extends the new WizardWelcomeIntro screen instead of opening the wizard early. Also check the more mundane cause first: the local backend dev server not running (see the empty-destination-lists entry above) -- both symptoms look identical from the UI and were confused with each other while diagnosing this live.","facts": ["f074"],"source": "src/app/destinations/DestinationBrowse.tsx; src/app/destinations/WizardWelcomeIntro.tsx"},{"symptom": "A destination page (e.g. /destinations?country=hungary) throws a next/image runtime error: \"Invalid src prop ... hostname \\\"thumb.wikimedia.org\\\" is not configured under images in your next.config.js\"","root_cause": "src/app/bff/country-image/route.ts's createImageResult() uses image?.thumburl ?? image?.url from Wikimedia's imageinfo API response -- Wikimedia serves images from more than one subdomain (upload.wikimedia.org for originals, thumb.wikimedia.org for thumbnails) depending on which field comes back for a given image, but next.config.mjs's images.remotePatterns only allowlisted the single literal hostname upload.wikimedia.org.","fix": "Widened the remotePattern to hostname: '*.wikimedia.org' (f076) instead of allowlisting hosts one at a time as they show up for other countries. next.config.mjs changes require a full dev-server restart to take effect, unlike component code changes -- don't assume a fix didn't work just because a hot-reloaded page still errors.","facts": ["f076"],"source": "next.config.mjs; src/app/bff/country-image/route.ts"},{"symptom": "Web frontend shows only the plain (already-discounted) price for a package the admin has discounted via /xpricing -- no strikethrough original price or -N% badge, even though the backend computes hasDiscount/retailPrice correctly and the mobile app shows it fine","root_cause": "services/packages.ts's mapPackageToOption only copied hasDiscount/retailPrice through to the frontend's HeroPackageOption when retailPrice > priceNumeric -- an extra guard added when the feature was first built for the web, that mobile's equivalent (formatRetailPriceLabel) never had. Any admin discount with discountDirection:'increase' (marks the price UP, still hasDiscount:true), or any other case where retailPrice ends up <= priceNumeric, silently dropped hasDiscount/retailPrice entirely instead of just not showing a percent-off badge.","fix": "Removed the magnitude guard (f078) -- mapPackageToOption now copies hasDiscount/retailPrice through whenever the backend sets hasDiscount:true and retailPrice is a number, no comparison against priceNumeric. discountPricing.ts's discountPercentOff (the '-N%' badge) independently returns null when the computed percent isn't positive, while hasActiveDiscount/formatOriginalPrice (the strikethrough original price) stay unconditional on hasDiscount alone -- mirrors mobile's formatDiscountBadge/formatRetailPriceLabel split exactly.","facts": ["f078"],"source": "src/services/packages.ts; src/services/discountPricing.ts"},{"symptom": "Picking a specific country in the Help Me Choose wizard (step 3) shows every plan for that destination on /destinations?country=X, ignoring the trip-length/data-need answers the user just gave in steps 1-2","root_cause": "WizardResult's 'country' variant only ever carried countryCode, not days/data; DestinationBrowse.tsx's handleWizardFinish navigated with router.push(`/destinations?country=${code}`) alone, and DestinationPlans.tsx (the per-country page) never read filter query params at all -- the filters-in-URL mechanism (wizardFiltersToQueryParams/parseDestinationFiltersFromParams/matchesDestinationFilters) only worked for the country-less 'skip destination' exit into the all-destinations grid (DestinationBrowse), not the single-country page.","fix": "WizardResult's 'country' variant now carries days/data too; wizardFiltersToQueryParams takes a plain {days,data} so both the 'country' and 'filters' branches can call it; handleWizardFinish appends filter params alongside ?country=; page.tsx forwards the same params it already parsed for DestinationBrowse to a new DestinationPlans searchFilters prop, which applies matchesDestinationFilters ahead of the page's own local filter/sort UI (f082).","facts": ["f082"],"source": "src/app/destinations/HelpMeChooseWizard.tsx; src/app/destinations/DestinationBrowse.tsx; src/app/destinations/page.tsx; src/app/destinations/DestinationPlans.tsx; src/services/destinationFilters.ts"}],"how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs."}
+{
+  "topic": "troubleshooting",
+  "covers": "Symptom -> root cause -> fix history: auth (Google/Apple sign-in), routing/redirects, BFF, env/deploy. See troubleshooting-destinations.json for destinations-page/wizard/pricing-display bugs.",
+  "entries": [
+    {
+      "symptom": "Signed-out visitor on prod clicking a guarded link (e.g. /profile) lands on https://localhost:3020/signin?... (dead URL)",
+      "root_cause": "middleware built redirect URLs from url.origin, which Next resolves from the internal bind address (127.0.0.1:3020) not the Host header",
+      "fix": "derive all redirect URLs from getPublicOrigin(request); applied to src/middleware.ts and the auth refresh route",
+      "facts": [
+        "f009"
+      ],
+      "source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"
+    },
+    {
+      "symptom": "Any /api/* Next route handler answers with Express's 'Cannot GET /api/...' in production only (works in dev)",
+      "root_cause": "nginx proxies the entire /api/* prefix to the Express backend before Next ever sees the request; per-path carve-out is impossible because BFF paths intentionally mirror backend paths (e.g. /auth/otp/send exists on both)",
+      "fix": "moved all route handlers from src/app/api/** to src/app/bff/** (git mv); repointed every browser call site; added /bff to seo.ts privateRoutePrefixes",
+      "facts": [
+        "f003",
+        "f028"
+      ],
+      "source": "docs/sessions/2026-08-13_prod_redirect_localhost.md"
+    },
+    {
+      "symptom": "Apple sign-in button renders on /signin but fails immediately with invalid_client",
+      "root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (\u2026apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity",
+      "fix": "set NEXT_PUBLIC_APPLE_SERVICES_ID=com.uplisoft.velocityesim.web in .env.local and .env.production; also required creating the Services ID in Apple Developer portal (cannot be done from code) and adding APPLE_BUNDLE_ID/APPLE_SERVICES_ID to the backend .env",
+      "facts": [
+        "f012",
+        "f013"
+      ],
+      "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
+    },
+    {
+      "symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' \u2014 works fine on localhost",
+      "root_cause": "that message is Google's generic body text for redirect_uri_mismatch; https://esim.uplisoft.com was missing from the OAuth client's Authorized JavaScript origins. Worked locally because Google ignores the port for localhost origins (masked that localhost:3000 wasn't registered either)",
+      "fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console \u2014 NO code change",
+      "facts": [
+        "f014"
+      ],
+      "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
+    },
+    {
+      "symptom": "Neither Google nor Apple button appears on /signin at all",
+      "root_cause": "SocialSignInButtons returns null when both NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID and NEXT_PUBLIC_APPLE_SERVICES_ID are empty; repo had no env file at all",
+      "fix": "added .env.local with NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID copied from backend's GOOGLE_WEB_CLIENT_ID (must match or backend rejects token aud); added .env.example documenting all vars",
+      "facts": [
+        "f012"
+      ],
+      "source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    },
+    {
+      "symptom": "Google sign-in button visually left-aligned instead of centered/full-width",
+      "root_cause": "Google Identity Services renders into a fixed-pixel-width iframe; CSS utility classes on the wrapper don't affect the iframe's own rendered width",
+      "fix": "measure the row with ResizeObserver, pass real pixel width to renderButton() (capped at Google's 400px max), re-render on resize",
+      "facts": [],
+      "source": "docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    },
+    {
+      "symptom": "A local .env.local change 'works on my machine' but has no effect after deploying with update.sh",
+      "root_cause": ".env.local is gitignored and never exists on the server; update.sh deploys via git pull then builds, so only committed env files (.env.production) reach prod",
+      "fix": "n/a \u2014 this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod",
+      "facts": [
+        "f029"
+      ],
+      "source": ".env.production comment, docs/sessions/2026-08-13_social_signin_env_wiring.md"
+    },
+    {
+      "symptom": "The Product Hunt banner on the homepage shows an old/outdated eSim2you logo even after the brand's local logo assets were updated",
+      "root_cause": "ProductHuntFeature (src/app/page.tsx) hot-linked its logo image from ph-files.imgix.net (a Product-Hunt-hosted snapshot taken at launch time) instead of using a local public/*.png asset, so it never picked up later logo changes",
+      "fix": "Point the section at public/logo-icon.png (same mark Navbar.tsx uses) instead of the ph-files.imgix.net URL; any future logo update to that asset now propagates here automatically",
+      "facts": [
+        "f066"
+      ],
+      "source": "src/app/page.tsx ProductHuntFeature"
+    }
+  ],
+  "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
+  "facts": [
+    "f009",
+    "f003",
+    "f028",
+    "f012",
+    "f013",
+    "f014",
+    "f029",
+    "f066"
+  ]
+}
