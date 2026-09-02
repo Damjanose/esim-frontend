@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# feedAI pre-commit gate. Installed by hand into .git/hooks/pre-commit (git does
+# not version-control hooks, so this file is also kept at feedAI/git-hooks/pre-commit
+# — reinstall with: cp feedAI/git-hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# Runs feedAI/check-health.sh and blocks the commit if it fails (budget
+# violation, stale sync, or an undocumented new file). This exists because the
+# same "run it yourself" discipline that this whole check-health.sh system
+# replaces is exactly what let feedAI drift silently before (2026-08-19 and
+# 2026-09-02 incidents) — a step a session has to remember to run gets skipped;
+# a step git enforces doesn't.
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+if [ ! -x "$REPO_ROOT/feedAI/check-health.sh" ]; then
+  exit 0
+fi
+
+if ! "$REPO_ROOT/feedAI/check-health.sh"; then
+  echo
+  echo "feedAI/check-health.sh failed — see above. Fix it (or note in the commit"
+  echo "why it's expected) before committing. To bypass in a genuine emergency:"
+  echo "  git commit --no-verify"
+  exit 1
+fi

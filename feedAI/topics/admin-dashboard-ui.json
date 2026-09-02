@@ -1,6 +1,6 @@
 {
   "topic": "admin-dashboard-ui",
-  "covers": "The actual UI/behavior of the three hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
+  "covers": "The actual UI/behavior of the five hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast notifications) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
   "facts": [
     "f044",
     "f045",
@@ -11,7 +11,9 @@
     "f052",
     "f059",
     "f060",
-    "f061"
+    "f061",
+    "f087",
+    "f088"
   ],
   "shared_shell": {
     "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all three admin pages as of the 2026-08-23 premium redesign — see f051.",
@@ -27,6 +29,7 @@
     "file": "src/app/xloginy/page.tsx",
     "data_source": "GET /bff/admin/dashboard (Bearer token) -> {summary:{purchaseCount,userCount,revenueByCurrency,latestPurchaseAt}, chart:[{date,purchases,revenueCents}], purchases:Purchase[], users:DashboardUser[], recentOtpRequests:OtpRequestEvent[]}",
     "renders": "4 summary stat cards (total purchases/revenue/latest purchase/total users), a hand-rolled inline SVG bar chart component (PurchasesChart, no charting library) for purchases-over-time, and 3 tables: Purchases (email/package/price/status/date), Users (email/created/updated/otpRequestCount/lastOtpRequestedAt), Recent OTP requests (email/status/timestamp/error).",
+    "pagination": "f088 (2026-09-02): each of the 3 tables got its own page/pageSize selector + prev/next controls, matching the backend's now-paginated GET /api/admin/dashboard (E-SIM backend f118). bff/admin/dashboard/route.ts forwards the pagination query params through unchanged; summary stats still reflect ALL rows, not just the current page.",
     "formatting": "formatMoney uses Intl.NumberFormat with the purchase's own currency (paymentCurrency), amountCents/100; formatDate uses Intl.DateTimeFormat medium/short."
   },
   "xerrors_error_inbox": {
@@ -51,6 +54,17 @@
     "proxies": [
       "src/app/bff/admin/app-version/route.ts",
       "src/app/bff/admin/app-version/report/route.ts"
+    ]
+  },
+  "xnotificationy_broadcast_notifications": {
+    "file": "src/app/xnotificationy/page.tsx",
+    "note": "f087 (2026-09-02): built in an earlier, undocumented pass (commits a9e7bc5, 750a2f2) — backfilled here. Standard AdminNav/AdminLoginCard/useAdminSession shell, same pattern as the other 4 admin pages.",
+    "data_source": "GET/POST/PUT/DELETE /bff/admin/notifications (NotificationMessage CRUD) and POST /bff/admin/notifications/:id/send, proxying E-SIM backend's f117 endpoints.",
+    "renders": "a create form (title/body, at least one required) and a list of saved NotificationMessage drafts, each with Edit/Delete/Send actions. Send calls the backend's batched Firebase broadcast and surfaces {sentCount, failureCount} in a notice.",
+    "proxies": [
+      "src/app/bff/admin/notifications/route.ts",
+      "src/app/bff/admin/notifications/[id]/route.ts",
+      "src/app/bff/admin/notifications/[id]/send/route.ts"
     ]
   }
 }
