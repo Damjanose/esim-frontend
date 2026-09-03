@@ -3,6 +3,7 @@ import { ACCESS_COOKIE } from "@/lib/session";
 import { POST as postPartnerRequest } from "./request/route";
 import { GET as getPartnerMe } from "./me/route";
 import { GET as getPartnerDashboard } from "./me/dashboard/route";
+import { GET as getPartnerPayouts } from "./me/payouts/route";
 import { POST as postWalletTopup } from "./me/wallet/topup/route";
 import { POST as postWalletTransfer } from "./me/wallet/transfer/route";
 import { POST as postPurchase } from "./me/purchase/route";
@@ -111,6 +112,29 @@ describe("GET /bff/partners/me/dashboard", () => {
 
     expect(response.status).toBe(200);
     expect(payload.data.balanceCents).toBe(500);
+  });
+});
+
+describe("GET /bff/partners/me/payouts", () => {
+  it("returns the payout history", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "success", data: { payouts: [{ id: "payout-1" }] } }))
+    );
+
+    const response = await getPartnerPayouts(getRequest("/bff/partners/me/payouts"));
+    const payload = (await response.json()) as { data: { payouts: Array<{ id: string }> } };
+
+    expect(response.status).toBe(200);
+    expect(payload.data.payouts).toHaveLength(1);
+  });
+
+  it("reports an expired session", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ status: "error" }, 401)));
+
+    const response = await getPartnerPayouts(getRequest("/bff/partners/me/payouts"));
+
+    expect(response.status).toBe(401);
   });
 });
 
