@@ -1,4 +1,8 @@
-const GUARDED_PREFIXES = ["/account", "/checkout", "/profile"];
+// "/partners/status" is guarded but "/partners/request" deliberately isn't:
+// the request page is reachable while signed out (it only requires sign-in at
+// submit, so a visitor can see what partnering involves first), while the
+// status page always needs a session to mean anything.
+const GUARDED_PREFIXES = ["/account", "/checkout", "/profile", "/partners/status"];
 
 /**
  * The payment returns carry their own short-lived payment cookie and must stay
