@@ -53,7 +53,7 @@ const STATUS_COPY: Record<
     icon: FileWarning,
     title: "Verification needed",
     body: "Before you can withdraw your balance, we need a bit more information to verify your account.",
-    action: { href: "/partners/verify", label: "Verify your account" }
+    action: { href: "/partners/withdraw", label: "Verify your account" }
   },
   Suspended: {
     icon: PauseCircle,

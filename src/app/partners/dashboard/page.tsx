@@ -10,6 +10,7 @@ import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { CopyField } from "../../account/[orderId]/CopyField";
 import { QrCodeCard } from "./QrCodeCard";
+import { WalletPanel } from "./WalletPanel";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/dashboard",
@@ -168,6 +169,8 @@ function DashboardContent({
         <StatCard icon={Wallet} label="Commission balance" value={formatMoney(dashboard.commissionBalanceCents)} />
         <StatCard icon={Wallet} label="Wallet balance" value={formatMoney(dashboard.walletBalanceCents)} />
       </div>
+
+      <WalletPanel />
 
       <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
         <h2 className="font-display text-xl font-black text-brandInk">Recent commissions</h2>

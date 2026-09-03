@@ -94,8 +94,8 @@ describe("partner status page", () => {
     }
   });
 
-  it("links forward to the not-yet-built dashboard and verification pages as stubs", () => {
+  it("links forward to the dashboard, and to the withdraw page (which hosts the verification form) for VerificationRequired", () => {
     expect(statusPage).toContain('"/partners/dashboard"');
-    expect(statusPage).toContain('"/partners/verify"');
+    expect(statusPage).toContain('"/partners/withdraw"');
   });
 });
