@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE } from "@/lib/session";
 import { POST as createIntent } from "../bff/payments/intent/route";
 import { POST as applyPromo } from "../bff/checkout/apply-promo/route";
+import { POST as provisionPayment } from "../bff/payments/provision/route";
 import { GET as checkoutReturn } from "./return/route";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -140,6 +141,76 @@ describe("POST /bff/payments/intent", () => {
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const sent = JSON.parse(String(init.body));
     expect(sent).not.toHaveProperty("promoCode");
+  });
+});
+
+describe("POST /bff/payments/provision", () => {
+  it("provisions the order for a completed payment", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "success", data: { order: provisionedOrder } }, 201))
+    );
+
+    const response = await provisionPayment(
+      new Request("http://localhost:3000/bff/payments/provision", {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
+        body: JSON.stringify({ payment_id: "sdk_order_123" })
+      })
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.data.order.id).toBe(1001);
+  });
+
+  it("reports an unpaid payment as a 402, not a generic error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "error", error: "Payment is not completed" }, 402))
+    );
+
+    const response = await provisionPayment(
+      new Request("http://localhost:3000/bff/payments/provision", {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
+        body: JSON.stringify({ payment_id: "sdk_order_123" })
+      })
+    );
+
+    expect(response.status).toBe(402);
+  });
+
+  it("refuses to provision without a session", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await provisionPayment(
+      new Request("http://localhost:3000/bff/payments/provision", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ payment_id: "sdk_order_123" })
+      })
+    );
+
+    expect(response.status).toBe(401);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a request missing payment_id without calling the backend", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await provisionPayment(
+      new Request("http://localhost:3000/bff/payments/provision", {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
+        body: JSON.stringify({})
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
