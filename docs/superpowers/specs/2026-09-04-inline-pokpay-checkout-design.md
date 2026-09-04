@@ -40,7 +40,10 @@ Scope: `E-SIM-frontend` only. No changes to `E-SIM backend` or `velocity-eSim`.
 - No changes to `/destinations` or `/destinations/[slug]` beyond nothing —
   the "Buy" link keeps navigating to `/checkout?package=<id>` unchanged.
 - No new backend endpoints. The four `/payments/card/*` endpoints and
-  `/payments/provision` already exist and are already exercised by mobile.
+  `/payments/provision` already exist on the backend and are already
+  exercised by mobile. (A new BFF proxy route for `/payments/provision` is
+  needed on the frontend, since today it's only called inline from the
+  hosted-redirect return handler — see Data flow.)
 
 ## Architecture
 
@@ -59,8 +62,15 @@ New files under `src/app/checkout/`:
   `PayButton.tsx` and the static "Payments are handled by Pokpay..." copy.
 - `steps/BillingStep.tsx` — the 8-field billing form (holder name, email,
   country, admin area, locality, address1, postal code, phone), same fields
-  and validation as mobile's `BillingStep.tsx`. Prefills from a new
-  `GET /bff/billing` call; submitting saves via a new `PUT /bff/billing`.
+  and validation as mobile's `BillingStep.tsx`. Prefills via the existing
+  `GET /bff/user/billing-address` route; submitting saves via its `PUT`.
+  That route already proxies the backend's `/user/billing-address`, and the
+  backend's `BillingAddressInput` (`purchaseDetails.service.ts`) has been
+  the full 8-field shape since the mobile in-app checkout work — but the
+  frontend route currently only forwards 4 legacy fields (`line1`, `city`,
+  `postal`, `country`) and is unused by any page today. This spec fixes
+  that route's field mapping to the full 8-field shape rather than adding a
+  new `bff/billing` route.
 - `steps/CardStep.tsx` — card number / expiry / CVV fields with client-side
   Luhn + brand validation via `card-validator` (add as a web dependency; already
   used by mobile). Also mounts the invisible device-data-collection iframe
@@ -94,22 +104,25 @@ enforces this):
 - `POST bff/payments/card/confirm` → backend `POST /payments/card/confirm`,
   same device-header forwarding
 
-`bff/payments/provision` already exists (used today by `/checkout/return`)
-and is reused unchanged. `bff/payments/intent` is also reused unchanged —
-its `checkoutUrl` field is simply never read by the new wizard.
+`bff/payments/intent` is reused unchanged — its `checkoutUrl` field is
+simply never read by the new wizard.
 
-New billing routes: `GET`/`PUT bff/billing`, proxying whatever
-`purchaseDetails.service` already exposes on the backend for mobile's
-billing prefill/save (no new backend work expected; if no directly-reusable
-backend endpoint exists for reading/writing a single account's billing
-address outside the card-confirm flow, the plan-writing step will need to
-confirm one exists before this can proceed as scoped).
+A new `bff/payments/provision` POST route needs to be created: today,
+`POST /payments/provision` is only called inline inside
+`src/app/checkout/return/route.ts` (the hosted-redirect return handler), not
+exposed as its own reusable BFF route. The new wizard's Receipt step needs
+to call it directly. `checkout/return/route.ts` itself is deleted along with
+the rest of the hosted-redirect path (per "remove entirely" above), so there
+is no dual-path reconciliation to do — the new route simply replaces that
+inline call as the only caller of backend `/payments/provision`.
 
-Full sequence once the buyer is on `/checkout` and clicks "Continue" past the
-package summary:
+Full sequence, matching mobile's actual ordering (`PlanCheckoutScreen.tsx`
+creates the payment intent from the Card step's submit handler, not before
+Billing):
 
-1. `POST bff/payments/intent` → `paymentId`, amount/currency (as today)
-2. Billing step: `GET bff/billing` prefill → user edits/confirms → `PUT bff/billing`
+1. Billing step: `GET bff/user/billing-address` prefill → user edits/confirms
+   → `PUT bff/user/billing-address`
+2. Card step submit: `POST bff/payments/intent` → `paymentId`, amount/currency
 3. `POST bff/payments/card/encryption-key` → Flex JWK
 4. Encrypt card client-side (JS SDK) → JWE, raw PAN never sent to our servers
 5. `POST bff/payments/card/guest` → `cardId`, possible `deviceDataCollection`
