@@ -50,20 +50,16 @@ type MarginScenario = {
 
 type AffiliateConfig = {
   affiliateEnabled: boolean;
-  firstCustomerDiscountPct: number;
-  repeatCustomerDiscountPct: number;
   affiliateCommissionPct: number;
   partnerBuyDiscountPct: number;
   minimumProfitCents: number;
-  preview: { first: MarginScenario; repeat: MarginScenario };
+  preview: { worstCase: MarginScenario };
 };
 
 type AffiliateConfigPayload = { status?: string; data?: AffiliateConfig; message?: string };
 
 type AffiliateDraft = {
   affiliateEnabled: boolean;
-  firstCustomerDiscountPct: string;
-  repeatCustomerDiscountPct: string;
   affiliateCommissionPct: string;
   partnerBuyDiscountPct: string;
   minimumProfitCents: string;
@@ -91,8 +87,6 @@ const STATUS_OPTIONS = ["All", "PendingApproval", "Pending", "Active", "Suspende
 function toAffiliateDraft(config: AffiliateConfig): AffiliateDraft {
   return {
     affiliateEnabled: config.affiliateEnabled,
-    firstCustomerDiscountPct: String(config.firstCustomerDiscountPct),
-    repeatCustomerDiscountPct: String(config.repeatCustomerDiscountPct),
     affiliateCommissionPct: String(config.affiliateCommissionPct),
     partnerBuyDiscountPct: String(config.partnerBuyDiscountPct),
     minimumProfitCents: String(config.minimumProfitCents)
@@ -136,6 +130,8 @@ function previewScenario(
     remainingMarginCents
   };
 }
+
+const WORST_CASE_DISCOUNT_PCT = 20;
 
 function isDraftAllowed(scenario: MarginScenario, minimumProfitCents: number): boolean {
   return scenario.remainingMarginCents >= minimumProfitCents;
@@ -349,39 +345,25 @@ export default function AdminPartnersPage() {
 
   const draftPreview = useMemo(() => {
     if (!affiliateBase || !affiliateDraft) return null;
-    const normalPriceCents = affiliateBase.preview.first.normalPriceCents;
-    const supplierCostCents = affiliateBase.preview.first.supplierCostCents;
-    const firstDiscountPct = Number(affiliateDraft.firstCustomerDiscountPct);
-    const repeatDiscountPct = Number(affiliateDraft.repeatCustomerDiscountPct);
+    const normalPriceCents = affiliateBase.preview.worstCase.normalPriceCents;
+    const supplierCostCents = affiliateBase.preview.worstCase.supplierCostCents;
     const commissionPct = Number(affiliateDraft.affiliateCommissionPct);
     const minimumProfitCents = Number(affiliateDraft.minimumProfitCents);
-    if (
-      !Number.isFinite(firstDiscountPct) ||
-      !Number.isFinite(repeatDiscountPct) ||
-      !Number.isFinite(commissionPct) ||
-      !Number.isFinite(minimumProfitCents)
-    ) {
+    if (!Number.isFinite(commissionPct) || !Number.isFinite(minimumProfitCents)) {
       return null;
     }
-    const first = previewScenario(normalPriceCents, supplierCostCents, firstDiscountPct, commissionPct);
-    const repeat = previewScenario(normalPriceCents, supplierCostCents, repeatDiscountPct, commissionPct);
-    const allowed =
-      !affiliateDraft.affiliateEnabled ||
-      (isDraftAllowed(first, minimumProfitCents) && isDraftAllowed(repeat, minimumProfitCents));
-    return { first, repeat, allowed, minimumProfitCents };
+    const worstCase = previewScenario(normalPriceCents, supplierCostCents, WORST_CASE_DISCOUNT_PCT, commissionPct);
+    const allowed = !affiliateDraft.affiliateEnabled || isDraftAllowed(worstCase, minimumProfitCents);
+    return { worstCase, allowed, minimumProfitCents };
   }, [affiliateBase, affiliateDraft]);
 
   async function saveAffiliateConfig() {
     if (!affiliateDraft || !selectedPackageId) return;
 
-    const firstCustomerDiscountPct = Number(affiliateDraft.firstCustomerDiscountPct);
-    const repeatCustomerDiscountPct = Number(affiliateDraft.repeatCustomerDiscountPct);
     const affiliateCommissionPct = Number(affiliateDraft.affiliateCommissionPct);
     const partnerBuyDiscountPct = Number(affiliateDraft.partnerBuyDiscountPct);
     const minimumProfitCents = Number(affiliateDraft.minimumProfitCents);
     if (
-      !Number.isFinite(firstCustomerDiscountPct) ||
-      !Number.isFinite(repeatCustomerDiscountPct) ||
       !Number.isFinite(affiliateCommissionPct) ||
       !Number.isFinite(partnerBuyDiscountPct) ||
       !Number.isFinite(minimumProfitCents)
@@ -401,8 +383,6 @@ export default function AdminPartnersPage() {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             affiliateEnabled: affiliateDraft.affiliateEnabled,
-            firstCustomerDiscountPct,
-            repeatCustomerDiscountPct,
             affiliateCommissionPct,
             partnerBuyDiscountPct,
             minimumProfitCents
@@ -740,32 +720,6 @@ export default function AdminPartnersPage() {
                       Affiliate enabled
                     </label>
                     <label className="text-xs font-bold text-muted">
-                      First-customer discount %
-                      <input
-                        className="mt-1 h-9 w-28 rounded-lg border border-line px-2 text-sm font-normal text-midnight"
-                        inputMode="decimal"
-                        onChange={(event) =>
-                          setAffiliateDraft((current) =>
-                            current ? { ...current, firstCustomerDiscountPct: event.target.value } : current
-                          )
-                        }
-                        value={affiliateDraft.firstCustomerDiscountPct}
-                      />
-                    </label>
-                    <label className="text-xs font-bold text-muted">
-                      Repeat-customer discount %
-                      <input
-                        className="mt-1 h-9 w-28 rounded-lg border border-line px-2 text-sm font-normal text-midnight"
-                        inputMode="decimal"
-                        onChange={(event) =>
-                          setAffiliateDraft((current) =>
-                            current ? { ...current, repeatCustomerDiscountPct: event.target.value } : current
-                          )
-                        }
-                        value={affiliateDraft.repeatCustomerDiscountPct}
-                      />
-                    </label>
-                    <label className="text-xs font-bold text-muted">
                       Affiliate commission %
                       <input
                         className="mt-1 h-9 w-28 rounded-lg border border-line px-2 text-sm font-normal text-midnight"
@@ -815,10 +769,7 @@ export default function AdminPartnersPage() {
                               Metric
                             </th>
                             <th className="px-3 py-2 text-[10px] font-black uppercase tracking-wide text-muted">
-                              First customer
-                            </th>
-                            <th className="px-3 py-2 text-[10px] font-black uppercase tracking-wide text-muted">
-                              Repeat customer
+                              Worst case ({WORST_CASE_DISCOUNT_PCT}% discount)
                             </th>
                           </tr>
                         </thead>
@@ -826,67 +777,43 @@ export default function AdminPartnersPage() {
                           <tr className="border-t border-line/60">
                             <td className="px-3 py-2 font-bold text-midnight">Normal Price</td>
                             <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.first.normalPriceCents)}
-                            </td>
-                            <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.repeat.normalPriceCents)}
+                              {formatMoney(draftPreview.worstCase.normalPriceCents)}
                             </td>
                           </tr>
                           <tr className="border-t border-line/60">
                             <td className="px-3 py-2 font-bold text-midnight">Supplier Cost</td>
                             <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.first.supplierCostCents)}
-                            </td>
-                            <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.repeat.supplierCostCents)}
+                              {formatMoney(draftPreview.worstCase.supplierCostCents)}
                             </td>
                           </tr>
                           <tr className="border-t border-line/60">
                             <td className="px-3 py-2 font-bold text-midnight">Customer Discount</td>
                             <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.first.customerDiscountCents)}
-                            </td>
-                            <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.repeat.customerDiscountCents)}
+                              {formatMoney(draftPreview.worstCase.customerDiscountCents)}
                             </td>
                           </tr>
                           <tr className="border-t border-line/60">
                             <td className="px-3 py-2 font-bold text-midnight">Customer Pays</td>
                             <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.first.customerPaysCents)}
-                            </td>
-                            <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.repeat.customerPaysCents)}
+                              {formatMoney(draftPreview.worstCase.customerPaysCents)}
                             </td>
                           </tr>
                           <tr className="border-t border-line/60">
                             <td className="px-3 py-2 font-bold text-midnight">Affiliate Commission</td>
                             <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.first.affiliateCommissionCents)}
-                            </td>
-                            <td className="px-3 py-2 text-midnight">
-                              {formatMoney(draftPreview.repeat.affiliateCommissionCents)}
+                              {formatMoney(draftPreview.worstCase.affiliateCommissionCents)}
                             </td>
                           </tr>
                           <tr className="border-t border-line/60">
                             <td className="px-3 py-2 font-bold text-midnight">Remaining Margin</td>
                             <td
                               className={`px-3 py-2 font-black ${
-                                draftPreview.first.remainingMarginCents < draftPreview.minimumProfitCents
+                                draftPreview.worstCase.remainingMarginCents < draftPreview.minimumProfitCents
                                   ? "text-red-700"
                                   : "text-midnight"
                               }`}
                             >
-                              {formatMoney(draftPreview.first.remainingMarginCents)}
-                            </td>
-                            <td
-                              className={`px-3 py-2 font-black ${
-                                draftPreview.repeat.remainingMarginCents < draftPreview.minimumProfitCents
-                                  ? "text-red-700"
-                                  : "text-midnight"
-                              }`}
-                            >
-                              {formatMoney(draftPreview.repeat.remainingMarginCents)}
+                              {formatMoney(draftPreview.worstCase.remainingMarginCents)}
                             </td>
                           </tr>
                         </tbody>
