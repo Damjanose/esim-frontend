@@ -1,9 +1,5 @@
 import { landingContent } from "@/content/landing";
-import {
-  ChevronDown,
-  Globe2,
-  UserRound,
-} from "lucide-react";
+import { Handshake } from "lucide-react";
 import { LinkButton } from "./Button";
 
 type NavbarProps = {
@@ -43,10 +39,6 @@ export function Navbar({ theme = "light" }: NavbarProps) {
     {
       label: "Support",
       href: "/support"
-    },
-    {
-      label: "Partner with us",
-      href: "/partners/request"
     }
   ];
 
@@ -91,21 +83,20 @@ export function Navbar({ theme = "light" }: NavbarProps) {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
-          <button
-            aria-label="Change language"
+        <div className="flex items-center gap-3">
+          <a
+            aria-label="Partner with eSim2you"
             className={[
-              "hidden items-center gap-2 text-sm font-semibold transition md:flex",
+              "hidden items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition md:flex",
               isDark
-                ? "text-white/80 hover:text-white"
-                : "text-onSurfaceVariant hover:text-brandInk",
+                ? "border-white/30 text-white/80 hover:border-white/60 hover:text-white"
+                : "border-outline text-onSurfaceVariant hover:border-brandBlue/40 hover:text-brandBlue",
             ].join(" ")}
-            type="button"
+            href="/partners/request"
           >
-            <Globe2 aria-hidden="true" size={17} />
-            <span>EN</span>
-            <ChevronDown aria-hidden="true" size={14} />
-          </button>
+            <Handshake aria-hidden="true" size={17} />
+            Partner with us
+          </a>
 
           {/* Showroom mode: no purchase/account functionality yet, so the profile
               entry point is commented out rather than deleted.
