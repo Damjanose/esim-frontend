@@ -1,8 +1,16 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const materialsPage = readFileSync("src/app/partners/materials/page.tsx", "utf8");
 const readme = readFileSync("public/partner-materials/README.md", "utf8");
+
+// Parsed straight out of the MATERIALS array's source text rather than
+// imported (the page module pulls in server-only deps) or hand-duplicated
+// (which would need manual upkeep on every file drop, the exact problem
+// this self-updating check exists to avoid).
+const MATERIALS = [...materialsPage.matchAll(/href: "([^"]+)",\s*comingSoon: (true|false)/g)].map(
+  ([, href, comingSoon]) => ({ href, comingSoon: comingSoon === "true" })
+);
 
 describe("partner materials page", () => {
   it("renders inside the shared public shell", () => {
@@ -80,11 +88,15 @@ describe("partner materials page", () => {
     expect(materialsPage).toContain("/partner-materials/whatsapp-share.png");
   });
 
-  it("marks every template as coming soon since no real artwork exists yet", () => {
-    const matches = materialsPage.match(/comingSoon: true/g) ?? [];
-    expect(matches.length).toBe(7);
-    expect(materialsPage).not.toContain("comingSoon: false");
-    expect(materialsPage).toContain("Coming soon");
+  it("marks a template as coming soon exactly when its file hasn't landed under public/partner-materials yet", () => {
+    // Self-updating: as designer-delivered files land one at a time (see
+    // docs/partner-materials-brief.md), this test tracks reality instead of
+    // needing a manual edit for each drop.
+    expect(MATERIALS.length).toBe(7);
+    for (const material of MATERIALS) {
+      const fileExists = existsSync(`public${material.href}`);
+      expect(material.comingSoon).toBe(!fileExists);
+    }
   });
 
   it("never renders a commission or discount percentage anywhere on the page", () => {
