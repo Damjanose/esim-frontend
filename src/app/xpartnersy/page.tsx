@@ -625,46 +625,51 @@ export default function AdminPartnersPage() {
                         <td className="px-3 py-3 text-midnight">{formatMoney(partner.walletBalanceCents)}</td>
                         <td className="px-5 py-3">
                           <div className="flex flex-wrap gap-1.5">
-                            <button
-                              className="h-8 rounded-lg bg-gradient-to-r from-midnight to-ink px-2.5 text-[11px] font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
-                              disabled={partnerActionEmail === partner.userEmail}
-                              onClick={() => void runPartnerAction(partner.userEmail, "approve")}
-                              type="button"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="h-8 rounded-lg border border-line px-2.5 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
-                              disabled={partnerActionEmail === partner.userEmail}
-                              onClick={() => void runPartnerAction(partner.userEmail, "verify")}
-                              type="button"
-                            >
-                              Verify
-                            </button>
-                            <button
-                              className="h-8 rounded-lg border border-amber-300 px-2.5 text-[11px] font-bold text-amber-700 transition hover:border-amber-500 disabled:opacity-50"
-                              disabled={partnerActionEmail === partner.userEmail}
-                              onClick={() => {
-                                if (window.confirm(`Suspend partner ${partner.userEmail}?`)) {
-                                  void runPartnerAction(partner.userEmail, "suspend");
-                                }
-                              }}
-                              type="button"
-                            >
-                              Suspend
-                            </button>
-                            <button
-                              className="h-8 rounded-lg border border-red-200 px-2.5 text-[11px] font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
-                              disabled={partnerActionEmail === partner.userEmail}
-                              onClick={() => {
-                                if (window.confirm(`Cancel partner ${partner.userEmail}? This cannot be undone.`)) {
-                                  void runPartnerAction(partner.userEmail, "cancel");
-                                }
-                              }}
-                              type="button"
-                            >
-                              Cancel
-                            </button>
+                            {partner.status === "Active" ? (
+                              <button
+                                className="h-8 rounded-lg border border-amber-300 px-2.5 text-[11px] font-bold text-amber-700 transition hover:border-amber-500 disabled:opacity-50"
+                                disabled={partnerActionEmail === partner.userEmail}
+                                onClick={() => {
+                                  if (window.confirm(`Suspend partner ${partner.userEmail}?`)) {
+                                    void runPartnerAction(partner.userEmail, "suspend");
+                                  }
+                                }}
+                                type="button"
+                              >
+                                Suspend
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  className="h-8 rounded-lg bg-gradient-to-r from-midnight to-ink px-2.5 text-[11px] font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                                  disabled={partnerActionEmail === partner.userEmail}
+                                  onClick={() => void runPartnerAction(partner.userEmail, "approve")}
+                                  type="button"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  className="h-8 rounded-lg border border-line px-2.5 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                                  disabled={partnerActionEmail === partner.userEmail}
+                                  onClick={() => void runPartnerAction(partner.userEmail, "verify")}
+                                  type="button"
+                                >
+                                  Verify
+                                </button>
+                                <button
+                                  className="h-8 rounded-lg border border-red-200 px-2.5 text-[11px] font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
+                                  disabled={partnerActionEmail === partner.userEmail}
+                                  onClick={() => {
+                                    if (window.confirm(`Cancel partner ${partner.userEmail}? This cannot be undone.`)) {
+                                      void runPartnerAction(partner.userEmail, "cancel");
+                                    }
+                                  }}
+                                  type="button"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
