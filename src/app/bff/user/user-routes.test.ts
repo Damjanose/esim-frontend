@@ -16,10 +16,14 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 const billingAddress = {
-  line1: "12 Rruga e Kavajës",
-  city: "Tirana",
-  postal: "1001",
-  country: "AL"
+  holdersName: "Alex Morgan",
+  email: "alex@example.com",
+  countryCode: "AL",
+  administrativeArea: "Tirana",
+  locality: "Tirana",
+  address1: "12 Rruga e Kavajës",
+  postalCode: "1001",
+  phoneNumber: "+355691234567"
 };
 
 const signedIn = `${ACCESS_COOKIE}=good-token`;
@@ -73,9 +77,12 @@ describe("PUT /bff/user/billing-address", () => {
     });
   }
 
-  it("sends the address to the backend", async () => {
+  it("saves the full billing address", async () => {
     const fetchMock = vi.fn(async () =>
-      jsonResponse({ status: "success", data: { purchaseDetails: { complete: true } } })
+      jsonResponse({
+        status: "success",
+        data: { purchaseDetails: { complete: true, billingAddress, card: null } }
+      })
     );
     vi.stubGlobal("fetch", fetchMock);
 
@@ -97,7 +104,7 @@ describe("PUT /bff/user/billing-address", () => {
       )
     );
 
-    const response = await putBillingAddress(putRequest({ ...billingAddress, city: "" }));
+    const response = await putBillingAddress(putRequest({ ...billingAddress, locality: "" }));
     const payload = (await response.json()) as { error: string };
 
     expect(response.status).toBe(400);

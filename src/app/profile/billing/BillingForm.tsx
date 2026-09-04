@@ -6,13 +6,26 @@ import { Button } from "@/app/components/Button";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 
 const FIELDS: { autoComplete: string; key: keyof BillingAddress; label: string }[] = [
-  { autoComplete: "address-line1", key: "line1", label: "Address" },
-  { autoComplete: "address-level2", key: "city", label: "City" },
-  { autoComplete: "postal-code", key: "postal", label: "Postal code" },
-  { autoComplete: "country-name", key: "country", label: "Country" }
+  { autoComplete: "name", key: "holdersName", label: "Full name" },
+  { autoComplete: "email", key: "email", label: "Email" },
+  { autoComplete: "street-address", key: "address1", label: "Address" },
+  { autoComplete: "postal-code", key: "postalCode", label: "Postal code" },
+  { autoComplete: "address-level2", key: "locality", label: "City" },
+  { autoComplete: "address-level1", key: "administrativeArea", label: "State / region" },
+  { autoComplete: "country", key: "countryCode", label: "Country code" },
+  { autoComplete: "tel", key: "phoneNumber", label: "Phone number" }
 ];
 
-const EMPTY: BillingAddress = { line1: "", city: "", postal: "", country: "" };
+const EMPTY: BillingAddress = {
+  holdersName: "",
+  email: "",
+  countryCode: "",
+  administrativeArea: "",
+  locality: "",
+  address1: "",
+  postalCode: "",
+  phoneNumber: ""
+};
 
 export function BillingForm({ initialAddress }: { initialAddress: BillingAddress | null }) {
   const [address, setAddress] = useState<BillingAddress>(initialAddress ?? EMPTY);

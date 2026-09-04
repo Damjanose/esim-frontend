@@ -3,10 +3,14 @@ import { errorJson, readSessionTokens, successJson } from "@/lib/route-response"
 import { callWithSession } from "@/lib/with-session";
 
 export type BillingAddress = {
-  line1: string;
-  city: string;
-  postal: string;
-  country: string;
+  holdersName: string;
+  email: string;
+  countryCode: string;
+  administrativeArea: string;
+  locality: string;
+  address1: string;
+  postalCode: string;
+  phoneNumber: string;
 };
 
 export async function GET(request: Request) {
@@ -41,10 +45,14 @@ export async function PUT(request: Request) {
     backendFetch<{ purchaseDetails: unknown }>("/user/billing-address", {
       method: "PUT",
       body: {
-        line1: address.line1 ?? "",
-        city: address.city ?? "",
-        postal: address.postal ?? "",
-        country: address.country ?? ""
+        holdersName: address.holdersName ?? "",
+        email: address.email ?? "",
+        countryCode: address.countryCode ?? "",
+        administrativeArea: address.administrativeArea ?? "",
+        locality: address.locality ?? "",
+        address1: address.address1 ?? "",
+        postalCode: address.postalCode ?? "",
+        phoneNumber: address.phoneNumber ?? ""
       },
       token
     })

@@ -77,9 +77,8 @@ export default async function BillingPage() {
             Cards are entered at checkout
           </h2>
           <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
-            We never store your card. Every payment is taken on Pokpay&apos;s hosted
-            checkout, so your card details are entered there and stay with the payment
-            provider.
+            We never store your card. Your card details are entered directly with
+            Pokpay at checkout and never touch our servers.
           </p>
 
           {card ? (
