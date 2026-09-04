@@ -104,6 +104,7 @@ export default function Home() {
       <HowItWorks />
       <TestimonialsAndFaq />
       <AppDownload />
+      <PartnerPromo />
       <Cta />
       <SiteFooter />
     </main>
@@ -702,6 +703,34 @@ function AppDownload() {
             </div>
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function PartnerPromo() {
+  return (
+    <section className="bg-surface px-5 py-16 text-onSurface md:px-8 md:py-20" id="partner-with-us">
+      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8 rounded-[26px] border border-outline bg-mist px-7 py-12 text-center shadow-brandCard sm:px-10 lg:flex-row lg:items-center lg:justify-between lg:text-left">
+        <div className="max-w-[560px]">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brandBlue">
+            eSim2you partner program
+          </p>
+
+          <h2 className="mt-3 font-display text-2xl font-black leading-[1.1] tracking-[-0.03em] text-brandInk sm:text-3xl">
+            Earn commission referring travelers to eSim2you
+          </h2>
+
+          <p className="mt-4 text-sm leading-6 text-onSurfaceVariant sm:text-base">
+            Hotels, travel agencies, creators, and drivers can get a personal promo code and
+            earn commission on every booking it brings in. Apply in a couple of minutes.
+          </p>
+        </div>
+
+        <LinkButton className="shrink-0 px-7" href="/partners/request">
+          Become a partner
+          <ArrowRight size={16} />
+        </LinkButton>
       </div>
     </section>
   );

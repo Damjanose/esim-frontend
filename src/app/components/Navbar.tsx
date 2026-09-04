@@ -43,6 +43,10 @@ export function Navbar({ theme = "light" }: NavbarProps) {
     {
       label: "Support",
       href: "/support"
+    },
+    {
+      label: "Partner with us",
+      href: "/partners/request"
     }
   ];
 

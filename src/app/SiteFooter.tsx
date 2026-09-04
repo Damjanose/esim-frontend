@@ -25,6 +25,7 @@ const footerResourceLinks = guidePages.slice(0, 3).map((page) => ({
 const footerCompanyLinks = [
   { label: "eSim2you support", href: "/support" },
   { label: "Contact eSim2you", href: "mailto:esim2you@uplisoft.com" },
+  { label: "Partner with eSim2you", href: "/partners/request" },
   { label: "eSim2you privacy policy", href: "/policy" },
   { label: "eSim2you terms", href: "/terms" }
 ];

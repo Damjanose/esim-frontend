@@ -1,7 +1,7 @@
 {
   "topic": "partners",
   "covers": "The affiliate/partner program end to end: the hidden admin surface (/xpartnersy) and the customer-facing partner pages (request/status/dashboard/buy/withdraw/materials), plus every BFF proxy route backing them. Built 2026-09-03 across commits 937df0e..9507d57, all in one day with no session doc written at the time.",
-  "facts": ["f092", "f093"],
+  "facts": ["f092", "f093", "f097"],
   "xpartnersy_admin": {
     "file": "src/app/xpartnersy/page.tsx",
     "auth": "src/app/useAdminSession.ts, same shared shell/pattern as the other hidden admin pages (see topics/admin-dashboard-ui.json)",
@@ -19,7 +19,7 @@
   },
   "customer_facing_pages": {
     "auth_pattern": "cookie-session token forwarding via callWithSession/readSessionTokens with transparent one-shot refresh (bff/user/account pattern) — NOT the admin bearer-token pattern used by xpartnersy's BFF routes.",
-    "request": "src/app/partners/request — form (partnerType/country/businessName/website) posting to POST /bff/partners/request, with a distinct 409 'already submitted' message. Deliberately excluded from route-guard.ts's middleware session check so it stays reachable signed-out; visitors are sent to sign in at submit time. Its own pre-check redirects to /partners/status if a Partner row already exists, refreshing a stale-but-refreshable token first rather than falling through to show the form to an existing partner.",
+    "request": "src/app/partners/request — form (partnerType/country/businessName/website) posting to POST /bff/partners/request, with a distinct 409 'already submitted' message. Deliberately excluded from route-guard.ts's middleware session check so it stays reachable signed-out; visitors are sent to sign in at submit time. Its own pre-check redirects to /partners/status if a Partner row already exists, refreshing a stale-but-refreshable token first rather than falling through to show the form to an existing partner. Linked from Navbar.tsx, SiteFooter.tsx's Company column, and a homepage PartnerPromo section (f097, 2026-09-04) -- before that it was unlinked anywhere, reachable only by typing the URL.",
     "status": "src/app/partners/status — fetchForPage-driven messaging for all 6 Partner states; IS in route-guard.ts's session check; 404 shows a 'you haven't applied yet' prompt rather than an error.",
     "dashboard": "src/app/partners/dashboard/page.tsx — promo code, copyable referral link (?promo=<code> on the homepage, origin via getPublicOrigin not hardcoded), a QR code (new reusable QrCodeCard.tsx, client-side generation via the new `qrcode` package dependency — first QR-generation lib in this repo, prior QR usage was just an <img> of a backend PNG), referred-customer count, commission/wallet balances, and a recent-commissions table restricted to the backend's safe getPartnerDashboard projection (price/paid/commission/status — never cost/margin). Non-dashboard-worthy statuses (PendingApproval/VerificationRequired/Suspended/Cancelled) redirect to /partners/status instead of rendering empty stats — DASHBOARD_STATUSES excludes exactly those four.",
     "wallet": "src/app/partners/dashboard/WalletPanel.tsx — top-up (4 presets + custom, Pokpay redirect via /bff/partners/me/wallet/topup) and commission-to-wallet transfer, sharing one busy guard so the two actions can't fire concurrently.",
