@@ -15,10 +15,11 @@
     "f087",
     "f088",
     "f091",
-    "f092"
+    "f092",
+    "f099"
   ],
   "shared_shell": {
-    "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all admin pages as of the 2026-08-23 premium redesign — see f051.",
+    "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all admin pages as of the 2026-08-23 premium redesign — see f051. The top-of-rail mark above the nav links is the real app logo (public/logo-icon.png, same asset as public Navbar.tsx) wrapped in a Link to '/', not a decorative div — see f099.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {

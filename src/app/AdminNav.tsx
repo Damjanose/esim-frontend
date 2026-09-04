@@ -24,10 +24,9 @@ export function AdminNav() {
 
   return (
     <aside className="flex w-20 shrink-0 flex-col items-center gap-1 bg-gradient-to-b from-midnight to-ink py-6">
-      <div
-        aria-hidden="true"
-        className="mb-6 h-8 w-8 rounded-[10px] bg-gradient-to-br from-cyan to-aqua shadow-glow"
-      />
+      <Link aria-label="Home" className="mb-6 block" href="/" title="Home">
+        <img alt="eSim2you app logo" className="h-8 w-8 rounded-[10px] object-contain shadow-glow" src="/logo-icon.png" />
+      </Link>
       {adminLinks.map(({ href, label, full, Icon }) => {
         const active = pathname === href;
         return (
