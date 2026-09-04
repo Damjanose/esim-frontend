@@ -18,10 +18,10 @@ export const metadata: Metadata = createMetadata({
 });
 
 export default async function PartnerRequestPage() {
-  // A visitor who already has a Partner row (any status) belongs on the
-  // status page, not back on the request form — check without forcing a
-  // sign-in redirect here, since a signed-out visitor should still be able
-  // to see the form (they'll be sent to sign in on submit instead).
+  // middleware.ts already guarantees a session cookie is present by the time
+  // this renders (see GUARDED_PREFIXES in route-guard.ts). This check exists
+  // for a different reason: a visitor who already has a Partner row (any
+  // status) belongs on the status page, not back on the request form.
   const jar = await cookies();
   const accessToken = jar.get(ACCESS_COOKIE)?.value;
   const refreshToken = jar.get(REFRESH_COOKIE)?.value;

@@ -44,4 +44,10 @@ describe("guardedRedirect", () => {
   it("does not trap signed-out visitors on the sign-in page itself", () => {
     expect(guardedRedirect("/signin", "?next=%2Faccount", false)).toBeNull();
   });
+
+  it("sends anonymous visitors from the partner request form to sign-in", () => {
+    expect(guardedRedirect("/partners/request", "", false)).toBe(
+      "/signin?next=%2Fpartners%2Frequest"
+    );
+  });
 });
