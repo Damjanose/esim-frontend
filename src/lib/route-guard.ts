@@ -7,11 +7,11 @@ const GUARDED_PREFIXES = [
 ];
 
 /**
- * The payment returns carry their own short-lived payment cookie and must stay
+ * The top-up return carries its own short-lived payment cookie and must stay
  * reachable even if the session cookie has lapsed while the visitor was on
  * Pokpay. The goodbye page is reached with the session deliberately cleared.
  */
-const UNGUARDED_PATHS = ["/checkout/return", "/account/topup/return", "/profile/deleted"];
+const UNGUARDED_PATHS = ["/account/topup/return", "/profile/deleted"];
 
 /**
  * Presence of a session cookie is all middleware can cheaply check. It is a

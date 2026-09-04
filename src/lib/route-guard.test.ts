@@ -27,10 +27,6 @@ describe("guardedRedirect", () => {
     expect(guardedRedirect("/", "", false)).toBeNull();
   });
 
-  it("does not guard the payment return, which authenticates by its own cookie", () => {
-    expect(guardedRedirect("/checkout/return", "?payment_id=abc", false)).toBeNull();
-  });
-
   it("does not guard the top-up return, even though it sits under /account", () => {
     expect(guardedRedirect("/account/topup/return", "?payment_id=abc", false)).toBeNull();
   });
