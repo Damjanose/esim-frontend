@@ -13,10 +13,12 @@
     "f060",
     "f061",
     "f087",
-    "f088"
+    "f088",
+    "f091",
+    "f092"
   ],
   "shared_shell": {
-    "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all three admin pages as of the 2026-08-23 premium redesign — see f051.",
+    "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all admin pages as of the 2026-08-23 premium redesign — see f051.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {
@@ -66,5 +68,12 @@
       "src/app/bff/admin/notifications/[id]/route.ts",
       "src/app/bff/admin/notifications/[id]/send/route.ts"
     ]
+  },
+  "xactivityy_activity_tracking": {
+    "file": "src/app/xactivityy/page.tsx",
+    "note": "f091: inactivity-interval settings (GET/PATCH /bff/admin/activity/settings), read-only activity list (GET /bff/admin/activity), one global 'Send now' (POST /bff/admin/activity/notify-now) — no per-row notify, backend only supports a global broadcast. Standard AdminNav/useAdminSession shell. Widened backendFetch's method union (src/lib/backend.ts) to include PATCH."
+  },
+  "xpartnersy_partner_admin": {
+    "note": "f092: affiliate/partner program admin surface. Full detail in topics/partners.json (kept out of this file to stay under budget) — also covers the larger customer-facing partner pages."
   }
 }

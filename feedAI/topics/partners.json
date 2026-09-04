@@ -1,0 +1,39 @@
+{
+  "topic": "partners",
+  "covers": "The affiliate/partner program end to end: the hidden admin surface (/xpartnersy) and the customer-facing partner pages (request/status/dashboard/buy/withdraw/materials), plus every BFF proxy route backing them. Built 2026-09-03 across commits 937df0e..9507d57, all in one day with no session doc written at the time.",
+  "facts": ["f092", "f093"],
+  "xpartnersy_admin": {
+    "file": "src/app/xpartnersy/page.tsx",
+    "auth": "src/app/useAdminSession.ts, same shared shell/pattern as the other hidden admin pages (see topics/admin-dashboard-ui.json)",
+    "renders": "partner list with status filter + approve/verify/suspend/cancel actions (destructive ones gated behind confirm()), a per-package affiliate-config editor with a live client-side margin preview that mirrors the backend's partnerCommission.calc.ts math field-for-field (including: disabling affiliate pricing is always allowed regardless of margin), a hold-period setting, and a fraud review-queue table (PartnerOrderCredit rows) with clear/cancel actions.",
+    "error_handling": "every background load (packages, hold-period, review queue) surfaces a visible error on failure instead of leaving the section silently empty.",
+    "proxies": [
+      "src/app/bff/admin/partners/route.ts (list)",
+      "src/app/bff/admin/partners/[email]/{approve,suspend,cancel,verify}/route.ts",
+      "src/app/bff/admin/partners/hold-period/route.ts (GET/PATCH)",
+      "src/app/bff/admin/packages/[packageId]/affiliate-config/route.ts (GET/PUT)",
+      "src/app/bff/admin/partners/review-queue/route.ts",
+      "src/app/bff/admin/partners/order-credits/[id]/{clear,cancel}/route.ts"
+    ],
+    "no_test_file": "no per-route BFF test, matching this repo's existing admin-proxy convention (activity, packages/pricing, dashboard have none) — wiring is verified at the page level (admin-partners.test.ts) instead."
+  },
+  "customer_facing_pages": {
+    "auth_pattern": "cookie-session token forwarding via callWithSession/readSessionTokens with transparent one-shot refresh (bff/user/account pattern) — NOT the admin bearer-token pattern used by xpartnersy's BFF routes.",
+    "request": "src/app/partners/request — form (partnerType/country/businessName/website) posting to POST /bff/partners/request, with a distinct 409 'already submitted' message. Deliberately excluded from route-guard.ts's middleware session check so it stays reachable signed-out; visitors are sent to sign in at submit time. Its own pre-check redirects to /partners/status if a Partner row already exists, refreshing a stale-but-refreshable token first rather than falling through to show the form to an existing partner.",
+    "status": "src/app/partners/status — fetchForPage-driven messaging for all 6 Partner states; IS in route-guard.ts's session check; 404 shows a 'you haven't applied yet' prompt rather than an error.",
+    "dashboard": "src/app/partners/dashboard/page.tsx — promo code, copyable referral link (?promo=<code> on the homepage, origin via getPublicOrigin not hardcoded), a QR code (new reusable QrCodeCard.tsx, client-side generation via the new `qrcode` package dependency — first QR-generation lib in this repo, prior QR usage was just an <img> of a backend PNG), referred-customer count, commission/wallet balances, and a recent-commissions table restricted to the backend's safe getPartnerDashboard projection (price/paid/commission/status — never cost/margin). Non-dashboard-worthy statuses (PendingApproval/VerificationRequired/Suspended/Cancelled) redirect to /partners/status instead of rendering empty stats — DASHBOARD_STATUSES excludes exactly those four.",
+    "wallet": "src/app/partners/dashboard/WalletPanel.tsx — top-up (4 presets + custom, Pokpay redirect via /bff/partners/me/wallet/topup) and commission-to-wallet transfer, sharing one busy guard so the two actions can't fire concurrently.",
+    "buy": "src/app/partners/buy — 'Partner Buy' on the existing public package catalog, self/gift toggle, shows retail price up front (no partner-discount preview pre-purchase).",
+    "withdraw": "src/app/partners/withdraw — WithdrawForm.tsx (confirm() naming amount+address before submitting), VerificationForm.tsx (shown only when status is VerificationRequired), PayoutHistory.tsx backed by GET /bff/partners/me/payouts -> backend GET /partners/me/payouts.",
+    "materials": "src/app/partners/materials — promo code, referral link, QR (same QrCodeCard/CopyField as dashboard), and 7 promo template downloads (A4/A5 flyer, hotel counter card, IG story/post, FB post, WhatsApp image) — artwork doesn't exist yet, each renders a disabled 'Coming soon' badge rather than a 404 link; public/partner-materials/README.md documents the 7 expected filenames. Reachable in ANY partner status (unlike dashboard/buy/withdraw), since previewing your own code/materials has no money-movement or stats risk.",
+    "proxies": [
+      "src/app/bff/partners/request/route.ts",
+      "src/app/bff/partners/me/route.ts, me/dashboard/route.ts",
+      "src/app/bff/partners/me/purchase/route.ts, me/verification/route.ts, me/withdraw/route.ts",
+      "src/app/bff/partners/me/wallet/{topup,transfer}/route.ts",
+      "src/app/bff/partners/me/payouts/route.ts"
+    ],
+    "wallet_topup_wiring_note": "bff/partners/me/wallet/topup/route.ts proxies POST /payments/wallet-topups/intent (the client-initiated Pokpay checkout-creation endpoint) — NOT /wallet-topups/provision, which is the post-payment webhook path."
+  },
+  "closes_out": "Phase 9 (partner-facing dashboard) per the 9507d57 commit message."
+}

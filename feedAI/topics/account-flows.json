@@ -1,7 +1,7 @@
 {
   "topic": "account-flows",
   "covers": "Checkout/payment, top-up, order lifecycle grouping, billing address, account deletion — the /account, /checkout, /profile areas.",
-  "facts": ["f016", "f017", "f018", "f019", "f020"],
+  "facts": ["f016", "f017", "f018", "f019", "f020", "f094", "f095"],
   "checkout": {
     "component": "src/app/checkout/PayButton.tsx",
     "flow": "POST /bff/payments/intent {package_id} -> {data:{checkoutUrl}} -> window.location.assign(checkoutUrl) [Pokpay hosted checkout] -> src/app/checkout/return/route.ts handles the redirect back",
@@ -38,5 +38,17 @@
     "cookie_clear_timing": "session cookies are cleared ONLY on successful deletion (a failed attempt must not strand the visitor outside a still-existing account)",
     "post_delete_route": "/profile/deleted is in UNGUARDED_PATHS — reached with the session already destroyed"
   },
-  "single_live_order_gotcha": "any UI or logic assuming a user can have multiple concurrently-active plans is wrong for this backend; it's enforced as exactly one."
+  "single_live_order_gotcha": "any UI or logic assuming a user can have multiple concurrently-active plans is wrong for this backend; it's enforced as exactly one.",
+  "promo_code": {
+    "component": "src/app/checkout/PromoCodeField.tsx + CheckoutPriceSection.tsx",
+    "flow": "apply/change UX ('Partner Code: XXXX ✓' + Change link) -> POST /bff/checkout/apply-promo {promoCode, packageId} -> backend POST /payments/apply-promo -> {applied:true, discountPct, finalCustomerPriceCents} or {applied:false}. Applied code persists to localStorage keyed by packageId and silently re-validates against the live endpoint on return visits — a transient failure during that re-check does NOT wipe the stored code, only a confirmed applied:false does.",
+    "payment_intent_wiring": "PayButton's POST /bff/payments/intent now threads promoCode through as promo_code on the wire, forwarded to the backend as camelCase promoCode, and OMITTED entirely (not sent as '') when no code is applied (f094).",
+    "loading_gate": "while an apply/re-validate call is in flight, price display shows a loading state (no full-price flash) and PayButton is disabled — closes a gap where a customer could pay at full price before a just-submitted promo code actually applied.",
+    "interaction_with_admin_discount": "unaffected: plan.hasDiscount/retailPrice is a different, admin-set retail-discount mechanism baked into plan.price. Once a promo is applied, the displayed total becomes the backend's finalCustomerPriceCents outright rather than being recomputed/stacked client-side."
+  },
+  "conversion_tracking": {
+    "component": "src/app/GoogleTag.tsx (gtag.js loaded globally via next/script in the root layout) + src/app/account/[orderId]/PurchaseConversion.tsx (f095)",
+    "fires": "a Google Ads 'conversion' event on the /account/[orderId]?new=1 checkout-confirmation view (the exact redirect target of checkout/return/route.ts on success), with transaction_id set to the order code; deduped per order via sessionStorage so a refresh of the confirmation URL doesn't double-count.",
+    "config": "tracking id/label live in src/lib/analytics.ts, overridable via NEXT_PUBLIC_GOOGLE_ADS_ID / NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL, pinned explicitly in .env.production rather than relying only on the code fallback."
+  }
 }

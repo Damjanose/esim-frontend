@@ -22,6 +22,7 @@ import { fetchForPage } from "@/lib/server-session";
 import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { CopyField } from "./CopyField";
+import { PurchaseConversion } from "./PurchaseConversion";
 import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
 
 export const metadata: Metadata = createMetadata({
@@ -151,15 +152,18 @@ export default async function OrderDetailPage({
         </Link>
 
         {isNew === "1" ? (
-          <div className="mt-6 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
-            <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
-            <div>
-              <p className="font-bold text-brandInk">Payment complete — your eSIM is ready</p>
-              <p className="mt-0.5 text-sm text-onSurfaceVariant">
-                Scan the QR code below to install it on your device.
-              </p>
+          <>
+            <PurchaseConversion transactionId={order.code} />
+            <div className="mt-6 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
+              <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
+              <div>
+                <p className="font-bold text-brandInk">Payment complete — your eSIM is ready</p>
+                <p className="mt-0.5 text-sm text-onSurfaceVariant">
+                  Scan the QR code below to install it on your device.
+                </p>
+              </div>
             </div>
-          </div>
+          </>
         ) : null}
 
         {isToppedUp === "1" ? (

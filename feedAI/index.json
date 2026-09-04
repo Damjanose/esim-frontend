@@ -37,6 +37,22 @@
     "topics/troubleshooting-destinations.json": {
       "covers": "Symptom -> root cause -> fix log for /destinations page, Help Me Choose wizard, and pricing/discount display bugs",
       "keywords": ["No destination found", "empty destinations", "wizard filters lost", "wikimedia hostname", "discount badge missing", "retailPrice guard"]
+    },
+    "topics/public-content-pages.json": {
+      "covers": "The public marketing/content surface: landing page, destinations, guides, use-cases, support/FAQ, legal pages",
+      "keywords": ["landing page", "hero", "destinations page", "seo-pages", "guides", "use-cases", "support page", "faq", "terms", "policy", "legal", "content/"]
+    },
+    "topics/admin-dashboard-ui.json": {
+      "covers": "Actual UI/behavior of the hidden admin surfaces (xloginy, xerrors, xpricing, xversion, xnotificationy, xactivityy, xpartnersy) — what they render and how they authenticate",
+      "keywords": ["xloginy", "xerrors", "xnotificationy", "xactivityy", "xpartnersy", "admin dashboard ui", "error inbox ui", "admin token", "adminnav", "broadcast notification", "NotificationMessage"]
+    },
+    "topics/account-profile-pages.json": {
+      "covers": "Page-level structure of /signin, /checkout, /account, /profile",
+      "keywords": ["signin page", "checkout page", "account page", "profile page", "my esims page", "planCard", "activeplancard"]
+    },
+    "topics/partners.json": {
+      "covers": "The affiliate/partner program: /xpartnersy admin surface + customer-facing /partners/* pages (request, status, dashboard, buy, withdraw, materials) and their BFF proxies",
+      "keywords": ["xpartnersy", "partner", "affiliate", "commission", "wallet", "payout", "referral link", "promo code", "PartnerOrderCredit", "QrCodeCard"]
     }
   },
   "facts": "facts.jsonl — append-only. grep it before assuming a topic file is current.",
