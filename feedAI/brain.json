@@ -62,9 +62,9 @@
     ]
   },
   "sync": {
-    "commit": "68237c9",
+    "commit": "4586a94",
     "branch": "main",
     "date": "2026-09-04",
-    "note_latest": "Resynced 2026-09-04: full history lives in facts.jsonl (currently up to f102) rather than here. Grep facts.jsonl for the full chronological record; topics/*.json hold the current-state summary per area. Most recent fact: f102 -- /checkout's hosted-redirect PokPay payment replaced with an inline Billing->Card wizard using @nebula-ltd/pok-payments-js's GuestCheckoutForm directly against PokPay (not proxied through our backend); see topics/account-flows.json's checkout/billing/payment_failure_reporting entries for the current shape. Top-ups/wallet top-ups untouched. Note: this resync intentionally does not re-walk every commit between f101 and this one one-by-one -- it captures the net current state after the inline-checkout feature landed, consistent with this file's role as a pointer/summary rather than a commit-by-commit log (that's facts.jsonl's job going forward)."
+    "note_latest": "f103: partner-set discount UI shipped (DiscountPanel.tsx on /partners/dashboard, new PATCH /bff/partners/me/discount route, xpartnersy's affiliate-config editor lost its two discount inputs and its preview collapsed to a single 'worst case 20%' column) — matches the E-SIM backend's f130 (Partner.discountPct replacing PackagePricing's per-package discount fields). See topics/partners.json for the full current shape. Prior note_latest (f102, inline PokPay checkout wizard) preserved in git history."
   }
 }
