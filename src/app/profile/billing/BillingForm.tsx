@@ -4,17 +4,7 @@ import { FormEvent, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
-
-const FIELDS: { autoComplete: string; key: keyof BillingAddress; label: string }[] = [
-  { autoComplete: "name", key: "holdersName", label: "Full name" },
-  { autoComplete: "email", key: "email", label: "Email" },
-  { autoComplete: "street-address", key: "address1", label: "Address" },
-  { autoComplete: "postal-code", key: "postalCode", label: "Postal code" },
-  { autoComplete: "address-level2", key: "locality", label: "City" },
-  { autoComplete: "address-level1", key: "administrativeArea", label: "State / region" },
-  { autoComplete: "country", key: "countryCode", label: "Country code" },
-  { autoComplete: "tel", key: "phoneNumber", label: "Phone number" }
-];
+import { BILLING_FIELDS } from "@/lib/billingValidation";
 
 const EMPTY: BillingAddress = {
   holdersName: "",
@@ -69,7 +59,7 @@ export function BillingForm({ initialAddress }: { initialAddress: BillingAddress
 
   return (
     <form className="mt-6 space-y-4" onSubmit={save}>
-      {FIELDS.map((field) => (
+      {BILLING_FIELDS.map((field) => (
         <label
           className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant"
           key={field.key}
