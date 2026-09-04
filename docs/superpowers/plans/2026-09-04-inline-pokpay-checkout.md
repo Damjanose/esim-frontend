@@ -741,46 +741,33 @@ git commit -m "feat: add card step mounting the PokPay guest checkout form"
 
 ---
 
-## Task 6: Receipt step
+## Task 6: Receipt — superseded by a redirect to the existing account page
 
-**Files:**
-- Create: `src/app/checkout/steps/ReceiptStep.tsx`
+**Revised during implementation.** `/account/[orderId]/page.tsx` already has
+a complete, tested order-display: QR code / activation code, ICCID copy
+field, data usage, top-up panel, plan history, AND `PurchaseConversion`
+(conversion tracking fired on `?new=1`). None of this lives in an extractable
+component — it's all inline in that server component, fetching from four
+backend endpoints (`/orders/:id`, `/orders/:id/usage`,
+`/orders/:id/instructions`, `/orders/:id/packages`, `/orders/:id/topups`) via
+server-side `fetchForPage`.
 
-- [ ] **Step 1: Find the existing order-display component to reuse**
+Building a separate client-side `ReceiptStep.tsx` inside the wizard would
+mean either re-fetching and re-rendering all of that from the client (real
+duplication, and a second place to keep in sync), or reimplementing only
+part of it and losing the rest (notably `PurchaseConversion`, which only
+fires on that page).
 
-```bash
-cd "E-SIM-frontend" && grep -rln "qrcode\|QrCodeCard" src/app/account
-```
+Given the existing hosted-redirect flow already ended the same way — PokPay
+redirected back through `/checkout/return`, which itself redirected to
+`/account/{orderId}?new=1` — the simplest correct choice is to keep landing
+there, just via a client-side navigation instead of a server redirect chain.
+This is **not** a redirect to PokPay (the thing being removed) — it's an
+internal same-origin navigation to a page this app already owns, after the
+payment is already complete. No new file is created for this task; the
+navigation is one line in `CheckoutWizard.tsx`'s success handler (Task 7).
 
-Identify the component `/account/[orderId]/page.tsx` uses to render a
-completed order (plan summary, QR code) and import it here rather than
-duplicating markup.
-
-- [ ] **Step 2: Build the component**
-
-```tsx
-import { CheckCircle2 } from "lucide-react";
-// import the reused order-display component identified in Step 1
-
-export function ReceiptStep({ orderId }: { orderId: number | string }) {
-  return (
-    <div className="mt-6">
-      <div className="mb-6 flex items-center gap-3 rounded-[14px] border border-outline bg-mist px-5 py-4">
-        <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={20} />
-        <span className="text-sm font-semibold text-brandInk">Payment complete — your eSIM is ready.</span>
-      </div>
-      {/* <ReusedOrderDisplay orderId={orderId} /> */}
-    </div>
-  );
-}
-```
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add src/app/checkout/steps/ReceiptStep.tsx
-git commit -m "feat: add receipt step for inline checkout wizard"
-```
+No commit for this task — folded into Task 7.
 
 ---
 
@@ -798,12 +785,12 @@ git commit -m "feat: add receipt step for inline checkout wizard"
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import { BillingStep } from "./steps/BillingStep";
 import { CardStep } from "./steps/CardStep";
-import { ReceiptStep } from "./steps/ReceiptStep";
 
-type WizardStep = "billing" | "card" | "receipt";
+type WizardStep = "billing" | "card";
 
 export function CheckoutWizard({
   packageId,
@@ -816,10 +803,10 @@ export function CheckoutWizard({
   accountEmail: string | null;
   disabled?: boolean;
 }) {
+  const router = useRouter();
   const [step, setStep] = useState<WizardStep>("billing");
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [environment, setEnvironment] = useState<string>("staging");
-  const [orderId, setOrderId] = useState<number | string | null>(null);
   const [cardError, setCardError] = useState<string | null>(null);
   const [intentError, setIntentError] = useState<string | null>(null);
   const [creatingIntent, setCreatingIntent] = useState(false);
@@ -883,18 +870,19 @@ export function CheckoutWizard({
         return;
       }
 
-      setOrderId(payload.data.order.id);
-      setStep("receipt");
+      // Lands the buyer on the existing, fully-built order page — same
+      // destination the old hosted-redirect flow ended at
+      // (checkout/return → /account/{orderId}?new=1), just reached by an
+      // internal client-side navigation instead of a server redirect chain.
+      // That page already has the QR code, usage, top-ups, and purchase
+      // conversion tracking; duplicating it here would only be riskier.
+      router.push(`/account/${payload.data.order.id}?new=1`);
     } catch {
       setCardError(
         "Your payment went through, but we could not confirm it with our server. Please contact support with your payment reference."
       );
     }
-  }, [paymentId]);
-
-  if (step === "receipt" && orderId !== null) {
-    return <ReceiptStep orderId={orderId} />;
-  }
+  }, [paymentId, router]);
 
   if (step === "card" && paymentId) {
     return (

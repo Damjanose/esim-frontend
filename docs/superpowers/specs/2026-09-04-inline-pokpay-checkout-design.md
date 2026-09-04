@@ -94,7 +94,8 @@ Pokpay" copy — is replaced by a new client component that owns the wizard.
 New files under `src/app/checkout/`:
 
 - `CheckoutWizard.tsx` — client component, step state
-  (`"billing" | "card" | "receipt"`). Replaces `PayButton.tsx` and the
+  (`"billing" | "card"`; see the `steps/ReceiptStep.tsx` entry below for why
+  there's no `"receipt"` step). Replaces `PayButton.tsx` and the
   static "Payments are handled by Pokpay..." copy. On entering the Card
   step, calls `POST bff/payments/intent` to obtain `paymentId` (used as the
   SDK's `orderId`) and `environment` (maps to the SDK's `env: "production" |
@@ -121,9 +122,20 @@ New files under `src/app/checkout/`:
   fields and, when the bank requires it, its own 3DS challenge iframe, all
   inside our container — no custom form fields, iframe, or device-header
   code needed here.
-- `steps/ReceiptStep.tsx` — final receipt. Reuses existing order-display
-  components from the `/account/[orderId]` page rather than duplicating
-  markup where those components are reasonably shareable.
+- No `steps/ReceiptStep.tsx` — **revised during implementation.**
+  `/account/[orderId]/page.tsx` already has a complete, tested order display
+  (QR/activation code, ICCID, usage, top-ups, plan history) plus
+  `PurchaseConversion` tracking that only fires on that page. None of it is
+  factored into an importable component; it's inline in that server
+  component across five backend calls. Building a separate client-side
+  receipt would mean re-implementing or re-fetching all of that, and losing
+  conversion tracking if not carefully duplicated too. The existing
+  hosted-redirect flow already ended by landing there
+  (`checkout/return` → `/account/{orderId}?new=1`) — so `CheckoutWizard.tsx`
+  does the same via `router.push` after the SDK's `onSuccess` and a
+  successful `bff/payments/provision` call, rather than rendering a receipt
+  inline. This is an internal same-origin navigation to a page this app
+  already owns; it is not the external PokPay redirect this spec removes.
 - No `pokCardFlow.ts` state machine to port, and no `PaymentProgressOverlay`
   staged narration — the SDK's `fetching`/`loading` states (from `usePOK`) or
   its own internal form UI (from `GuestCheckoutForm`) are the only in-flight
@@ -137,8 +149,9 @@ simply never read by the new wizard; only `paymentId`/`environment` are used.
 A new `bff/payments/provision` POST route needs to be created: today,
 `POST /payments/provision` is only called inline inside
 `src/app/checkout/return/route.ts` (the hosted-redirect return handler), not
-exposed as its own reusable BFF route. The new wizard's Receipt step needs
-to call it directly after the SDK's `onSuccess` fires. `checkout/return/route.ts`
+exposed as its own reusable BFF route. `CheckoutWizard.tsx` needs to call it
+directly after the SDK's `onSuccess` fires, then navigate to the resulting
+order. `checkout/return/route.ts`
 itself is deleted along with the rest of the hosted-redirect path (per
 "remove entirely" above), so there is no dual-path reconciliation to do —
 the new route simply replaces that inline call as the only caller of backend
@@ -159,7 +172,8 @@ Full sequence once the buyer is on `/checkout`:
    required, and confirms the charge — all without our backend in the loop
 5. SDK's `onSuccess` fires → `POST bff/payments/provision` with the
    `paymentId` (idempotent by `payment_id`, safe to retry)
-6. Receipt step renders the completed order
+6. On success, `router.push` to `/account/{order.id}?new=1` — the existing
+   order page (see the Architecture note on `ReceiptStep.tsx` above)
 
 ## Error handling
 
@@ -172,9 +186,11 @@ Full sequence once the buyer is on `/checkout`:
   form stays mounted so the buyer can retry without re-entering billing.
 - **Charged but provisioning failed** (`onSuccess` fired, then
   `bff/payments/provision` fails): never re-invoke the SDK/re-charge the
-  card. Receipt step shows a failure state with a "retry" action that only
-  re-calls `bff/payments/provision` — idempotent by `payment_id`, safe to
-  retry any number of times.
+  card. Since there's no receipt step to show a failure state in (per the
+  Architecture revision above), `CheckoutWizard.tsx` shows this inline on
+  the Card step instead, with a "retry" action that only re-calls
+  `bff/payments/provision` — idempotent by `payment_id`, safe to retry any
+  number of times.
 - **3DS challenge dismissed/cancelled**: handled entirely inside the SDK; if
   it surfaces to us at all it arrives via `onError`, same handling as above.
   (Confirm the exact shape during implementation — the SDK's public types
