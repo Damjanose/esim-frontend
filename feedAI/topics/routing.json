@@ -24,7 +24,7 @@
   "route_guard": {
     "file": "src/lib/route-guard.ts",
     "fn": "guardedRedirect(pathname, search, hasSession)",
-    "guarded_prefixes": ["/account", "/checkout", "/profile"],
+    "guarded_prefixes": ["/account", "/checkout", "/profile", "/partners/status", "/partners/request"],
     "unguarded_exceptions": ["/checkout/return", "/account/topup/return", "/profile/deleted"],
     "why_exceptions_matter": "these sit under a guarded prefix but must stay reachable with an expired/cleared session cookie — payment returns carry their own short-lived pending-payment cookie; /profile/deleted is reached with the session deliberately destroyed post-deletion",
     "redirect_target": "/signin?next=<encoded original path+search>",
