@@ -10,6 +10,7 @@ import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { CopyField } from "../../account/[orderId]/CopyField";
 import { QrCodeCard } from "./QrCodeCard";
+import { DiscountPanel } from "./DiscountPanel";
 import { WalletPanel } from "./WalletPanel";
 
 export const metadata: Metadata = createMetadata({
@@ -27,6 +28,7 @@ type Dashboard = {
   status: string;
   partnerType: string;
   promoCode: string | null;
+  discountPct: number;
   validCustomerCount: number;
   commissionBalanceCents: number;
   walletBalanceCents: number;
@@ -171,6 +173,7 @@ function DashboardContent({
       </div>
 
       <WalletPanel />
+      <DiscountPanel discountPct={dashboard.discountPct} />
 
       <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
         <h2 className="font-display text-xl font-black text-brandInk">Recent commissions</h2>
