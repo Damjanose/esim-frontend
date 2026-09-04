@@ -9,6 +9,7 @@ import { POST as postWalletTransfer } from "./me/wallet/transfer/route";
 import { POST as postPurchase } from "./me/purchase/route";
 import { POST as postWithdraw } from "./me/withdraw/route";
 import { POST as postVerification } from "./me/verification/route";
+import { PATCH as patchDiscount } from "./me/discount/route";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -26,6 +27,14 @@ function getRequest(path: string) {
 function postRequest(path: string, body: unknown) {
   return new Request(`http://localhost:3000${path}`, {
     method: "POST",
+    headers: { "content-type": "application/json", cookie: signedIn },
+    body: JSON.stringify(body)
+  });
+}
+
+function patchRequest(path: string, body: unknown) {
+  return new Request(`http://localhost:3000${path}`, {
+    method: "PATCH",
     headers: { "content-type": "application/json", cookie: signedIn },
     body: JSON.stringify(body)
   });
@@ -299,5 +308,42 @@ describe("POST /bff/partners/me/verification", () => {
 
     expect(response.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("PATCH /bff/partners/me/discount", () => {
+  it("sends discountPct to the backend", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ status: "success", data: { discountPct: 10 } })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await patchDiscount(
+      patchRequest("/bff/partners/me/discount", { discountPct: 10 })
+    );
+
+    expect(response.status).toBe(200);
+
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toContain("/partners/me/discount");
+    expect(init.method).toBe("PATCH");
+    expect(JSON.parse(String(init.body))).toEqual({ discountPct: 10 });
+  });
+
+  it("surfaces the backend's own validation message", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        jsonResponse({ status: "error", error: "discountPct must be an integer between 0 and 20" }, 400)
+      )
+    );
+
+    const response = await patchDiscount(
+      patchRequest("/bff/partners/me/discount", { discountPct: 99 })
+    );
+    const payload = (await response.json()) as { error: string };
+
+    expect(response.status).toBe(400);
+    expect(payload.error).toBe("discountPct must be an integer between 0 and 20");
   });
 });
