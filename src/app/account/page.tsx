@@ -5,6 +5,7 @@ import { summariseUsage, type UsagePayload } from "@/lib/esim-install";
 import { resolveOrderSections, type OrderSummary } from "@/lib/order-groups";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
+import { getPackageOptions } from "@/services/server-packages";
 import { Navbar } from "../components/Navbar";
 import { LinkButton } from "../components/Button";
 import { SiteFooter } from "../SiteFooter";
@@ -47,13 +48,15 @@ export default async function AccountPage() {
 
   // Per-order usage is one upstream round-trip each, so only the live plan gets
   // one here. The rest load their usage on the detail page.
-  const [ordersResult, usageResult] = await Promise.all([
+  const [ordersResult, usageResult, packageOptions] = await Promise.all([
     fetchForPage<{ orders: OrderSummary[] }>("/orders", "/account"),
     activeOrder
       ? fetchForPage<{ usage: UsagePayload }>(`/orders/${activeOrder.id}/usage`, "/account")
-      : null
+      : null,
+    getPackageOptions()
   ]);
 
+  const catalog = new Map(packageOptions.map((option) => [option.id, option]));
   const sections = ordersResult.ok
     ? resolveOrderSections(ordersResult.data.orders, activeOrder)
     : null;
@@ -122,7 +125,7 @@ export default async function AccountPage() {
                 title="Active plan"
               >
                 <div className="mt-5">
-                  <ActivePlanCard order={sections.active} usage={usage} />
+                  <ActivePlanCard catalog={catalog} order={sections.active} usage={usage} />
                 </div>
               </Section>
             ) : null}
@@ -135,7 +138,7 @@ export default async function AccountPage() {
                 <ul className="mt-5 grid gap-4 sm:grid-cols-2">
                   {sections.ready.map((order) => (
                     <li key={order.id}>
-                      <PlanCard order={order} />
+                      <PlanCard catalog={catalog} order={order} />
                     </li>
                   ))}
                 </ul>
@@ -147,7 +150,7 @@ export default async function AccountPage() {
                 <ul className="mt-5 grid gap-4 sm:grid-cols-2">
                   {sections.history.map((order) => (
                     <li key={order.id}>
-                      <PlanCard order={order} />
+                      <PlanCard catalog={catalog} order={order} />
                     </li>
                   ))}
                 </ul>

@@ -1,7 +1,7 @@
 {
   "topic": "account-flows",
   "covers": "Checkout/payment, top-up, order lifecycle grouping, billing address, account deletion — the /account, /checkout, /profile areas.",
-  "facts": ["f016", "f017", "f018", "f019", "f020", "f094", "f095"],
+  "facts": ["f016", "f017", "f018", "f019", "f020", "f094", "f095", "f101"],
   "checkout": {
     "component": "src/app/checkout/PayButton.tsx",
     "flow": "POST /bff/payments/intent {package_id} -> {data:{checkoutUrl}} -> window.location.assign(checkoutUrl) [Pokpay hosted checkout] -> src/app/checkout/return/route.ts handles the redirect back",
@@ -49,6 +49,7 @@
   "conversion_tracking": {
     "component": "src/app/GoogleTag.tsx (gtag.js loaded globally via next/script in the root layout) + src/app/account/[orderId]/PurchaseConversion.tsx (f095)",
     "fires": "a Google Ads 'conversion' event on the /account/[orderId]?new=1 checkout-confirmation view (the exact redirect target of checkout/return/route.ts on success), with transaction_id set to the order code; deduped per order via sessionStorage so a refresh of the confirmation URL doesn't double-count.",
-    "config": "tracking id/label live in src/lib/analytics.ts, overridable via NEXT_PUBLIC_GOOGLE_ADS_ID / NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL, pinned explicitly in .env.production rather than relying only on the code fallback."
+    "config": "tracking id/label live in src/lib/analytics.ts, overridable via NEXT_PUBLIC_GOOGLE_ADS_ID / NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL, pinned explicitly in .env.production rather than relying only on the code fallback.",
+    "script_strategy": "both <Script> tags in GoogleTag.tsx use strategy=\"beforeInteractive\", not \"afterInteractive\" — afterInteractive injects at the end of <body> post-hydration, but Google's setup requires the tag before </head> (f101)."
   }
 }
