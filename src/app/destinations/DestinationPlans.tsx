@@ -1160,7 +1160,6 @@ function FeaturedPlan({
             Total price
           </p>
 
-          {/* Showroom mode: no purchase functionality yet.
           <LinkButton
             className="group mt-5 w-full"
             href={`/checkout?package=${encodeURIComponent(
@@ -1176,7 +1175,6 @@ function FeaturedPlan({
               size={17}
             />
           </LinkButton>
-          */}
         </div>
       </div>
     </article>
@@ -1272,7 +1270,6 @@ function CompactPlanCard({
           </p>
         </div>
 
-        {/* Showroom mode: no purchase functionality yet.
         <LinkButton
           href={`/checkout?package=${encodeURIComponent(
             plan.id,
@@ -1288,7 +1285,6 @@ function CompactPlanCard({
             size={15}
           />
         </LinkButton>
-        */}
       </div>
     </article>
   );
