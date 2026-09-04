@@ -1,5 +1,5 @@
 import { landingContent } from "@/content/landing";
-import { Handshake } from "lucide-react";
+import { Handshake, UserRound } from "lucide-react";
 import { LinkButton } from "./Button";
 
 type NavbarProps = {
@@ -98,11 +98,10 @@ export function Navbar({ theme = "light" }: NavbarProps) {
             Partner with us
           </a>
 
-          {/* Showroom mode: no purchase/account functionality yet, so the profile
-              entry point is commented out rather than deleted.
-              Static on purpose: the navbar renders on statically generated public
-              pages, so it must not read cookies. Signed-out visitors are sent on
-              to sign-in by the route guard.
+          {/* Static on purpose: the navbar renders on statically generated public
+              pages, so it must not read cookies. The link always points at
+              /profile — the middleware guard sends signed-out visitors to
+              /signin?next=/profile and lets signed-in visitors straight through. */}
           <a
             aria-label="Your profile"
             className={[
@@ -115,7 +114,6 @@ export function Navbar({ theme = "light" }: NavbarProps) {
           >
             <UserRound aria-hidden="true" size={19} />
           </a>
-          */}
 
           <LinkButton className="px-5 sm:px-7" href="/#download-app">
             Get eSIM Now

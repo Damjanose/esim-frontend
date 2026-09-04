@@ -68,4 +68,12 @@ describe("public navigation shell", () => {
     expect(legalPage).toContain("<SiteFooter />");
     expect(legalPage).not.toContain("<footer");
   });
+
+  it("links to the account entry point, letting the route guard handle signed-in vs signed-out", () => {
+    const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
+
+    expect(navbar).toContain('href="/profile"');
+    expect(navbar).toContain("UserRound");
+    expect(navbar).not.toContain("Showroom mode");
+  });
 });
