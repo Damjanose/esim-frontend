@@ -4,7 +4,13 @@ import { join } from "node:path";
 
 describe("discount price display wiring", () => {
   it("checkout shows a strikethrough original price and percent-off badge when the plan has an active discount", () => {
-    const source = readFileSync(join(process.cwd(), "src/app/checkout/page.tsx"), "utf8");
+    // The price summary (and its admin-discount display) was lifted out of the
+    // server-rendered page.tsx into a client component so an applied partner
+    // promo code can update the total — see CheckoutPriceSection.tsx.
+    const source = readFileSync(
+      join(process.cwd(), "src/app/checkout/CheckoutPriceSection.tsx"),
+      "utf8",
+    );
 
     expect(source).toContain("hasActiveDiscount(plan)");
     expect(source).toContain("formatOriginalPrice(plan)");

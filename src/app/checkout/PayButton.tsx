@@ -4,7 +4,16 @@ import { useState } from "react";
 import { CreditCard, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
 
-export function PayButton({ packageId }: { packageId: string }) {
+export function PayButton({
+  packageId,
+  promoCode,
+  disabled = false
+}: {
+  packageId: string;
+  promoCode?: string | null;
+  /** Set while an outstanding promo-apply request must block payment (see CheckoutPriceSection). */
+  disabled?: boolean;
+}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +25,10 @@ export function PayButton({ packageId }: { packageId: string }) {
       const response = await fetch("/bff/payments/intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ package_id: packageId })
+        body: JSON.stringify({
+          package_id: packageId,
+          ...(promoCode ? { promo_code: promoCode } : {})
+        })
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
@@ -49,7 +61,7 @@ export function PayButton({ packageId }: { packageId: string }) {
     <div className="mt-6">
       <Button
         className="w-full"
-        disabled={busy}
+        disabled={busy || disabled}
         onClick={() => void startPayment()}
         size="lg"
         type="button"

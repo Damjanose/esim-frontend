@@ -1,13 +1,25 @@
 import type { HeroPackageOption } from "./packages";
 
+/** The currency prefix `plan.price` carries (e.g. "€"), for formatting other amounts to match. */
+function pricePrefix(plan: HeroPackageOption): string {
+  return plan.price.match(/^[^\d]*/)?.[0] ?? "";
+}
+
 /**
  * Renders `retailPrice` with the same currency prefix `plan.price` already
  * carries (e.g. "€") — the backend only sends the final price pre-formatted,
  * so the pre-discount amount is formatted client-side to match it exactly.
  */
 export function formatOriginalPrice(plan: HeroPackageOption): string {
-  const prefix = plan.price.match(/^[^\d]*/)?.[0] ?? "";
-  return `${prefix}${plan.retailPrice!.toFixed(2)}`;
+  return `${pricePrefix(plan)}${plan.retailPrice!.toFixed(2)}`;
+}
+
+/**
+ * Renders a cents amount (e.g. `finalCustomerPriceCents` from the partner
+ * promo-code endpoint) with the same currency prefix `plan.price` carries.
+ */
+export function formatPriceFromCents(plan: HeroPackageOption, cents: number): string {
+  return `${pricePrefix(plan)}${(cents / 100).toFixed(2)}`;
 }
 
 /**
