@@ -62,9 +62,9 @@
     ]
   },
   "sync": {
-    "commit": "7387427",
+    "commit": "68237c9",
     "branch": "main",
     "date": "2026-09-04",
-    "note_latest": "Resynced 2026-09-04: full history up to this point now lives in facts.jsonl (currently up to f101) rather than here -- this note had grown to ~20KB across many resync passes, well past budget, so it is trimmed to a pointer. Grep facts.jsonl for the full chronological record; topics/*.json hold the current-state summary per area. Most recent facts: f097-f100 (partner/account discoverability fixes -- /partners/request gated behind sign-in, navbar account link and partner-with-us entry points restored), f101 (Google Ads tag script strategy fixed from afterInteractive to beforeInteractive so it renders in <head> per Google's own setup requirement)."
+    "note_latest": "Resynced 2026-09-04: full history lives in facts.jsonl (currently up to f102) rather than here. Grep facts.jsonl for the full chronological record; topics/*.json hold the current-state summary per area. Most recent fact: f102 -- /checkout's hosted-redirect PokPay payment replaced with an inline Billing->Card wizard using @nebula-ltd/pok-payments-js's GuestCheckoutForm directly against PokPay (not proxied through our backend); see topics/account-flows.json's checkout/billing/payment_failure_reporting entries for the current shape. Top-ups/wallet top-ups untouched. Note: this resync intentionally does not re-walk every commit between f101 and this one one-by-one -- it captures the net current state after the inline-checkout feature landed, consistent with this file's role as a pointer/summary rather than a commit-by-commit log (that's facts.jsonl's job going forward)."
   }
 }
