@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { discountPercentOff, formatOriginalPrice, formatPriceFromCents, hasActiveDiscount } from "@/services/discountPricing";
 import type { HeroPackageOption } from "@/services/packages";
-import { PayButton } from "./PayButton";
+import { CheckoutWizard } from "./CheckoutWizard";
 import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
 
 /**
@@ -15,7 +15,13 @@ import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
  * rather than trying to recompute/stack the two client-side. The admin
  * discount's strikethrough/badge still shows above it for context.
  */
-export function CheckoutPriceSection({ plan }: { plan: HeroPackageOption }) {
+export function CheckoutPriceSection({
+  plan,
+  accountEmail
+}: {
+  plan: HeroPackageOption;
+  accountEmail: string | null;
+}) {
   const [promo, setPromo] = useState<AppliedPromo | null>(null);
   // Tracks whether a promo-apply request (manual, or the silent on-mount
   // re-validation of a stored code) is currently in flight. Used to both
@@ -65,7 +71,12 @@ export function CheckoutPriceSection({ plan }: { plan: HeroPackageOption }) {
 
       <PromoCodeField onChange={setPromo} onPendingChange={setPromoPending} packageId={plan.id} />
 
-      <PayButton disabled={promoPending} packageId={plan.id} promoCode={promo?.promoCode ?? null} />
+      <CheckoutWizard
+        accountEmail={accountEmail}
+        disabled={promoPending}
+        packageId={plan.id}
+        promoCode={promo?.promoCode ?? null}
+      />
     </>
   );
 }

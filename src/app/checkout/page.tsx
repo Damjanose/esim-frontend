@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { CalendarClock, Database, Globe2, Phone, ShieldCheck } from "lucide-react";
+import { CalendarClock, Database, Globe2, Phone } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
+import { ACCESS_COOKIE } from "@/lib/session";
+import { readEmailFromAccessToken } from "@/lib/session-identity";
 import { getPackageOption } from "@/services/server-packages";
 import { Navbar } from "../components/Navbar";
 import { SiteFooter } from "../SiteFooter";
@@ -26,6 +29,9 @@ export default async function CheckoutPage({
   if (!plan) {
     notFound();
   }
+
+  const jar = await cookies();
+  const accountEmail = readEmailFromAccessToken(jar.get(ACCESS_COOKIE)?.value);
 
   const rows = [
     { icon: Globe2, label: "Destination", value: plan.country },
@@ -97,14 +103,7 @@ export default async function CheckoutPage({
               ))}
             </dl>
 
-            <CheckoutPriceSection plan={plan} />
-          </div>
-
-          <div className="mt-5 flex items-center gap-3 rounded-[14px] border border-outline bg-mist px-5 py-4 text-xs text-onSurfaceVariant">
-            <ShieldCheck aria-hidden="true" className="shrink-0 text-brandBlue" size={18} />
-            <span>
-              Payments are handled by Pokpay. eSim2you never sees your card details.
-            </span>
+            <CheckoutPriceSection accountEmail={accountEmail} plan={plan} />
           </div>
 
           <p className="mt-6 text-center text-xs text-onSurfaceVariant">

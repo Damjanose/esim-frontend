@@ -14,10 +14,12 @@ import {
 
 export function BillingStep({
   accountEmail,
-  onContinue
+  onContinue,
+  disabled = false
 }: {
   accountEmail: string | null;
   onContinue: (address: BillingAddress) => void;
+  disabled?: boolean;
 }) {
   const [address, setAddress] = useState<BillingAddress>({
     ...EMPTY_BILLING_ADDRESS,
@@ -64,6 +66,7 @@ export function BillingStep({
   );
 
   const submit = useCallback(async () => {
+    if (disabled) return;
     const normalized = normalizeBillingAddress({ ...address, email: address.email || accountEmail || "" });
     const nextErrors = validateBillingAddress(normalized);
     setErrors(nextErrors);
@@ -88,7 +91,7 @@ export function BillingStep({
     } finally {
       setSaving(false);
     }
-  }, [accountEmail, address, onContinue]);
+  }, [accountEmail, address, disabled, onContinue]);
 
   if (loading) {
     return <p className="mt-6 text-sm text-onSurfaceVariant">Loading your billing details…</p>;
@@ -121,7 +124,7 @@ export function BillingStep({
         </label>
       ))}
       {saveError ? <p className="text-sm font-semibold text-error">{saveError}</p> : null}
-      <Button className="w-full" disabled={saving} onClick={() => void submit()} size="lg" type="button">
+      <Button className="w-full" disabled={saving || disabled} onClick={() => void submit()} size="lg" type="button">
         {saving ? "Saving…" : "Continue to payment"}
       </Button>
     </div>
