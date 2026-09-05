@@ -1,7 +1,7 @@
 {
   "topic": "account-profile-pages",
   "covers": "Page-level structure of /signin, /checkout, /account, /profile — the actual UI these routes render, complementing topics/auth.json and topics/account-flows.json which cover the underlying logic/endpoints, not the pages themselves.",
-  "facts": ["f047", "f048"],
+  "facts": ["f047", "f048", "f106"],
   "signin_page": {
     "file": "src/app/signin/page.tsx + SignInForm.tsx (client component)",
     "flow": "Two-step form: email -> 'Send code' (POST /bff/auth/otp/send, starts a 30s resend cooldown) -> 6-digit code -> 'Verify and continue' (POST /bff/auth/otp/verify, then router.replace(next) + router.refresh() since session cookies are set by the route handler, not client JS).",
@@ -21,9 +21,10 @@
     "sections_rendered": "Active plan (ActivePlanCard, shows usage), Ready to use (grid of PlanCard for lifecycle_status:'ready'), History (grid of PlanCard for finished plans) — via resolveOrderSections() from src/lib/order-groups.ts (topics/account-flows.json). Empty state and a full error state (orders fetch failed) are both explicit UI branches, not just a blank page."
   },
   "profile_page": {
-    "file": "src/app/profile/page.tsx (Server Component)",
+    "file": "src/app/profile/page.tsx (Server Component, data-fetch only) + ProfileTabs.tsx (client component, all layout/sections)",
     "email_display": "Reads the access-token cookie server-side via readEmailFromAccessToken() (topics/auth.json's f008 — unverified, display-only) to show 'Signed in as <email>'.",
     "identities_fetch": "GET /auth/identities is fetched separately and treated as non-fatal — if it fails, the rest of the profile page (settings sections, sign-out, delete account) still renders; only the LinkedProviders section is affected.",
-    "sections": "Plans (link to /account), Sign-in methods (LinkedProviders — list + unlink linked Google/Apple identities), Payments (link to /profile/billing), Support (link to /support), Legal (links to /terms, /policy), and a standalone Account section with DeleteAccountCard at the bottom. All section rows use the shared SettingsSection/SettingsLinkRow primitives (topics/ui-components-styling.json)."
+    "layout_f106": "No boxed/shadowed card panels anywhere — flat, hairline-divided (border-t/border-outline) content. ProfileTabs.tsx owns section navigation: a sidebar on desktop (lg:flex-col, sticky) that collapses to a horizontal scrollable tab strip below the lg breakpoint (same <nav> markup, direction flips via Tailwind classes, no separate mobile component). Tab state is local useState (no URL/hash sync — a full reload always lands back on the Account tab).",
+    "sections": "Account (identity display + My eSIMs link + SignOutButton [full-width primary CTA] + DeleteAccountCard [quiet text link opening a native <dialog> confirm modal, not a card]), Sign-in methods (LinkedProviders — list + unlink linked Google/Apple identities), Payments (link to /profile/billing), Support (link to /support), Legal (links to /terms, /policy). Rows use the shared SettingsSection/SettingsLinkRow primitives (topics/ui-components-styling.json), which lost their card/box styling in the same change — used only by this page, confirmed via grep."
   }
 }

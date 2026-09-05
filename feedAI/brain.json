@@ -62,9 +62,9 @@
     ]
   },
   "sync": {
-    "commit": "4586a94",
+    "commit": "d318aee",
     "branch": "main",
     "date": "2026-09-05",
-    "note_latest": "f105: checkout CardStep.tsx no longer uses GuestCheckoutForm (its error render permanently unmounted card fields with no retry) -- replaced with usePOK hook, own card inputs, fields stay populated/editable on decline, inline Lottie error banner. See topics/account-flows.json card_decline_ux and topics/troubleshooting.json newest entry. Prior note_latest (f104, country dropdowns) preserved in git history."
+    "note_latest": "f106: /profile page redesigned -- boxed/shadowed card panels replaced with a flat hairline-divided layout, navigated via ProfileTabs.tsx (new client component): a sidebar on desktop that collapses to a horizontal scrollable tab strip on mobile. DeleteAccountCard is now a quiet text link opening a native <dialog> confirm modal instead of a visible red card; SignOutButton is now the full-width primary CTA. See topics/account-profile-pages.json profile_page. Prior note_latest (f105, checkout card decline UX) preserved in git history."
   }
 }
