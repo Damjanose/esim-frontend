@@ -19,6 +19,11 @@ const EMPTY: BillingAddress = {
 
 type CountryOption = { code: string; name: string };
 
+const FIELD_BY_KEY = Object.fromEntries(BILLING_FIELDS.map((field) => [field.key, field]));
+
+const INPUT_CLASSNAME =
+  "mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue";
+
 export function BillingForm({
   countries,
   initialAddress
@@ -65,48 +70,67 @@ export function BillingForm({
     }
   }
 
+  function renderField(key: keyof BillingAddress) {
+    const field = FIELD_BY_KEY[key];
+    return (
+      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        {field.label}
+        {key === "countryCode" ? (
+          <select
+            autoComplete={field.autoComplete}
+            className={INPUT_CLASSNAME}
+            onChange={(event) => {
+              setSaved(false);
+              setAddress((current) => ({ ...current, countryCode: event.target.value }));
+            }}
+            required
+            value={address.countryCode}
+          >
+            <option disabled value="">
+              Select a country
+            </option>
+            {countries.map((option) => (
+              <option key={option.code} value={option.code}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            autoComplete={field.autoComplete}
+            className={INPUT_CLASSNAME}
+            onChange={(event) => {
+              setSaved(false);
+              setAddress((current) => ({ ...current, [key]: event.target.value }));
+            }}
+            required
+            value={address[key]}
+          />
+        )}
+      </label>
+    );
+  }
+
   return (
     <form className="mt-6 space-y-4" onSubmit={save}>
-      {BILLING_FIELDS.map((field) => (
-        <label
-          className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant"
-          key={field.key}
-        >
-          {field.label}
-          {field.key === "countryCode" ? (
-            <select
-              autoComplete={field.autoComplete}
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-              onChange={(event) => {
-                setSaved(false);
-                setAddress((current) => ({ ...current, countryCode: event.target.value }));
-              }}
-              required
-              value={address.countryCode}
-            >
-              <option disabled value="">
-                Select a country
-              </option>
-              {countries.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              autoComplete={field.autoComplete}
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-              onChange={(event) => {
-                setSaved(false);
-                setAddress((current) => ({ ...current, [field.key]: event.target.value }));
-              }}
-              required
-              value={address[field.key]}
-            />
-          )}
-        </label>
-      ))}
+      {renderField("holdersName")}
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {renderField("email")}
+        {renderField("phoneNumber")}
+      </div>
+
+      {renderField("address1")}
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {renderField("locality")}
+        {renderField("postalCode")}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {renderField("administrativeArea")}
+        {renderField("countryCode")}
+      </div>
 
       {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 

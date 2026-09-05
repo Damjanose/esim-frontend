@@ -9,21 +9,33 @@ import {
   hasBillingErrors,
   normalizeBillingAddress,
   validateBillingAddress,
-  type BillingFieldErrors
+  type BillingFieldErrors,
+  type BillingFieldError
 } from "@/lib/billingValidation";
 
 type CountryOption = { code: string; name: string };
 
+const FIELD_BY_KEY = Object.fromEntries(BILLING_FIELDS.map((field) => [field.key, field]));
+
+const INPUT_CLASSNAME =
+  "mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue";
+
+function fieldErrorMessage(error: BillingFieldError | undefined): string | null {
+  if (!error) return null;
+  if (error === "required") return "This field is required.";
+  if (error === "tooShort") return "This is too short.";
+  return "Check this value.";
+}
+
 export function BillingStep({
   accountEmail,
-  onContinue,
   countries,
-  disabled = false
+  onAddressReady
 }: {
   accountEmail: string | null;
-  onContinue: (address: BillingAddress) => void;
   countries: CountryOption[];
-  disabled?: boolean;
+  /** Fires once a complete address is on file — right after load if one was already saved, or after a manual save. */
+  onAddressReady: (address: BillingAddress) => void;
 }) {
   const [address, setAddress] = useState<BillingAddress>({
     ...EMPTY_BILLING_ADDRESS,
@@ -34,6 +46,15 @@ export function BillingStep({
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  // Starts true (form visible) so nothing flashes before the load below
+  // resolves; flips to false only once a genuinely complete saved address is
+  // confirmed, so a first-time buyer or an incomplete address always lands on
+  // the editable form instead of an empty summary.
+  const [editing, setEditing] = useState(true);
+  // The last confirmed (loaded or saved) address, so "Change address" can be
+  // collapsed back without discarding the on-file address if the buyer edited
+  // fields but didn't save.
+  const [savedAddress, setSavedAddress] = useState<BillingAddress | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,7 +64,18 @@ export function BillingStep({
         const payload = (await response.json()) as { data?: { billingAddress: BillingAddress | null } };
         if (cancelled) return;
         if (response.ok && payload.data?.billingAddress) {
-          setAddress({ ...payload.data.billingAddress, email: payload.data.billingAddress.email || accountEmail || "" });
+          const loaded = {
+            ...payload.data.billingAddress,
+            email: payload.data.billingAddress.email || accountEmail || ""
+          };
+          setAddress(loaded);
+          const normalized = normalizeBillingAddress(loaded);
+          const complete = !hasBillingErrors(validateBillingAddress(normalized));
+          setEditing(!complete);
+          if (complete) {
+            setSavedAddress(normalized);
+            onAddressReady(normalized);
+          }
         }
       } catch {
         if (!cancelled) setLoadError("We could not load your saved billing details.");
@@ -54,6 +86,8 @@ export function BillingStep({
     return () => {
       cancelled = true;
     };
+    // onAddressReady is a setState identity from the parent, stable across renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountEmail]);
 
   const update = useCallback(
@@ -69,8 +103,7 @@ export function BillingStep({
     []
   );
 
-  const submit = useCallback(async () => {
-    if (disabled) return;
+  const save = useCallback(async () => {
     const normalized = normalizeBillingAddress({ ...address, email: address.email || accountEmail || "" });
     const nextErrors = validateBillingAddress(normalized);
     setErrors(nextErrors);
@@ -89,66 +122,132 @@ export function BillingStep({
         setSaveError(payload.error ?? "We could not save your billing details.");
         return;
       }
-      onContinue(normalized);
+      setAddress(normalized);
+      setSavedAddress(normalized);
+      setEditing(false);
+      onAddressReady(normalized);
     } catch {
       setSaveError("We could not reach the server. Please try again.");
     } finally {
       setSaving(false);
     }
-  }, [accountEmail, address, disabled, onContinue]);
+  }, [accountEmail, address, onAddressReady]);
+
+  const collapse = useCallback(() => {
+    if (savedAddress) setAddress(savedAddress);
+    setErrors({});
+    setSaveError(null);
+    setEditing(false);
+  }, [savedAddress]);
 
   if (loading) {
     return <p className="mt-6 text-sm text-onSurfaceVariant">Loading your billing details…</p>;
   }
 
-  return (
-    <div className="mt-6 space-y-4">
-      {loadError ? <p className="text-sm text-error">{loadError}</p> : null}
-      {BILLING_FIELDS.map((field) => (
-        <label
-          className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant"
-          key={field.key}
-        >
-          {field.label}
-          {field.key === "countryCode" ? (
-            <select
-              autoComplete={field.autoComplete}
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-              onChange={(event) => update("countryCode")(event.target.value)}
-              value={address.countryCode}
-            >
-              <option disabled value="">
-                Select a country
+  function renderField(key: keyof BillingAddress) {
+    const field = FIELD_BY_KEY[key];
+    return (
+      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        {field.label}
+        {key === "countryCode" ? (
+          <select
+            autoComplete={field.autoComplete}
+            className={INPUT_CLASSNAME}
+            onChange={(event) => update("countryCode")(event.target.value)}
+            value={address.countryCode}
+          >
+            <option disabled value="">
+              Select a country
+            </option>
+            {countries.map((option) => (
+              <option key={option.code} value={option.code}>
+                {option.name}
               </option>
-              {countries.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              autoComplete={field.autoComplete}
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-              onChange={(event) => update(field.key)(event.target.value)}
-              value={address[field.key]}
-            />
-          )}
-          {errors[field.key] ? (
-            <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
-              {errors[field.key] === "required"
-                ? "This field is required."
-                : errors[field.key] === "tooShort"
-                  ? "This is too short."
-                  : "Check this value."}
-            </span>
+            ))}
+          </select>
+        ) : (
+          <input
+            autoComplete={field.autoComplete}
+            className={INPUT_CLASSNAME}
+            onChange={(event) => update(key)(event.target.value)}
+            value={address[key]}
+          />
+        )}
+        {errors[key] ? (
+          <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
+            {fieldErrorMessage(errors[key])}
+          </span>
+        ) : null}
+      </label>
+    );
+  }
+
+  const countryName = countries.find((option) => option.code === address.countryCode)?.name ?? address.countryCode;
+
+  return (
+    <div className="space-y-4">
+      {loadError ? <p className="text-sm text-error">{loadError}</p> : null}
+
+      {editing ? (
+        <>
+          {savedAddress ? (
+            <button
+              className="flex items-center gap-1 text-xs font-bold uppercase tracking-[0.14em] text-brandBlue transition hover:text-brandInk"
+              onClick={collapse}
+              type="button"
+            >
+              Change address
+              <span aria-hidden="true" className="text-[10px]">
+                ▲
+              </span>
+            </button>
           ) : null}
-        </label>
-      ))}
-      {saveError ? <p className="text-sm font-semibold text-error">{saveError}</p> : null}
-      <Button className="w-full" disabled={saving || disabled} onClick={() => void submit()} size="lg" type="button">
-        {saving ? "Saving…" : "Continue to payment"}
-      </Button>
+
+          {renderField("holdersName")}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {renderField("email")}
+            {renderField("phoneNumber")}
+          </div>
+
+          {renderField("address1")}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {renderField("locality")}
+            {renderField("postalCode")}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {renderField("administrativeArea")}
+            {renderField("countryCode")}
+          </div>
+
+          {saveError ? <p className="text-sm font-semibold text-error">{saveError}</p> : null}
+          <Button className="w-full" disabled={saving} onClick={() => void save()} size="lg" type="button">
+            {saving ? "Saving…" : "Save address"}
+          </Button>
+        </>
+      ) : (
+        <div className="rounded-[12px] border border-outline bg-mist p-4">
+          <p className="text-sm font-bold text-brandInk">{address.holdersName}</p>
+          <p className="mt-1 text-sm text-onSurfaceVariant">{address.address1}</p>
+          <p className="text-sm text-onSurfaceVariant">
+            {address.locality}, {address.administrativeArea} {address.postalCode}
+          </p>
+          <p className="text-sm text-onSurfaceVariant">{countryName}</p>
+          <p className="mt-1 text-sm text-onSurfaceVariant">{address.phoneNumber}</p>
+          <button
+            className="mt-3 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.14em] text-brandBlue transition hover:text-brandInk"
+            onClick={() => setEditing(true)}
+            type="button"
+          >
+            Change address
+            <span aria-hidden="true" className="text-[10px]">
+              ▼
+            </span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

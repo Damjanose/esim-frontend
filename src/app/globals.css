@@ -86,8 +86,23 @@ input {
 /* Card checkout step (@nebula-ltd/pok-payments-js GuestCheckoutForm): the email
    field is redundant with the billing step, which already collects it and passes
    it here as a pre-filled initialState value. The SDK has no prop to omit the
-   field, so it's hidden by position — it's unconditionally the first
-   .pok-payment-relative field row the form renders. */
-.pok-payment-form > .pok-payment-relative:first-of-type {
+   field, so it's hidden by position — it's unconditionally the first field the
+   form renders, but each field is wrapped in an unclassed <div> before its
+   .pok-payment-relative row, so the selector has to reach through that wrapper
+   rather than targeting .pok-payment-relative as a direct child of the form. */
+.pok-payment-form > div:first-child > .pok-payment-relative {
   display: none;
+}
+
+/* The SDK's own "Add billing info" checkbox (id=addBillingCheckbox) reveals a
+   second copy of the billing step's form (address/city/zip/phone, plus a
+   state select for US/CA) when checked. It's off by default and this hides
+   it outright, so those fields can never be revealed/filled in twice --
+   payments.ts never uses whatever this form would submit anyway, it always
+   charges against the already-saved billing address. The SDK's own
+   stylesheet (imported per-usage, after this global stylesheet) declares
+   `display: flex` on this same class at equal specificity, so !important is
+   needed here to win regardless of CSS import order. */
+.pok-payment-checkbox-container {
+  display: none !important;
 }
