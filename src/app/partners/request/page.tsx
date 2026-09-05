@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { backendFetch } from "@/lib/backend";
 import { createMetadata } from "@/lib/seo";
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/session";
+import { deriveCountryOptions, mapPackagesPayload, type ApiPackage } from "@/services/packages";
 import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { PartnerRequestForm } from "./PartnerRequestForm";
@@ -42,6 +43,11 @@ export default async function PartnerRequestPage() {
     redirect(`/bff/auth/refresh?next=${encodeURIComponent("/partners/request")}`);
   }
 
+  const packagesResult = await backendFetch<{ packages?: ApiPackage[] }>("/packages");
+  const countries = packagesResult.ok
+    ? deriveCountryOptions(mapPackagesPayload(packagesResult.data))
+    : [];
+
   return (
     <main className="min-h-screen bg-surface text-onSurface">
       <Navbar />
@@ -64,7 +70,7 @@ export default async function PartnerRequestPage() {
         </p>
 
         <div className="mt-8 rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
-          <PartnerRequestForm />
+          <PartnerRequestForm countries={countries} />
         </div>
       </section>
 

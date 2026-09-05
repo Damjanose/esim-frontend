@@ -12,13 +12,17 @@ import {
   type BillingFieldErrors
 } from "@/lib/billingValidation";
 
+type CountryOption = { code: string; name: string };
+
 export function BillingStep({
   accountEmail,
   onContinue,
+  countries,
   disabled = false
 }: {
   accountEmail: string | null;
   onContinue: (address: BillingAddress) => void;
+  countries: CountryOption[];
   disabled?: boolean;
 }) {
   const [address, setAddress] = useState<BillingAddress>({
@@ -106,12 +110,30 @@ export function BillingStep({
           key={field.key}
         >
           {field.label}
-          <input
-            autoComplete={field.autoComplete}
-            className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-            onChange={(event) => update(field.key)(event.target.value)}
-            value={address[field.key]}
-          />
+          {field.key === "countryCode" ? (
+            <select
+              autoComplete={field.autoComplete}
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+              onChange={(event) => update("countryCode")(event.target.value)}
+              value={address.countryCode}
+            >
+              <option disabled value="">
+                Select a country
+              </option>
+              {countries.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              autoComplete={field.autoComplete}
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+              onChange={(event) => update(field.key)(event.target.value)}
+              value={address[field.key]}
+            />
+          )}
           {errors[field.key] ? (
             <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
               {errors[field.key] === "required"

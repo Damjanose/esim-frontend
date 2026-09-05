@@ -17,7 +17,15 @@ const EMPTY: BillingAddress = {
   phoneNumber: ""
 };
 
-export function BillingForm({ initialAddress }: { initialAddress: BillingAddress | null }) {
+type CountryOption = { code: string; name: string };
+
+export function BillingForm({
+  countries,
+  initialAddress
+}: {
+  countries: CountryOption[];
+  initialAddress: BillingAddress | null;
+}) {
   const [address, setAddress] = useState<BillingAddress>(initialAddress ?? EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,16 +73,38 @@ export function BillingForm({ initialAddress }: { initialAddress: BillingAddress
           key={field.key}
         >
           {field.label}
-          <input
-            autoComplete={field.autoComplete}
-            className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-            onChange={(event) => {
-              setSaved(false);
-              setAddress((current) => ({ ...current, [field.key]: event.target.value }));
-            }}
-            required
-            value={address[field.key]}
-          />
+          {field.key === "countryCode" ? (
+            <select
+              autoComplete={field.autoComplete}
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+              onChange={(event) => {
+                setSaved(false);
+                setAddress((current) => ({ ...current, countryCode: event.target.value }));
+              }}
+              required
+              value={address.countryCode}
+            >
+              <option disabled value="">
+                Select a country
+              </option>
+              {countries.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              autoComplete={field.autoComplete}
+              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+              onChange={(event) => {
+                setSaved(false);
+                setAddress((current) => ({ ...current, [field.key]: event.target.value }));
+              }}
+              required
+              value={address[field.key]}
+            />
+          )}
         </label>
       ))}
 

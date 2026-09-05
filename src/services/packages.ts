@@ -23,7 +23,7 @@ export type HeroPackageOption = {
   retailPrice?: number;
 };
 
-type ApiPackage = {
+export type ApiPackage = {
   kind?: string;
   id?: string;
   country?: string;
@@ -242,6 +242,27 @@ function matchesOption(
   }
 
   return option.query.includes(normalizedQuery);
+}
+
+export type CountryOption = { code: string; name: string };
+
+/**
+ * Distinct real-country names sellable in the catalog, for pickers that store
+ * a display name rather than an ISO code (e.g. the partner application form).
+ * Regional/global bundles ("Europe", "Africa Safari") are excluded — they
+ * aren't countries a partner can name as their own. `countryCode` here is
+ * Airalo's country slug, not an ISO code, so `code` is left blank; only the
+ * name is used.
+ */
+export function deriveCountryOptions(options: readonly HeroPackageOption[]): CountryOption[] {
+  const names = new Set<string>();
+  for (const option of options) {
+    if (!option.filters.includes("local")) continue;
+    if (option.country) names.add(option.country);
+  }
+  return Array.from(names)
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => ({ code: "", name }));
 }
 
 export function filterPackageOptions(

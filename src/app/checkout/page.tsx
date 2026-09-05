@@ -4,12 +4,15 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { CalendarClock, Database, Globe2, Phone } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
+import { backendFetch } from "@/lib/backend";
 import { ACCESS_COOKIE } from "@/lib/session";
 import { readEmailFromAccessToken } from "@/lib/session-identity";
 import { getPackageOption } from "@/services/server-packages";
 import { Navbar } from "../components/Navbar";
 import { SiteFooter } from "../SiteFooter";
 import { CheckoutPriceSection } from "./CheckoutPriceSection";
+
+type EsimCountry = { code: string; name: string; geography: string };
 
 export const metadata: Metadata = createMetadata({
   path: "/checkout",
@@ -32,6 +35,13 @@ export default async function CheckoutPage({
 
   const jar = await cookies();
   const accountEmail = readEmailFromAccessToken(jar.get(ACCESS_COOKIE)?.value);
+
+  const countriesResult = await backendFetch<{ countries: EsimCountry[] }>("/esim/countries");
+  const countries = countriesResult.ok
+    ? countriesResult.data.countries
+        .filter((country) => country.geography === "local")
+        .map((country) => ({ code: country.code, name: country.name }))
+    : [];
 
   const rows = [
     { icon: Globe2, label: "Destination", value: plan.country },
@@ -103,7 +113,7 @@ export default async function CheckoutPage({
               ))}
             </dl>
 
-            <CheckoutPriceSection accountEmail={accountEmail} plan={plan} />
+            <CheckoutPriceSection accountEmail={accountEmail} countries={countries} plan={plan} />
           </div>
 
           <p className="mt-6 text-center text-xs text-onSurfaceVariant">

@@ -3,10 +3,13 @@ import Link from "next/link";
 import { ArrowLeft, CreditCard, Lock, WifiOff } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
+import { backendFetch } from "@/lib/backend";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { BillingForm } from "./BillingForm";
+
+type EsimCountry = { code: string; name: string; geography: string };
 
 export const metadata: Metadata = createMetadata({
   path: "/profile/billing",
@@ -25,12 +28,21 @@ type SavedCard = {
 export default async function BillingPage() {
   const basePath = "/profile/billing";
 
-  const [addressResult, cardResult] = await Promise.all([
+  const [addressResult, cardResult, countriesResult] = await Promise.all([
     fetchForPage<{ billingAddress: BillingAddress | null }>("/user/billing-address", basePath),
-    fetchForPage<{ card: SavedCard }>("/user/card-details", basePath)
+    fetchForPage<{ card: SavedCard }>("/user/card-details", basePath),
+    backendFetch<{ countries: EsimCountry[] }>("/esim/countries")
   ]);
 
   const card = cardResult.ok ? cardResult.data.card : null;
+  // Only real countries have a genuine ISO alpha-2 code — Airalo's
+  // regional/global bundle pseudo-entries ("AFR") don't and would fail
+  // billing-address validation if offered here.
+  const countries = countriesResult.ok
+    ? countriesResult.data.countries
+        .filter((country) => country.geography === "local")
+        .map((country) => ({ code: country.code, name: country.name }))
+    : [];
 
   return (
     <main className="min-h-screen bg-surface text-onSurface">
@@ -59,7 +71,7 @@ export default async function BillingPage() {
           </p>
 
           {addressResult.ok ? (
-            <BillingForm initialAddress={addressResult.data.billingAddress} />
+            <BillingForm countries={countries} initialAddress={addressResult.data.billingAddress} />
           ) : (
             <div className="mt-6 flex items-center gap-4 rounded-[14px] border border-amber-600/30 bg-amber-50 px-5 py-4">
               <WifiOff aria-hidden="true" className="shrink-0 text-amber-600" size={20} />

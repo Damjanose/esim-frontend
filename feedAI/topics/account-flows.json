@@ -9,7 +9,8 @@
     "f020",
     "f094",
     "f095",
-    "f101"
+    "f101",
+    "f104"
   ],
   "checkout": {
     "component": "src/app/checkout/CheckoutWizard.tsx (Billing -> Card -> redirect to /account)",
@@ -47,7 +48,8 @@
   "billing": {
     "route": "/profile/billing (BillingForm.tsx) and the checkout wizard's BillingStep.tsx",
     "card_details_status": "PUT /user/card-details returns 410 Gone -- saved cards are permanently disabled server-side; card entry happens inside the checkout wizard's Card step (PokPay's GuestCheckoutForm), not a hosted page",
-    "editable_fields": "as of 2026-09-04, GET/PUT bff/user/billing-address uses the FULL 8-field shape (holdersName, email, countryCode, administrativeArea, locality, address1, postalCode, phoneNumber) -- previously only forwarded 4 legacy fields (line1/city/postal/country) even though the backend has supported all 8 since the mobile in-app checkout work; validation rules/messages owned by backend, mirrored client-side in src/lib/billingValidation.ts (BILLING_FIELDS is the single source of truth for field config, shared by BillingForm.tsx and BillingStep.tsx)"
+    "editable_fields": "as of 2026-09-04, GET/PUT bff/user/billing-address uses the FULL 8-field shape (holdersName, email, countryCode, administrativeArea, locality, address1, postalCode, phoneNumber) -- previously only forwarded 4 legacy fields (line1/city/postal/country) even though the backend has supported all 8 since the mobile in-app checkout work; validation rules/messages owned by backend, mirrored client-side in src/lib/billingValidation.ts (BILLING_FIELDS is the single source of truth for field config, shared by BillingForm.tsx and BillingStep.tsx)",
+    "country_dropdown_2026-09-05": "f104: countryCode in both BillingForm.tsx and the checkout BillingStep.tsx is now a <select> (not <input>) sourced from a `countries` prop, fetched server-side (GET /esim/countries, filtered to geography==='local') by each one's parent page and threaded down through client-component props -- checkout's chain is page.tsx -> CheckoutPriceSection -> CheckoutWizard -> BillingStep. Do not source this from the package catalog's countryCode field -- that's Airalo's slug, not an ISO code (see topics/partners.json's promo_code-adjacent country-dropdown entry for the field that DOES use the package catalog)."
   },
   "account_deletion": {
     "component": "src/app/profile/DeleteAccountCard.tsx",

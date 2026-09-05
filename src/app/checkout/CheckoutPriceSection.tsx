@@ -15,12 +15,16 @@ import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
  * rather than trying to recompute/stack the two client-side. The admin
  * discount's strikethrough/badge still shows above it for context.
  */
+type CountryOption = { code: string; name: string };
+
 export function CheckoutPriceSection({
   plan,
-  accountEmail
+  accountEmail,
+  countries
 }: {
   plan: HeroPackageOption;
   accountEmail: string | null;
+  countries: CountryOption[];
 }) {
   const [promo, setPromo] = useState<AppliedPromo | null>(null);
   // Tracks whether a promo-apply request (manual, or the silent on-mount
@@ -73,6 +77,7 @@ export function CheckoutPriceSection({
 
       <CheckoutWizard
         accountEmail={accountEmail}
+        countries={countries}
         disabled={promoPending}
         packageId={plan.id}
         promoCode={promo?.promoCode ?? null}

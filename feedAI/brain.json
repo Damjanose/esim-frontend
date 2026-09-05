@@ -64,7 +64,7 @@
   "sync": {
     "commit": "4586a94",
     "branch": "main",
-    "date": "2026-09-04",
-    "note_latest": "f103: partner-set discount UI shipped (DiscountPanel.tsx on /partners/dashboard, new PATCH /bff/partners/me/discount route, xpartnersy's affiliate-config editor lost its two discount inputs and its preview collapsed to a single 'worst case 20%' column) — matches the E-SIM backend's f130 (Partner.discountPct replacing PackagePricing's per-package discount fields). See topics/partners.json for the full current shape. Prior note_latest (f102, inline PokPay checkout wizard) preserved in git history."
+    "date": "2026-09-05",
+    "note_latest": "f104: country/country-code fields that were free-text are now dropdowns across /profile/billing, the checkout wizard's billing step, and the partner request form -- billing's countryCode from GET /esim/countries (real ISO codes), the partner form's country name from the package catalog (deriveCountryOptions()). Mirrored in velocity-eSim (its own feedAI has the mobile-side fact). See topics/account-flows.json's billing block and topics/partners.json's request entry. Prior note_latest (f103, partner-set discount UI) preserved in git history."
   }
 }

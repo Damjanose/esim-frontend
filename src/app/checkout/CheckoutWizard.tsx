@@ -7,15 +7,19 @@ import { CardStep } from "./steps/CardStep";
 
 type WizardStep = "billing" | "card";
 
+type CountryOption = { code: string; name: string };
+
 export function CheckoutWizard({
   packageId,
   promoCode,
   accountEmail,
+  countries,
   disabled = false
 }: {
   packageId: string;
   promoCode?: string | null;
   accountEmail: string | null;
+  countries: CountryOption[];
   disabled?: boolean;
 }) {
   const router = useRouter();
@@ -122,6 +126,7 @@ export function CheckoutWizard({
     <div className="mt-6">
       <BillingStep
         accountEmail={accountEmail}
+        countries={countries}
         disabled={disabled || creatingIntent}
         onContinue={() => void startCardStep()}
       />

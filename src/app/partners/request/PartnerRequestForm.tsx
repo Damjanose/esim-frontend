@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import type { CountryOption } from "@/services/packages";
 
 // Mirrors PARTNER_TYPES in `E-SIM backend/src/services/partner.service.ts` —
 // the backend rejects anything outside this fixed list, so the dropdown only
@@ -27,7 +28,7 @@ type FormState = {
 
 const EMPTY: FormState = { partnerType: "", country: "", businessName: "", website: "" };
 
-export function PartnerRequestForm() {
+export function PartnerRequestForm({ countries }: { countries: CountryOption[] }) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [busy, setBusy] = useState(false);
@@ -113,13 +114,22 @@ export function PartnerRequestForm() {
 
       <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
         Country
-        <input
+        <select
           autoComplete="country-name"
           className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
           onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))}
           required
           value={form.country}
-        />
+        >
+          <option disabled value="">
+            Select a country
+          </option>
+          {countries.map((option) => (
+            <option key={option.name} value={option.name}>
+              {option.name}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
