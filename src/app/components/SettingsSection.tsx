@@ -4,11 +4,10 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 /**
- * The account area repeats the same panel and row treatment across the profile,
- * the eSIM list and the eSIM detail page. These primitives hold that styling in
- * one place so the pages read as their content rather than as class strings.
+ * A flat, dividers-only settings group — deliberately not a bordered/shadowed
+ * panel. Rows read as one continuous list; the label just marks where a new
+ * group starts.
  */
-
 export function SettingsSection({
   children,
   label
@@ -17,13 +16,9 @@ export function SettingsSection({
   label: string;
 }) {
   return (
-    <section className="mt-8">
-      <h2 className="text-[11px] font-black uppercase tracking-[0.12em] text-onSurfaceVariant">
-        {label}
-      </h2>
-      <div className="mt-3 overflow-hidden rounded-[18px] border border-outline bg-white shadow-brandCard">
-        {children}
-      </div>
+    <section className="mt-9 first:mt-0">
+      <h2 className="mb-1 px-1 text-[13px] font-semibold text-onSurfaceVariant">{label}</h2>
+      <div className="border-t border-outline/70">{children}</div>
     </section>
   );
 }
@@ -45,18 +40,18 @@ export function SettingsLinkRow({
 
   return (
     <Link
-      className="flex items-center gap-4 border-b border-outline/70 px-5 py-4 transition last:border-b-0 hover:bg-mist"
+      className="flex items-center gap-4 border-b border-outline/70 px-1 py-4 transition hover:bg-mist/60"
       href={href}
     >
       <Icon
         aria-hidden="true"
         className={`shrink-0 ${isDanger ? "text-error" : "text-brandBlue"}`}
-        size={20}
+        size={19}
       />
 
       <span className="min-w-0 flex-1">
         <span
-          className={`block text-sm font-bold ${isDanger ? "text-error" : "text-brandInk"}`}
+          className={`block text-sm font-semibold ${isDanger ? "text-error" : "text-brandInk"}`}
         >
           {label}
         </span>
@@ -65,11 +60,7 @@ export function SettingsLinkRow({
         ) : null}
       </span>
 
-      <ChevronRight
-        aria-hidden="true"
-        className="shrink-0 text-onSurfaceVariant"
-        size={18}
-      />
+      <ChevronRight aria-hidden="true" className="shrink-0 text-onSurfaceVariant/70" size={17} />
     </Link>
   );
 }

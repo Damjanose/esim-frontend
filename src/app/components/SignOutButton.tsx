@@ -17,8 +17,8 @@ export function SignOutButton() {
   }
 
   return (
-    <Button disabled={busy} onClick={() => void signOut()} size="sm" tone="brand" type="button" variant="flat">
-      <LogOut size={15} />
+    <Button className="w-full" disabled={busy} onClick={() => void signOut()} type="button">
+      <LogOut size={17} />
       Sign out
     </Button>
   );

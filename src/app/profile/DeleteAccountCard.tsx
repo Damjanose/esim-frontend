@@ -1,17 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
 
 /**
- * Two-step by design: deletion is irreversible and the confirm step spells out
- * what is removed and what is kept.
+ * Trigger stays a quiet text link (mirrors the mobile app's footer-tucked
+ * "Delete account" link) so the destructive action never visually competes
+ * with the rest of the page. The confirm flow itself lives in a native
+ * <dialog> — deletion is irreversible and the confirm step spells out what
+ * is removed and what is kept.
  */
 export function DeleteAccountCard() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function openDialog() {
+    dialogRef.current?.showModal();
+  }
+
+  function closeDialog() {
+    dialogRef.current?.close();
+    setConfirming(false);
+    setError(null);
+  }
 
   async function deleteAccount() {
     setBusy(true);
@@ -39,56 +53,83 @@ export function DeleteAccountCard() {
   }
 
   return (
-    <div className="mt-3 rounded-[18px] border border-error/30 bg-error/5 p-6">
-      <h3 className="flex items-center gap-2.5 font-display text-lg font-black text-error">
-        <Trash2 aria-hidden="true" size={19} />
-        Delete account
-      </h3>
+    <>
+      <button
+        className="text-xs font-semibold text-onSurfaceVariant underline decoration-onSurfaceVariant/40 underline-offset-2 transition hover:text-error"
+        onClick={openDialog}
+        type="button"
+      >
+        Want to leave? Delete account
+      </button>
 
-      {confirming ? (
-        <>
-          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
-            This removes your eSim2you account and the account data we store. Purchased
-            eSIM service records may be retained where required for payment, fraud
-            prevention, tax, or provider obligations. Any eSIM you have already installed
-            keeps working until its data runs out.
-          </p>
+      <dialog
+        ref={dialogRef}
+        onClick={(event) => {
+          if (event.target === dialogRef.current) closeDialog();
+        }}
+        onClose={() => {
+          setConfirming(false);
+          setError(null);
+        }}
+        className="m-auto w-[min(420px,calc(100vw-2.5rem))] rounded-[18px] border border-outline p-0 backdrop:bg-brandInk/40"
+      >
+        <div className="p-6">
+          <h3 className="font-display text-lg font-black text-error">Delete account</h3>
 
-          {error ? (
-            <p className="mt-4 text-sm font-semibold text-error">{error}</p>
-          ) : null}
+          {confirming ? (
+            <>
+              <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
+                This removes your eSim2you account and the account data we store. Purchased
+                eSIM service records may be retained where required for payment, fraud
+                prevention, tax, or provider obligations. Any eSIM you have already installed
+                keeps working until its data runs out.
+              </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button disabled={busy} onClick={() => void deleteAccount()} tone="danger" type="button" variant="flat">
-              {busy ? <Loader2 className="animate-spin" size={16} /> : null}
-              {busy ? "Deleting…" : "Yes, delete my account"}
-            </Button>
+              {error ? (
+                <p className="mt-4 text-sm font-semibold text-error">{error}</p>
+              ) : null}
 
-            <Button
-              disabled={busy}
-              onClick={() => {
-                setConfirming(false);
-                setError(null);
-              }}
-              tone="brand"
-              type="button"
-              variant="flat"
-            >
-              Cancel
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
-            Permanently remove your account and its data. This cannot be undone.
-          </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button
+                  disabled={busy}
+                  onClick={() => void deleteAccount()}
+                  tone="danger"
+                  type="button"
+                  variant="flat"
+                >
+                  {busy ? <Loader2 className="animate-spin" size={16} /> : null}
+                  {busy ? "Deleting…" : "Yes, delete my account"}
+                </Button>
 
-          <Button className="mt-5" onClick={() => setConfirming(true)} tone="danger" type="button" variant="flat">
-            Delete account
-          </Button>
-        </>
-      )}
-    </div>
+                <Button
+                  disabled={busy}
+                  onClick={() => setConfirming(false)}
+                  tone="brand"
+                  type="button"
+                  variant="flat"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
+                Permanently remove your account and its data. This cannot be undone.
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Button onClick={() => setConfirming(true)} tone="danger" type="button" variant="flat">
+                  Delete account
+                </Button>
+                <Button onClick={closeDialog} tone="brand" type="button" variant="flat">
+                  Never mind
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </dialog>
+    </>
   );
 }

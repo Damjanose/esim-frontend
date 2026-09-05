@@ -51,7 +51,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
 
   if (identities.length === 0) {
     return (
-      <p className="px-5 py-4 text-sm text-onSurfaceVariant">
+      <p className="border-b border-outline/70 px-1 py-4 text-sm text-onSurfaceVariant">
         No sign-in providers linked. You sign in with an emailed code.
       </p>
     );
@@ -62,7 +62,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
       <ul>
         {identities.map((identity) => (
           <li
-            className="flex items-center gap-4 border-b border-outline/70 px-5 py-4 last:border-b-0"
+            className="flex items-center gap-4 border-b border-outline/70 px-1 py-4"
             key={identity.provider}
           >
             <span className="min-w-0 flex-1">
@@ -90,7 +90,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
       </ul>
 
       {error ? (
-        <p className="px-5 pb-4 text-sm font-semibold text-error">{error}</p>
+        <p className="border-b border-outline/70 px-1 py-4 text-sm font-semibold text-error">{error}</p>
       ) : null}
     </>
   );

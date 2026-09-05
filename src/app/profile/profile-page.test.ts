@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const profilePage = readFileSync("src/app/profile/page.tsx", "utf8");
+const profileTabs = readFileSync("src/app/profile/ProfileTabs.tsx", "utf8");
 const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
 const accountPage = readFileSync("src/app/account/page.tsx", "utf8");
 
@@ -19,13 +20,13 @@ describe("profile page", () => {
   });
 
   it("offers sign out and a route to the eSIM list", () => {
-    expect(profilePage).toContain("<SignOutButton />");
-    expect(profilePage).toContain('href="/account"');
+    expect(profileTabs).toContain("<SignOutButton />");
+    expect(profileTabs).toContain('href="/account"');
   });
 
   it("links the legal pages the mobile profile also exposes", () => {
-    expect(profilePage).toContain('href="/terms"');
-    expect(profilePage).toContain('href="/policy"');
+    expect(profileTabs).toContain('href="/terms"');
+    expect(profileTabs).toContain('href="/policy"');
   });
 
   it("is excluded from search indexing", () => {
@@ -41,16 +42,16 @@ describe("profile page", () => {
   });
 
   it("links payments and billing", () => {
-    expect(profilePage).toContain('href="/profile/billing"');
+    expect(profileTabs).toContain('href="/profile/billing"');
   });
 
   it("offers account deletion", () => {
-    expect(profilePage).toContain("<DeleteAccountCard />");
+    expect(profileTabs).toContain("<DeleteAccountCard />");
   });
 
   it("lists the linked sign-in providers", () => {
     expect(profilePage).toContain('"/auth/identities"');
-    expect(profilePage).toContain("<LinkedProviders");
+    expect(profileTabs).toContain("<LinkedProviders");
   });
 
   it("keeps the rest of the profile when the identity lookup fails", () => {
