@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CalendarClock, Database, Globe2, Phone } from "lucide-react";
+import { CalendarClock, ChevronDown, Database, Globe2, Phone } from "lucide-react";
 import { discountPercentOff, formatOriginalPrice, formatPriceFromCents, hasActiveDiscount } from "@/services/discountPricing";
 import type { HeroPackageOption } from "@/services/packages";
 import { CheckoutWizard } from "./CheckoutWizard";
@@ -18,6 +18,18 @@ import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
  * discount's strikethrough/badge still shows above it for context.
  */
 type CountryOption = { code: string; name: string };
+
+/**
+ * ISO 3166-1 alpha-2 -> flag emoji, via the regional-indicator-symbol trick
+ * (each letter maps to the Unicode codepoint 0x1F1E6 + its offset from 'A').
+ * Falls back to the globe glyph for anything that isn't a plain two-letter
+ * code (Airalo's `countryCode` is always alpha-2 for real countries).
+ */
+function flagEmoji(countryCode: string): string {
+  const code = countryCode.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return "🌍";
+  return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + (c.charCodeAt(0) - 65)));
+}
 
 export function CheckoutPriceSection({
   plan,
@@ -97,28 +109,34 @@ export function CheckoutPriceSection({
               Destination
             </dt>
             <dd className="text-[13px] font-bold text-brandInk">
-              {planCountries.length > 0 ? (
-                <button
-                  aria-expanded={countriesExpanded}
-                  className="flex items-center gap-1"
-                  onClick={() => setCountriesExpanded((v) => !v)}
-                  type="button"
-                >
-                  {plan.country} · {planCountries.length} countries
-                  <span aria-hidden="true">{countriesExpanded ? "▴" : "▾"}</span>
-                </button>
-              ) : (
-                plan.country
-              )}
+              {planCountries.length === 0 ? plan.country : null}
             </dd>
           </div>
+          {planCountries.length > 0 ? (
+            <button
+              aria-expanded={countriesExpanded}
+              className="flex w-full items-center justify-between gap-2 rounded-lg bg-brandBlue/10 px-3 py-2 text-[13px] font-bold text-brandBlue transition-colors hover:bg-brandBlue/15"
+              onClick={() => setCountriesExpanded((v) => !v)}
+              type="button"
+            >
+              <span>
+                {plan.country} covers {planCountries.length} countries
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className={`shrink-0 transition-transform ${countriesExpanded ? "rotate-180" : ""}`}
+                size={16}
+              />
+            </button>
+          ) : null}
           {countriesExpanded && planCountries.length > 0 ? (
-            <div className="flex flex-wrap gap-2 pt-2">
+            <div className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1">
               {planCountries.map((c) => (
                 <span
-                  className="rounded-full bg-mist px-2.5 py-1 text-[12px] text-brandInk"
+                  className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-mist px-2.5 py-1 text-[12px] text-brandInk"
                   key={c.countryCode}
                 >
+                  <span aria-hidden="true">{flagEmoji(c.countryCode)}</span>
                   {c.title}
                 </span>
               ))}
