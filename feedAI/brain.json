@@ -65,6 +65,6 @@
     "commit": "d318aee",
     "branch": "main",
     "date": "2026-09-05",
-    "note_latest": "f106: /profile page redesigned -- boxed/shadowed card panels replaced with a flat hairline-divided layout, navigated via ProfileTabs.tsx (new client component): a sidebar on desktop that collapses to a horizontal scrollable tab strip on mobile. DeleteAccountCard is now a quiet text link opening a native <dialog> confirm modal instead of a visible red card; SignOutButton is now the full-width primary CTA. See topics/account-profile-pages.json profile_page. Prior note_latest (f105, checkout card decline UX) preserved in git history."
+    "note_latest": "f107: regional/global packages now carry an optional countries:{countryCode,title}[] coverage list, sourced live from Airalo, threaded through ApiPackage/HeroPackageOption/mapPackageToOption in src/services/packages.ts. See topics or facts.jsonl f107 for full detail. Prior note_latest (f106, profile page redesign) preserved in git history."
   }
 }

@@ -21,6 +21,8 @@ export type HeroPackageOption = {
   hasDiscount?: boolean;
   /** Pre-discount price, same currency/units as `priceNumeric`. Only meaningful when `hasDiscount` is true. */
   retailPrice?: number;
+  /** Present on regional/global packages: every country the bundle covers. */
+  countries?: Array<{ countryCode: string; title: string }>;
 };
 
 export type ApiPackage = {
@@ -44,6 +46,7 @@ export type ApiPackage = {
   smsCount?: number;
   hasDiscount?: boolean;
   retailPrice?: number;
+  countries?: Array<{ countryCode: string; title: string }>;
 };
 
 type PackagesResponse = {
@@ -219,6 +222,7 @@ function mapPackageToOption(
       typeof pkg.smsCount === "number" && pkg.smsCount > 0
         ? pkg.smsCount
         : undefined,
+    countries: pkg.countries,
     // Matches the mobile app's formatRetailPriceLabel (src/currency/formatPrice.ts):
     // trust the backend's hasDiscount flag directly, no magnitude comparison
     // against priceNumeric — an admin discount can also mark a price *up*

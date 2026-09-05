@@ -78,4 +78,25 @@ describe("mapPackageGroupsPayload", () => {
     expect(groups.popular[0]?.hasDiscount).toBeUndefined();
     expect(groups.popular[0]?.retailPrice).toBeUndefined();
   });
+
+  it("carries countries through for a regional/global package", () => {
+    const regionalPackage = {
+      ...apiPackage,
+      id: "asia-1gb",
+      country: "Asia",
+      countryCode: "asia",
+      countries: [
+        { countryCode: "JP", title: "Japan" },
+        { countryCode: "TH", title: "Thailand" },
+      ],
+    };
+    const groups = mapPackageGroupsPayload({ popular: [regionalPackage] });
+
+    expect(groups.popular[0]).toMatchObject({
+      countries: [
+        { countryCode: "JP", title: "Japan" },
+        { countryCode: "TH", title: "Thailand" },
+      ],
+    });
+  });
 });
