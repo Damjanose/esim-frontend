@@ -35,6 +35,8 @@ export function CheckoutPriceSection({
   // unsettled) and to avoid flashing the full price before a stored code's
   // discount is confirmed.
   const [promoPending, setPromoPending] = useState(false);
+  const [countriesExpanded, setCountriesExpanded] = useState(false);
+  const planCountries = plan.countries ?? [];
 
   const displayPrice = promoPending
     ? null
@@ -43,7 +45,6 @@ export function CheckoutPriceSection({
       : plan.price;
 
   const rows = [
-    { icon: Globe2, label: "Destination", value: plan.country },
     { icon: Database, label: "Data", value: plan.dataLabel },
     { icon: CalendarClock, label: "Validity", value: plan.durationLabel },
     ...(plan.voiceMinutes || plan.smsCount
@@ -90,6 +91,39 @@ export function CheckoutPriceSection({
         </div>
 
         <dl className="border-b border-outline/70 py-4">
+          <div className="flex items-center justify-between gap-4 py-1.5">
+            <dt className="flex items-center gap-2 text-[13px] text-onSurfaceVariant">
+              <Globe2 aria-hidden="true" className="text-brandBlue" size={15} />
+              Destination
+            </dt>
+            <dd className="text-[13px] font-bold text-brandInk">
+              {planCountries.length > 0 ? (
+                <button
+                  aria-expanded={countriesExpanded}
+                  className="flex items-center gap-1"
+                  onClick={() => setCountriesExpanded((v) => !v)}
+                  type="button"
+                >
+                  {plan.country} · {planCountries.length} countries
+                  <span aria-hidden="true">{countriesExpanded ? "▴" : "▾"}</span>
+                </button>
+              ) : (
+                plan.country
+              )}
+            </dd>
+          </div>
+          {countriesExpanded && planCountries.length > 0 ? (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {planCountries.map((c) => (
+                <span
+                  className="rounded-full bg-mist px-2.5 py-1 text-[12px] text-brandInk"
+                  key={c.countryCode}
+                >
+                  {c.title}
+                </span>
+              ))}
+            </div>
+          ) : null}
           {rows.map((row) => (
             <div className="flex items-center justify-between gap-4 py-1.5" key={row.label}>
               <dt className="flex items-center gap-2 text-[13px] text-onSurfaceVariant">
