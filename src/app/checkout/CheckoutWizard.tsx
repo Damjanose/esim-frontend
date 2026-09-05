@@ -107,7 +107,13 @@ export function CheckoutWizard({
             Payment reference: <span className="font-mono font-bold">{paymentId}</span>
           </p>
         ) : null}
-        <CardStep environment={environment} onError={setCardError} onPaid={() => void handlePaid()} paymentId={paymentId} />
+        <CardStep
+          accountEmail={accountEmail}
+          environment={environment}
+          onError={setCardError}
+          onPaid={() => void handlePaid()}
+          paymentId={paymentId}
+        />
       </div>
     );
   }

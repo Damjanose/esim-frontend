@@ -82,3 +82,12 @@ input {
     animation: none;
   }
 }
+
+/* Card checkout step (@nebula-ltd/pok-payments-js GuestCheckoutForm): the email
+   field is redundant with the billing step, which already collects it and passes
+   it here as a pre-filled initialState value. The SDK has no prop to omit the
+   field, so it's hidden by position — it's unconditionally the first
+   .pok-payment-relative field row the form renders. */
+.pok-payment-form > .pok-payment-relative:first-of-type {
+  display: none;
+}
