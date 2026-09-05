@@ -117,31 +117,56 @@ export function CheckoutWizard({
   }, [paymentId, router]);
 
   return (
-    <div className="mt-6 space-y-6">
-      <BillingStep accountEmail={accountEmail} countries={countries} onAddressReady={setBillingAddress} />
+    <div>
+      <section className="border-b border-outline/70 pb-7">
+        <div className="mb-4 flex items-baseline gap-2.5">
+          <span className="font-display text-[13px] font-black text-onSurfaceVariant">01</span>
+          <div>
+            <h2 className="text-[15px] font-bold text-brandInk">Billing address</h2>
+            <p className="mt-0.5 text-xs text-onSurfaceVariant">
+              Used for your receipt and card verification.
+            </p>
+          </div>
+        </div>
+        <BillingStep accountEmail={accountEmail} countries={countries} onAddressReady={setBillingAddress} />
+      </section>
 
-      {disabled ? <p className="text-sm text-onSurfaceVariant">Finish applying your partner code first.</p> : null}
-      {creatingIntent && !paymentId ? (
-        <p className="text-sm text-onSurfaceVariant">Preparing secure payment…</p>
-      ) : null}
-      {intentError ? <p className="text-sm font-semibold text-error">{intentError}</p> : null}
+      <section className="pt-7">
+        <div className="mb-4 flex items-baseline gap-2.5">
+          <span className="font-display text-[13px] font-black text-onSurfaceVariant">02</span>
+          <div>
+            <h2 className="text-[15px] font-bold text-brandInk">Card details</h2>
+            <p className="mt-0.5 text-xs text-onSurfaceVariant">
+              Payments are handled by Pokpay — eSim2you never sees your card details.
+            </p>
+          </div>
+        </div>
 
-      {cardError ? (
-        <p className="text-sm font-semibold text-error">
-          {cardError}
-          <br />
-          Payment reference: <span className="font-mono font-bold">{paymentId}</span>
-        </p>
-      ) : null}
+        {disabled ? (
+          <p className="text-sm text-onSurfaceVariant">Finish applying your partner code first.</p>
+        ) : null}
+        {creatingIntent && !paymentId ? (
+          <p className="text-sm text-onSurfaceVariant">Preparing secure payment…</p>
+        ) : null}
+        {intentError ? <p className="text-sm font-semibold text-error">{intentError}</p> : null}
 
-      {paymentId && billingAddress ? (
-        <CardStep
-          billingAddress={billingAddress}
-          environment={environment}
-          onPaid={() => void handlePaid()}
-          paymentId={paymentId}
-        />
-      ) : null}
+        {cardError ? (
+          <p className="text-sm font-semibold text-error">
+            {cardError}
+            <br />
+            Payment reference: <span className="font-mono font-bold">{paymentId}</span>
+          </p>
+        ) : null}
+
+        {paymentId && billingAddress ? (
+          <CardStep
+            billingAddress={billingAddress}
+            environment={environment}
+            onPaid={() => void handlePaid()}
+            paymentId={paymentId}
+          />
+        ) : null}
+      </section>
     </div>
   );
 }

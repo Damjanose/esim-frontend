@@ -139,7 +139,7 @@ export function CardStep({
   };
 
   return (
-    <div className="mt-6">
+    <div>
       {submitError ? (
         <div className="mb-4 flex items-start gap-2 rounded-[12px] border border-error bg-error/5 p-3">
           <div className="h-10 w-10 shrink-0">

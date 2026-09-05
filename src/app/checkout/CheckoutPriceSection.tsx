@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { CalendarClock, Database, Globe2, Phone } from "lucide-react";
 import { discountPercentOff, formatOriginalPrice, formatPriceFromCents, hasActiveDiscount } from "@/services/discountPricing";
 import type { HeroPackageOption } from "@/services/packages";
 import { CheckoutWizard } from "./CheckoutWizard";
@@ -40,48 +42,105 @@ export function CheckoutPriceSection({
       ? formatPriceFromCents(plan, promo.finalCustomerPriceCents)
       : plan.price;
 
+  const rows = [
+    { icon: Globe2, label: "Destination", value: plan.country },
+    { icon: Database, label: "Data", value: plan.dataLabel },
+    { icon: CalendarClock, label: "Validity", value: plan.durationLabel },
+    ...(plan.voiceMinutes || plan.smsCount
+      ? [
+          {
+            icon: Phone,
+            label: "Voice & SMS",
+            value: [
+              plan.voiceMinutes ? `${plan.voiceMinutes} min` : null,
+              plan.smsCount ? `${plan.smsCount} SMS` : null
+            ]
+              .filter(Boolean)
+              .join(" + ")
+          }
+        ]
+      : [])
+  ];
+
   return (
-    <>
-      <div className="mt-6 flex items-end justify-between border-t border-outline pt-6">
-        <span className="text-sm text-onSurfaceVariant">Total</span>
-        <span className="flex items-center gap-2.5">
-          {hasActiveDiscount(plan) ? (
-            <>
-              {discountPercentOff(plan) != null ? (
-                <span className="rounded-full bg-error/10 px-2 py-1 text-[10px] font-black text-error">
-                  -{discountPercentOff(plan)}%
-                </span>
-              ) : null}
-              <span className="text-sm font-semibold text-onSurfaceVariant line-through">
-                {formatOriginalPrice(plan)}
-              </span>
-            </>
-          ) : null}
-          {promo ? (
-            <span className="rounded-full bg-brandTeal/10 px-2 py-1 text-[10px] font-black text-brandTeal">
-              -{promo.discountPct}%
-            </span>
-          ) : null}
-          <span className="font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
-            {displayPrice ?? (
-              <span
-                aria-hidden="true"
-                className="inline-block h-8 w-24 animate-pulse rounded-md bg-mist align-middle"
-              />
-            )}
-          </span>
-        </span>
+    <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px] lg:items-start lg:gap-16">
+      <div className="min-w-0 order-2 lg:order-1">
+        <CheckoutWizard
+          accountEmail={accountEmail}
+          countries={countries}
+          disabled={promoPending}
+          packageId={plan.id}
+          promoCode={promo?.promoCode ?? null}
+        />
       </div>
 
-      <PromoCodeField onChange={setPromo} onPendingChange={setPromoPending} packageId={plan.id} />
+      <aside className="order-1 lg:sticky lg:top-28 lg:order-2">
+        <div className="flex items-center gap-4 border-b border-outline/70 pb-5">
+          {plan.flagUri ? (
+            <img alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" src={plan.flagUri} />
+          ) : (
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-outline bg-mist text-brandBlue">
+              <Globe2 size={20} />
+            </span>
+          )}
+          <div className="min-w-0">
+            <p className="truncate font-display text-base font-black text-brandInk">{plan.country}</p>
+            <p className="truncate text-xs text-onSurfaceVariant">{plan.title}</p>
+          </div>
+        </div>
 
-      <CheckoutWizard
-        accountEmail={accountEmail}
-        countries={countries}
-        disabled={promoPending}
-        packageId={plan.id}
-        promoCode={promo?.promoCode ?? null}
-      />
-    </>
+        <dl className="border-b border-outline/70 py-4">
+          {rows.map((row) => (
+            <div className="flex items-center justify-between gap-4 py-1.5" key={row.label}>
+              <dt className="flex items-center gap-2 text-[13px] text-onSurfaceVariant">
+                <row.icon aria-hidden="true" className="text-brandBlue" size={15} />
+                {row.label}
+              </dt>
+              <dd className="text-[13px] font-bold text-brandInk">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <PromoCodeField onChange={setPromo} onPendingChange={setPromoPending} packageId={plan.id} />
+
+        <div className="mt-5 flex items-end justify-between gap-4 border-t border-outline/70 pt-5">
+          <span className="text-sm text-onSurfaceVariant">Total</span>
+          <span className="flex items-center gap-2.5">
+            {hasActiveDiscount(plan) ? (
+              <>
+                {discountPercentOff(plan) != null ? (
+                  <span className="rounded-full bg-error/10 px-2 py-1 text-[10px] font-black text-error">
+                    -{discountPercentOff(plan)}%
+                  </span>
+                ) : null}
+                <span className="text-sm font-semibold text-onSurfaceVariant line-through">
+                  {formatOriginalPrice(plan)}
+                </span>
+              </>
+            ) : null}
+            {promo ? (
+              <span className="rounded-full bg-brandTeal/10 px-2 py-1 text-[10px] font-black text-brandTeal">
+                -{promo.discountPct}%
+              </span>
+            ) : null}
+            <span className="font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
+              {displayPrice ?? (
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-8 w-24 animate-pulse rounded-md bg-mist align-middle"
+                />
+              )}
+            </span>
+          </span>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-onSurfaceVariant">
+          Changed your mind?{" "}
+          <Link className="font-semibold text-brandBlue hover:text-brandInk" href="/destinations">
+            Browse other destinations
+          </Link>
+        </p>
+      </aside>
+    </div>
   );
 }
