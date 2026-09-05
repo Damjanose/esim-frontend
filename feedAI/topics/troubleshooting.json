@@ -73,6 +73,15 @@
         "f066"
       ],
       "source": "src/app/page.tsx ProductHuntFeature"
+    },
+    {
+      "symptom": "A declined card during checkout showed a static red \"Error!\" panel with no card fields and no way to retry -- buyer had to reload /checkout and start over",
+      "root_cause": "CardStep.tsx mounted @nebula-ltd/pok-payments-js GuestCheckoutForm, whose internal render is error ? <ErrorPanel/> : ... : <Form/> with no reset prop -- once its onError fired, the packaged widget permanently unmounted its own card-number/expiry/CVV fields",
+      "fix": "Rebuilt CardStep.tsx with its own card inputs driven by the SDK usePOK hook instead of GuestCheckoutForm -- form state now lives in our component so a decline just shows an inline error banner above the still-populated, still-editable fields",
+      "facts": [
+        "f105"
+      ],
+      "source": "docs/superpowers/specs/2026-09-05-card-error-keep-inputs-design.md"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

@@ -136,10 +136,8 @@ export function CheckoutWizard({
 
       {paymentId && billingAddress ? (
         <CardStep
-          accountEmail={accountEmail}
           billingAddress={billingAddress}
           environment={environment}
-          onError={setCardError}
           onPaid={() => void handlePaid()}
           paymentId={paymentId}
         />

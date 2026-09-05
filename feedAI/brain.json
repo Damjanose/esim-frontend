@@ -65,6 +65,6 @@
     "commit": "4586a94",
     "branch": "main",
     "date": "2026-09-05",
-    "note_latest": "f104: country/country-code fields that were free-text are now dropdowns across /profile/billing, the checkout wizard's billing step, and the partner request form -- billing's countryCode from GET /esim/countries (real ISO codes), the partner form's country name from the package catalog (deriveCountryOptions()). Mirrored in velocity-eSim (its own feedAI has the mobile-side fact). See topics/account-flows.json's billing block and topics/partners.json's request entry. Prior note_latest (f103, partner-set discount UI) preserved in git history."
+    "note_latest": "f105: checkout CardStep.tsx no longer uses GuestCheckoutForm (its error render permanently unmounted card fields with no retry) -- replaced with usePOK hook, own card inputs, fields stay populated/editable on decline, inline Lottie error banner. See topics/account-flows.json card_decline_ux and topics/troubleshooting.json newest entry. Prior note_latest (f104, country dropdowns) preserved in git history."
   }
 }

@@ -10,11 +10,13 @@
     "f094",
     "f095",
     "f101",
-    "f104"
+    "f104",
+    "f105"
   ],
   "checkout": {
     "component": "src/app/checkout/CheckoutWizard.tsx (Billing -> Card -> redirect to /account)",
-    "flow": "Billing step (steps/BillingStep.tsx) collects/saves the 8-field billing address via GET/PUT bff/user/billing-address, then Card step creates POST bff/payments/intent {package_id, promo_code?} -> {paymentId, environment}, mounts @nebula-ltd/pok-payments-js/react GuestCheckoutForm with orderId={paymentId} env={environment} (steps/CardStep.tsx) -> SDK talks to PokPay directly for card capture/3DS/confirm, NOT proxied through our backend -> onSuccess fires POST bff/payments/provision {payment_id} -> router.push(/account/{orderId}?new=1)",
+    "flow": "Billing step (steps/BillingStep.tsx) collects/saves the 8-field billing address via GET/PUT bff/user/billing-address, then Card step creates POST bff/payments/intent {package_id, promo_code?} -> {paymentId, environment}, mounts its own card-number/expiry/CVV inputs (steps/CardStep.tsx) driven by @nebula-ltd/pok-payments-js/react's usePOK(orderId={paymentId}, onSuccess, onError, env={environment}) hook (NOT GuestCheckoutForm, see f105) -> SDK talks to PokPay directly for card capture/3DS/confirm, NOT proxied through our backend -> onSuccess fires POST bff/payments/provision {payment_id} -> router.push(/account/{orderId}?new=1)",
+    "card_decline_ux": "as of 2026-09-05, a decline shows an inline error banner (small non-looping Lottie + message) above the card fields, which stay populated/editable so the buyer can fix one field and resubmit -- see f105 for why GuestCheckoutForm was replaced",
     "no_external_redirect": "as of 2026-09-04, /checkout never navigates away from the page to a PokPay-hosted page -- the old PayButton.tsx + checkout/return/route.ts hosted-redirect flow was removed entirely; PayButton.tsx and return/route.ts no longer exist",
     "auth_edge_case": "401 from the intent call redirects the browser to /signin?next=/checkout?package=<id> instead of showing an error",
     "double_submit_guard": "CheckoutWizard passes disabled={disabled || creatingIntent} into BillingStep so its Continue button is genuinely unavailable while a promo is re-validating or an intent is already being created (not just a cosmetic warning)",
