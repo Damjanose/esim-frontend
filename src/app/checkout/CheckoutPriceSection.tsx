@@ -48,6 +48,7 @@ export function CheckoutPriceSection({
   // discount is confirmed.
   const [promoPending, setPromoPending] = useState(false);
   const [countriesExpanded, setCountriesExpanded] = useState(false);
+  const [flagFailed, setFlagFailed] = useState(false);
   const planCountries = plan.countries ?? [];
 
   const displayPrice = promoPending
@@ -89,8 +90,13 @@ export function CheckoutPriceSection({
 
       <aside className="min-w-0 order-1 lg:sticky lg:top-28 lg:order-2">
         <div className="flex items-center gap-4 border-b border-outline/70 pb-5">
-          {plan.flagUri ? (
-            <img alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" src={plan.flagUri} />
+          {plan.flagUri && !flagFailed ? (
+            <img
+              alt=""
+              className="h-11 w-11 shrink-0 rounded-full object-cover"
+              onError={() => setFlagFailed(true)}
+              src={plan.flagUri}
+            />
           ) : (
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-outline bg-mist text-brandBlue">
               <Globe2 size={20} />

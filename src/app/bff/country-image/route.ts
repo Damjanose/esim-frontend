@@ -293,6 +293,16 @@ function buildImageQueries(
   ];
 }
 
+function buildRegionImageQueries(region: string) {
+  return [
+    `${region} skyline`,
+    `${region} aerial`,
+    `${region} landscape`,
+    `${region} panorama`,
+    `${region} landmarks`,
+  ];
+}
+
 function isRejectedTitle(title: string) {
   const normalizedTitle = normalizeText(title);
 
@@ -390,6 +400,62 @@ function isSuitableImage(
   return normalizedTitle.includes(
     normalizedCapital,
   );
+}
+
+function isSuitableRegionImage(
+  page: WikimediaPage,
+  region: string,
+) {
+  const image = page.imageinfo?.[0];
+  const title = page.title ?? "";
+
+  if (!image) {
+    return false;
+  }
+
+  if (!image.thumburl && !image.url) {
+    return false;
+  }
+
+  if (isRejectedTitle(title)) {
+    return false;
+  }
+
+  if (
+    image.mime &&
+    ![
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ].includes(image.mime)
+  ) {
+    return false;
+  }
+
+  if (
+    typeof image.width === "number" &&
+    typeof image.height === "number"
+  ) {
+    const aspectRatio =
+      image.width / image.height;
+
+    if (image.width < 900) {
+      return false;
+    }
+
+    if (image.height < 500) {
+      return false;
+    }
+
+    if (aspectRatio < 1.25 || aspectRatio > 3.5) {
+      return false;
+    }
+  }
+
+  const normalizedTitle = normalizeText(title);
+  const normalizedRegion = normalizeText(region);
+
+  return normalizedTitle.includes(normalizedRegion);
 }
 
 async function searchWikimedia(
@@ -509,6 +575,137 @@ function sortImagesDeterministically(
   });
 }
 
+function scoreRegionImage(page: WikimediaPage) {
+  const title = normalizeText(page.title ?? "");
+  const image = page.imageinfo?.[0];
+
+  let score = 0;
+
+  if (title.includes("skyline")) {
+    score += 50;
+  }
+
+  if (title.includes("aerial")) {
+    score += 40;
+  }
+
+  if (title.includes("panorama")) {
+    score += 40;
+  }
+
+  if (title.includes("landscape")) {
+    score += 35;
+  }
+
+  if (title.includes("night")) {
+    score += 10;
+  }
+
+  if (
+    typeof image?.width === "number" &&
+    typeof image?.height === "number"
+  ) {
+    const aspectRatio = image.width / image.height;
+
+    if (aspectRatio >= 1.7) {
+      score += 20;
+    }
+
+    score += Math.min(
+      Math.floor(image.width / 500),
+      10,
+    );
+  }
+
+  return score;
+}
+
+function sortRegionImagesDeterministically(
+  pages: WikimediaPage[],
+) {
+  return [...pages].sort((first, second) => {
+    const scoreDifference =
+      scoreRegionImage(second) - scoreRegionImage(first);
+
+    if (scoreDifference !== 0) {
+      return scoreDifference;
+    }
+
+    const firstTitle = normalizeText(first.title ?? "");
+    const secondTitle = normalizeText(second.title ?? "");
+
+    const titleDifference =
+      firstTitle.localeCompare(secondTitle);
+
+    if (titleDifference !== 0) {
+      return titleDifference;
+    }
+
+    return (first.pageid ?? 0) - (second.pageid ?? 0);
+  });
+}
+
+async function findRegionImage(
+  region: string,
+): Promise<CountryImageResult | null> {
+  const queries = buildRegionImageQueries(region);
+
+  const searchResults = await Promise.all(
+    queries.map(async (query) => {
+      try {
+        return await searchWikimedia(query);
+      } catch (error) {
+        console.error(
+          `Wikimedia region search failed for "${query}"`,
+          error,
+        );
+
+        return [];
+      }
+    }),
+  );
+
+  const uniquePages = new Map<
+    number | string,
+    WikimediaPage
+  >();
+
+  for (const page of searchResults.flat()) {
+    const key = page.pageid ?? page.title ?? "";
+
+    if (key) {
+      uniquePages.set(key, page);
+    }
+  }
+
+  const suitablePages = Array.from(
+    uniquePages.values(),
+  ).filter((page) => isSuitableRegionImage(page, region));
+
+  const selectedPage = sortRegionImagesDeterministically(
+    suitablePages,
+  )[0];
+
+  if (!selectedPage) {
+    return null;
+  }
+
+  const image = selectedPage.imageinfo?.[0];
+  const imageUrl = image?.thumburl ?? image?.url;
+
+  if (!imageUrl) {
+    return null;
+  }
+
+  return {
+    imageUrl,
+    alt: region,
+    sourceUrl: image?.descriptionurl ?? "",
+    country: region,
+    capital: "",
+  };
+}
+
 function createImageResult(
   country: string,
   capital: string,
@@ -626,17 +823,38 @@ export async function GET(request: Request) {
       await resolveCountryDetails(countryQuery);
 
     if (!countryDetails) {
-      return NextResponse.json(
-        {
-          message: `Could not resolve the capital city for ${countryQuery}.`,
-        },
-        {
-          status: 404,
-          headers: {
-            "Cache-Control": "no-store",
-          },
-        },
+      console.log(
+        "Country not resolvable as a sovereign state, falling back to region image search",
+        { countryQuery },
       );
+
+      const regionImage =
+        await findRegionImage(countryQuery);
+
+      if (!regionImage) {
+        return NextResponse.json(
+          {
+            message: `Could not resolve the capital city for ${countryQuery}.`,
+          },
+          {
+            status: 404,
+            headers: {
+              "Cache-Control": "no-store",
+            },
+          },
+        );
+      }
+
+      return NextResponse.json(regionImage, {
+        status: 200,
+        headers: {
+          "Cache-Control": [
+            "public",
+            `s-maxage=${CACHE_SECONDS}`,
+            `stale-while-revalidate=${CACHE_SECONDS}`,
+          ].join(", "),
+        },
+      });
     }
 
     console.log("Resolved country capital", {
