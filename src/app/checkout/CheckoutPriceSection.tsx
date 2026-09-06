@@ -87,7 +87,7 @@ export function CheckoutPriceSection({
         />
       </div>
 
-      <aside className="order-1 lg:sticky lg:top-28 lg:order-2">
+      <aside className="min-w-0 order-1 lg:sticky lg:top-28 lg:order-2">
         <div className="flex items-center gap-4 border-b border-outline/70 pb-5">
           {plan.flagUri ? (
             <img alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" src={plan.flagUri} />
@@ -119,7 +119,7 @@ export function CheckoutPriceSection({
               onClick={() => setCountriesExpanded((v) => !v)}
               type="button"
             >
-              <span>
+              <span className="min-w-0 truncate">
                 {plan.country} covers {planCountries.length} countries
               </span>
               <ChevronDown
