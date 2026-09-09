@@ -7,13 +7,16 @@
     "f005",
     "f023",
     "f028",
-    "f079"
+    "f079",
+    "f110"
   ],
   "why_bff_exists": "nginx in production proxies the ENTIRE /api/* prefix to the Express backend, including paths Next never claims. Next route handlers used to live at src/app/api/** and were silently unreachable in prod (Express 404 'Cannot GET ...'). Fixed 2026-08-13 by git-mv'ing all 20 route handlers to src/app/bff/**. See f003, f028.",
   "core_module": {
     "file": "src/lib/backend.ts",
     "getBackendApiUrl()": "process.env.BACKEND_API_URL ?? NEXT_PUBLIC_API_URL ?? 'https://esim.uplisoft.com/api' (default applies in ALL envs incl. next dev)",
     "backendFetch<T>(path, {method,body,token})": "cache:'no-store'; sets Authorization: Bearer <token> when given; unwraps envelope {status,data,error,message}; returns BackendResult<T> = {ok:true,data} | {ok:false,status,message,payload?}",
+    "backendFetchFormData / backendFetchBinary": "multipart POST and raw GET for /xsupport attachments. Do not JSON-stringify FormData; do not set Content-Type on uploads (f110).",
+    "socket_exception": "Socket.IO from /xsupport to the Express origin is the only browser→API channel. REST stays on BFF (f110).",
     "error_collapse": "any fetch throw or JSON parse failure -> {ok:false,status:502,message:'We could not reach the eSIM service. Please try again.'}",
     "supported_methods": "GET | POST | PUT | DELETE (PUT added for billing-address PUT in the profile phase)"
   },
@@ -31,7 +34,8 @@
       "bff/payments/intent, bff/payments/topups/intent",
       "bff/country-image",
       "bff/admin/dashboard, bff/admin/errors, bff/admin/errors/[id], bff/admin/errors/[id]/repair, bff/admin/login (power /xloginy, /xerrors)",
-      "bff/admin/packages/pricing, bff/admin/packages/pricing/[packageId], bff/admin/packages/pricing/bulk-discount (power /xpricing)"
+      "bff/admin/packages/pricing, bff/admin/packages/pricing/[packageId], bff/admin/packages/pricing/bulk-discount (power /xpricing)",
+      "bff/admin/support/threads, bff/admin/support/threads/[id], messages/attachments/read/solved, bff/admin/support/attachments/[id] (power /xsupport)"
     ],
     "trap": "src/app/checkout/return/route.ts and src/app/account/topup/return/route.ts are OUTSIDE app/bff (they are page-adjacent return handlers reached directly by Pokpay redirect, not browser fetch calls)."
   },

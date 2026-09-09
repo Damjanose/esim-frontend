@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { backendFetch, getBackendApiUrl } from "./backend";
+import {
+  backendFetch,
+  backendFetchBinary,
+  backendFetchFormData,
+  getBackendApiUrl,
+  getBackendOrigin
+} from "./backend";
 
 const originalEnv = { ...process.env };
 
@@ -54,6 +60,13 @@ describe("getBackendApiUrl", () => {
     vi.stubEnv("NODE_ENV", "production");
 
     expect(getBackendApiUrl()).toBe("https://esim.uplisoft.com/api");
+  });
+});
+
+describe("getBackendOrigin", () => {
+  it("strips the /api suffix from the backend URL", () => {
+    process.env.BACKEND_API_URL = "https://esim.uplisoft.com/api";
+    expect(getBackendOrigin()).toBe("https://esim.uplisoft.com");
   });
 });
 
@@ -155,5 +168,49 @@ describe("backendFetch", () => {
 
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(new Headers(init.headers).has("authorization")).toBe(false);
+  });
+});
+
+describe("backendFetchFormData", () => {
+  it("posts FormData without forcing a JSON content type", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: { id: "att_1" } }));
+    vi.stubGlobal("fetch", fetchMock);
+    process.env.BACKEND_API_URL = "https://api.example.com/api";
+    const formData = new FormData();
+    formData.append("file", new Blob(["hi"], { type: "image/png" }), "shot.png");
+
+    const result = await backendFetchFormData<{ id: string }>("/admin/support/threads/t1/attachments", {
+      token: "tok-123",
+      formData
+    });
+
+    expect(result).toEqual({ ok: true, data: { id: "att_1" } });
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.example.com/api/admin/support/threads/t1/attachments");
+    expect(init.body).toBe(formData);
+    expect(new Headers(init.headers).get("content-type")).toBeNull();
+    expect(new Headers(init.headers).get("authorization")).toBe("Bearer tok-123");
+  });
+});
+
+describe("backendFetchBinary", () => {
+  it("returns the raw bytes and content type", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(new Uint8Array([1, 2, 3]), {
+            status: 200,
+            headers: { "content-type": "image/png" }
+          })
+      )
+    );
+
+    const result = await backendFetchBinary("/admin/support/attachments/a1", { token: "tok-123" });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.contentType).toBe("image/png");
+      expect(new Uint8Array(result.data.buffer)).toEqual(new Uint8Array([1, 2, 3]));
+    }
   });
 });

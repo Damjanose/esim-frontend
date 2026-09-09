@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BarChart3, Bell, Bug, Percent, Rocket, Users, type LucideIcon } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  Bell,
+  Bug,
+  LifeBuoy,
+  Percent,
+  Rocket,
+  Users,
+  type LucideIcon
+} from "lucide-react";
 
 const adminLinks: Array<{
   href: string;
@@ -16,7 +26,8 @@ const adminLinks: Array<{
   { href: "/xversion", label: "Version", full: "App version", Icon: Rocket },
   { href: "/xnotificationy", label: "Notify", full: "Push notifications", Icon: Bell },
   { href: "/xactivityy", label: "Activity", full: "User activity", Icon: Activity },
-  { href: "/xpartnersy", label: "Partners", full: "Partner program", Icon: Users }
+  { href: "/xpartnersy", label: "Partners", full: "Partner program", Icon: Users },
+  { href: "/xsupport", label: "Support", full: "Support inbox", Icon: LifeBuoy }
 ];
 
 export function AdminNav() {

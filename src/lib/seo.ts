@@ -34,7 +34,8 @@ export const privateRoutePrefixes = [
   "/profile",
   "/signin",
   "/xerrors",
-  "/xloginy"
+  "/xloginy",
+  "/xsupport"
 ] as const;
 
 export type IndexableRoute = {

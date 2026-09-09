@@ -31,12 +31,12 @@
     "note": "cookie presence is a cheap routing convenience only — every backend call is still independently validated server-side, this is NOT the authorization boundary"
   },
   "hidden_admin_routes": {
-    "routes": ["/xloginy (purchase/user/OTP admin dashboard, backed by bff/admin/dashboard, bff/admin/login)", "/xerrors (sanitized backend error inbox: filter/inspect/resolve/repair, backed by bff/admin/errors/**)", "/xpricing (package retail price/discount admin table, backed by bff/admin/packages/pricing/**)"],
+    "routes": ["/xloginy", "/xerrors", "/xpricing", "/xversion", "/xnotificationy", "/xactivityy", "/xpartnersy", "/xsupport (live support inbox, backed by bff/admin/support/**)"],
     "discoverability": "deliberately unlinked from any nav; kept out of crawl/sitemap via privateRoutePrefixes"
   },
   "seo_private_prefixes": {
     "file": "src/lib/seo.ts",
-    "list": ["/api", "/admin", "/account", "/auth", "/bff", "/billing", "/checkout", "/dashboard", "/profile", "/signin"],
+    "list": ["/api", "/admin", "/account", "/auth", "/bff", "/billing", "/checkout", "/dashboard", "/profile", "/signin", "/xerrors", "/xloginy", "/xsupport"],
     "effect": "Disallow'd in robots.txt and excluded from sitemap.ts; /api kept in the list even though it's served by Express (still non-indexable)"
   },
   "canonical_host": "esim.uplisoft.com (apex, not www), enforced by middleware; production Next process binds 127.0.0.1:3020 behind nginx"

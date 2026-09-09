@@ -26,7 +26,8 @@ describe("Next SEO routes", () => {
         "/profile/",
         "/signin/",
         "/xerrors/",
-        "/xloginy/"
+        "/xloginy/",
+        "/xsupport/"
       ]
     });
   });
