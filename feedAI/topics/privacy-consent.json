@@ -1,0 +1,17 @@
+{
+  "topic": "privacy-consent",
+  "covers": "Public web consent UI, optional analytics/marketing vendors, and privacy-choice persistence",
+  "facts": ["f117", "f118"],
+  "invariants": [
+    "Analytics and Marketing are denied until the visitor explicitly chooses them.",
+    "The authentication/session storage model is not the consent mechanism.",
+    "Purchase conversion events require Marketing consent.",
+    "On the homepage, the first-visit banner waits until the Help Me Choose flow closes."
+  ],
+  "implementation": {
+    "state": "src/lib/consent.ts stores versioned choices in the esim2you_consent first-party cookie for 180 days.",
+    "ui": "src/app/ConsentManager.tsx renders the first-visit modal, detailed switches, and the persistent footer Privacy choices control.",
+    "vendors": "src/app/GoogleTag.tsx gates Google Ads and optional GA4; src/app/MetaPixel.tsx gates Meta Pixel.",
+    "legal": "src/content/legal.ts describes necessary, analytics, and marketing categories and the withdrawal path."
+  }
+}

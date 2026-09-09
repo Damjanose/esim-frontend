@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Hanken_Grotesk, Inter } from "next/font/google";
 import { createMetadata, siteUrl } from "@/lib/seo";
+import { ConsentProvider } from "./ConsentManager";
 import { GoogleTag } from "./GoogleTag";
+import { MetaPixel } from "./MetaPixel";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -53,14 +55,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <GoogleTag />
-      </head>
       <body
         className={`${hankenGrotesk.variable} ${inter.variable} ${geist.variable}`}
         suppressHydrationWarning
       >
-        {children}
+        <ConsentProvider>
+          <GoogleTag />
+          <MetaPixel />
+          {children}
+        </ConsentProvider>
       </body>
     </html>
   );

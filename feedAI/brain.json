@@ -25,7 +25,8 @@
     "landing page|hero|destinations page|seo-pages|guides|use-cases|support page|faq|terms|policy|legal|content/": "topics/public-content-pages.json",
     "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|xsupport|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|activity tracking|inactivity notification|support inbox": "topics/admin-dashboard-ui.json",
     "signin page|checkout page|account page|profile page|my esims page|planCard|activeplancard": "topics/account-profile-pages.json",
-    "partner|affiliate|xpartnersy|commission|wallet topup|payout|referral link|promo code|PartnerOrderCredit|QrCodeCard": "topics/partners.json"
+    "partner|affiliate|xpartnersy|commission|wallet topup|payout|referral link|promo code|PartnerOrderCredit|QrCodeCard": "topics/partners.json",
+    "cookies|consent|privacy choices|Google Consent Mode|Google Ads|GA4|Meta Pixel|tracking": "topics/privacy-consent.json"
   },
   "never": [
     "node_modules",
@@ -43,13 +44,14 @@
     "readEmailFromAccessToken() is unverified (no signature check possible client-side) \u2014 display only, never treat its output as an authorization decision (f008).",
     "Any redirect URL built from `request.url`/`url.origin` inside a route handler or middleware will leak the internal bind address (localhost:3020) in production; always derive origin via getPublicOrigin(request) instead (f009).",
     "NEXT_PUBLIC_APPLE_SERVICES_ID must be an Apple Services ID, never a bundle id or a Google client id \u2014 the SocialSignInButtons render guard only checks non-empty, so a wrong-but-present value renders a button that fails at runtime (f012, f013).",
+    "Optional web tracking must remain denied until an explicit category choice is stored in the versioned esim2you_consent cookie; authentication/session storage is separate (f117).",
     ".env.local is gitignored and never reaches production; update.sh deploys via git pull + build, so any NEXT_PUBLIC_* value that must exist in prod has to also be committed in .env.production (f029).",
     "Shared Button/LinkButton (src/app/components/Button.tsx, buttonClasses.ts) is the canonical CTA component, mirroring mobile's resolveButtonVisual \u2014 new buttons should use resolveButtonClasses() rather than hand-rolled Tailwind strings (f032).",
     "The display font is Hanken Grotesk (not Plus Jakarta Sans) and all three font families (Hanken Grotesk/Inter/Geist) are loaded via next/font/google in src/app/layout.tsx \u2014 declaring a font CSS variable in tailwind.config.ts alone does not load it (f033, f034)."
   ],
   "phase": {
     "current": "Mid-migration to a mobile-parity design system on top of the existing public site + BFF + auth/checkout/account stack: Phase 1 (shared Button/LinkButton, migrated PayButton/SignOutButton/Navbar CTA/DeleteAccountCard) and Phase 2 (brand color + type-scale tokens, next/font loading fix) are done as of 2026-08-18 (f032-f034).",
-    "next": "Partner/affiliate program (Phase 9) and checkout promo codes are now built and documented (f092-f094). Google Ads conversion tracking just added (f095). Verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); brain.json's note_latest history needs a trim pass (see sync.note_latest).",
+    "next": "Partner/affiliate program (Phase 9), checkout promo codes, Google Ads conversion tracking, and consent-gated optional tracking are documented (f092-f095, f117). Verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); brain.json's note_latest history needs a trim pass (see sync.note_latest).",
     "order": [
       "landing + SEO content pages",
       "hero/destination package search",
@@ -62,9 +64,9 @@
     ]
   },
   "sync": {
-    "commit": "ed0075b",
+    "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-09",
-    "note_latest": "f114: removed the feedAI pre-commit hook, install-hooks.sh, git-hooks/pre-commit, and package.json postinstall; removed check-health.sh's commit-count staleness check. git commit is a normal commit. Do not reinstall the hook. Prior: f111 /xsupport responsive list/detail..."
+    "note_latest": "f118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
   }
 }

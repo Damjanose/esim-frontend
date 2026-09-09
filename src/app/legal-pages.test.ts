@@ -21,7 +21,7 @@ describe("legal pages and hydration-safe shell", () => {
     const layout = readFileSync("src/app/layout.tsx", "utf8");
 
     expect(layout).toContain("<html lang=\"en\" suppressHydrationWarning>");
-    expect(layout).toMatch(/<body[\s\S]*?suppressHydrationWarning[\s\S]*?>\s*{children}\s*<\/body>/);
+    expect(layout).toMatch(/<body[\s\S]*?suppressHydrationWarning[\s\S]*?>[\s\S]*?{children}[\s\S]*?<\/body>/);
   });
 
   it("keeps the browser canvas aligned with the light app background during overscroll", () => {

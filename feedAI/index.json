@@ -53,6 +53,10 @@
     "topics/partners.json": {
       "covers": "The affiliate/partner program: /xpartnersy admin surface + customer-facing /partners/* pages (request, status, dashboard, buy, withdraw, materials) and their BFF proxies",
       "keywords": ["xpartnersy", "partner", "affiliate", "commission", "wallet", "payout", "referral link", "promo code", "PartnerOrderCredit", "QrCodeCard"]
+    },
+    "topics/privacy-consent.json": {
+      "covers": "Public web consent UI, optional analytics/marketing vendors, and privacy-choice persistence",
+      "keywords": ["cookies", "consent", "privacy choices", "Google Consent Mode", "Google Ads", "GA4", "Meta Pixel", "tracking"]
     }
   },
   "facts": "facts.jsonl — append-only. grep it before assuming a topic file is current.",

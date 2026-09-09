@@ -2,6 +2,7 @@ import { landingContent } from "@/content/landing";
 import { guidePages, useCasePages } from "@/content/seo-pages";
 import { socialLinks } from "@/lib/seo";
 import { Facebook, Instagram } from "lucide-react";
+import { PrivacyChoicesLink } from "./ConsentManager";
 
 const footerExploreLinks = [
   { label: "Browse all eSIM destinations", href: "/destinations" },
@@ -88,6 +89,7 @@ export function SiteFooter() {
           >
             Featured on Product Hunt
           </a>
+          <PrivacyChoicesLink />
         </div>
       </div>
     </footer>

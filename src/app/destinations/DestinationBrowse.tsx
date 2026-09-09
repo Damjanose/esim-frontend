@@ -18,6 +18,7 @@ import {
   wizardFiltersToQueryParams,
   type DestinationBrowseFilters,
 } from "@/services/destinationFilters";
+import { useConsent } from "../ConsentManager";
 import { HelpMeChooseWizard, type WizardResult } from "./HelpMeChooseWizard";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
 
@@ -115,6 +116,7 @@ type DestinationBrowseProps = {
 
 export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: DestinationBrowseProps) {
   const router = useRouter();
+  const { setSuggestionModalOpen } = useConsent();
   const [packages, setPackages] = useState<HeroPackageOption[]>([]);
   const [groups, setGroups] = useState<PackageGroupOptions>(EMPTY_GROUPS);
   const [loading, setLoading] = useState(true);
@@ -133,6 +135,11 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   const [showAllDestinations, setShowAllDestinations] = useState(false);
   /** Bumped to re-run the load effect when the user clicks "Try again". */
   const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    setSuggestionModalOpen(showWelcome || wizardOpen);
+    return () => setSuggestionModalOpen(false);
+  }, [setSuggestionModalOpen, showWelcome, wizardOpen]);
 
   useEffect(() => {
     let active = true;

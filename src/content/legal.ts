@@ -97,9 +97,16 @@ export const policyDocument = {
       ]
     },
     {
+      title: "Cookies and similar technologies",
+      paragraphs: [
+        "The website uses a strictly necessary first-party cookie to remember your privacy choices. Optional analytics cookies and similar technologies are disabled unless you enable Analytics. Optional advertising technologies from Google Ads and Meta are disabled unless you enable Marketing.",
+        "You can accept all optional categories, reject them, or choose categories individually in the Privacy choices dialog. You can change or withdraw your choices at any time using the Privacy choices link in the website footer. Our consent record includes the consent version and timestamp so we can respect changes to this policy."
+      ]
+    },
+    {
       title: "Sharing",
       paragraphs: [
-        "We share information with mobile operators and technical partners as needed to provision data plans; with payment processors for transactions; with infrastructure and analytics providers under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
+        "We share information with mobile operators and technical partners as needed to provision data plans; with payment processors for transactions; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
       ]
     },
     {

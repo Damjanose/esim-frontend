@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { GOOGLE_ADS_ID, GOOGLE_ADS_PURCHASE_LABEL } from "@/lib/analytics";
+import { useConsent } from "../../ConsentManager";
 
 declare global {
   interface Window {
@@ -16,7 +17,11 @@ declare global {
  * double-counting the same conversion.
  */
 export function PurchaseConversion({ transactionId }: { transactionId: string }) {
+  const { consent } = useConsent();
+
   useEffect(() => {
+    if (consent?.marketing !== true) return;
+
     const key = `ga_purchase_${transactionId}`;
     if (sessionStorage.getItem(key)) return;
 
@@ -25,7 +30,7 @@ export function PurchaseConversion({ transactionId }: { transactionId: string })
       transaction_id: transactionId
     });
     sessionStorage.setItem(key, "1");
-  }, [transactionId]);
+  }, [consent?.marketing, transactionId]);
 
   return null;
 }
