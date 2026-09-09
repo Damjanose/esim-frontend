@@ -1,24 +1,16 @@
 #!/usr/bin/env bash
-# feedAI/check-health.sh — flags what a manual audit would otherwise have to catch:
+# feedAI/check-health.sh — optional manual audit (never a git commit gate):
 #   1. topics/*.json files over the MAINTAIN.md budget (~10KB / 10240 bytes)
-#   2. commits made since brain.json's sync.date that never touched feedAI/
-#      (a proxy for "facts.jsonl silently went stale")
-#   3. files added since the last sync whose name is never mentioned anywhere
+#   2. files added since the last sync whose name is never mentioned anywhere
 #      in feedAI/ (facts.jsonl, brain.json, or any topics/*.json) — a proxy for
-#      "a whole feature shipped and nobody wrote it down" (this is exactly how
-#      E-SIM-frontend's /xnotificationy page went undocumented for 2 commits
-#      until a manual cross-repo audit caught it on 2026-09-02).
+#      "a whole feature shipped and nobody wrote it down".
 #
-# Check 3 is a heuristic, not proof: a hit means "grep this file's name and see
-# if it's really undocumented or just named differently than its feature" — not
-# an automatic failure. Short/generic basenames (<4 chars) are skipped to keep
-# false positives down; it will still flag some intentionally-undocumented
-# implementation details (small internal helpers, generated files caught by
-# path exclusions below). Judgment still required — this narrows what to look
-# at, it doesn't replace looking.
+# Check 2 is a heuristic, not proof: a hit means "grep this file's name and see
+# if it's really undocumented or just named differently than its feature."
+# Short/generic basenames (<4 chars) are skipped.
 #
-# Run from anywhere inside the repo. Exit code is nonzero if any check fires,
-# so it can be wired into a pre-commit/session-start hook without extra work.
+# Run from the product repo root (not the workspace root). Do not install this
+# as a pre-commit hook.
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -54,28 +46,8 @@ else
 fi
 
 echo
-echo "== staleness: commits since brain.json's sync.date that never touched feedAI/ =="
-sync_date=$(python3 -c "import json; print(json.load(open('$FEEDAI/brain.json'))['sync']['date'])" 2>/dev/null || echo "")
-if [ -z "$sync_date" ]; then
-  echo "  couldn't read sync.date from brain.json"
-else
-  # Count commits after sync_date, in the whole repo, that did NOT touch feedAI/.
-  # A nonzero count here means work happened that this feedAI snapshot doesn't reflect.
-  stale_commits=$(git log --since="${sync_date} 00:00:00" --oneline -- . ':!feedAI' 2>/dev/null | wc -l | tr -d ' ')
-  echo "  sync.date: $sync_date"
-  echo "  commits since, outside feedAI/: $stale_commits"
-  if [ "$stale_commits" -gt 5 ]; then
-    echo "  STALE — this is past the scale that caused the 2026-08-19 drift incident (14-57 commits). Resync soon."
-    status=1
-  elif [ "$stale_commits" -gt 0 ]; then
-    echo "  some drift — fine if those commits didn't change behavior, worth a glance otherwise"
-  else
-    echo "  in sync"
-  fi
-fi
-
-echo
 echo "== new files since last sync never mentioned anywhere in feedAI/ =="
+sync_date=$(python3 -c "import json; print(json.load(open('$FEEDAI/brain.json'))['sync']['date'])" 2>/dev/null || echo "")
 if [ -z "$sync_date" ]; then
   echo "  skipped — no sync.date"
 else

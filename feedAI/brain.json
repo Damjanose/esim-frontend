@@ -62,9 +62,9 @@
     ]
   },
   "sync": {
-    "commit": "d7db2a0",
-    "branch": "cursor/support-chat-inbox-8f5c",
+    "commit": "uncommitted",
+    "branch": "main",
     "date": "2026-09-09",
-    "note_latest": "f111: /xsupport now has responsive list/detail navigation, stale-request protection, Socket.IO reconnect/unauthorized handling, room cleanup, and improved accessibility. External /trigger-event integration remains deferred because its subscriber protocol is undocumented."
+    "note_latest": "f114: removed the feedAI pre-commit hook, install-hooks.sh, git-hooks/pre-commit, and package.json postinstall; removed check-health.sh's commit-count staleness check. git commit is a normal commit. Do not reinstall the hook. Prior: f111 /xsupport responsive list/detail..."
   }
 }

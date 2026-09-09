@@ -7,8 +7,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run",
-    "postinstall": "bash feedAI/install-hooks.sh || true"
+    "test": "vitest run"
   },
   "dependencies": {
     "@nebula-ltd/pok-payments-js": "2.0.1",

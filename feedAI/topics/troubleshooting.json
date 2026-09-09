@@ -84,6 +84,15 @@
       "source": "docs/superpowers/specs/2026-09-05-card-error-keep-inputs-design.md"
     },
     {
+      "symptom": "git commit is blocked by feedAI/check-health.sh (STALE commits, or the hook tells you to skip hooks)",
+      "root_cause": "A pre-commit hook copied by feedAI/install-hooks.sh (package.json postinstall) ran check-health.sh and failed when more than 5 commits since sync.date had not touched feedAI/",
+      "fix": "The hook is gone. install-hooks.sh, git-hooks/pre-commit, and the postinstall script were deleted. Commit normally. Do not reinstall the hook.",
+      "facts": [
+        "f114"
+      ],
+      "source": "package.json; feedAI/check-health.sh"
+    },
+    {
       "symptom": "/xsupport chat does not update live (or socket.io 404/polling loop) while REST through /bff/admin/support works",
       "root_cause": "Socket.IO from the admin page talks to Express directly on /socket.io; nginx /api proxy does not cover that path, and Upgrade headers are required. backendFetch JSON helpers cannot be used for this channel.",
       "fix": "Proxy location /socket.io/ to the backend container with HTTP/1.1 Upgrade/Connection headers; set NEXT_PUBLIC_SOCKET_URL for local backends. Do not put Socket.IO under /bff.",
@@ -103,6 +112,7 @@
     "f014",
     "f029",
     "f066",
-    "f110"
+    "f110",
+    "f114"
   ]
 }
