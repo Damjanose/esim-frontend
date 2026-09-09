@@ -229,6 +229,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
           }
         }
 
+        if (requestId !== threadRequestRef.current || selectedIdRef.current !== threadId) return;
         socketRef.current?.emit("support:join", { threadId });
         if (tab === "unread") {
           setThreads((current) => current.filter((item) => item.id !== threadId));
@@ -324,6 +325,8 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     if (!selectedId || isSending) return;
     const text = draft.trim();
     if (!text && !pendingFile) return;
+    const requestId = threadRequestRef.current;
+    const activeThreadId = selectedId;
 
     setIsSending(true);
     setError("");
@@ -363,6 +366,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         throw new Error(payload.message ?? "Could not send the message");
       }
       const sentMessage = payload.data.message;
+      if (requestId !== threadRequestRef.current || selectedIdRef.current !== activeThreadId) return;
       setMessages((current) =>
         current.some((item) => item.id === sentMessage.id)
           ? current
@@ -383,6 +387,8 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     setIsSolving(true);
     setError("");
     setNotice("");
+    const requestId = threadRequestRef.current;
+    const activeThreadId = selectedId;
     try {
       const response = await fetch(`/bff/admin/support/threads/${encodeURIComponent(selectedId)}/solved`, {
         method: "POST",
@@ -394,6 +400,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         throw new Error(payload.message ?? "Could not mark the issue as solved");
       }
       const thread = payload.data.thread;
+      if (requestId !== threadRequestRef.current || selectedIdRef.current !== activeThreadId) return;
       setSelectedThread(thread);
       setNotice("Marked as solved. It now lives in the archive.");
       if (tab !== "solved") {
@@ -432,6 +439,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                   }`}
                   key={item.id}
                   onClick={() => {
+                    threadRequestRef.current += 1;
                     setTab(item.id);
                     setSelectedId(null);
                     setSelectedThread(null);
@@ -534,6 +542,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                     aria-label="Back to support conversations"
                     className="mr-2 inline-flex rounded-lg p-1 text-muted hover:bg-cloud hover:text-midnight md:hidden"
                     onClick={() => {
+                       threadRequestRef.current += 1;
                       socketRef.current?.emit("support:leave", { threadId: selectedId });
                       setSelectedId(null);
                     }}

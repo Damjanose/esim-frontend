@@ -21,7 +21,9 @@ Public `/support` was FAQ + mailto. Hidden admin pages covered sales, pricing, e
 - Follow-up polish added responsive mobile list/detail navigation, stale-request guards for
   thread and list loading, Socket.IO reconnect/unauthorized handling, explicit room leaving,
   accessible labels/live regions/lightbox Escape handling, and a manual REST refresh control
-  for the reports/conversations list.
+  for the reports/conversations list. Conversation actions now invalidate their request
+  generation when the selected thread changes, preventing late send/solve responses from
+  mutating a different conversation.
 
 ## How it was done
 

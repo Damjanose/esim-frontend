@@ -48,6 +48,13 @@ describe("hidden admin support inbox", () => {
     expect(inboxSource).toContain("loadThreads(tabRef.current)");
   });
 
+  it("invalidates in-flight conversation actions when selection changes", () => {
+    const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
+
+    expect(inboxSource).toContain("threadRequestRef.current += 1");
+    expect(inboxSource).toContain("selectedIdRef.current !== activeThreadId");
+  });
+
   it("renders hidden admin navigation including support inbox", () => {
     const pageSource = readFileSync("src/app/xsupport/page.tsx", "utf8");
     const navSource = readFileSync("src/app/AdminNav.tsx", "utf8");
