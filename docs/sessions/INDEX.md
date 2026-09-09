@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-09 | [Support chat inbox](./2026-09-09_support-chat-inbox.md) | Added hidden `/xsupport` admin inbox (unread/open/solved, live Socket.IO chat, photo attachments) with BFF proxies; REST stays on BFF, sockets are the documented browser→API exception. |
 | 2026-09-05 | [Regional package countries](./2026-09-05_regional-package-countries.md) | Checkout's Destination row now shows an expandable "N countries" list for regional/global packages, sourced from the backend's new ESIMPackage.countries. |
 | 2026-09-04 | [Inline PokPay checkout](./2026-09-04_inline-pokpay-checkout.md) | Replaced /checkout's hosted-redirect PokPay payment with an inline Billing/Card wizard using PokPay's JS SDK directly; billing-address route widened to the full 8-field shape. |
 | 2026-07-01 | [Frontend landing page](./2026-07-01_frontend_landing_page.md) | Created the initial Next.js/Tailwind public landing page for Velocity eSIM. |

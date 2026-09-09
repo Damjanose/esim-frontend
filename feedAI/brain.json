@@ -23,7 +23,7 @@
     "bug|broken|not working|symptom|regression|invalid_client|redirect_uri_mismatch": "topics/troubleshooting.json",
     "No destination found|empty destinations|wizard filters lost|wikimedia hostname|discount badge missing|retailPrice guard": "topics/troubleshooting-destinations.json",
     "landing page|hero|destinations page|seo-pages|guides|use-cases|support page|faq|terms|policy|legal|content/": "topics/public-content-pages.json",
-    "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|activity tracking|inactivity notification": "topics/admin-dashboard-ui.json",
+    "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|xsupport|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|activity tracking|inactivity notification|support inbox": "topics/admin-dashboard-ui.json",
     "signin page|checkout page|account page|profile page|my esims page|planCard|activeplancard": "topics/account-profile-pages.json",
     "partner|affiliate|xpartnersy|commission|wallet topup|payout|referral link|promo code|PartnerOrderCredit|QrCodeCard": "topics/partners.json"
   },
@@ -62,9 +62,9 @@
     ]
   },
   "sync": {
-    "commit": "d318aee",
-    "branch": "main",
-    "date": "2026-09-05",
-    "note_latest": "f108: checkout UI (CheckoutPriceSection.tsx) now shows the f107 countries coverage list as a collapsed-by-default disclosure on the Destination row, regional/global packages only. See facts.jsonl f107/f108 for full detail. Prior note_latest (f107, data-layer threading) preserved in git history."
+    "commit": "d7db2a0",
+    "branch": "cursor/support-chat-inbox-8f5c",
+    "date": "2026-09-09",
+    "note_latest": "f111: /xsupport now has responsive list/detail navigation, stale-request protection, Socket.IO reconnect/unauthorized handling, room cleanup, and improved accessibility. External /trigger-event integration remains deferred because its subscriber protocol is undocumented."
   }
 }

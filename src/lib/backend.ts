@@ -85,3 +85,97 @@ export async function backendFetch<T>(
 
   return { ok: true, data: (payload.data ?? ({} as T)) as T };
 }
+
+/**
+ * Origin of the Express process (no `/api` suffix). Used by the admin support
+ * inbox Socket.IO client — the one documented exception to "browser never talks
+ * to Express directly". REST still goes through BFF.
+ */
+export function getBackendOrigin(): string {
+  return getBackendApiUrl().replace(/\/api\/?$/, "");
+}
+
+export async function backendFetchFormData<T>(
+  path: string,
+  { token, formData }: { token?: string; formData: FormData }
+): Promise<BackendResult<T>> {
+  const headers = new Headers({ Accept: "application/json" });
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${getBackendApiUrl()}${path}`, {
+      method: "POST",
+      headers,
+      body: formData,
+      cache: "no-store"
+    });
+  } catch {
+    return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
+  }
+
+  let payload: BackendEnvelope<T>;
+  try {
+    payload = (await response.json()) as BackendEnvelope<T>;
+  } catch {
+    return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
+  }
+
+  if (!response.ok || payload.status === "error") {
+    return {
+      ok: false,
+      status: response.ok ? 400 : response.status,
+      message: payload.error ?? payload.message ?? "Something went wrong.",
+      payload: payload as Record<string, unknown>
+    };
+  }
+
+  return { ok: true, data: (payload.data ?? ({} as T)) as T };
+}
+
+export type BackendBinary = {
+  buffer: ArrayBuffer;
+  contentType: string;
+};
+
+export async function backendFetchBinary(
+  path: string,
+  { token }: { token?: string } = {}
+): Promise<BackendResult<BackendBinary>> {
+  const headers = new Headers();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${getBackendApiUrl()}${path}`, {
+      headers,
+      cache: "no-store"
+    });
+  } catch {
+    return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
+  }
+
+  const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+
+  if (!response.ok) {
+    let message = UNREACHABLE_MESSAGE;
+    try {
+      const payload = (await response.json()) as BackendEnvelope<unknown>;
+      message = payload.error ?? payload.message ?? message;
+    } catch {
+      // Keep the generic unreachable copy when the body is not JSON.
+    }
+    return { ok: false, status: response.status, message };
+  }
+
+  try {
+    const buffer = await response.arrayBuffer();
+    return { ok: true, data: { buffer, contentType } };
+  } catch {
+    return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
+  }
+}

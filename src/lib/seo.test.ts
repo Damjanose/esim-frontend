@@ -65,7 +65,8 @@ describe("SEO route contract", () => {
       "/profile",
       "/signin",
       "/xerrors",
-      "/xloginy"
+      "/xloginy",
+      "/xsupport"
     ]);
   });
 

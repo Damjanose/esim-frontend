@@ -16,7 +16,8 @@
     "f088",
     "f091",
     "f092",
-    "f099"
+    "f099",
+    "f109"
   ],
   "shared_shell": {
     "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all admin pages as of the 2026-08-23 premium redesign — see f051. The top-of-rail mark above the nav links is the real app logo (public/logo-icon.png, same asset as public Navbar.tsx) wrapped in a Link to '/', not a decorative div — see f099.",
@@ -76,5 +77,20 @@
   },
   "xpartnersy_partner_admin": {
     "note": "f092: affiliate/partner program admin surface. Full detail in topics/partners.json (kept out of this file to stay under budget) — also covers the larger customer-facing partner pages."
+  },
+  "xsupport_support_inbox": {
+    "file": "src/app/xsupport/page.tsx",
+    "note": "f109: live traveler support inbox. Standard AdminNav/AdminLoginCard/useAdminSession shell, indexable:false layout.",
+    "data_source": "GET /bff/admin/support/threads?status=unread|read|solved; GET /bff/admin/support/threads/:id; POST messages/attachments/read/solved; GET /bff/admin/support/attachments/:id (binary). Socket.IO to Express origin (f110) for live list/message updates.",
+    "renders": "Unread/Open/Solved tabs with unread badge, email search, master-detail chat, photo bubbles, Mark as solved. Opening an unread thread POSTs /read. Solved threads move to the archive tab.",
+    "proxies": [
+      "src/app/bff/admin/support/threads/route.ts",
+      "src/app/bff/admin/support/threads/[id]/route.ts",
+      "src/app/bff/admin/support/threads/[id]/messages/route.ts",
+      "src/app/bff/admin/support/threads/[id]/attachments/route.ts",
+      "src/app/bff/admin/support/threads/[id]/read/route.ts",
+      "src/app/bff/admin/support/threads/[id]/solved/route.ts",
+      "src/app/bff/admin/support/attachments/[id]/route.ts"
+    ]
   }
 }

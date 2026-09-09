@@ -82,6 +82,15 @@
         "f105"
       ],
       "source": "docs/superpowers/specs/2026-09-05-card-error-keep-inputs-design.md"
+    },
+    {
+      "symptom": "/xsupport chat does not update live (or socket.io 404/polling loop) while REST through /bff/admin/support works",
+      "root_cause": "Socket.IO from the admin page talks to Express directly on /socket.io; nginx /api proxy does not cover that path, and Upgrade headers are required. backendFetch JSON helpers cannot be used for this channel.",
+      "fix": "Proxy location /socket.io/ to the backend container with HTTP/1.1 Upgrade/Connection headers; set NEXT_PUBLIC_SOCKET_URL for local backends. Do not put Socket.IO under /bff.",
+      "facts": [
+        "f110"
+      ],
+      "source": "docs/sessions/2026-09-09_support-chat-inbox.md"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
@@ -93,6 +102,7 @@
     "f013",
     "f014",
     "f029",
-    "f066"
+    "f066",
+    "f110"
   ]
 }
