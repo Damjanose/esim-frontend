@@ -7,6 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchPackageGroups,
   fetchPackageOptions,
+  coveredDestinationsForOption,
+  normalizeDestinationValue,
   type HeroPackageOption,
   type PackageGroupOptions,
 } from "@/services/packages";
@@ -60,23 +62,40 @@ function toCountryOptions(packages: readonly HeroPackageOption[]): CountryOption
   const byCode = new Map<string, CountryOption>();
 
   for (const pkg of packages) {
-    const code = normalizeCountryCode(pkg.countryCode);
-    if (!code || !pkg.country.trim()) continue;
+    const destinations = [
+      {
+        country: pkg.country,
+        countryCode: pkg.countryCode,
+        flagUri: pkg.flagUri,
+      },
+      ...(!pkg.filters.includes("local")
+        ? coveredDestinationsForOption(pkg).map((destination) => ({
+            country: destination.title,
+            countryCode: destination.slug,
+            flagUri: "",
+          }))
+        : []),
+    ];
 
-    const existing = byCode.get(code);
-    if (existing) {
-      existing.planCount += 1;
-      if (!existing.flagUri && pkg.flagUri) existing.flagUri = pkg.flagUri;
-      continue;
+    for (const destination of destinations) {
+      const code = normalizeCountryCode(destination.countryCode);
+      if (!code || !destination.country.trim()) continue;
+
+      const existing = byCode.get(code);
+      if (existing) {
+        existing.planCount += 1;
+        if (!existing.flagUri && destination.flagUri) existing.flagUri = destination.flagUri;
+        continue;
+      }
+
+      byCode.set(code, {
+        country: destination.country,
+        countryCode: destination.countryCode,
+        flagUri: destination.flagUri,
+        planCount: 1,
+        fromPrice: pkg.price,
+      });
     }
-
-    byCode.set(code, {
-      country: pkg.country,
-      countryCode: pkg.countryCode,
-      flagUri: pkg.flagUri,
-      planCount: 1,
-      fromPrice: pkg.price,
-    });
   }
 
   return Array.from(byCode.values()).sort((a, b) => a.country.localeCompare(b.country));
@@ -178,9 +197,11 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
 
   const filteredCountries = useMemo(() => {
     const countries = toCountryOptions(filteredPackages);
-    const q = gridSearch.trim().toLowerCase();
+    const q = normalizeDestinationValue(gridSearch);
     if (!q) return countries;
-    return countries.filter((c) => c.country.toLowerCase().includes(q));
+    return countries.filter((c) =>
+      normalizeDestinationValue(`${c.country} ${c.countryCode}`).includes(q),
+    );
   }, [filteredPackages, gridSearch]);
 
   const isGridSearching = gridSearch.trim().length > 0;

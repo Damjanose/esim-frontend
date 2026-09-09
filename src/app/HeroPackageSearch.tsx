@@ -16,7 +16,9 @@ import {
   X,
 } from "lucide-react";
 import {
+  coveredDestinationsForOption,
   fetchPackageOptions,
+  normalizeDestinationValue,
   type HeroPackageOption,
 } from "@/services/packages";
 
@@ -36,28 +38,41 @@ function getCountryOptions(
   const countries = new Map<string, CountryOption>();
 
   for (const pkg of packages) {
-    if (!pkg.countryCode.trim() || !pkg.country.trim()) {
-      continue;
-    }
+    const destinations = [
+      {
+        country: pkg.country,
+        countryCode: pkg.countryCode,
+        flagUri: pkg.flagUri,
+      },
+      ...(!pkg.filters.includes("local")
+        ? coveredDestinationsForOption(pkg).map((destination) => ({
+            country: destination.title,
+            countryCode: destination.slug,
+            flagUri: "",
+          }))
+        : []),
+    ];
 
-    const existingCountry = countries.get(pkg.countryCode);
+    for (const destination of destinations) {
+      if (!destination.countryCode.trim() || !destination.country.trim()) continue;
+      const key = normalizeDestinationValue(destination.countryCode);
+      const existingCountry = countries.get(key);
 
-    if (existingCountry) {
-      existingCountry.planCount += 1;
-
-      if (!existingCountry.flagUri && pkg.flagUri) {
-        existingCountry.flagUri = pkg.flagUri;
+      if (existingCountry) {
+        existingCountry.planCount += 1;
+        if (!existingCountry.flagUri && destination.flagUri) {
+          existingCountry.flagUri = destination.flagUri;
+        }
+        continue;
       }
 
-      continue;
+      countries.set(key, {
+        country: destination.country,
+        countryCode: destination.countryCode,
+        flagUri: destination.flagUri,
+        planCount: 1,
+      });
     }
-
-    countries.set(pkg.countryCode, {
-      country: pkg.country,
-      countryCode: pkg.countryCode,
-      flagUri: pkg.flagUri,
-      planCount: 1,
-    });
   }
 
   return Array.from(countries.values()).sort((first, second) =>
@@ -65,9 +80,7 @@ function getCountryOptions(
   );
 }
 
-function normalizeSearchValue(value: string) {
-  return value.trim().toLowerCase();
-}
+const normalizeSearchValue = normalizeDestinationValue;
 
 export function HeroPackageSearch() {
   const router = useRouter();
@@ -156,8 +169,8 @@ export function HeroPackageSearch() {
 
     return countries
       .filter((country) => {
-        const countryName = country.country.toLowerCase();
-        const countryCode = country.countryCode.toLowerCase();
+        const countryName = normalizeDestinationValue(country.country);
+        const countryCode = normalizeDestinationValue(country.countryCode);
 
         return (
           countryName.includes(normalizedQuery) ||
@@ -215,8 +228,8 @@ export function HeroPackageSearch() {
 
     const exactMatch = countries.find((country) => {
       return (
-        country.country.toLowerCase() === normalizedQuery ||
-        country.countryCode.toLowerCase() === normalizedQuery
+        normalizeDestinationValue(country.country) === normalizedQuery ||
+        normalizeDestinationValue(country.countryCode) === normalizedQuery
       );
     });
 

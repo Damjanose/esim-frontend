@@ -29,7 +29,9 @@ import {
 } from "react";
 
 import {
+  coveredDestinationsForOption,
   fetchPackageOptions,
+  planCoversDestination,
   type HeroPackageOption,
 } from "@/services/packages";
 import { discountPercentOff, formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
@@ -196,36 +198,41 @@ function getCountryOptions(
   const countryMap = new Map<string, CountryOption>();
 
   for (const plan of packages) {
-    const normalizedCode =
-      normalizeCountryCode(plan.countryCode);
+    const destinations = [
+      {
+        country: plan.country,
+        countryCode: plan.countryCode,
+        flagUri: plan.flagUri,
+      },
+      ...(!plan.filters.includes("local")
+        ? coveredDestinationsForOption(plan).map((destination) => ({
+            country: destination.title,
+            countryCode: destination.slug,
+            flagUri: "",
+          }))
+        : []),
+    ];
 
-    if (!plan.country.trim() || !normalizedCode) {
-      continue;
-    }
+    for (const destination of destinations) {
+      const normalizedCode = normalizeCountryCode(destination.countryCode);
+      if (!destination.country.trim() || !normalizedCode) continue;
 
-    const existingCountry =
-      countryMap.get(normalizedCode);
-
-    if (existingCountry) {
-      existingCountry.planCount += 1;
-
-      if (
-        !existingCountry.flagUri &&
-        plan.flagUri
-      ) {
-        existingCountry.flagUri =
-          plan.flagUri;
+      const existingCountry = countryMap.get(normalizedCode);
+      if (existingCountry) {
+        existingCountry.planCount += 1;
+        if (!existingCountry.flagUri && destination.flagUri) {
+          existingCountry.flagUri = destination.flagUri;
+        }
+        continue;
       }
 
-      continue;
+      countryMap.set(normalizedCode, {
+        country: destination.country,
+        countryCode: destination.countryCode,
+        flagUri: destination.flagUri,
+        planCount: 1,
+      });
     }
-
-    countryMap.set(normalizedCode, {
-      country: plan.country,
-      countryCode: plan.countryCode,
-      flagUri: plan.flagUri,
-      planCount: 1,
-    });
   }
 
   return Array.from(countryMap.values()).sort(
@@ -459,7 +466,7 @@ export function DestinationPlans({
   const selectedCountryPlans = useMemo(() => {
     return packages.filter(
       (plan) =>
-        countryCodesMatch(plan.countryCode, countryCode) &&
+        planCoversDestination(plan, countryCode) &&
         matchesDestinationFilters(plan, wizardFilters),
     );
   }, [packages, countryCode, wizardFilters]);

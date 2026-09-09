@@ -1,3 +1,10 @@
+export type CoveredDestination = {
+  slug: string;
+  countryCode: string;
+  title: string;
+  aliases: string[];
+};
+
 export type HeroPackageOption = {
   kind: string;
   id: string;
@@ -23,6 +30,7 @@ export type HeroPackageOption = {
   retailPrice?: number;
   /** Present on regional/global packages: every country the bundle covers. */
   countries?: Array<{ countryCode: string; title: string }>;
+  coveredDestinations?: CoveredDestination[];
 };
 
 export type ApiPackage = {
@@ -47,6 +55,7 @@ export type ApiPackage = {
   hasDiscount?: boolean;
   retailPrice?: number;
   countries?: Array<{ countryCode: string; title: string }>;
+  coveredDestinations?: CoveredDestination[];
 };
 
 type PackagesResponse = {
@@ -131,6 +140,55 @@ function normalizeFilters(filters?: string[]) {
     .map((filter) => filter.trim());
 }
 
+export function normalizeDestinationValue(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+export function coveredDestinationsForOption(
+  option: HeroPackageOption,
+): CoveredDestination[] {
+  if (option.coveredDestinations?.length) return option.coveredDestinations;
+  if (option.countries?.length) {
+    return option.countries.map((country) => ({
+      slug: slugify(country.title),
+      countryCode: country.countryCode.trim().toUpperCase(),
+      title: country.title,
+      aliases: [slugify(country.title), country.countryCode.trim().toLowerCase()],
+    }));
+  }
+  return [
+    {
+      slug: option.countryCode,
+      countryCode: "",
+      title: option.country,
+      aliases: [slugify(option.country), normalizeDestinationValue(option.countryCode)],
+    },
+  ];
+}
+
+export function planCoversDestination(
+  option: HeroPackageOption,
+  destination: string,
+): boolean {
+  const query = normalizeDestinationValue(destination);
+  if (!query) return false;
+
+  return [
+    option.country,
+    option.countryCode,
+    ...coveredDestinationsForOption(option).flatMap((covered) => [
+      covered.slug,
+      covered.countryCode,
+      covered.title,
+      ...covered.aliases,
+    ]),
+  ].some((value) => normalizeDestinationValue(value) === query);
+}
+
 function mapPackageToOption(
   pkg: ApiPackage,
   index: number,
@@ -191,6 +249,16 @@ function mapPackageToOption(
     pkg.voiceMinutes ? `${pkg.voiceMinutes} min` : null,
     pkg.smsCount ? `${pkg.smsCount} sms` : null,
     ...filters,
+    ...(pkg.countries ?? []).flatMap((destination) => [
+      destination.countryCode,
+      destination.title,
+    ]),
+    ...(pkg.coveredDestinations ?? []).flatMap((destination) => [
+      destination.slug,
+      destination.countryCode,
+      destination.title,
+      ...destination.aliases,
+    ]),
   ]
     .filter(
       (value): value is string =>
@@ -223,6 +291,7 @@ function mapPackageToOption(
         ? pkg.smsCount
         : undefined,
     countries: pkg.countries,
+    coveredDestinations: pkg.coveredDestinations,
     // Matches the mobile app's formatRetailPriceLabel (src/currency/formatPrice.ts):
     // trust the backend's hasDiscount flag directly, no magnitude comparison
     // against priceNumeric — an admin discount can also mark a price *up*
@@ -239,7 +308,7 @@ function matchesOption(
   option: HeroPackageOption,
   query: string,
 ) {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeDestinationValue(query);
 
   if (!normalizedQuery) {
     return true;

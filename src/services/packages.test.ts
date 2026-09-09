@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { mapPackageGroupsPayload } from "./packages";
+import {
+  mapPackageGroupsPayload,
+  mapPackagesPayload,
+  planCoversDestination,
+} from "./packages";
 
 const apiPackage = {
   kind: "standard",
@@ -98,5 +102,31 @@ describe("mapPackageGroupsPayload", () => {
         { countryCode: "TH", title: "Thailand" },
       ],
     });
+  });
+
+  it("matches a covered country by name and ISO code", () => {
+    const regionalPackage = {
+      ...apiPackage,
+      id: "asia-1gb",
+      country: "Asia",
+      countryCode: "asia",
+      filters: ["regional"],
+      coveredDestinations: [
+        {
+          slug: "japan",
+          countryCode: "JP",
+          title: "Japan",
+          aliases: ["japan", "jp"],
+        },
+      ],
+    };
+    const option = mapPackagesPayload([regionalPackage])[0]!;
+
+    if (!planCoversDestination(option, "Japan")) {
+      throw new Error("Expected regional package to cover Japan");
+    }
+    if (!planCoversDestination(option, "JP")) {
+      throw new Error("Expected regional package to match JP");
+    }
   });
 });
