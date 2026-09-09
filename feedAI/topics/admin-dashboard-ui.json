@@ -19,10 +19,11 @@
     "f099",
     "f109",
     "f112",
-    "f113"
+    "f113",
+    "f116"
   ],
-  "shared_shell": {
-    "component": "src/app/AdminNav.tsx (vertical icon rail, dark midnight/ink gradient, active-route highlighting via usePathname()) and src/app/AdminLoginCard.tsx (shared premium login form), both rendered by all admin pages as of the 2026-08-23 premium redesign — see f051. The top-of-rail mark above the nav links is the real app logo (public/logo-icon.png, same asset as public Navbar.tsx) wrapped in a Link to '/', not a decorative div — see f099.",
+    "shared_shell": {
+    "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {
@@ -49,7 +50,7 @@
     "file": "src/app/xpricing/page.tsx",
     "data_source": "GET /bff/admin/packages/pricing -> {packages:[{packageId,title,country,countryCode,flagUrl,type,network,dataLabel,durationDays,originalPrice,retailPrice,discountEnabled,discountType,discountValue,discountDirection,finalPrice}]} (countryCode/flagUrl/network/dataLabel/durationDays added 2026-08-24, f055; discountDirection added 2026-08-24, f061); PUT /bff/admin/packages/pricing/:packageId to save one row; POST /bff/admin/packages/pricing/bulk-discount ({packageIds:'all'|string[], discountEnabled, discountType, discountValue, discountDirection}) to apply an adjustment to many rows at once without touching retailPrice/sell price.",
     "renders": "3 summary stat cards (total packages/with discount/selected), a bulk-discount panel (enable toggle, direction decrease|increase (f061), percentage|flat, value, 'Apply to selected (N)' / 'Apply to ALL packages'), a 'Reset to default' panel (added 2026-08-24, f059: 'Reset selected (N)' / 'Reset ALL to default' buttons, POST /bff/admin/packages/pricing/reset {packageIds:'all'|string[]}), and a searchable, checkbox-selectable table: Coverage (flag+country), Type (icon), Network, Package (dataLabel), Validity (durationDays), Buy price (read-only originalPrice, re-added 2026-08-24 per f061 after being dropped by f055), Sell price (editable retailPrice, relabeled from 'Retail price' by f061) and Adjustment (discount/markup fields with a decrease/increase direction selector), a client-computed finalPrice preview under the 'Price' header (previewFinalPrice(), mirrors the backend's computeFinalPrice formula so the row updates live before Save), and a per-row action cell with Save plus a Reset button (calls the same reset endpoint scoped to just that packageId).",
-    "reset_to_default": "resetPricing(packageIds) in page.tsx takes an explicit id array/'all' rather than reading selectedIds from closure state, so the per-row Reset button can pass [row.packageId] directly without a stale-state race against setSelectedIds. Reset deletes the backend's PackagePricing override row entirely (not just setting retailPrice=originalPrice), so the package reverts live to whatever Airalo currently returns as net cost, for both the displayed retail price and (since f098 in the backend) the actual checkout charge.",
+    "reset_to_default": "resetPricing(packageIds) takes an explicit id array/'all' so per-row Reset avoids stale selection state. Reset deletes the backend PackagePricing override, restoring the live default for display and checkout.",
     "auth": "uses src/app/useAdminSession.ts (see auth_pattern.duplication) rather than its own copy of the login logic."
   },
   "xversion_app_version": {
@@ -85,14 +86,6 @@
     "note": "f109: live traveler support inbox. Standard AdminNav/AdminLoginCard/useAdminSession shell, indexable:false layout.",
     "data_source": "GET /bff/admin/support/threads?status=unread|read|solved; GET /bff/admin/support/threads/:id; POST messages/attachments/read/solved; GET /bff/admin/support/attachments/:id (binary). Socket.IO to Express origin (f110) for live list/message updates.",
     "renders": "Unread/Open/Solved tabs with unread badge, email search, master-detail chat, photo bubbles, Mark as solved. Opening an unread thread POSTs /read. Solved threads move to the archive tab.",
-    "proxies": [
-      "src/app/bff/admin/support/threads/route.ts",
-      "src/app/bff/admin/support/threads/[id]/route.ts",
-      "src/app/bff/admin/support/threads/[id]/messages/route.ts",
-      "src/app/bff/admin/support/threads/[id]/attachments/route.ts",
-      "src/app/bff/admin/support/threads/[id]/read/route.ts",
-      "src/app/bff/admin/support/threads/[id]/solved/route.ts",
-      "src/app/bff/admin/support/attachments/[id]/route.ts"
-    ]
+    "shared_helpers": "Support response types live in src/app/xsupport/support-types.ts; admin BFF request helpers live in src/lib/admin-bff.ts (f116)."
   }
 }

@@ -19,7 +19,8 @@
     "f069",
     "f070",
     "f083",
-    "f084"
+    "f084",
+    "f115"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim — it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
@@ -57,4 +58,5 @@
   },
   "how_it_works_section": "Homepage HowItWorks (page.tsx, was JourneyAndCoverage) is 3 fanned real-device phone mockups, not icon cards -- ChoosePlanScreen uses a real user screenshot as its hero photo + real flagcdn.com flags/pricing, ScanInstallScreen has a real static QR (public/images/qr-esim-uplisoft.svg -> esim.uplisoft.com), ConnectedScreen mirrors mobile MyEsimsScreen copy. The old \"Where Will You Go Next?\" coverage column and CoverageFlagMosaic.tsx are deleted, not restyled (f083, supersedes f075's coverage-mosaic description).",
   "destinations_grid_collapse": "DestinationBrowse.tsx's flat \"All destinations\" grid (215 countries) collapses to the first 20 by default, with a \"Show all N / Show less\" toggle (showAllDestinations state, DESTINATIONS_COLLAPSED_COUNT=20). The cap is skipped while the grid search box has text, so searching always shows every match (f084)."
+  "coverage_aware_discovery": "Destination search and country selection expand regional/global package coverage into virtual real-country options via canonical coveredDestinations matching; selecting a country keeps local and covering bundles together without bypassing the BFF boundary (f115)."
 }
