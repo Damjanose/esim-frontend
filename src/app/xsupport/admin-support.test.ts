@@ -41,6 +41,13 @@ describe("hidden admin support inbox", () => {
     expect(inboxSource).toContain("Unread");
   });
 
+  it("exposes manual refresh controls for the reports list", () => {
+    const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
+
+    expect(inboxSource).toContain("Refresh conversations");
+    expect(inboxSource).toContain("loadThreads(tabRef.current)");
+  });
+
   it("renders hidden admin navigation including support inbox", () => {
     const pageSource = readFileSync("src/app/xsupport/page.tsx", "utf8");
     const navSource = readFileSync("src/app/AdminNav.tsx", "utf8");

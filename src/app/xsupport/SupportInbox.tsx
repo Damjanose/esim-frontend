@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, CheckCircle2, ImagePlus, Send, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ImagePlus, RefreshCw, Send, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getPublicSocketUrl } from "@/lib/support-socket";
 import type {
@@ -184,6 +184,10 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     },
     [authHeaders, handleAuthStatus, loadUnreadCount]
   );
+
+  const refreshThreads = useCallback(() => {
+    void loadThreads(tabRef.current);
+  }, [loadThreads]);
 
   const openThread = useCallback(
     async (threadId: string) => {
@@ -455,6 +459,16 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
               placeholder="Search by email"
               value={search}
             />
+            <button
+              aria-label="Refresh conversations"
+              className="mt-2 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-line bg-white text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+              disabled={isLoadingList}
+              onClick={refreshThreads}
+              type="button"
+            >
+              <RefreshCw aria-hidden="true" className={isLoadingList ? "animate-spin" : undefined} size={14} />
+              {isLoadingList ? "Refreshing…" : "Refresh conversations"}
+            </button>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">

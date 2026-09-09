@@ -20,7 +20,8 @@ Public `/support` was FAQ + mailto. Hidden admin pages covered sales, pricing, e
 - Regression tests: `admin-support.test.ts`, `support-socket.test.ts`, extra `backend.test.ts` cases.
 - Follow-up polish added responsive mobile list/detail navigation, stale-request guards for
   thread and list loading, Socket.IO reconnect/unauthorized handling, explicit room leaving,
-  and accessible labels/live regions/lightbox Escape handling.
+  accessible labels/live regions/lightbox Escape handling, and a manual REST refresh control
+  for the reports/conversations list.
 
 ## How it was done
 
@@ -36,4 +37,4 @@ was not provided.
 
 - Production backend still needs the Nginx `/socket.io` upgrade route and persistent
   `SUPPORT_UPLOAD_DIR` volume before rollout.
-- Apply the mobile drop-in (Profile → Support chat).
+- Mobile now exposes Profile/My eSIMs → Support chat with pull-to-refresh.
