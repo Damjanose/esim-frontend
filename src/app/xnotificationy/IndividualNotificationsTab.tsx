@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Search, Send } from "lucide-react";
+import { LogOut, Search, Send } from "lucide-react";
 
 type UserSearchResult = { email: string; hasDeviceToken: boolean };
 
@@ -50,6 +50,7 @@ export function IndividualNotificationsTab({
 
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [isForceLoggingOut, setIsForceLoggingOut] = useState(false);
 
   async function loadHistory() {
     if (!token) return;
@@ -116,6 +117,49 @@ export function IndividualNotificationsTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, token]);
 
+  async function forceLogoutUnlinked() {
+    if (
+      !window.confirm(
+        "Force-logout every account with no linked device? Those users must sign in again."
+      )
+    ) {
+      return;
+    }
+
+    setIsForceLoggingOut(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/bff/admin/users/force-logout-unlinked", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = (await response.json()) as {
+        status?: string;
+        data?: { loggedOutCount?: number };
+        message?: string;
+      };
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not force-logout unlinked users");
+      }
+      const count = payload.data?.loggedOutCount ?? 0;
+      setNotice(
+        count === 1
+          ? "Forced 1 unlinked account to sign in again."
+          : `Forced ${count} unlinked accounts to sign in again.`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not force-logout unlinked users");
+    } finally {
+      setIsForceLoggingOut(false);
+    }
+  }
+
   function pickUser(user: UserSearchResult) {
     setSelected(user);
     setResults([]);
@@ -177,7 +221,18 @@ export function IndividualNotificationsTab({
   return (
     <div>
       <div className="mb-6 rounded-2xl border border-line bg-white p-5 shadow-card">
-        <h2 className="mb-3 text-sm font-black uppercase tracking-wide text-midnight">Send to a user</h2>
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+          <h2 className="text-sm font-black uppercase tracking-wide text-midnight">Send to a user</h2>
+          <button
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-line px-3 text-xs font-bold text-midnight transition hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isForceLoggingOut}
+            onClick={() => void forceLogoutUnlinked()}
+            type="button"
+          >
+            <LogOut aria-hidden="true" size={14} />
+            {isForceLoggingOut ? "Signing out..." : "Force-logout unlinked"}
+          </button>
+        </div>
 
         {!selected ? (
           <div className="relative">

@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-10 | [force-logout unlinked](./2026-09-10_force-logout-unlinked.md) | Individual notifications tab can force-logout every account with no linked device so they must sign in again |
 | 2026-09-10 | [packages data cache](./2026-09-10_packages-data-cache.md) | Stopped Next from caching the 2.7MB `/api/packages` body (2MB limit); destination “from” prices now ISR a slim offer index instead |
 | 2026-09-10 | [individual-user-notifications](./2026-09-10_individual-user-notifications.md) | /xnotificationy gained an Individual tab (user email search, one-off send, history) plus three BFF proxies; pairs with the backend UserNotification session |
 | 2026-09-10 | [Support typing](./2026-09-10_support-typing.md) | Admin inbox emits support:typing while composing so the app can show a typing bubble |

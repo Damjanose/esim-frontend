@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-10",
-    "note_latest": "f123: do not put /api/packages (~2.7MB) in Next's data cache (2MB cap); destination offers cache a slim index instead. See facts.jsonl f123.\n\nf122: /xnotificationy Individual tab (per-user search/send/history) plus three BFF proxies; pairs with backend f150. See facts.jsonl f122.\n\nf121: /xsupport emits support:typing while the admin is composing. See facts.jsonl f121.\n\nf120: /xsupport live replies update chat text and list preview (not only the unread badge), matching mobile. See facts.jsonl f120.\n\nf119: /xsupport attachment lightbox fits the full image in the viewport (90vh/90vw contain). See facts.jsonl f119.\n\nf118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
+    "note_latest": "f124: /xnotificationy Force-logout unlinked (POST /bff/admin/users/force-logout-unlinked) pairs with backend f152. See facts.jsonl f124.\n\nf123: do not put /api/packages (~2.7MB) in Next's data cache (2MB cap); destination offers cache a slim index instead. See facts.jsonl f123.\n\nf122: /xnotificationy Individual tab (per-user search/send/history) plus three BFF proxies; pairs with backend f150. See facts.jsonl f122."
   }
 }

@@ -86,19 +86,25 @@ describe("hidden admin notifications page", () => {
     expect(tabSource).toContain("/notify");
     expect(tabSource).toContain("/bff/admin/notifications/individual");
     expect(tabSource).toContain("Enter a title, a body, or both.");
+    expect(tabSource).toContain("/bff/admin/users/force-logout-unlinked");
+    expect(tabSource).toContain("Force-logout unlinked");
   });
 
   it("adds local admin API proxy routes for user search, individual send, and individual history", () => {
     expect(existsSync("src/app/bff/admin/users/search/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/users/force-logout-unlinked/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/users/[email]/notify/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/notifications/individual/route.ts")).toBe(true);
 
     const searchProxy = readFileSync("src/app/bff/admin/users/search/route.ts", "utf8");
+    const forceLogoutProxy = readFileSync("src/app/bff/admin/users/force-logout-unlinked/route.ts", "utf8");
     const notifyProxy = readFileSync("src/app/bff/admin/users/[email]/notify/route.ts", "utf8");
     const historyProxy = readFileSync("src/app/bff/admin/notifications/individual/route.ts", "utf8");
 
     expect(searchProxy).toContain("/admin/users/search");
     expect(searchProxy).toContain("backendFetch");
+    expect(forceLogoutProxy).toContain("/admin/users/force-logout-unlinked");
+    expect(forceLogoutProxy).toContain('method: "POST"');
     expect(notifyProxy).toContain("/notify");
     expect(notifyProxy).toContain('method: "POST"');
     expect(historyProxy).toContain("/admin/notifications/individual");
