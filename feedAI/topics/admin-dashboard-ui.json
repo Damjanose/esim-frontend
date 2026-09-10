@@ -20,7 +20,8 @@
     "f109",
     "f112",
     "f113",
-    "f116"
+    "f116",
+    "f120"
   ],
     "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
@@ -84,7 +85,7 @@
   "xsupport_support_inbox": {
     "file": "src/app/xsupport/page.tsx",
     "note": "f109: live traveler support inbox. Standard AdminNav/AdminLoginCard/useAdminSession shell, indexable:false layout.",
-    "data_source": "GET /bff/admin/support/threads?status=unread|read|solved; GET /bff/admin/support/threads/:id; POST messages/attachments/read/solved; GET /bff/admin/support/attachments/:id (binary). Socket.IO to Express origin (f110) for live list/message updates.",
+    "data_source": "GET /bff/admin/support/threads?status=unread|read|solved; GET /bff/admin/support/threads/:id; POST messages/attachments/read/solved; GET /bff/admin/support/attachments/:id (binary). Socket.IO to Express origin (f110) for live list/message updates. Live payloads match payload.threadId or message.threadId (f120) so the open chat and list preview get the text, not only the unread badge.",
     "renders": "Unread/Open/Solved tabs with unread badge, email search, master-detail chat, photo bubbles, Mark as solved. Opening an unread thread POSTs /read. Solved threads move to the archive tab.",
     "shared_helpers": "Support response types live in src/app/xsupport/support-types.ts; admin BFF request helpers live in src/lib/admin-bff.ts (f116)."
   }

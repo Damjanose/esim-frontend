@@ -3,6 +3,15 @@
   "covers": "Symptom -> root cause -> fix history: auth (Google/Apple sign-in), routing/redirects, BFF, env/deploy. See troubleshooting-destinations.json for destinations-page/wizard/pricing-display bugs.",
   "entries": [
     {
+      "symptom": "A traveler reply while /xsupport is open updates the unread badge but not the chat text or list preview.",
+      "root_cause": "support:message only appended when payload.threadId matched the selected thread, so a message keyed on message.threadId was dropped; the list preview was not patched from the live message.",
+      "fix": "Match live messages on payload.threadId or message.threadId, patch lastMessagePreview on the list, refresh unread, and alert when the admin is not looking at that thread.",
+      "facts": [
+        "f120"
+      ],
+      "source": "src/lib/support-live.ts; src/app/xsupport/SupportInbox.tsx; docs/sessions/2026-09-10_support-inbox-live-text.md"
+    },
+    {
       "symptom": "Clicking a photo in /xsupport opens a zoomed/cropped preview instead of the full image.",
       "root_cause": "The lightbox img used max-h-full inside a CSS grid overlay. Grid items default min-height:auto to the image's intrinsic size, so a large photo overflowed the viewport and looked zoomed.",
       "fix": "Cap the preview with max-h-[90vh] max-w-[90vw] object-contain in a flex overlay.",

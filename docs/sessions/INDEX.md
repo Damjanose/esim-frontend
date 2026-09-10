@@ -2,6 +2,8 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-10 | [Support typing](./2026-09-10_support-typing.md) | Admin inbox emits support:typing while composing so the app can show a typing bubble |
+| 2026-09-10 | [Support inbox live text](./2026-09-10_support-inbox-live-text.md) | /xsupport live replies now update chat text and list preview, not only the unread badge |
 | 2026-09-10 | [Support attachment preview](./2026-09-10_support-attachment-preview.md) | /xsupport image lightbox now fits the full photo in the viewport instead of cropping it |
 | 2026-09-09 | [Cookie consent](./2026-09-09_cookie-consent.md) | Added versioned optional-cookie consent UI and gated Google/Meta tracking behind Analytics and Marketing choices |
 | 2026-09-09 | [Coverage-aware filters](./2026-09-09_coverage-aware-filters.md) | Destination search and plan selection now resolve canonical country coverage across local, regional, and global packages |

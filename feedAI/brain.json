@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-10",
-    "note_latest": "f119: /xsupport attachment lightbox fits the full image in the viewport (90vh/90vw contain). See facts.jsonl f119.\n\nf118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
+    "note_latest": "f121: /xsupport emits support:typing while the admin is composing. See facts.jsonl f121.\n\nf120: /xsupport live replies update chat text and list preview (not only the unread badge), matching mobile. See facts.jsonl f120.\n\nf119: /xsupport attachment lightbox fits the full image in the viewport (90vh/90vw contain). See facts.jsonl f119.\n\nf118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
   }
 }

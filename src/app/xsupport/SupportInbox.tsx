@@ -4,6 +4,15 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "re
 import { ArrowLeft, CheckCircle2, ImagePlus, RefreshCw, Send, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getPublicSocketUrl } from "@/lib/support-socket";
+import {
+  applyMessagePreviewToThreads,
+  nextAdminTypingEmit,
+  previewFromSupportMessage,
+  shouldAlertAdminOfIncomingMessage,
+  supportLiveThreadId,
+  supportSocketMessageForThread,
+  SUPPORT_TYPING_IDLE_MS
+} from "@/lib/support-live";
 import type {
   AdminJsonPayload,
   SupportMessage,
@@ -111,9 +120,38 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
   const listRequestRef = useRef(0);
   const threadRequestRef = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const typingActiveRef = useRef(false);
+  const typingIdleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   selectedIdRef.current = selectedId;
   tabRef.current = tab;
+
+  const emitTyping = useCallback((typing: boolean, threadId = selectedIdRef.current) => {
+    if (!threadId) {
+      typingActiveRef.current = false;
+      return;
+    }
+    if (typingActiveRef.current === typing) return;
+    typingActiveRef.current = typing;
+    socketRef.current?.emit("support:typing", { threadId, typing });
+  }, []);
+
+  const bumpTyping = useCallback(
+    (hasDraft: boolean) => {
+      const action = nextAdminTypingEmit({
+        hasDraft,
+        currentlyEmitting: typingActiveRef.current
+      });
+      if (action === "start") emitTyping(true);
+      if (typingIdleRef.current) clearTimeout(typingIdleRef.current);
+      if (hasDraft) {
+        typingIdleRef.current = setTimeout(() => emitTyping(false), SUPPORT_TYPING_IDLE_MS);
+      } else if (action === "stop") {
+        emitTyping(false);
+      }
+    },
+    [emitTyping]
+  );
 
   const filteredThreads = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -195,6 +233,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
       const previousId = selectedIdRef.current;
       if (previousId && previousId !== threadId) {
         socketRef.current?.emit("support:leave", { threadId: previousId });
+        emitTyping(false, previousId);
       }
       setSelectedId(threadId);
       setIsLoadingThread(true);
@@ -244,7 +283,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         if (requestId === threadRequestRef.current) setIsLoadingThread(false);
       }
     },
-    [authHeaders, handleAuthStatus, loadUnreadCount, tab]
+    [authHeaders, emitTyping, handleAuthStatus, loadUnreadCount, tab]
   );
 
   useEffect(() => {
@@ -269,6 +308,9 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     socket.on("connect", () => {
       setError("");
       void loadThreads(tabRef.current);
+      if (selectedIdRef.current) {
+        socket.emit("support:join", { threadId: selectedIdRef.current });
+      }
     });
     socket.on("disconnect", (reason) => {
       if (reason !== "io client disconnect") {
@@ -293,19 +335,57 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     socket.on(
       "support:message",
       (payload: { threadId?: string; message?: SupportMessage }) => {
+        const threadId = supportLiveThreadId(payload);
         const message = payload.message;
-        if (!message || payload.threadId !== selectedIdRef.current) return;
-        setMessages((current) =>
-          current.some((item) => item.id === message.id) ? current : [...current, message]
+        if (!message || !threadId) return;
+
+        const live = supportSocketMessageForThread(payload, selectedIdRef.current);
+        if (live) {
+          setMessages((current) =>
+            current.some((item) => item.id === live.id) ? current : [...current, live]
+          );
+        }
+
+        setThreads((current) => applyMessagePreviewToThreads(current, threadId, message));
+        setSelectedThread((current) =>
+          current?.id === threadId
+            ? {
+                ...current,
+                lastMessageAt: message.createdAt,
+                lastMessagePreview:
+                  previewFromSupportMessage(message) || current.lastMessagePreview
+              }
+            : current
         );
+
+        void loadUnreadCount();
+        if (!live) {
+          void loadThreads(tabRef.current);
+        }
+
+        if (
+          shouldAlertAdminOfIncomingMessage({
+            senderKind: message.senderKind,
+            threadId,
+            selectedThreadId: selectedIdRef.current,
+            pageVisible: typeof document === "undefined" ? true : document.visibilityState === "visible"
+          })
+        ) {
+          const body = previewFromSupportMessage(message) || "New message from a traveler";
+          setNotice(body);
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            new Notification("Support", { body, tag: `support-${threadId}` });
+          }
+        }
       }
     );
 
     return () => {
+      emitTyping(false);
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [handleUnauthorized, loadThreads, loadUnreadCount, token]);
+  }, [emitTyping, handleUnauthorized, loadThreads, loadUnreadCount, token]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -327,6 +407,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     if (!text && !pendingFile) return;
     const requestId = threadRequestRef.current;
     const activeThreadId = selectedId;
+    emitTyping(false);
 
     setIsSending(true);
     setError("");
@@ -588,7 +669,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                         {message.body ? (
                           <p className="whitespace-pre-wrap text-sm font-semibold">{message.body}</p>
                         ) : null}
-                        {message.attachments.map((attachment) => (
+                        {(message.attachments ?? []).map((attachment) => (
                           <div className="mt-2" key={attachment.id}>
                             <AuthedImage
                               alt="Support attachment"
@@ -633,7 +714,11 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                   <div className="flex items-end gap-2">
                     <textarea
                       className="min-h-[44px] flex-1 resize-none rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-                      onChange={(event) => setDraft(event.target.value)}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setDraft(value);
+                        bumpTyping(Boolean(value.trim()) || Boolean(pendingFile));
+                      }}
                       onKeyDown={(event) => {
                         if (event.key === "Enter" && !event.shiftKey) {
                           event.preventDefault();
@@ -647,7 +732,11 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                     <input
                       accept={IMAGE_ACCEPT}
                       className="hidden"
-                      onChange={(event) => setPendingFile(event.target.files?.[0] ?? null)}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0] ?? null;
+                        setPendingFile(file);
+                        bumpTyping(Boolean(draft.trim()) || Boolean(file));
+                      }}
                       ref={fileInputRef}
                       type="file"
                     />

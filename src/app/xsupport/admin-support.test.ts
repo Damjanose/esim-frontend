@@ -51,11 +51,24 @@ describe("hidden admin support inbox", () => {
     expect(inboxSource).not.toContain("max-h-full max-w-full rounded-2xl object-contain");
   });
 
+  it("re-joins the open conversation after a socket reconnect", () => {
+    const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
+    expect(inboxSource).toContain("selectedIdRef.current");
+    expect(inboxSource).toContain('socket.emit("support:join"');
+  });
+
   it("exposes manual refresh controls for the reports list", () => {
     const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
 
     expect(inboxSource).toContain("Refresh conversations");
     expect(inboxSource).toContain("loadThreads(tabRef.current)");
+  });
+
+  it("applies live support messages to the open chat and list preview", () => {
+    const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
+    expect(inboxSource).toContain("supportSocketMessageForThread");
+    expect(inboxSource).toContain("applyMessagePreviewToThreads");
+    expect(inboxSource).toContain("support:typing");
   });
 
   it("invalidates in-flight conversation actions when selection changes", () => {
