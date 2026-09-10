@@ -5,6 +5,8 @@ import { destinationPages } from "@/content/seo-pages";
 import { createMetadata } from "@/lib/seo";
 import { getDestinationOffer } from "@/lib/destinationPricing";
 
+export const revalidate = 3600;
+
 type PageProps = {
   params: Promise<{
     slug: string;

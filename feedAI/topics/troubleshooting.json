@@ -3,6 +3,15 @@
   "covers": "Symptom -> root cause -> fix history: auth (Google/Apple sign-in), routing/redirects, BFF, env/deploy. See troubleshooting-destinations.json for destinations-page/wizard/pricing-display bugs.",
   "entries": [
     {
+      "symptom": "pnpm build warns Failed to set Next.js data cache for https://esim.uplisoft.com/api/packages, items over 2MB can not be cached.",
+      "root_cause": "getDestinationOffer fetched the full catalog with next:{revalidate:3600}. Next's data cache has a 2MB cap; /api/packages is ~2.7MB.",
+      "fix": "Fetch /packages with cache:'no-store', cache only a slim per-country offer index via unstable_cache (3600s), and set export const revalidate = 3600 on /destinations/[slug].",
+      "facts": [
+        "f123"
+      ],
+      "source": "src/lib/destinationPricing.ts; src/app/destinations/[slug]/page.tsx; docs/sessions/2026-09-10_packages-data-cache.md"
+    },
+    {
       "symptom": "A traveler reply while /xsupport is open updates the unread badge but not the chat text or list preview.",
       "root_cause": "support:message only appended when payload.threadId matched the selected thread, so a message keyed on message.threadId was dropped; the list preview was not patched from the live message.",
       "fix": "Match live messages on payload.threadId or message.threadId, patch lastMessagePreview on the list, refresh unread, and alert when the admin is not looking at that thread.",
@@ -131,6 +140,7 @@
     "f029",
     "f066",
     "f110",
-    "f114"
+    "f114",
+    "f123"
   ]
 }
