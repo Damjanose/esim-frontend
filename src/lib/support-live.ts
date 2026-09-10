@@ -1,4 +1,5 @@
 type SupportLiveMessage = {
+  id?: string;
   threadId?: string;
   body?: string | null;
   createdAt?: string;
@@ -18,7 +19,7 @@ export function supportLiveThreadId(payload: {
   return typeof id === "string" && id.trim() ? id : null;
 }
 
-export function supportSocketMessageForThread<T extends { threadId?: string }>(
+export function supportSocketMessageForThread<T extends { id?: string; threadId?: string }>(
   payload: SupportLivePayload<T>,
   selectedThreadId: string | null
 ): T | null {
