@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-10 | [Support attachment preview](./2026-09-10_support-attachment-preview.md) | /xsupport image lightbox now fits the full photo in the viewport instead of cropping it |
 | 2026-09-09 | [Cookie consent](./2026-09-09_cookie-consent.md) | Added versioned optional-cookie consent UI and gated Google/Meta tracking behind Analytics and Marketing choices |
 | 2026-09-09 | [Coverage-aware filters](./2026-09-09_coverage-aware-filters.md) | Destination search and plan selection now resolve canonical country coverage across local, regional, and global packages |
 | 2026-09-09 | [Support chat inbox](./2026-09-09_support-chat-inbox.md) | Added hidden `/xsupport` admin inbox (unread/open/solved, live Socket.IO chat, photo attachments) with BFF proxies; REST stays on BFF, sockets are the documented browser→API exception. |

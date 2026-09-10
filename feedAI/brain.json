@@ -66,7 +66,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "main",
-    "date": "2026-09-09",
-    "note_latest": "f118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
+    "date": "2026-09-10",
+    "note_latest": "f119: /xsupport attachment lightbox fits the full image in the viewport (90vh/90vw contain). See facts.jsonl f119.\n\nf118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
   }
 }

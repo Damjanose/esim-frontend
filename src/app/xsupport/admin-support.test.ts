@@ -41,6 +41,16 @@ describe("hidden admin support inbox", () => {
     expect(inboxSource).toContain("Unread");
   });
 
+  it("fits opened attachment previews inside the viewport instead of cropping them", () => {
+    const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
+
+    expect(inboxSource).toContain('alt="Support attachment preview"');
+    expect(inboxSource).toContain("max-h-[90vh]");
+    expect(inboxSource).toContain("max-w-[90vw]");
+    expect(inboxSource).toContain("object-contain");
+    expect(inboxSource).not.toContain("max-h-full max-w-full rounded-2xl object-contain");
+  });
+
   it("exposes manual refresh controls for the reports list", () => {
     const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
 

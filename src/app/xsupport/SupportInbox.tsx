@@ -676,15 +676,22 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
       </div>
 
       {lightbox ? (
-        <button
-          aria-label="Close image preview"
+        <div
+          aria-label="Support attachment preview"
           aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black/70 p-4"
           onClick={() => setLightbox(null)}
-          type="button"
+          role="dialog"
         >
-          <img alt="Support attachment preview" className="max-h-full max-w-full rounded-2xl object-contain" src={lightbox} />
-        </button>
+          {/* vh/vw caps, not % of the overlay: grid/button max-h-full lets the
+              image's intrinsic size win (min-height: auto) and looks zoomed. */}
+          <img
+            alt="Support attachment preview"
+            className="h-auto max-h-[90vh] w-auto max-w-[90vw] rounded-2xl object-contain"
+            onClick={(event) => event.stopPropagation()}
+            src={lightbox}
+          />
+        </div>
       ) : null}
     </>
   );
