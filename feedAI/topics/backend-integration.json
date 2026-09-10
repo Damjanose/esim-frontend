@@ -34,6 +34,7 @@
       "bff/payments/intent, bff/payments/topups/intent",
       "bff/country-image",
       "bff/admin/dashboard, bff/admin/errors, bff/admin/errors/[id], bff/admin/errors/[id]/repair, bff/admin/login (power /xloginy, /xerrors)",
+      "bff/admin/users/search, bff/admin/users/[email]/notify, bff/admin/notifications/individual (power /xnotificationy Individual tab, f122)",
       "bff/admin/packages/pricing, bff/admin/packages/pricing/[packageId], bff/admin/packages/pricing/bulk-discount (power /xpricing)",
       "bff/admin/support/threads, bff/admin/support/threads/[id], messages/attachments/read/solved, bff/admin/support/attachments/[id] (power /xsupport)"
     ],

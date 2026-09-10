@@ -5,6 +5,7 @@ import { Bell, Pencil, RefreshCw, Send, Trash2, X } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
+import { IndividualNotificationsTab } from "./IndividualNotificationsTab";
 
 type NotificationMessage = {
   id: string;
@@ -53,6 +54,8 @@ export default function AdminNotificationsPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const [tab, setTab] = useState<"broadcast" | "individual">("broadcast");
 
   async function loadNotifications(nextToken = token) {
     if (!nextToken) return;
@@ -293,10 +296,35 @@ export default function AdminNotificationsPage() {
           />
         ) : (
           <>
-            <form
-              className="mb-6 rounded-2xl border border-line bg-white p-5 shadow-card"
-              onSubmit={createNotification}
-            >
+            <div className="mb-6 inline-flex rounded-xl border border-line bg-white p-1 shadow-sm">
+              <button
+                className={`rounded-lg px-4 py-2 text-xs font-bold transition ${
+                  tab === "broadcast" ? "bg-midnight text-aqua" : "text-muted hover:text-midnight"
+                }`}
+                onClick={() => setTab("broadcast")}
+                type="button"
+              >
+                Broadcast
+              </button>
+              <button
+                className={`rounded-lg px-4 py-2 text-xs font-bold transition ${
+                  tab === "individual" ? "bg-midnight text-aqua" : "text-muted hover:text-midnight"
+                }`}
+                onClick={() => setTab("individual")}
+                type="button"
+              >
+                Individual
+              </button>
+            </div>
+
+            {tab === "individual" ? (
+              <IndividualNotificationsTab handleUnauthorized={handleUnauthorized} token={token} />
+            ) : (
+              <>
+                <form
+                  className="mb-6 rounded-2xl border border-line bg-white p-5 shadow-card"
+                  onSubmit={createNotification}
+                >
               <h2 className="mb-3 text-sm font-black uppercase tracking-wide text-midnight">Add notification</h2>
               <p className="mb-3 text-xs font-semibold text-muted">Fill in a title, a body, or both.</p>
               <label className="block text-sm font-bold text-midnight" htmlFor="new-title">
@@ -444,7 +472,9 @@ export default function AdminNotificationsPage() {
                   ))}
                 </ul>
               )}
-            </div>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

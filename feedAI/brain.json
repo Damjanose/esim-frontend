@@ -23,7 +23,7 @@
     "bug|broken|not working|symptom|regression|invalid_client|redirect_uri_mismatch": "topics/troubleshooting.json",
     "No destination found|empty destinations|wizard filters lost|wikimedia hostname|discount badge missing|retailPrice guard": "topics/troubleshooting-destinations.json",
     "landing page|hero|destinations page|seo-pages|guides|use-cases|support page|faq|terms|policy|legal|content/": "topics/public-content-pages.json",
-    "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|xsupport|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|activity tracking|inactivity notification|support inbox": "topics/admin-dashboard-ui.json",
+    "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|xsupport|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|individual notification|UserNotification|activity tracking|inactivity notification|support inbox": "topics/admin-dashboard-ui.json",
     "signin page|checkout page|account page|profile page|my esims page|planCard|activeplancard": "topics/account-profile-pages.json",
     "partner|affiliate|xpartnersy|commission|wallet topup|payout|referral link|promo code|PartnerOrderCredit|QrCodeCard": "topics/partners.json",
     "cookies|consent|privacy choices|Google Consent Mode|Google Ads|GA4|Meta Pixel|tracking": "topics/privacy-consent.json"
@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-10",
-    "note_latest": "f121: /xsupport emits support:typing while the admin is composing. See facts.jsonl f121.\n\nf120: /xsupport live replies update chat text and list preview (not only the unread badge), matching mobile. See facts.jsonl f120.\n\nf119: /xsupport attachment lightbox fits the full image in the viewport (90vh/90vw contain). See facts.jsonl f119.\n\nf118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
+    "note_latest": "f122: /xnotificationy Individual tab (per-user search/send/history) plus three BFF proxies; pairs with backend f150. See facts.jsonl f122.\n\nf121: /xsupport emits support:typing while the admin is composing. See facts.jsonl f121.\n\nf120: /xsupport live replies update chat text and list preview (not only the unread badge), matching mobile. See facts.jsonl f120.\n\nf119: /xsupport attachment lightbox fits the full image in the viewport (90vh/90vw contain). See facts.jsonl f119.\n\nf118: consent prompt is a full-width bottom banner delayed until the homepage suggestion wizard closes; f117 added consent-gated Analytics/Marketing tracking. Prior: f114 removed the feedAI pre-commit hook..."
   }
 }

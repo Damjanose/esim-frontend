@@ -74,4 +74,33 @@ describe("hidden admin notifications page", () => {
     expect(pageSource).toContain("newFieldsInvalid");
     expect(pageSource).toContain("editFieldsInvalid");
   });
+
+  it("adds an individual-notifications tab with user search, a send form, and a history list", () => {
+    const pageSource = readFileSync("src/app/xnotificationy/page.tsx", "utf8");
+    const tabSource = readFileSync("src/app/xnotificationy/IndividualNotificationsTab.tsx", "utf8");
+
+    expect(pageSource).toContain("IndividualNotificationsTab");
+    expect(pageSource).toContain('"broadcast"');
+    expect(pageSource).toContain('"individual"');
+    expect(tabSource).toContain("/bff/admin/users/search");
+    expect(tabSource).toContain("/notify");
+    expect(tabSource).toContain("/bff/admin/notifications/individual");
+    expect(tabSource).toContain("Enter a title, a body, or both.");
+  });
+
+  it("adds local admin API proxy routes for user search, individual send, and individual history", () => {
+    expect(existsSync("src/app/bff/admin/users/search/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/users/[email]/notify/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/notifications/individual/route.ts")).toBe(true);
+
+    const searchProxy = readFileSync("src/app/bff/admin/users/search/route.ts", "utf8");
+    const notifyProxy = readFileSync("src/app/bff/admin/users/[email]/notify/route.ts", "utf8");
+    const historyProxy = readFileSync("src/app/bff/admin/notifications/individual/route.ts", "utf8");
+
+    expect(searchProxy).toContain("/admin/users/search");
+    expect(searchProxy).toContain("backendFetch");
+    expect(notifyProxy).toContain("/notify");
+    expect(notifyProxy).toContain('method: "POST"');
+    expect(historyProxy).toContain("/admin/notifications/individual");
+  });
 });

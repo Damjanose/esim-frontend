@@ -33,7 +33,7 @@ New Prisma model, append-only send log:
 ```prisma
 model UserNotification {
   id              String   @id @default(cuid())
-  userEmail       String
+  userEmail       String?
   user            User?    @relation(fields: [userEmail], references: [email], onDelete: SetNull)
   title           String?
   body            String?
@@ -46,6 +46,12 @@ model UserNotification {
   @@index([createdAt])
 }
 ```
+
+`userEmail` is `String?` at the schema level — not because it's ever actually
+absent (the send path always populates it), but because Prisma only allows
+`onDelete: SetNull` on an optional scalar field. This mirrors
+`DeviceToken.userEmail`, which is `String?` for the same reason (a deleted
+`User` shouldn't cascade-delete their send history).
 
 `sentByAdminEmail` records which admin sent it — the existing partner routes
 already read `(req as AdminRequest).admin?.email` for accountability logging

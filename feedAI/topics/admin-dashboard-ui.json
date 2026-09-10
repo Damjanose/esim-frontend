@@ -1,6 +1,6 @@
 {
   "topic": "admin-dashboard-ui",
-  "covers": "The actual UI/behavior of the five hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast notifications) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
+  "covers": "The actual UI/behavior of the hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast + individual notifications, /xactivityy, /xpartnersy, /xsupport) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
   "facts": [
     "f044",
     "f045",
@@ -21,7 +21,8 @@
     "f112",
     "f113",
     "f116",
-    "f120"
+    "f120",
+    "f122"
   ],
     "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
@@ -73,6 +74,17 @@
       "src/app/bff/admin/notifications/route.ts",
       "src/app/bff/admin/notifications/[id]/route.ts",
       "src/app/bff/admin/notifications/[id]/send/route.ts"
+    ]
+  },
+  "xnotificationy_individual_notifications": {
+    "file": "src/app/xnotificationy/IndividualNotificationsTab.tsx",
+    "note": "f122 (2026-09-10): Broadcast/Individual tab switcher on the same page. Individual is compose-and-fire-once (not editable drafts). Backend log is UserNotification (E-SIM backend f150).",
+    "data_source": "GET /bff/admin/users/search?q=, POST /bff/admin/users/[email]/notify, GET /bff/admin/notifications/individual",
+    "renders": "debounced email search (min 2 chars), compose title/body (at least one required), history list with sentCount/failureCount including zero-device sends.",
+    "proxies": [
+      "src/app/bff/admin/users/search/route.ts",
+      "src/app/bff/admin/users/[email]/notify/route.ts",
+      "src/app/bff/admin/notifications/individual/route.ts"
     ]
   },
   "xactivityy_activity_tracking": {

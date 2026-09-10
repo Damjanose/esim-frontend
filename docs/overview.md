@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-09
+last_updated: 2026-09-10
 ---
 
 # Project Overview — E-SIM-frontend
@@ -9,7 +9,7 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 
 ## Current state
 - App Router structure under `src/app/`: public marketing pages (`destinations`, `destinations/[slug]`, `use-cases`, `use-cases/[slug]`, `guides`, `guides/[slug]`, `support`, `policy`, `terms`), auth (`signin`), account/purchase (`account`, `account/[orderId]`, `account/topup`, `profile`, `profile/billing`, `profile/deleted`), and `checkout` + `checkout/return` + `checkout/failed`
-- Admin surfaces live under deliberately obfuscated route names, not `/admin*`: `xloginy` (admin sign-in), `xpricing` (price management), `xnotificationy`, `xerrors`, `xversion` (app version/usage report), `xactivityy`, `xpartnersy`, `xsupport` (live support inbox) — obfuscation is the access control, don't rename these to anything guessable
+- Admin surfaces live under deliberately obfuscated route names, not `/admin*`: `xloginy` (admin sign-in), `xpricing` (price management), `xnotificationy` (broadcast drafts plus an Individual tab for one-off per-user pushes and send history), `xerrors`, `xversion` (app version/usage report), `xactivityy`, `xpartnersy`, `xsupport` (live support inbox) — obfuscation is the access control, don't rename these to anything guessable
 - `src/app/bff/*` is a Backend-For-Frontend layer: Next.js route handlers under `bff/auth`, `bff/payments`, `bff/user`, `bff/packages`, `bff/admin`, `bff/country-image` proxy browser requests to the `E-SIM backend` API. REST from the browser never calls Express directly. The **one exception** is Socket.IO from `/xsupport`, which connects to the API origin with the admin dashboard token so unread badges and messages update live.
 - `src/middleware.ts` handles host/protocol canonicalization (redirects `www.esim.uplisoft.com` and `http://` to the canonical `https://esim.uplisoft.com`, strips trailing slashes) and route guarding (`src/lib/route-guard.ts`) for signed-in-only pages; it resolves the public origin from forwarded headers rather than `request.nextUrl`, since production sits behind an Nginx reverse proxy on loopback
 - Session cookies (`ACCESS_COOKIE`, `REFRESH_COOKIE` in `src/lib/session.ts`) are the client-side auth state; BFF routes read/refresh them rather than the page code touching backend tokens directly
