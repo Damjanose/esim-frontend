@@ -50,7 +50,7 @@ export function IndividualNotificationsTab({
 
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [isForceLoggingOut, setIsForceLoggingOut] = useState(false);
+  const [forceLogoutKind, setForceLogoutKind] = useState<"unlinked" | "all" | null>(null);
 
   async function loadHistory() {
     if (!token) return;
@@ -117,21 +117,25 @@ export function IndividualNotificationsTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, token]);
 
-  async function forceLogoutUnlinked() {
-    if (
-      !window.confirm(
-        "Force-logout every account with no linked device? Those users must sign in again."
-      )
-    ) {
-      return;
-    }
+  async function forceLogout(kind: "unlinked" | "all") {
+    const confirmed = window.confirm(
+      kind === "all"
+        ? "Force-logout every signed-in account? All users must sign in again."
+        : "Force-logout every account with no linked device? Those users must sign in again."
+    );
+    if (!confirmed) return;
 
-    setIsForceLoggingOut(true);
+    setForceLogoutKind(kind);
     setError("");
     setNotice("");
 
+    const path =
+      kind === "all" ? "/bff/admin/users/force-logout-all" : "/bff/admin/users/force-logout-unlinked";
+    const failMessage =
+      kind === "all" ? "Could not force-logout all users" : "Could not force-logout unlinked users";
+
     try {
-      const response = await fetch("/bff/admin/users/force-logout-unlinked", {
+      const response = await fetch(path, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -145,18 +149,26 @@ export function IndividualNotificationsTab({
         return;
       }
       if (!response.ok || payload.status !== "success") {
-        throw new Error(payload.message ?? "Could not force-logout unlinked users");
+        throw new Error(payload.message ?? failMessage);
       }
       const count = payload.data?.loggedOutCount ?? 0;
-      setNotice(
-        count === 1
-          ? "Forced 1 unlinked account to sign in again."
-          : `Forced ${count} unlinked accounts to sign in again.`
-      );
+      if (kind === "all") {
+        setNotice(
+          count === 1
+            ? "Forced 1 account to sign in again."
+            : `Forced ${count} accounts to sign in again.`
+        );
+      } else {
+        setNotice(
+          count === 1
+            ? "Forced 1 unlinked account to sign in again."
+            : `Forced ${count} unlinked accounts to sign in again.`
+        );
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not force-logout unlinked users");
+      setError(err instanceof Error ? err.message : failMessage);
     } finally {
-      setIsForceLoggingOut(false);
+      setForceLogoutKind(null);
     }
   }
 
@@ -223,15 +235,26 @@ export function IndividualNotificationsTab({
       <div className="mb-6 rounded-2xl border border-line bg-white p-5 shadow-card">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <h2 className="text-sm font-black uppercase tracking-wide text-midnight">Send to a user</h2>
-          <button
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-line px-3 text-xs font-bold text-midnight transition hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isForceLoggingOut}
-            onClick={() => void forceLogoutUnlinked()}
-            type="button"
-          >
-            <LogOut aria-hidden="true" size={14} />
-            {isForceLoggingOut ? "Signing out..." : "Force-logout unlinked"}
-          </button>
+          <div className="flex flex-wrap justify-end gap-2">
+            <button
+              className="inline-flex h-9 items-center gap-2 rounded-xl border border-line px-3 text-xs font-bold text-midnight transition hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={forceLogoutKind !== null}
+              onClick={() => void forceLogout("unlinked")}
+              type="button"
+            >
+              <LogOut aria-hidden="true" size={14} />
+              {forceLogoutKind === "unlinked" ? "Signing out..." : "Force-logout unlinked"}
+            </button>
+            <button
+              className="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 px-3 text-xs font-bold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={forceLogoutKind !== null}
+              onClick={() => void forceLogout("all")}
+              type="button"
+            >
+              <LogOut aria-hidden="true" size={14} />
+              {forceLogoutKind === "all" ? "Signing out..." : "Force-logout all"}
+            </button>
+          </div>
         </div>
 
         {!selected ? (

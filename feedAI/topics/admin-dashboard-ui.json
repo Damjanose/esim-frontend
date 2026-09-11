@@ -23,7 +23,8 @@
     "f116",
     "f120",
     "f122",
-    "f124"
+    "f124",
+    "f126"
   ],
     "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
@@ -79,13 +80,14 @@
   },
   "xnotificationy_individual_notifications": {
     "file": "src/app/xnotificationy/IndividualNotificationsTab.tsx",
-    "note": "f122 (2026-09-10): Broadcast/Individual tab switcher on the same page. Individual is compose-and-fire-once (not editable drafts). Backend log is UserNotification (E-SIM backend f150). f124: Force-logout unlinked stamps User.sessionInvalidBefore on accounts with no related DeviceToken (backend f152).",
-    "data_source": "GET /bff/admin/users/search?q=, POST /bff/admin/users/[email]/notify, POST /bff/admin/users/force-logout-unlinked, GET /bff/admin/notifications/individual",
-    "renders": "debounced email search (min 2 chars), compose title/body (at least one required), Force-logout unlinked (confirm, then POST), history list with sentCount/failureCount including zero-device sends.",
+    "note": "f122 (2026-09-10): Broadcast/Individual tab switcher on the same page. Individual is compose-and-fire-once (not editable drafts). Backend log is UserNotification (E-SIM backend f150). f124: Force-logout unlinked stamps User.sessionInvalidBefore on accounts with no related DeviceToken (backend f152). f126: Force-logout all stamps every User (backend f153).",
+    "data_source": "GET /bff/admin/users/search?q=, POST /bff/admin/users/[email]/notify, POST /bff/admin/users/force-logout-unlinked, POST /bff/admin/users/force-logout-all, GET /bff/admin/notifications/individual",
+    "renders": "debounced email search (min 2 chars), compose title/body (at least one required), Force-logout unlinked and Force-logout all (confirm, then POST), history list with sentCount/failureCount including zero-device sends.",
     "proxies": [
       "src/app/bff/admin/users/search/route.ts",
       "src/app/bff/admin/users/[email]/notify/route.ts",
       "src/app/bff/admin/users/force-logout-unlinked/route.ts",
+      "src/app/bff/admin/users/force-logout-all/route.ts",
       "src/app/bff/admin/notifications/individual/route.ts"
     ]
   },

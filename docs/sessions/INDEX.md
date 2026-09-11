@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-11 | [force-logout all](./2026-09-11_force-logout-all.md) | Individual notifications tab can force-logout every account so they must sign in again |
 | 2026-09-10 | [website SEO architecture](./2026-09-10_website-seo-architecture.md) | Moved destination SEO to /esim/[slug] and guides to /travel/[slug], split the sitemap, added live plan tables and factual /compare pages |
 | 2026-09-10 | [force-logout unlinked](./2026-09-10_force-logout-unlinked.md) | Individual notifications tab can force-logout every account with no linked device so they must sign in again |
 | 2026-09-10 | [packages data cache](./2026-09-10_packages-data-cache.md) | Stopped Next from caching the 2.7MB `/api/packages` body (2MB limit); destination “from” prices now ISR a slim offer index instead |
