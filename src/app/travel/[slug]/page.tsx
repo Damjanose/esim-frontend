@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function GuidePage({ params }: PageProps) {
+export default async function TravelGuidePage({ params }: PageProps) {
   const { slug } = await params;
   const page = guidePages.find((entry) => entry.slug === slug);
 
@@ -37,5 +37,5 @@ export default async function GuidePage({ params }: PageProps) {
     notFound();
   }
 
-  return <SeoContentPageView page={page} parent={{ name: "Guides", path: "/" }} />;
+  return <SeoContentPageView page={page} parent={{ name: "Travel guides", path: "/travel" }} />;
 }

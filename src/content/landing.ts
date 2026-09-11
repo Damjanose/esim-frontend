@@ -56,7 +56,7 @@ export const landingContent = {
       region: "North America",
       price: "$4.50",
       badge: "5G ready",
-      href: "/destinations/usa",
+      href: "/esim/usa",
       palette: "from-sky-200 via-cyan-100 to-slate-200",
       landmark: "NYC",
       imageUrl:
@@ -67,7 +67,7 @@ export const landingContent = {
       country: "Japan",
       region: "Asia",
       price: "$5.20",
-      href: "/destinations/japan",
+      href: "/esim/japan",
       palette: "from-rose-100 via-cyan-100 to-sky-200",
       landmark: "Fuji",
       imageUrl:
@@ -78,7 +78,7 @@ export const landingContent = {
       country: "UK",
       region: "Europe",
       price: "$4.50",
-      href: "/destinations/uk",
+      href: "/esim/uk",
       palette: "from-indigo-200 via-sky-100 to-cyan-100",
       landmark: "London",
       imageUrl:
@@ -90,7 +90,7 @@ export const landingContent = {
       region: "Europe",
       price: "$4.50",
       badge: "Best seller",
-      href: "/destinations/france",
+      href: "/esim/france",
       palette: "from-amber-100 via-slate-100 to-cyan-100",
       landmark: "Paris",
       imageUrl:
@@ -101,7 +101,7 @@ export const landingContent = {
       country: "Turkey",
       region: "Asia/Europe",
       price: "$4.80",
-      href: "/destinations/turkey",
+      href: "/esim/turkey",
       palette: "from-orange-100 via-cyan-100 to-slate-200",
       landmark: "Istanbul",
       imageUrl:

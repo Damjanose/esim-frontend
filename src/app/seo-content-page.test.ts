@@ -9,16 +9,14 @@ describe("SEO content page template", () => {
     expect(source).toContain("<SiteFooter />");
   });
 
-  it("renders enabled App Store and Google Play links for content-page app CTAs", () => {
-    const source = readFileSync("src/app/SeoContentPage.tsx", "utf8");
+  it("renders destination pages with a keyword H1, breadcrumbs, and a live plan table", () => {
+    const source = readFileSync("src/app/EsimDestinationPage.tsx", "utf8");
 
-    expect(source).toContain("landingContent.appLinks.ios.href");
-    expect(source).toContain("landingContent.appLinks.android.href");
-    expect(source).toContain('aria-label="Download eSim2you on the App Store"');
-    expect(source).toContain('aria-label="Download eSim2you on Google Play"');
-    expect(source).toContain("cursor-pointer");
-    expect(source).not.toContain('aria-disabled="true"');
-    expect(source).not.toContain("cursor-not-allowed");
-    expect(source).not.toContain('target="_blank"');
+    expect(source).toContain("{h1}");
+    expect(source).toContain('aria-label="Breadcrumb"');
+    expect(source).toContain("<table");
+    expect(source).toContain("Related destinations");
+    expect(source).toContain("Lowest-priced plan we sell");
+    expect(source).toContain("are the cheapest on the market");
   });
 });

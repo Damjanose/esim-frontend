@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getBackendApiUrl } from "./backend";
+import { backendCountryCode } from "./esim-routes";
 
 export type DestinationOffer = {
   lowPrice: number;
@@ -7,9 +8,26 @@ export type DestinationOffer = {
   offerCount: number;
 };
 
+export type DestinationPlanRow = {
+  id: string;
+  title: string;
+  dataLabel: string;
+  durationLabel: string;
+  network: string;
+  price: string;
+  priceNumeric: number;
+};
+
 type ApiPackage = {
+  id?: string;
   countryCode?: string;
+  title?: string;
+  dataLabel?: string;
+  durationLabel?: string;
+  price?: string;
   priceNumeric?: number;
+  network?: string;
+  filters?: string[];
 };
 
 type PackagesResponse = {
@@ -18,27 +36,19 @@ type PackagesResponse = {
 };
 
 type OfferIndex = Record<string, DestinationOffer>;
+type PlanIndex = Record<string, DestinationPlanRow[]>;
 
-// Backend prices are quoted in EUR (see `price: "€9.89"` in /api/packages).
-const OFFER_CURRENCY = "EUR";
-
-// `countryCode` on /api/packages is actually a slugified country name
-// (e.g. "united-states", "europe"), not an ISO code — and "europe" is a
-// real regional-plan product with its own countryCode, not an aggregate of
-// individual country pages. Every destinationPages slug maps directly
-// except the three below, where our slug and the backend's differ.
-const COUNTRY_CODE_BY_SLUG: Record<string, string> = {
-  usa: "united-states",
-  uk: "united-kingdom",
-  uae: "united-arab-emirates"
+type DestinationCatalog = {
+  offers: OfferIndex;
+  plans: PlanIndex;
 };
 
-function backendCountryCode(slug: string): string {
-  return COUNTRY_CODE_BY_SLUG[slug] ?? slug;
-}
+const OFFER_CURRENCY = "EUR";
+const MAX_PLANS_PER_DESTINATION = 12;
 
-function offerIndexFromPackages(packages: ApiPackage[]): OfferIndex {
+function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
   const pricesByCode = new Map<string, number[]>();
+  const plansByCode = new Map<string, DestinationPlanRow[]>();
 
   for (const pkg of packages) {
     const code = pkg.countryCode?.trim().toLowerCase();
@@ -52,21 +62,45 @@ function offerIndexFromPackages(packages: ApiPackage[]): OfferIndex {
     } else {
       pricesByCode.set(code, [pkg.priceNumeric]);
     }
+
+    const row: DestinationPlanRow = {
+      id: pkg.id?.trim() || `${code}-${pkg.priceNumeric}-${pkg.dataLabel ?? "plan"}`,
+      title: pkg.title?.trim() || `${pkg.dataLabel ?? "Data"} · ${pkg.durationLabel ?? "plan"}`,
+      dataLabel: pkg.dataLabel?.trim() || "Data plan",
+      durationLabel: pkg.durationLabel?.trim() || "Flexible validity",
+      network: pkg.network?.trim() || "4G/5G",
+      price: pkg.price?.trim() || `€${pkg.priceNumeric.toFixed(2)}`,
+      priceNumeric: pkg.priceNumeric
+    };
+
+    const rows = plansByCode.get(code);
+    if (rows) {
+      rows.push(row);
+    } else {
+      plansByCode.set(code, [row]);
+    }
   }
 
-  const index: OfferIndex = {};
+  const offers: OfferIndex = {};
   for (const [code, prices] of pricesByCode) {
-    index[code] = {
+    offers[code] = {
       lowPrice: Math.min(...prices),
       currency: OFFER_CURRENCY,
       offerCount: prices.length
     };
   }
 
-  return index;
+  const plans: PlanIndex = {};
+  for (const [code, rows] of plansByCode) {
+    plans[code] = rows
+      .sort((a, b) => a.priceNumeric - b.priceNumeric)
+      .slice(0, MAX_PLANS_PER_DESTINATION);
+  }
+
+  return { offers, plans };
 }
 
-async function loadOfferIndex(): Promise<OfferIndex> {
+async function loadCatalog(): Promise<DestinationCatalog> {
   try {
     const response = await fetch(`${getBackendApiUrl()}/packages`, {
       headers: { Accept: "application/json" },
@@ -74,30 +108,30 @@ async function loadOfferIndex(): Promise<OfferIndex> {
     });
 
     if (!response.ok) {
-      return {};
+      return { offers: {}, plans: {} };
     }
 
     const payload = (await response.json()) as PackagesResponse;
-    return offerIndexFromPackages(payload.data?.packages ?? payload.packages ?? []);
+    return catalogFromPackages(payload.data?.packages ?? payload.packages ?? []);
   } catch {
-    return {};
+    return { offers: {}, plans: {} };
   }
 }
 
 // Next's data cache rejects bodies over 2MB. `/api/packages` is ~2.7MB, so we
 // must not `fetch` it with `next.revalidate`. Cache only this slim per-country
-// index (ISR, 1h) so destination JSON-LD prices still refresh without storing
-// the catalog.
-const getCachedOfferIndex = unstable_cache(loadOfferIndex, ["destination-offer-index"], {
+// catalog (ISR, 1h) so destination JSON-LD prices and plan tables refresh
+// without storing the full payload.
+const getCachedCatalog = unstable_cache(loadCatalog, ["destination-catalog"], {
   revalidate: 3600
 });
 
-/**
- * Server-side low-price lookup for a destinationPages slug, used to back the
- * Product/AggregateOffer JSON-LD on static destination pages with a real,
- * visible price rather than a guessed one.
- */
 export async function getDestinationOffer(slug: string): Promise<DestinationOffer | null> {
-  const index = await getCachedOfferIndex();
-  return index[backendCountryCode(slug)] ?? null;
+  const catalog = await getCachedCatalog();
+  return catalog.offers[backendCountryCode(slug)] ?? null;
+}
+
+export async function getDestinationPlanRows(slug: string): Promise<DestinationPlanRow[]> {
+  const catalog = await getCachedCatalog();
+  return catalog.plans[backendCountryCode(slug)] ?? [];
 }

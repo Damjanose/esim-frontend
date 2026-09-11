@@ -6,6 +6,8 @@ import { PrivacyChoicesLink } from "./ConsentManager";
 
 const footerExploreLinks = [
   { label: "Browse all eSIM destinations", href: "/destinations" },
+  { label: "Compare travel eSIMs", href: "/compare" },
+  { label: "Travel eSIM guides", href: "/travel" },
   ...useCasePages.map((page) => ({
     label:
       page.slug === "business-travel"

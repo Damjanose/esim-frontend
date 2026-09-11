@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-10",
-    "note_latest": "f124: /xnotificationy Force-logout unlinked (POST /bff/admin/users/force-logout-unlinked) pairs with backend f152. See facts.jsonl f124.\n\nf123: do not put /api/packages (~2.7MB) in Next's data cache (2MB cap); destination offers cache a slim index instead. See facts.jsonl f123.\n\nf122: /xnotificationy Individual tab (per-user search/send/history) plus three BFF proxies; pairs with backend f150. See facts.jsonl f122."
+    "note_latest": "f125: canonical destination SEO is /esim/[slug], guides /travel/[slug], sitemap index at /sitemap.xml with /sitemaps/{static,esim,travel,compare}.xml; /cheapest-esim unpublished. See facts.jsonl f125.\n\nf124: /xnotificationy Force-logout unlinked (POST /bff/admin/users/force-logout-unlinked) pairs with backend f152. See facts.jsonl f124.\n\nf123: do not put /api/packages (~2.7MB) in Next's data cache (2MB cap); destination offers cache a slim index instead. See facts.jsonl f123."
   }
 }

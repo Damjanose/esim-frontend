@@ -21,38 +21,27 @@ describe("SEO route contract", () => {
   });
 
   it("keeps private, admin, and API-only routes out of the sitemap source", () => {
-    expect(indexableRoutes.map((route) => route.path)).toEqual([
-      "/",
-      "/destinations",
-      "/destinations/usa",
-      "/destinations/europe",
-      "/destinations/japan",
-      "/destinations/turkey",
-      "/destinations/france",
-      "/destinations/uk",
-      "/destinations/germany",
-      "/destinations/italy",
-      "/destinations/spain",
-      "/destinations/greece",
-      "/destinations/portugal",
-      "/destinations/switzerland",
-      "/destinations/thailand",
-      "/destinations/uae",
-      "/destinations/mexico",
-      "/destinations/canada",
-      "/destinations/australia",
-      "/destinations/indonesia",
-      "/guides/what-is-an-esim",
-      "/guides/esim-vs-roaming",
-      "/guides/how-to-install-esim",
-      "/guides/internet-abroad",
-      "/guides/esim-vs-local-sim",
-      "/use-cases/business-travel",
-      "/use-cases/remote-work",
-      "/support",
-      "/policy",
-      "/terms"
-    ]);
+    const paths = indexableRoutes.map((route) => route.path);
+
+    expect(paths).toContain("/");
+    expect(paths).toContain("/destinations");
+    expect(paths).toContain("/esim/usa");
+    expect(paths).toContain("/esim/albania");
+    expect(paths).toContain("/esim/asia");
+    expect(paths).toContain("/esim/north-america");
+    expect(paths).toContain("/travel");
+    expect(paths).toContain("/travel/how-to-install-esim");
+    expect(paths).toContain("/use-cases");
+    expect(paths).toContain("/compare");
+    expect(paths).toContain("/compare/airalo-vs-esim2you");
+    expect(paths).not.toContain("/destinations/usa");
+    expect(paths).not.toContain("/guides/how-to-install-esim");
+    expect(paths.some((path) => path.startsWith("/cheapest-esim"))).toBe(false);
+
+    for (const prefix of privateRoutePrefixes) {
+      expect(paths.some((path) => path === prefix || path.startsWith(`${prefix}/`))).toBe(false);
+    }
+
     expect(privateRoutePrefixes).toEqual([
       "/api",
       "/admin",
@@ -64,33 +53,38 @@ describe("SEO route contract", () => {
       "/dashboard",
       "/profile",
       "/signin",
+      "/xactivityy",
       "/xerrors",
       "/xloginy",
-      "/xsupport"
+      "/xnotificationy",
+      "/xpartnersy",
+      "/xpricing",
+      "/xsupport",
+      "/xversion"
     ]);
   });
 
   it("builds route metadata with canonical, open graph, twitter, and index directives", () => {
     const metadata = createMetadata({
       path: "/policy",
-      title: "Privacy Policy | eSim2you",
-      description: "Privacy Policy for eSim2you travelers and app users."
+      title: "Privacy Policy | eSIM2you",
+      description: "Privacy Policy for eSIM2you travelers and app users."
     });
 
     expect(metadata.alternates).toEqual({
       canonical: "https://esim.uplisoft.com/policy"
     });
     expect(metadata.openGraph).toMatchObject({
-      title: "Privacy Policy | eSim2you",
-      description: "Privacy Policy for eSim2you travelers and app users.",
+      title: "Privacy Policy | eSIM2you",
+      description: "Privacy Policy for eSIM2you travelers and app users.",
       url: "https://esim.uplisoft.com/policy",
-      siteName: "eSim2you",
+      siteName: "eSIM2you",
       type: "website"
     });
     expect(metadata.twitter).toMatchObject({
       card: "summary_large_image",
-      title: "Privacy Policy | eSim2you",
-      description: "Privacy Policy for eSim2you travelers and app users."
+      title: "Privacy Policy | eSIM2you",
+      description: "Privacy Policy for eSIM2you travelers and app users."
     });
     expect(metadata.robots).toEqual({ index: true, follow: true });
   });
@@ -170,14 +164,14 @@ describe("SEO route contract", () => {
 
   it("creates content page schema with breadcrumbs and visible FAQ answers", () => {
     const schema = createContentPageJsonLd({
-      path: "/guides/what-is-an-esim",
+      path: "/travel/what-is-an-esim",
       name: "What Is an eSIM?",
       description:
         "A simple guide to what an eSIM is, how travel eSIM data works, and when to install one before an international trip.",
       breadcrumbName: "What Is an eSIM?",
       parent: {
-        name: "Guides",
-        path: "/guides"
+        name: "Travel guides",
+        path: "/travel"
       },
       faqs: [
         {
@@ -192,8 +186,8 @@ describe("SEO route contract", () => {
       expect.arrayContaining([
         expect.objectContaining({
           "@type": "WebPage",
-          "@id": "https://esim.uplisoft.com/guides/what-is-an-esim#webpage",
-          url: "https://esim.uplisoft.com/guides/what-is-an-esim",
+          "@id": "https://esim.uplisoft.com/travel/what-is-an-esim#webpage",
+          url: "https://esim.uplisoft.com/travel/what-is-an-esim",
           name: "What Is an eSIM?"
         }),
         expect.objectContaining({
@@ -206,13 +200,13 @@ describe("SEO route contract", () => {
             }),
             expect.objectContaining({
               position: 2,
-              name: "Guides",
-              item: "https://esim.uplisoft.com/guides"
+              name: "Travel guides",
+              item: "https://esim.uplisoft.com/travel"
             }),
             expect.objectContaining({
               position: 3,
               name: "What Is an eSIM?",
-              item: "https://esim.uplisoft.com/guides/what-is-an-esim"
+              item: "https://esim.uplisoft.com/travel/what-is-an-esim"
             })
           ]
         }),

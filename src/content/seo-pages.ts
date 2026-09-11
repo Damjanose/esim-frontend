@@ -35,8 +35,8 @@ export const destinationPages = [
   {
     kind: "destination",
     slug: "usa",
-    path: "/destinations/usa",
-    title: "eSIM for USA | Travel Data for the United States",
+    path: "/esim/usa",
+    title: "eSIM USA | Travel Data for the United States | eSIM2you",
     description:
       "Buy a eSim2you for the USA, install your travel data before departure, and stay online without surprise roaming fees.",
     eyebrow: "USA travel eSIM",
@@ -69,14 +69,14 @@ export const destinationPages = [
     ],
     relatedLinks: [
       { label: "Browse every eSIM destination", href: "/destinations" },
-      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "Learn how eSIMs work", href: "/travel/what-is-an-esim" },
       { label: "Business travel data guide", href: "/use-cases/business-travel" }
     ]
   },
   {
     kind: "destination",
     slug: "europe",
-    path: "/destinations/europe",
+    path: "/esim/europe",
     title: "eSIM for Europe | International Data Without Roaming",
     description:
       "Use eSim2you for Europe travel data, mobile internet abroad, and a simpler roaming alternative across European trips.",
@@ -109,15 +109,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "France travel eSIM plans", href: "/destinations/france" },
-      { label: "UK travel eSIM plans", href: "/destinations/uk" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+      { label: "France travel eSIM plans", href: "/esim/france" },
+      { label: "UK travel eSIM plans", href: "/esim/uk" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" }
     ]
   },
   {
     kind: "destination",
     slug: "japan",
-    path: "/destinations/japan",
+    path: "/esim/japan",
     title: "eSIM for Japan | Travel Data Before Arrival",
     description:
       "Prepare a Japan travel eSIM with eSim2you and use mobile data for maps, messaging, translation, and transport apps.",
@@ -151,14 +151,14 @@ export const destinationPages = [
     ],
     relatedLinks: [
       { label: "Browse every eSIM destination", href: "/destinations" },
-      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Travel eSIM setup steps", href: "/travel/how-to-install-esim" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" }
     ]
   },
   {
     kind: "destination",
     slug: "turkey",
-    path: "/destinations/turkey",
+    path: "/esim/turkey",
     title: "eSIM for Turkey | Travel Internet for Visitors",
     description:
       "Get a eSim2you for Turkey travel data and use mobile internet abroad for maps, messaging, bookings, and work trips.",
@@ -193,13 +193,13 @@ export const destinationPages = [
     relatedLinks: [
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
       { label: "Remote work data guide", href: "/use-cases/remote-work" },
-      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" }
+      { label: "Learn how eSIMs work", href: "/travel/what-is-an-esim" }
     ]
   },
   {
     kind: "destination",
     slug: "france",
-    path: "/destinations/france",
+    path: "/esim/france",
     title: "eSIM for France | Travel Data for Paris and Beyond",
     description:
       "Use eSim2you for France travel data, mobile internet in Paris, and a cleaner alternative to international roaming.",
@@ -232,15 +232,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "UK travel eSIM plans", href: "/destinations/uk" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "UK travel eSIM plans", href: "/esim/uk" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" }
     ]
   },
   {
     kind: "destination",
     slug: "uk",
-    path: "/destinations/uk",
+    path: "/esim/uk",
     title: "eSIM for UK | Travel Data for the United Kingdom",
     description:
       "Prepare a UK travel eSIM with eSim2you and use mobile data for London trips, business travel, maps, and messaging.",
@@ -273,15 +273,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" }
     ]
   },
   {
     kind: "destination",
     slug: "germany",
-    path: "/destinations/germany",
+    path: "/esim/germany",
     title: "eSIM for Germany | Travel Data for Berlin and Beyond",
     description:
       "Buy a eSim2you for Germany travel data, install it before departure, and use mobile internet in Berlin, Munich, and beyond.",
@@ -314,15 +314,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "France travel eSIM plans", href: "/destinations/france" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "France travel eSIM plans", href: "/esim/france" },
       { label: "Business travel data guide", href: "/use-cases/business-travel" }
     ]
   },
   {
     kind: "destination",
     slug: "italy",
-    path: "/destinations/italy",
+    path: "/esim/italy",
     title: "eSIM for Italy | Travel Data for Rome, Milan, and More",
     description:
       "Use eSim2you for Italy travel data, mobile internet in Rome and Milan, and a simpler alternative to international roaming.",
@@ -355,15 +355,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "France travel eSIM plans", href: "/destinations/france" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "France travel eSIM plans", href: "/esim/france" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" }
     ]
   },
   {
     kind: "destination",
     slug: "spain",
-    path: "/destinations/spain",
+    path: "/esim/spain",
     title: "eSIM for Spain | Travel Data for Barcelona, Madrid, and More",
     description:
       "Prepare a Spain travel eSIM with eSim2you and use mobile data for Barcelona, Madrid, maps, and messaging while traveling.",
@@ -396,15 +396,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "Italy travel eSIM plans", href: "/destinations/italy" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Italy travel eSIM plans", href: "/esim/italy" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" }
     ]
   },
   {
     kind: "destination",
     slug: "greece",
-    path: "/destinations/greece",
+    path: "/esim/greece",
     title: "eSIM for Greece | Travel Data for Athens and the Islands",
     description:
       "Buy a eSim2you for Greece travel data, use mobile internet in Athens, and stay connected across the Greek islands.",
@@ -437,15 +437,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "Italy travel eSIM plans", href: "/destinations/italy" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Italy travel eSIM plans", href: "/esim/italy" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" }
     ]
   },
   {
     kind: "destination",
     slug: "portugal",
-    path: "/destinations/portugal",
+    path: "/esim/portugal",
     title: "eSIM for Portugal | Travel Data for Lisbon and Porto",
     description:
       "Prepare a Portugal travel eSIM with eSim2you and use mobile data for Lisbon, Porto, maps, and messaging while traveling.",
@@ -478,15 +478,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "Spain travel eSIM plans", href: "/destinations/spain" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Spain travel eSIM plans", href: "/esim/spain" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" }
     ]
   },
   {
     kind: "destination",
     slug: "switzerland",
-    path: "/destinations/switzerland",
+    path: "/esim/switzerland",
     title: "eSIM for Switzerland | Travel Data Outside the EU Roaming Zone",
     description:
       "Use eSim2you for Switzerland travel data, mobile internet in Zurich and Geneva, and a simpler alternative to roaming.",
@@ -519,15 +519,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" },
-      { label: "Germany travel eSIM plans", href: "/destinations/germany" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" }
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Germany travel eSIM plans", href: "/esim/germany" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" }
     ]
   },
   {
     kind: "destination",
     slug: "thailand",
-    path: "/destinations/thailand",
+    path: "/esim/thailand",
     title: "eSIM for Thailand | Travel Data for Bangkok and Beyond",
     description:
       "Buy a eSim2you for Thailand, install it before you land, and use mobile data in Bangkok, Phuket, and Chiang Mai without roaming fees.",
@@ -561,14 +561,14 @@ export const destinationPages = [
     ],
     relatedLinks: [
       { label: "Browse every eSIM destination", href: "/destinations" },
-      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Learn how eSIMs work", href: "/travel/what-is-an-esim" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" }
     ]
   },
   {
     kind: "destination",
     slug: "uae",
-    path: "/destinations/uae",
+    path: "/esim/uae",
     title: "eSIM for UAE | Travel Data for Dubai and Abu Dhabi",
     description:
       "Get a eSim2you for the UAE and use mobile internet in Dubai and Abu Dhabi without hunting for a local SIM after landing.",
@@ -602,14 +602,14 @@ export const destinationPages = [
     ],
     relatedLinks: [
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
-      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Travel eSIM setup steps", href: "/travel/how-to-install-esim" },
       { label: "Browse every eSIM destination", href: "/destinations" }
     ]
   },
   {
     kind: "destination",
     slug: "mexico",
-    path: "/destinations/mexico",
+    path: "/esim/mexico",
     title: "eSIM for Mexico | Travel Data for Cancun, CDMX, and More",
     description:
       "Use eSim2you for Mexico travel data, mobile internet in Cancun, Mexico City, and beach destinations, without roaming surprises.",
@@ -643,14 +643,14 @@ export const destinationPages = [
     ],
     relatedLinks: [
       { label: "Browse every eSIM destination", href: "/destinations" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" }
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" }
     ]
   },
   {
     kind: "destination",
     slug: "canada",
-    path: "/destinations/canada",
+    path: "/esim/canada",
     title: "eSIM for Canada | Travel Data for Toronto, Vancouver, and More",
     description:
       "Buy a eSim2you for Canada, install it in minutes, and stay online in Toronto, Vancouver, and Montreal without roaming fees.",
@@ -683,15 +683,15 @@ export const destinationPages = [
       }
     ],
     relatedLinks: [
-      { label: "USA travel eSIM plans", href: "/destinations/usa" },
-      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
+      { label: "USA travel eSIM plans", href: "/esim/usa" },
+      { label: "Learn how eSIMs work", href: "/travel/what-is-an-esim" },
       { label: "Business travel data guide", href: "/use-cases/business-travel" }
     ]
   },
   {
     kind: "destination",
     slug: "australia",
-    path: "/destinations/australia",
+    path: "/esim/australia",
     title: "eSIM for Australia | Travel Data for Sydney, Melbourne, and More",
     description:
       "Get a eSim2you for Australia travel data and stay connected in Sydney, Melbourne, and beyond without a local SIM stop.",
@@ -725,14 +725,14 @@ export const destinationPages = [
     ],
     relatedLinks: [
       { label: "Browse every eSIM destination", href: "/destinations" },
-      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Travel eSIM setup steps", href: "/travel/how-to-install-esim" },
       { label: "Remote work data guide", href: "/use-cases/remote-work" }
     ]
   },
   {
     kind: "destination",
     slug: "indonesia",
-    path: "/destinations/indonesia",
+    path: "/esim/indonesia",
     title: "eSIM for Indonesia | Travel Data for Bali and Beyond",
     description:
       "Use eSim2you for Indonesia travel data, mobile internet in Bali and Jakarta, and a simpler alternative to roaming.",
@@ -769,6 +769,134 @@ export const destinationPages = [
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
       { label: "Browse every eSIM destination", href: "/destinations" }
     ]
+  },
+  {
+    kind: "destination",
+    slug: "albania",
+    path: "/esim/albania",
+    title: "eSIM Albania | Travel Data Plans | eSIM2you",
+    description:
+      "Buy an eSIM for Albania with eSIM2you. Compare prepaid travel data plans for Tirana and the coast, then install before you fly.",
+    eyebrow: "Albania travel eSIM",
+    heading: "Travel data for Albania, ready before you land in Tirana.",
+    intro:
+      "eSIM2you helps travelers visiting Albania set up mobile internet before arrival. Choose a prepaid eSIM data plan for Tirana, the Albanian Riviera, or a Balkans itinerary, install it on a compatible phone, and skip roaming surprises. Keep travel data ready when you land.",
+    sections: [
+      {
+        title: "Useful from the airport to the coast",
+        body:
+          "An Albania eSIM helps with maps, ride apps, translation, ferry and bus tickets, and messaging while you move between Tirana, Durrës, Sarandë, and mountain towns."
+      },
+      {
+        title: "Install travel data before departure",
+        body:
+          "Install the eSIM on Wi-Fi at home, then turn on the travel data line when you arrive in Albania so you are not hunting for a SIM shop after a long journey."
+      },
+      {
+        title: "How the eSIM works in Albania",
+        body:
+          "The plan uses local 4G/5G networks where coverage exists. Hotspot use depends on the specific package — check the plan table on this page. Your usual number can stay on a dual-SIM phone."
+      }
+    ],
+    faqs: [
+      {
+        question: "Can I install an Albania eSIM before flying?",
+        answer:
+          "Yes. Install the eSIM before your trip, then enable the data line when you arrive in Albania."
+      },
+      {
+        question: "Does an Albania eSIM change my phone number?",
+        answer:
+          "No. A travel eSIM provides mobile data. Your regular SIM can stay active for calls, texts, and WhatsApp on dual-SIM phones."
+      }
+    ],
+    relatedLinks: [
+      { label: "Greece travel eSIM plans", href: "/esim/greece" },
+      { label: "Italy travel eSIM plans", href: "/esim/italy" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "asia",
+    path: "/esim/asia",
+    title: "eSIM for Asia | Regional Travel Data | eSIM2you",
+    description:
+      "Compare Asia eSIM plans and country pages for Japan, Thailand, Indonesia, and the UAE. Use eSIM2you for prepaid travel data across Asian trips.",
+    eyebrow: "Asia travel eSIM",
+    heading: "Stay connected across Asia with prepaid eSIM data.",
+    intro:
+      "Stay connected across Asia with prepaid eSIM data from eSIM2you. Plan mobile internet for regional bundles or a country plan for Japan, Thailand, Indonesia, or the UAE. Compare live data, validity, and price, then install before you fly.",
+    sections: [
+      {
+        title: "Regional bundles and country plans",
+        body:
+          "An Asia eSIM can cover a multi-country itinerary. If you are staying in one country, a local Japan, Thailand, or Indonesia plan may be a better fit — use the related country pages and the plan table below."
+      },
+      {
+        title: "Prepared before the first border",
+        body:
+          "Install on Wi-Fi, then enable data when you land so maps, translation, and messaging work without a local SIM shop."
+      }
+    ],
+    faqs: [
+      {
+        question: "Should I buy an Asia eSIM or a single-country plan?",
+        answer:
+          "Choose a regional Asia plan for multi-country trips. Choose a country eSIM when you are staying in one destination such as Japan or Thailand."
+      },
+      {
+        question: "Can I install an Asia eSIM before travel?",
+        answer:
+          "Yes. Install before departure on stable Wi-Fi, then turn on the travel data line after you arrive in Asia."
+      }
+    ],
+    relatedLinks: [
+      { label: "Japan travel eSIM plans", href: "/esim/japan" },
+      { label: "Thailand travel eSIM plans", href: "/esim/thailand" },
+      { label: "Indonesia travel eSIM plans", href: "/esim/indonesia" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "north-america",
+    path: "/esim/north-america",
+    title: "eSIM for North America | USA, Canada, Mexico | eSIM2you",
+    description:
+      "Compare North America eSIM options for the USA, Canada, and Mexico. eSIM2you lists prepaid travel data plans with live prices on each country page.",
+    eyebrow: "North America travel eSIM",
+    heading: "North America travel data for the USA, Canada, and Mexico.",
+    intro:
+      "eSIM2you helps travelers visiting North America prepare prepaid eSIM data. Use a USA, Canada, or Mexico country plan when you stay in one country, and compare live tables before checkout.",
+    sections: [
+      {
+        title: "Country plans for common North America trips",
+        body:
+          "Most visitors need a USA, Canada, or Mexico eSIM rather than a single continental SKU. Open those country pages for data, validity, network, and the lowest-priced plan we currently sell."
+      },
+      {
+        title: "Install before you cross the border",
+        body:
+          "Add the eSIM on Wi-Fi at home, then enable the travel data line when you land so you are not relying on airport Wi-Fi or roaming."
+      }
+    ],
+    faqs: [
+      {
+        question: "Is there one eSIM for all of North America?",
+        answer:
+          "Coverage depends on the package. Check this page’s plan table and the USA, Canada, and Mexico guides for what each plan actually includes."
+      },
+      {
+        question: "Should I install before flying to the USA?",
+        answer:
+          "Yes. Install on Wi-Fi before departure, then turn on the data line after arrival."
+      }
+    ],
+    relatedLinks: [
+      { label: "USA travel eSIM plans", href: "/esim/usa" },
+      { label: "Canada travel eSIM plans", href: "/esim/canada" },
+      { label: "Mexico travel eSIM plans", href: "/esim/mexico" }
+    ]
   }
 ] satisfies SeoContentPage[];
 
@@ -776,7 +904,7 @@ export const guidePages = [
   {
     kind: "guide",
     slug: "what-is-an-esim",
-    path: "/guides/what-is-an-esim",
+    path: "/travel/what-is-an-esim",
     title: "What Is an eSIM? | Travel eSIM Guide",
     description:
       "A simple guide to what an eSIM is, how travel eSIM data works, and when to install one before an international trip.",
@@ -809,15 +937,15 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
+      { label: "Travel eSIM setup steps", href: "/travel/how-to-install-esim" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
       { label: "Browse every eSIM destination", href: "/destinations" }
     ]
   },
   {
     kind: "guide",
     slug: "esim-vs-roaming",
-    path: "/guides/esim-vs-roaming",
+    path: "/travel/esim-vs-roaming",
     title: "eSIM vs Roaming | Travel Data Alternative",
     description:
       "Compare travel eSIM data with international roaming and learn why prepaid eSIM plans can make mobile internet abroad clearer.",
@@ -850,15 +978,15 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" },
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" }
+      { label: "Learn how eSIMs work", href: "/travel/what-is-an-esim" },
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" }
     ]
   },
   {
     kind: "guide",
     slug: "how-to-install-esim",
-    path: "/guides/how-to-install-esim",
+    path: "/travel/how-to-install-esim",
     title: "How to Install an eSIM | Travel Data Setup Guide",
     description:
       "Learn the basic steps to install a travel eSIM, prepare mobile data before departure, and activate it when you arrive.",
@@ -891,15 +1019,15 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "Learn how eSIMs work", href: "/guides/what-is-an-esim" },
-      { label: "Japan travel eSIM plans", href: "/destinations/japan" },
-      { label: "USA travel eSIM plans", href: "/destinations/usa" }
+      { label: "Learn how eSIMs work", href: "/travel/what-is-an-esim" },
+      { label: "Japan travel eSIM plans", href: "/esim/japan" },
+      { label: "USA travel eSIM plans", href: "/esim/usa" }
     ]
   },
   {
     kind: "guide",
     slug: "internet-abroad",
-    path: "/guides/internet-abroad",
+    path: "/travel/internet-abroad",
     title: "Internet Abroad | Mobile Data Options for Travel",
     description:
       "Compare ways to get internet abroad, including travel eSIM data, roaming, local SIM cards, and public Wi-Fi.",
@@ -932,15 +1060,15 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
-      { label: "Travel eSIM setup steps", href: "/guides/how-to-install-esim" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
+      { label: "Travel eSIM setup steps", href: "/travel/how-to-install-esim" },
       { label: "Browse every eSIM destination", href: "/destinations" }
     ]
   },
   {
     kind: "guide",
     slug: "esim-vs-local-sim",
-    path: "/guides/esim-vs-local-sim",
+    path: "/travel/esim-vs-local-sim",
     title: "eSIM vs Local SIM Card | Which Is Better for Travel?",
     description:
       "Compare a travel eSIM with buying a local SIM card in the USA or Europe, including setup time, cost, and convenience.",
@@ -973,9 +1101,9 @@ export const guidePages = [
       }
     ],
     relatedLinks: [
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
-      { label: "USA travel eSIM plans", href: "/destinations/usa" },
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" }
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
+      { label: "USA travel eSIM plans", href: "/esim/usa" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" }
     ]
   }
 ] satisfies SeoContentPage[];
@@ -1018,8 +1146,8 @@ export const useCasePages = [
     ],
     relatedLinks: [
       { label: "Remote work data guide", href: "/use-cases/remote-work" },
-      { label: "Compare eSIM with roaming", href: "/guides/esim-vs-roaming" },
-      { label: "USA travel eSIM plans", href: "/destinations/usa" }
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
+      { label: "USA travel eSIM plans", href: "/esim/usa" }
     ]
   },
   {
@@ -1059,8 +1187,8 @@ export const useCasePages = [
     ],
     relatedLinks: [
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
-      { label: "Mobile internet abroad guide", href: "/guides/internet-abroad" },
-      { label: "Europe travel eSIM plans", href: "/destinations/europe" }
+      { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" }
     ]
   }
 ] satisfies SeoContentPage[];

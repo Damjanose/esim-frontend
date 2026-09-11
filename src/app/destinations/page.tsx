@@ -1,8 +1,10 @@
 import { ArrowRight, Globe2, MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { permanentRedirect } from "next/navigation";
 
 import { destinationPages } from "@/content/seo-pages";
+import { esimPathForCountryQuery } from "@/lib/esim-routes";
 import {
   createContentPageJsonLd,
   createMetadata,
@@ -15,12 +17,12 @@ import { SiteFooter } from "../SiteFooter";
 import { DestinationPlans } from "./DestinationPlans";
 import { DestinationBrowse } from "./DestinationBrowse";
 
-export const metadata: Metadata = createMetadata({
+const destinationsMeta = {
   path: "/destinations",
-  title: "Travel eSIM Destinations | eSim2you",
+  title: "Travel eSIM Destinations | eSIM2you",
   description:
-    "Browse eSim2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
-});
+    "Browse eSIM2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+} as const;
 
 type DestinationsPageProps = {
   searchParams: Promise<{
@@ -37,12 +39,46 @@ function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function remainingSearch(params: Record<string, string | undefined>) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value) search.set(key, value);
+  }
+  const query = search.toString();
+  return query ? `?${query}` : "";
+}
+
+export async function generateMetadata({
+  searchParams,
+}: DestinationsPageProps): Promise<Metadata> {
+  const resolved = await searchParams;
+  const countryCode = firstValue(resolved.country) ?? "";
+  const hasSelectedCountry = countryCode.trim().length > 0;
+
+  return createMetadata({
+    ...destinationsMeta,
+    indexable: !hasSelectedCountry,
+  });
+}
+
 export default async function DestinationsPage({
   searchParams,
 }: DestinationsPageProps) {
   const resolvedSearchParams = await searchParams;
 
   const countryCode = firstValue(resolvedSearchParams.country) ?? "";
+  const esimPath = esimPathForCountryQuery(countryCode);
+  if (esimPath) {
+    permanentRedirect(
+      `${esimPath}${remainingSearch({
+        daysMin: firstValue(resolvedSearchParams.daysMin),
+        daysMax: firstValue(resolvedSearchParams.daysMax),
+        dataMin: firstValue(resolvedSearchParams.dataMin),
+        dataMax: firstValue(resolvedSearchParams.dataMax),
+        unlimited: firstValue(resolvedSearchParams.unlimited),
+      })}`,
+    );
+  }
 
   const hasSelectedCountry = countryCode.trim().length > 0;
 
@@ -61,7 +97,7 @@ export default async function DestinationsPage({
           path: "/destinations",
           name: "Travel eSIM Destinations",
           description:
-            "Browse eSim2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+            "Browse eSIM2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
           breadcrumbName: "Destinations",
         })}
       />
@@ -93,7 +129,7 @@ export default async function DestinationsPage({
                 </h1>
 
                 <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-onSurfaceVariant sm:text-lg">
-                  Browse eSim2you destination guides, explore regional
+                  Browse eSIM2you destination guides, explore regional
                   connectivity options, and find a smarter alternative to
                   expensive roaming.
                 </p>

@@ -1,7 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { privateRoutePrefixes } from "@/lib/seo";
+import { allSitemapEntries, sitemapEntriesFor, sitemapSegmentIds } from "@/lib/sitemaps";
 import robots from "./robots";
-import sitemap from "./sitemap";
+import { GET as sitemapIndex } from "./sitemap.xml/route";
 
 describe("Next SEO routes", () => {
   it("serves robots.txt rules with the subdomain sitemap and private exclusions", () => {
@@ -14,63 +16,65 @@ describe("Next SEO routes", () => {
     expect(rules.rules).toEqual({
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/api/",
-        "/admin/",
-        "/account/",
-        "/auth/",
-        "/bff/",
-        "/billing/",
-        "/checkout/",
-        "/dashboard/",
-        "/profile/",
-        "/signin/",
-        "/xerrors/",
-        "/xloginy/",
-        "/xsupport/"
-      ]
+      disallow: privateRoutePrefixes.map((prefix) => `${prefix}/`)
     });
+    expect(privateRoutePrefixes).toEqual(
+      expect.arrayContaining(["/xpricing", "/xversion", "/xactivityy", "/xpartnersy", "/xnotificationy"])
+    );
   });
 
-  it("serves a sitemap containing only public indexable pages", () => {
-    const entries = sitemap();
+  it("splits the sitemap into named public segments with real lastModified dates", async () => {
+    const index = await sitemapIndex();
+    const indexXml = await index.text();
 
-    expect(entries.map((entry) => entry.url)).toEqual([
-      "https://esim.uplisoft.com/",
-      "https://esim.uplisoft.com/destinations",
-      "https://esim.uplisoft.com/destinations/usa",
-      "https://esim.uplisoft.com/destinations/europe",
-      "https://esim.uplisoft.com/destinations/japan",
-      "https://esim.uplisoft.com/destinations/turkey",
-      "https://esim.uplisoft.com/destinations/france",
-      "https://esim.uplisoft.com/destinations/uk",
-      "https://esim.uplisoft.com/destinations/germany",
-      "https://esim.uplisoft.com/destinations/italy",
-      "https://esim.uplisoft.com/destinations/spain",
-      "https://esim.uplisoft.com/destinations/greece",
-      "https://esim.uplisoft.com/destinations/portugal",
-      "https://esim.uplisoft.com/destinations/switzerland",
-      "https://esim.uplisoft.com/destinations/thailand",
-      "https://esim.uplisoft.com/destinations/uae",
-      "https://esim.uplisoft.com/destinations/mexico",
-      "https://esim.uplisoft.com/destinations/canada",
-      "https://esim.uplisoft.com/destinations/australia",
-      "https://esim.uplisoft.com/destinations/indonesia",
-      "https://esim.uplisoft.com/guides/what-is-an-esim",
-      "https://esim.uplisoft.com/guides/esim-vs-roaming",
-      "https://esim.uplisoft.com/guides/how-to-install-esim",
-      "https://esim.uplisoft.com/guides/internet-abroad",
-      "https://esim.uplisoft.com/guides/esim-vs-local-sim",
-      "https://esim.uplisoft.com/use-cases/business-travel",
-      "https://esim.uplisoft.com/use-cases/remote-work",
-      "https://esim.uplisoft.com/support",
-      "https://esim.uplisoft.com/policy",
-      "https://esim.uplisoft.com/terms"
-    ]);
-    expect(entries.every((entry) => entry.url.startsWith("https://esim.uplisoft.com"))).toBe(true);
-    expect(entries.some((entry) => entry.url.includes("/xloginy"))).toBe(false);
-    expect(entries.some((entry) => entry.url.includes("/xerrors"))).toBe(false);
-    expect(entries.some((entry) => entry.url.includes("/bff/"))).toBe(false);
+    expect(index.headers.get("content-type")).toContain("application/xml");
+    for (const id of sitemapSegmentIds) {
+      expect(indexXml).toContain(`https://esim.uplisoft.com/sitemaps/${id}.xml`);
+    }
+
+    const esim = sitemapEntriesFor("esim");
+    const travel = sitemapEntriesFor("travel");
+    const compare = sitemapEntriesFor("compare");
+    const all = allSitemapEntries();
+
+    expect(esim.map((entry) => entry.url)).toEqual(
+      expect.arrayContaining([
+        "https://esim.uplisoft.com/esim/usa",
+        "https://esim.uplisoft.com/esim/albania",
+        "https://esim.uplisoft.com/esim/europe"
+      ])
+    );
+    expect(travel.map((entry) => entry.url)).toEqual(
+      expect.arrayContaining([
+        "https://esim.uplisoft.com/travel",
+        "https://esim.uplisoft.com/travel/how-to-install-esim"
+      ])
+    );
+    expect(compare.map((entry) => entry.url)).toEqual(
+      expect.arrayContaining([
+        "https://esim.uplisoft.com/compare",
+        "https://esim.uplisoft.com/compare/airalo-vs-esim2you"
+      ])
+    );
+    expect(all.every((entry) => entry.url.startsWith("https://esim.uplisoft.com"))).toBe(true);
+    expect(all.every((entry) => entry.lastModified instanceof Date)).toBe(true);
+    expect(all.some((entry) => entry.url.includes("/xloginy"))).toBe(false);
+    expect(all.some((entry) => entry.url.includes("/bff/"))).toBe(false);
+    expect(all.some((entry) => entry.url.includes("/destinations/usa"))).toBe(false);
+    expect(all.some((entry) => entry.url.includes("/cheapest-esim"))).toBe(false);
+  });
+
+  it("301s legacy destination and guide URLs in next.config", () => {
+    const config = readFileSync("next.config.mjs", "utf8");
+    expect(config).toContain('source: "/destinations/:slug"');
+    expect(config).toContain('destination: "/esim/:slug"');
+    expect(config).toContain('source: "/guides/:slug"');
+    expect(config).toContain('destination: "/travel/:slug"');
+    expect(config).toContain("permanent: true");
+  });
+
+  it("does not publish cheapest-esim routes without a price-evidence rule", () => {
+    expect(existsSync("src/app/cheapest-esim")).toBe(false);
   });
 
   it("adds noindex metadata layouts to hidden admin pages", () => {
@@ -91,9 +95,6 @@ describe("Next SEO routes", () => {
 
     expect(middlewareSource).toContain('const canonicalHost = "esim.uplisoft.com"');
     expect(middlewareSource).toContain('const wwwHost = `www.${canonicalHost}`');
-    // The proxy headers (including x-forwarded-proto) are read by
-    // getPublicOrigin, which has its own tests; canonicalisation must build on
-    // that origin so redirects never point at the server's internal address.
     expect(middlewareSource).toContain("getPublicOrigin(request)");
     expect(middlewareSource).toContain('url.protocol = "https:"');
     expect(middlewareSource).toContain('url.pathname.replace(/\\/+$/, "")');

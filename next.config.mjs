@@ -34,6 +34,25 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/destinations/:slug",
+        destination: "/esim/:slug",
+        permanent: true,
+      },
+      {
+        source: "/guides/:slug",
+        destination: "/travel/:slug",
+        permanent: true,
+      },
+      {
+        source: "/guides",
+        destination: "/travel",
+        permanent: true,
+      },
+    ];
+  },
 };
   
 export default nextConfig;

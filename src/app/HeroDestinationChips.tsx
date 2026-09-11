@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Globe2, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { fetchPackageGroups, type HeroPackageOption } from "@/services/packages";
+import { destinationBrowseHref } from "@/lib/esim-routes";
 
 const CHIP_COUNT = 8;
 
@@ -73,7 +74,7 @@ export function HeroDestinationChips() {
       {popular.map((pkg) => (
         <Link
           className="group flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-bold text-white backdrop-blur-md transition hover:border-white/50 hover:bg-white/20"
-          href={`/destinations?country=${encodeURIComponent(pkg.countryCode)}`}
+          href={destinationBrowseHref(pkg.countryCode)}
           key={pkg.countryCode}
         >
           {pkg.flagUri ? (

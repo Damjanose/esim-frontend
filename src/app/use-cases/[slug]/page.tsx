@@ -37,5 +37,5 @@ export default async function UseCasePage({ params }: PageProps) {
     notFound();
   }
 
-  return <SeoContentPageView page={page} parent={{ name: "Use cases", path: "/" }} />;
+  return <SeoContentPageView page={page} parent={{ name: "Use cases", path: "/use-cases" }} />;
 }

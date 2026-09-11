@@ -57,14 +57,16 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
       "utf8",
     );
 
+    expect(source).toContain("destinationBrowseHref");
     expect(source).toContain('if (result.kind === "country") {');
-    expect(source).toContain("const params = wizardFiltersToQueryParams(result);");
-    expect(source).toContain('params.set("country", result.countryCode);');
   });
 
   it("the destinations page forwards the wizard's filter query params to the per-country plans list", () => {
     const source = readFileSync(join(process.cwd(), "src/app/destinations/page.tsx"), "utf8");
 
+    expect(source).toContain("generateMetadata");
+    expect(source).toContain("indexable: !hasSelectedCountry");
+    expect(source).toContain("permanentRedirect");
     expect(source).toContain(
       "<DestinationPlans countryCode={countryCode} searchFilters={wizardFilterParams} />",
     );

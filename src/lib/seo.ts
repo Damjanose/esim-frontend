@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { comparePages } from "@/content/compare-pages";
 import { landingContent } from "@/content/landing";
 import { publicSeoPages, type SeoPageFaq } from "@/content/seo-pages";
 
 export const siteUrl = "https://esim.uplisoft.com";
-export const siteName = "eSim2you";
+export const siteName = "eSIM2you";
 export const supportEmail = "esim2you@uplisoft.com";
 // Bump this whenever public/og/esim2you-og.png changes so link-preview
 // crawlers (iMessage, WhatsApp, Slack, Facebook, LinkedIn, X) fetch the
@@ -33,9 +34,14 @@ export const privateRoutePrefixes = [
   "/dashboard",
   "/profile",
   "/signin",
+  "/xactivityy",
   "/xerrors",
   "/xloginy",
-  "/xsupport"
+  "/xnotificationy",
+  "/xpartnersy",
+  "/xpricing",
+  "/xsupport",
+  "/xversion"
 ] as const;
 
 export type IndexableRoute = {
@@ -51,7 +57,7 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/",
     url: `${siteUrl}/`,
-    title: "eSim2you | Travel Data for 200+ Destinations",
+    title: "eSIM2you | Travel Data for 200+ Destinations",
     description:
       "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees.",
     changeFrequency: "monthly",
@@ -60,11 +66,38 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/destinations",
     url: `${siteUrl}/destinations`,
-    title: "Travel eSIM Destinations | eSim2you",
+    title: "Travel eSIM Destinations | eSIM2you",
     description:
-      "Browse eSim2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
+      "Browse eSIM2you destinations for international travel data, mobile internet abroad, and roaming alternatives.",
     changeFrequency: "monthly",
     priority: 0.8
+  },
+  {
+    path: "/travel",
+    url: `${siteUrl}/travel`,
+    title: "Travel eSIM Guides | eSIM2you",
+    description:
+      "Guides for installing a travel eSIM, comparing eSIM vs roaming, and staying online abroad.",
+    changeFrequency: "monthly",
+    priority: 0.7
+  },
+  {
+    path: "/use-cases",
+    url: `${siteUrl}/use-cases`,
+    title: "eSIM Use Cases | eSIM2you",
+    description:
+      "How eSIM2you helps with business travel and remote work data abroad.",
+    changeFrequency: "monthly",
+    priority: 0.6
+  },
+  {
+    path: "/compare",
+    url: `${siteUrl}/compare`,
+    title: "Compare Travel eSIMs | eSIM2you",
+    description:
+      "Factual comparisons of eSIM2you with other travel eSIM providers. Live prices stay on destination pages.",
+    changeFrequency: "monthly",
+    priority: 0.7
   },
   ...publicSeoPages.map((page) => ({
     path: page.path,
@@ -74,10 +107,18 @@ export const indexableRoutes: IndexableRoute[] = [
     changeFrequency: "monthly" as const,
     priority: page.kind === "destination" ? 0.75 : 0.65
   })),
+  ...comparePages.map((page) => ({
+    path: page.path,
+    url: `${siteUrl}${page.path}`,
+    title: page.title,
+    description: page.description,
+    changeFrequency: "monthly" as const,
+    priority: 0.6
+  })),
   {
     path: "/support",
     url: `${siteUrl}/support`,
-    title: "Support Center | eSim2you",
+    title: "Support Center | eSIM2you",
     description:
       "Get help with eSim2you app sign-in, Pokpay checkout, QR or manual eSIM setup, remaining data, top-ups, refunds, and connection troubleshooting.",
     changeFrequency: "monthly",
@@ -86,16 +127,16 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/policy",
     url: `${siteUrl}/policy`,
-    title: "Privacy Policy | eSim2you",
-    description: "Privacy Policy for eSim2you travelers and app users.",
+    title: "Privacy Policy | eSIM2you",
+    description: "Privacy Policy for eSIM2you travelers and app users.",
     changeFrequency: "yearly",
     priority: 0.3
   },
   {
     path: "/terms",
     url: `${siteUrl}/terms`,
-    title: "Terms of Service | eSim2you",
-    description: "Terms of Service for eSim2you travelers and app users.",
+    title: "Terms of Service | eSIM2you",
+    description: "Terms of Service for eSIM2you travelers and app users.",
     changeFrequency: "yearly",
     priority: 0.3
   }

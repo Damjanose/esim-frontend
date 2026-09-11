@@ -581,7 +581,7 @@ function QuickHelp() {
       description:
         "Read the public setup guide, then use My eSIMs for your exact QR or manual setup details.",
       label: "View guide",
-      href: "/guides/how-to-install-esim",
+      href: "/travel/how-to-install-esim",
     },
     {
       icon: Globe2,
@@ -597,7 +597,7 @@ function QuickHelp() {
       description:
         "Learn the basics of digital SIM profiles, compatibility, and travel data.",
       label: "Learn more",
-      href: "/guides/what-is-an-esim",
+      href: "/travel/what-is-an-esim",
     },
   ];
 

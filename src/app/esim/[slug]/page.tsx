@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { SeoContentPageView } from "../../SeoContentPage";
+import { EsimDestinationPageView } from "../../EsimDestinationPage";
 import { destinationPages } from "@/content/seo-pages";
 import { createMetadata } from "@/lib/seo";
-import { getDestinationOffer } from "@/lib/destinationPricing";
+import { getDestinationOffer, getDestinationPlanRows } from "@/lib/destinationPricing";
 
 export const revalidate = 3600;
 
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function DestinationPage({ params }: PageProps) {
+export default async function EsimDestinationPage({ params }: PageProps) {
   const { slug } = await params;
   const page = destinationPages.find((entry) => entry.slug === slug);
 
@@ -40,13 +40,16 @@ export default async function DestinationPage({ params }: PageProps) {
     notFound();
   }
 
-  const offer = await getDestinationOffer(page.slug);
+  const [offer, plans] = await Promise.all([
+    getDestinationOffer(page.slug),
+    getDestinationPlanRows(page.slug)
+  ]);
 
   return (
-    <SeoContentPageView
+    <EsimDestinationPageView
       offer={offer ?? undefined}
       page={page}
-      parent={{ name: "Destinations", path: "/destinations" }}
+      plans={plans}
     />
   );
 }

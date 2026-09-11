@@ -21,24 +21,25 @@
     "f083",
     "f084",
     "f115",
-    "f123"
+    "f123",
+    "f125"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim — it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
     "content_source": "src/content/landing.ts — landingContent object: nav items, hero (title/body/popular countries), a curated `destinations` array of 5 countries (USA/Japan/UK/France/Turkey) shown as the homepage grid, 3 `steps`, 3 `benefits`, 4 `faqs`, support links, app store links (Android package com.uplisoft.velocityesim, iOS id6768258284).",
-    "gotcha": "landing.ts's 5-country `destinations` array is a SEPARATE, smaller dataset from seo-pages.ts's 18-country `destinationPages` array (f039) — the homepage grid and the full /destinations directory are not generated from the same source and can drift out of sync (e.g. a new country added to one won't automatically appear in the other)."
+    "gotcha": "landing.ts's 5-country `destinations` array is a SEPARATE, smaller dataset from seo-pages.ts's destinationPages array (f039, f125) — the homepage grid and /esim/[slug] pages are not generated from the same source."
   },
   "seo_content_pages": {
     "file": "src/content/seo-pages.ts",
     "type": "SeoContentPage: {kind:'destination'|'guide'|'use-case', slug, path, title, description, heading, eyebrow, intro, sections[], faqs[], relatedLinks[]}",
-    "counts": "18 destinationPages (usa, europe, japan, turkey, france, uk, germany, italy, spain, greece, portugal, switzerland, thailand, uae, mexico, canada, australia, indonesia), 5 guidePages (what-is-an-esim, esim-vs-roaming, how-to-install-esim, internet-abroad, esim-vs-local-sim), 2 useCasePages (business-travel, remote-work) = 25 total SEO content pages as of 2026-08-19.",
-    "shared_renderer": "ALL 25 pages render through one component, SeoContentPageView (src/app/SeoContentPage.tsx), consumed by src/app/destinations/[slug]/page.tsx, src/app/guides/[slug]/page.tsx, src/app/use-cases/[slug]/page.tsx — same layout for all three content kinds, only the data differs (f042).",
-    "static_generation": "Each [slug] route calls generateStaticParams() returning every slug from its respective array, so all 25 pages are statically generated at build time, not rendered per-request (f043).",
-    "destinations_index": "src/app/destinations/page.tsx: with no ?country= query param, renders a static hero + a card grid of all 18 destinationPages linking to their detail pages. With a ?country= param present, it instead renders DestinationPlans (src/app/destinations/DestinationPlans.tsx, live package search for that country — covered in ui-components-styling.json's data-shaping section) instead of the static grid — same route, two very different render paths gated on a query param.",
-    "pricing_and_schema": "As of 2026-08-25 (f064/f065, cache path updated f123), both render paths show a real 'from EUR X.XX' price backed by Product/AggregateOffer JSON-LD: static [slug] pages via src/lib/destinationPricing.ts:getDestinationOffer (fetch /api/packages with cache:'no-store', slim per-country index in unstable_cache 3600s; page revalidate 3600). The live ?country=XX view uses the already-loaded client package list. /api/packages' countryCode is a slugified country name (not ISO), not always equal to the destinationPages slug (usa/uk/uae differ), and there is no `region` field — 'europe' is its own countryCode with real regional packages. Prices are EUR."
+    "counts": "21 destinationPages (previous 18 plus albania, asia, north-america), 5 guidePages under /travel/*, 2 useCasePages = 28 SeoContentPage entries as of 2026-09-10, plus compare pages in src/content/compare-pages.ts.",
+    "shared_renderer": "Guides and use-cases still use SeoContentPageView. Destination pages use EsimDestinationPageView (keyword H1, breadcrumbs, live plan table). Routes: src/app/esim/[slug]/page.tsx, src/app/travel/[slug]/page.tsx, src/app/use-cases/[slug]/page.tsx (f125, supersedes the /destinations/[slug] + /guides/[slug] layout in f042).",
+    "static_generation": "Each [slug] route calls generateStaticParams() from its content array.",
+    "destinations_index": "src/app/destinations/page.tsx remains the interactive catalog. Known ?country= values permanentRedirect to /esim/[slug]; unknown countries still render DestinationPlans and are noindex. Destination SEO pages are /esim/[slug], not /destinations/[slug].",
+    "pricing_and_schema": "getDestinationOffer and getDestinationPlanRows share one slim cached catalog (fetch /packages cache:'no-store', unstable_cache 3600s). /esim/[slug] export const revalidate = 3600 (f123, f125)."
   },
   "guides_and_use_cases": {
-    "note": "Same SeoContentPageView pattern as destinations; guides parent breadcrumb is '/' (home) rather than a guides index page — there is no src/app/guides/page.tsx index, only the [slug] detail route. Same for use-cases: no index page, only src/app/use-cases/[slug]/page.tsx."
+    "note": "Guides live at /travel and /travel/[slug] with a hub index. Use-cases have /use-cases hub + [slug]. Compare pages live in src/content/compare-pages.ts. /cheapest-esim is intentionally unpublished (f125)."
   },
   "support_page": {
     "file": "src/app/support/SupportPageClient.tsx (client component, rendered by src/app/support/page.tsx)",
@@ -58,6 +59,6 @@
     "producthunt_section": "No standalone Product Hunt UI anywhere on the page (two earlier attempts — a full-width banner, then an AppDownload pill — were both rejected in review). Final: a plain text link 'Featured on Product Hunt' in SiteFooter.tsx's bottom bar, styled like the copyright/coverage lines next to it (f069)."
   },
   "how_it_works_section": "Homepage HowItWorks (page.tsx, was JourneyAndCoverage) is 3 fanned real-device phone mockups, not icon cards -- ChoosePlanScreen uses a real user screenshot as its hero photo + real flagcdn.com flags/pricing, ScanInstallScreen has a real static QR (public/images/qr-esim-uplisoft.svg -> esim.uplisoft.com), ConnectedScreen mirrors mobile MyEsimsScreen copy. The old \"Where Will You Go Next?\" coverage column and CoverageFlagMosaic.tsx are deleted, not restyled (f083, supersedes f075's coverage-mosaic description).",
-  "destinations_grid_collapse": "DestinationBrowse.tsx's flat \"All destinations\" grid (215 countries) collapses to the first 20 by default, with a \"Show all N / Show less\" toggle (showAllDestinations state, DESTINATIONS_COLLAPSED_COUNT=20). The cap is skipped while the grid search box has text, so searching always shows every match (f084)."
+  "destinations_grid_collapse": "DestinationBrowse.tsx's flat \"All destinations\" grid (215 countries) collapses to the first 20 by default, with a \"Show all N / Show less\" toggle (showAllDestinations state, DESTINATIONS_COLLAPSED_COUNT=20). The cap is skipped while the grid search box has text, so searching always shows every match (f084).",
   "coverage_aware_discovery": "Destination search and country selection expand regional/global package coverage into virtual real-country options via canonical coveredDestinations matching; selecting a country keeps local and covering bundles together without bypassing the BFF boundary (f115)."
 }

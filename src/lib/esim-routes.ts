@@ -1,5 +1,3 @@
-import { destinationPages } from "@/content/seo-pages";
-
 /**
  * Backend `/packages` `countryCode` is a slugified country name
  * (`united-states`), not always the public `/esim/[slug]` (`usa`).
@@ -23,15 +21,6 @@ function normalizeCountryQuery(value: string) {
   return value.trim().toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
 }
 
-const destinationSlugSet = new Set(destinationPages.map((page) => page.slug));
-
-const slugByBackendCode = new Map<string, string>();
-for (const page of destinationPages) {
-  const backendCode = BACKEND_COUNTRY_CODE_BY_SLUG[page.slug] ?? page.slug;
-  slugByBackendCode.set(backendCode, page.slug);
-  slugByBackendCode.set(page.slug, page.slug);
-}
-
 export function backendCountryCode(slug: string) {
   return BACKEND_COUNTRY_CODE_BY_SLUG[slug] ?? slug;
 }
@@ -43,11 +32,17 @@ export function esimSlugFromCountryQuery(country: string): string | null {
   }
 
   const aliased = EXTRA_QUERY_ALIASES[normalized] ?? normalized;
-  if (destinationSlugSet.has(aliased)) {
+  if (aliased in destinationDisplay) {
     return aliased;
   }
 
-  return slugByBackendCode.get(aliased) ?? null;
+  for (const slug of Object.keys(destinationDisplay)) {
+    if ((BACKEND_COUNTRY_CODE_BY_SLUG[slug] ?? slug) === aliased) {
+      return slug;
+    }
+  }
+
+  return null;
 }
 
 export function esimPathForCountryQuery(country: string): string | null {

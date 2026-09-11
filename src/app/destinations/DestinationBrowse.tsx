@@ -18,6 +18,7 @@ import {
   wizardFiltersToQueryParams,
   type DestinationBrowseFilters,
 } from "@/services/destinationFilters";
+import { destinationBrowseHref } from "@/lib/esim-routes";
 import { useConsent } from "../ConsentManager";
 import { HelpMeChooseWizard, type WizardResult } from "./HelpMeChooseWizard";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
@@ -224,6 +225,12 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
     if (result.kind === "country") {
       const params = wizardFiltersToQueryParams(result);
       params.set("country", result.countryCode);
+      const esimPath = destinationBrowseHref(result.countryCode);
+      if (esimPath.startsWith("/esim/")) {
+        const filterQuery = wizardFiltersToQueryParams(result).toString();
+        router.push(filterQuery ? `${esimPath}?${filterQuery}` : esimPath);
+        return;
+      }
       router.push(`/destinations?${params.toString()}`);
       return;
     }
@@ -301,7 +308,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                     {items.map((pkg) => (
                       <Link
                         className="group flex min-w-[160px] shrink-0 items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 shadow-brandCard transition hover:border-brandBlue/50"
-                        href={`/destinations?country=${encodeURIComponent(pkg.countryCode)}`}
+                        href={destinationBrowseHref(pkg.countryCode)}
                         key={pkg.id}
                       >
                         {pkg.flagUri ? (
@@ -350,7 +357,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                     {visibleCountries.map((country) => (
                       <Link
                         className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
-                        href={`/destinations?country=${encodeURIComponent(country.countryCode)}`}
+                        href={destinationBrowseHref(country.countryCode)}
                         key={country.countryCode}
                       >
                         {country.flagUri ? (

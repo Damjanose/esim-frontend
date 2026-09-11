@@ -17,31 +17,34 @@ const approvedExternalLinks = new Set([
 describe("SEO content pages", () => {
   it("defines the first global English destination, guide, and use-case pages", () => {
     expect(destinationPages.map((page) => page.path)).toEqual([
-      "/destinations/usa",
-      "/destinations/europe",
-      "/destinations/japan",
-      "/destinations/turkey",
-      "/destinations/france",
-      "/destinations/uk",
-      "/destinations/germany",
-      "/destinations/italy",
-      "/destinations/spain",
-      "/destinations/greece",
-      "/destinations/portugal",
-      "/destinations/switzerland",
-      "/destinations/thailand",
-      "/destinations/uae",
-      "/destinations/mexico",
-      "/destinations/canada",
-      "/destinations/australia",
-      "/destinations/indonesia"
+      "/esim/usa",
+      "/esim/europe",
+      "/esim/japan",
+      "/esim/turkey",
+      "/esim/france",
+      "/esim/uk",
+      "/esim/germany",
+      "/esim/italy",
+      "/esim/spain",
+      "/esim/greece",
+      "/esim/portugal",
+      "/esim/switzerland",
+      "/esim/thailand",
+      "/esim/uae",
+      "/esim/mexico",
+      "/esim/canada",
+      "/esim/australia",
+      "/esim/indonesia",
+      "/esim/albania",
+      "/esim/asia",
+      "/esim/north-america"
     ]);
     expect(guidePages.map((page) => page.path)).toEqual([
-      "/guides/what-is-an-esim",
-      "/guides/esim-vs-roaming",
-      "/guides/how-to-install-esim",
-      "/guides/internet-abroad",
-      "/guides/esim-vs-local-sim"
+      "/travel/what-is-an-esim",
+      "/travel/esim-vs-roaming",
+      "/travel/how-to-install-esim",
+      "/travel/internet-abroad",
+      "/travel/esim-vs-local-sim"
     ]);
     expect(useCasePages.map((page) => page.path)).toEqual([
       "/use-cases/business-travel",
@@ -53,7 +56,7 @@ describe("SEO content pages", () => {
     const paths = publicSeoPages.map((page) => page.path);
 
     expect(new Set(paths).size).toBe(paths.length);
-    expect(paths).toHaveLength(25);
+    expect(paths).toHaveLength(28);
 
     for (const page of publicSeoPages) {
       expect(page.title.trim().length).toBeGreaterThan(20);
@@ -70,6 +73,9 @@ describe("SEO content pages", () => {
     const knownInternalPaths = new Set([
       "/",
       "/destinations",
+      "/travel",
+      "/use-cases",
+      "/compare",
       "/policy",
       "/terms",
       ...publicSeoPages.map((page) => page.path)
