@@ -24,6 +24,13 @@ describe("hidden admin purchase dashboard", () => {
     expect(dashboardSource).toContain("response.status === 401");
     expect(dashboardSource).toContain("handleUnauthorized");
     expect(dashboardSource).toContain("Purchases &amp; revenue");
+    expect(dashboardSource).toContain('type="month"');
+    expect(dashboardSource).toContain("All time");
+    expect(dashboardSource).toContain("Earned");
+    expect(dashboardSource).toContain("Spent");
+    expect(dashboardSource).toContain("Profit");
+    expect(dashboardSource).toContain("costByCurrency");
+    expect(dashboardSource).toContain("month");
     expect(dashboardSource).toContain("<svg");
     expect(dashboardSource).toContain("Email");
     expect(dashboardSource).toContain("Package");

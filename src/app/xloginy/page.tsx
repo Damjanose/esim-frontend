@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, DollarSign, LogOut, RefreshCw, ShoppingBag, Users, type LucideIcon } from "lucide-react";
+import { BarChart3, DollarSign, LogOut, RefreshCw, ShoppingBag, TrendingUp, Users, Wallet, type LucideIcon } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
@@ -14,6 +14,8 @@ type Purchase = {
   paymentAmountCents: number | null;
   paymentCurrency: string | null;
   paymentStatus: string | null;
+  costCents: number | null;
+  costCurrency: string | null;
   providerCreatedAt: string;
   createdAt: string;
 };
@@ -53,7 +55,10 @@ type DashboardPayload = {
       purchaseCount: number;
       userCount?: number;
       revenueByCurrency: Record<string, number>;
+      costByCurrency?: Record<string, number>;
+      profitByCurrency?: Record<string, number>;
       latestPurchaseAt: string | null;
+      month?: string | null;
     };
     chart?: ChartPoint[];
     purchases?: Purchase[];
@@ -67,6 +72,11 @@ type DashboardPayload = {
 };
 
 const TABLE_PAGE_SIZE = 10;
+
+function currentUtcMonth() {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+}
 
 function formatMoney(amountCents: number | null, currency: string | null) {
   if (amountCents == null || !currency) return "N/A";
@@ -389,6 +399,7 @@ export default function AdminDashboardPage() {
   const [purchasesPage, setPurchasesPage] = useState(1);
   const [usersPage, setUsersPage] = useState(1);
   const [otpPage, setOtpPage] = useState(1);
+  const [month, setMonth] = useState(currentUtcMonth);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
   const purchases = dashboard?.purchases ?? [];
@@ -399,13 +410,24 @@ export default function AdminDashboardPage() {
     purchaseCount: 0,
     userCount: 0,
     revenueByCurrency: {},
-    latestPurchaseAt: null
+    costByCurrency: {},
+    profitByCurrency: {},
+    latestPurchaseAt: null,
+    month: null
   };
 
   const latestPurchase = useMemo(() => formatDate(summary.latestPurchaseAt), [summary.latestPurchaseAt]);
   const totalRevenue = useMemo(
     () => formatRevenue(summary.revenueByCurrency),
     [summary.revenueByCurrency]
+  );
+  const totalSpend = useMemo(
+    () => formatRevenue(summary.costByCurrency ?? {}),
+    [summary.costByCurrency]
+  );
+  const totalProfit = useMemo(
+    () => formatRevenue(summary.profitByCurrency ?? {}),
+    [summary.profitByCurrency]
   );
 
   async function loadDashboard(nextToken = token) {
@@ -422,6 +444,7 @@ export default function AdminDashboardPage() {
         otpPage: String(otpPage),
         otpPageSize: String(TABLE_PAGE_SIZE)
       });
+      if (month) params.set("month", month);
       const response = await fetch(`/bff/admin/dashboard?${params.toString()}`, {
         headers: { Authorization: `Bearer ${nextToken}` },
         cache: "no-store"
@@ -450,7 +473,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (token) void loadDashboard(token);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, purchasesPage, usersPage, otpPage]);
+  }, [token, purchasesPage, usersPage, otpPage, month]);
 
   return (
     <div className="flex min-h-screen bg-cloud">
@@ -467,7 +490,29 @@ export default function AdminDashboardPage() {
             </h1>
           </div>
           {token ? (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-[11px] font-bold text-midnight shadow-sm">
+                Month
+                <input
+                  className="bg-transparent text-xs font-semibold text-midnight outline-none"
+                  onChange={(event) => {
+                    setMonth(event.target.value);
+                    setPurchasesPage(1);
+                  }}
+                  type="month"
+                  value={month}
+                />
+              </label>
+              <button
+                className="h-10 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
+                onClick={() => {
+                  setMonth("");
+                  setPurchasesPage(1);
+                }}
+                type="button"
+              >
+                All time
+              </button>
               {lastRefreshedAt ? (
                 <p className="hidden text-[11px] font-semibold text-muted sm:block">
                   Updated {new Intl.DateTimeFormat("en", { timeStyle: "medium" }).format(lastRefreshedAt)}
@@ -506,7 +551,7 @@ export default function AdminDashboardPage() {
           />
         ) : !dashboard && isLoadingDashboard ? (
           <div className="grid gap-5">
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div className="h-[74px] animate-pulse rounded-2xl border border-line bg-white/60" key={i} />
               ))}
@@ -522,12 +567,18 @@ export default function AdminDashboardPage() {
               </div>
             ) : null}
 
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
               <StatCard accent="cyan" icon={ShoppingBag} label="Total purchases" value={summary.purchaseCount} />
-              <StatCard accent="teal" icon={DollarSign} label="Total revenue" value={totalRevenue} />
+              <StatCard accent="teal" icon={DollarSign} label="Earned" value={totalRevenue} />
+              <StatCard accent="blue" icon={Wallet} label="Spent" value={totalSpend} />
+              <StatCard accent="ink" icon={TrendingUp} label="Profit" value={totalProfit} />
               <StatCard accent="blue" icon={BarChart3} label="Latest purchase" value={latestPurchase} />
               <StatCard accent="ink" icon={Users} label="Total users" value={summary.userCount ?? users.length} />
             </div>
+            <p className="text-[11px] font-semibold text-muted">
+              Spent uses the current Airalo buy price for each package. Totals follow the selected month
+              {month ? ` (${month})` : " (all time)"}.
+            </p>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Purchases &amp; revenue</h2>
@@ -549,6 +600,7 @@ export default function AdminDashboardPage() {
                         Package
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Price</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Cost</th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Status</th>
                       <th className="px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Purchased At
@@ -562,6 +614,9 @@ export default function AdminDashboardPage() {
                         <td className="px-3 py-3 text-muted">{purchase.packageId}</td>
                         <td className="px-3 py-3 font-bold text-midnight">
                           {formatMoney(purchase.paymentAmountCents, purchase.paymentCurrency)}
+                        </td>
+                        <td className="px-3 py-3 font-bold text-midnight">
+                          {formatMoney(purchase.costCents, purchase.costCurrency)}
                         </td>
                         <td className="px-3 py-3 text-muted">{purchase.paymentStatus ?? "unknown"}</td>
                         <td className="px-5 py-3 text-muted">{formatDate(purchase.providerCreatedAt)}</td>
