@@ -1261,6 +1261,54 @@ const additionalDestinationPages = [
       { label: "Travel eSIM guides", href: "/travel" },
       { label: "Support center", href: "/support" }
     ]
+  },
+  {
+    kind: "destination",
+    slug: "ireland",
+    path: "/esim/ireland",
+    title: "eSIM Ireland | Travel Data for Dublin and Beyond",
+    description: "Compare live Ireland travel eSIM plans for Dublin, Cork, Galway, and road trips across the country.",
+    eyebrow: "Ireland travel eSIM",
+    heading: "Travel data for Ireland, ready before arrival.",
+    intro: "Prepare an Ireland eSIM for maps, transit apps, translation, messaging, and city travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Dublin or at your next stop.",
+    sections: [
+      { title: "Useful for city and countryside travel", body: "Use mobile data for navigation, ride apps, reservations, and booking changes while traveling between Dublin, Cork, Galway, and rural routes like the Wild Atlantic Way." },
+      { title: "Check the live plan details", body: "Compare the current data, validity, network, and price rows for your trip. Hotspot availability depends on the package." },
+      { title: "Keep your usual number", body: "On a compatible dual-SIM phone, your normal line can remain available while the Ireland eSIM supplies travel data." }
+    ],
+    faqs: [
+      { question: "Can I install an Ireland eSIM before flying?", answer: "Yes. Install it over stable Wi-Fi before departure and enable mobile data after arriving." },
+      { question: "Can I use it outside Dublin?", answer: "Check the live package coverage and network details for the cities and routes on your itinerary." }
+    ],
+    relatedLinks: [
+      { label: "UK eSIM plans", href: "/esim/uk" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "croatia",
+    path: "/esim/croatia",
+    title: "eSIM Croatia | Travel Data for the Adriatic Coast",
+    description: "Compare live Croatia travel eSIM plans for Zagreb, Split, Dubrovnik, and island-hopping trips.",
+    eyebrow: "Croatia travel eSIM",
+    heading: "Travel data for Croatia, ready before arrival.",
+    intro: "Prepare a Croatia eSIM for maps, ferry schedules, translation, messaging, and coastal travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Zagreb, Split, or Dubrovnik.",
+    sections: [
+      { title: "Useful for coastal and island travel", body: "Use mobile data for ferry timetables, maps, reservations, and messages while moving along the Adriatic coast and between islands." },
+      { title: "Check the live plan details", body: "Compare the current data, validity, network, and price rows for your trip. Network and hotspot support depend on the package." },
+      { title: "Keep your usual number", body: "On a compatible dual-SIM phone, your normal line can remain available while the Croatia eSIM supplies travel data." }
+    ],
+    faqs: [
+      { question: "Can I install a Croatia eSIM before flying?", answer: "Yes. Install it over stable Wi-Fi before departure and enable mobile data after arriving." },
+      { question: "Does coverage extend to the islands?", answer: "Check the live package's network details, since coverage and speed can vary between the mainland and smaller islands." }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Balkans eSIM plans", href: "/esim/balkans" },
+      { label: "eSIM vs roaming", href: "/travel/esim-vs-roaming" }
+    ]
   }
 ] satisfies SeoContentPage[];
 
@@ -1523,6 +1571,40 @@ export const guidePages = [
       { label: "Europe eSIM plans", href: "/esim/europe" },
       { label: "eSIM vs local SIM card", href: "/travel/esim-vs-local-sim" }
     ]
+  },
+  {
+    kind: "guide",
+    slug: "esim-compatible-phones",
+    path: "/travel/esim-compatible-phones",
+    title: "Which Phones Support eSIM? | Compatibility Guide | eSIM2you",
+    description: "Check whether your iPhone, Samsung, Pixel, or other phone supports eSIM before buying a travel data plan.",
+    eyebrow: "Compatibility guide",
+    heading: "Which phones support eSIM?",
+    intro: "Knowing which phones support eSIM depends on your phone model, its software version, and sometimes your carrier or region. Check your device's settings directly, since carrier-locked phones can block eSIM even on supported hardware.",
+    sections: [
+      {
+        title: "Check your phone's settings first",
+        body: "On iPhone, go to Settings > Cellular (or Mobile Data) and look for \"Add eSIM\" or \"Convert to eSIM.\" On Android, check Settings > Network & Internet > SIMs for an option to add a data plan or download a SIM. If the option is missing, the device or region likely doesn't support it."
+      },
+      {
+        title: "Generally supported device families",
+        body: "Most iPhone XS and later models, most Google Pixel 3 and later, and most Samsung Galaxy S20/Note 20 and later flagship models support eSIM in many regions. Support varies by carrier lock status, region, and exact model, so confirm in your phone's own settings rather than relying on the model name alone."
+      },
+      {
+        title: "Carrier-locked and dual-SIM considerations",
+        body: "A carrier-locked phone can block eSIM installation even on supported hardware. On a dual-SIM compatible phone, you can typically keep your regular SIM for calls and texts while the travel eSIM handles data."
+      }
+    ],
+    faqs: [
+      { question: "How do I know for sure if my phone supports eSIM?", answer: "Check your phone's cellular or network settings for an \"Add eSIM\" or \"Add data plan\" option. If it's missing, your device, software version, region, or carrier lock may not support it." },
+      { question: "Does a carrier-locked phone support eSIM?", answer: "Carrier locks can block eSIM installation even on hardware that normally supports it. Contact your carrier or check your phone's settings to confirm before buying a travel eSIM." },
+      { question: "Can I use an eSIM and my regular SIM at the same time?", answer: "On a compatible dual-SIM phone, yes. You can keep your usual line active for calls and texts while the travel eSIM provides data." }
+    ],
+    relatedLinks: [
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" },
+      { label: "Keep your normal number with eSIM", href: "/travel/keep-your-number-with-esim" },
+      { label: "Browse live plans", href: "/destinations" }
+    ]
   }
 ] satisfies SeoContentPage[];
 
@@ -1607,6 +1689,77 @@ export const useCasePages = [
       { label: "Business travel data guide", href: "/use-cases/business-travel" },
       { label: "Mobile internet abroad guide", href: "/travel/internet-abroad" },
       { label: "Europe travel eSIM plans", href: "/esim/europe" }
+    ]
+  },
+  {
+    kind: "use-case",
+    slug: "cruises",
+    path: "/use-cases/cruises",
+    title: "eSIM for Cruises | Port Day Data Without Ship Wi-Fi Prices",
+    description: "Use eSim2you for port-day mobile data on cruise trips, without paying for onboard ship Wi-Fi packages.",
+    eyebrow: "Cruise travel",
+    heading: "Mobile data for cruise port days.",
+    intro:
+      "Cruise ship Wi-Fi is typically expensive and limited at sea, and a phone can roam onto a ship's onboard cellular network without warning near the coast. A travel eSIM is the more affordable way to get mobile data on port days: install it before the cruise and switch it on once you're ashore in a covered destination.",
+    sections: [
+      {
+        title: "Built for port days, not the open ocean",
+        body:
+          "An eSIM works like any local travel data plan once you're ashore in a covered country or region. It does not provide connectivity in open water, where onboard ship packages are the only option."
+      },
+      {
+        title: "Avoid surprise at-sea roaming",
+        body:
+          "Turn off cellular data or enable airplane mode while at sea to avoid connecting to a ship's onboard network by accident, then switch to the eSIM once you land at each port."
+      },
+      {
+        title: "One eSIM for a multi-country itinerary",
+        body:
+          "A Mediterranean, Caribbean, or Northern Europe cruise often stops in several countries. Compare a regional plan against single-country plans based on which ports are on your itinerary."
+      }
+    ],
+    faqs: [
+      { question: "Will an eSIM work while the ship is at sea?", answer: "No. Mobile data needs a local or regional network on land. Use ship Wi-Fi packages at sea and switch to the eSIM once you're ashore in a covered destination." },
+      { question: "Do I need a different eSIM for each port?", answer: "Not necessarily. Check whether a regional plan covers all the countries on your cruise itinerary, or compare it against single-country plans for the ports you'll actually use." }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "eSIM vs roaming", href: "/travel/esim-vs-roaming" },
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" }
+    ]
+  },
+  {
+    kind: "use-case",
+    slug: "study-abroad",
+    path: "/use-cases/study-abroad",
+    title: "eSIM for Study Abroad | Mobile Data for Students",
+    description: "Use eSim2you for a study-abroad semester or exchange trip, with mobile data ready before you land.",
+    eyebrow: "Study abroad",
+    heading: "Mobile data for your first days abroad.",
+    intro:
+      "The first days of a study-abroad semester often mean navigating a new campus and city, registering for classes, and messaging home, before local paperwork like a bank account or long-term SIM is sorted out. A travel eSIM covers that gap with mobile data that's ready as soon as you land.",
+    sections: [
+      {
+        title: "Ready before your first day on campus",
+        body: "Install the eSIM over Wi-Fi before you fly, so you have maps, messaging, and email working from the airport through orientation week."
+      },
+      {
+        title: "A bridge to a long-term local SIM",
+        body: "Many students eventually switch to a local carrier plan for a full semester. A travel eSIM is a way to stay connected during the days it takes to sort out local paperwork, ID, or a bank account."
+      },
+      {
+        title: "Keep your home number for calls",
+        body: "On a compatible dual-SIM phone, keep your home number active for calls and verification codes while the eSIM handles mobile data."
+      }
+    ],
+    faqs: [
+      { question: "Can an eSIM replace a local SIM for a full semester?", answer: "It can, but many students switch to a local carrier plan for a full semester once they've settled in, since long-term local plans are often better value than continuing travel data plans." },
+      { question: "Will I still receive verification codes on my home number?", answer: "On a compatible dual-SIM phone, your home SIM can remain active for calls and SMS while the eSIM provides data." }
+    ],
+    relatedLinks: [
+      { label: "Keep your normal number with eSIM", href: "/travel/keep-your-number-with-esim" },
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Which phones support eSIM", href: "/travel/esim-compatible-phones" }
     ]
   }
 ] satisfies SeoContentPage[];

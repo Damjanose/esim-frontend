@@ -87,7 +87,7 @@ export const indexableRoutes: IndexableRoute[] = [
     url: `${siteUrl}/use-cases`,
     title: "eSIM Use Cases | eSIM2you",
     description:
-      "How eSIM2you helps with business travel and remote work data abroad.",
+      "How eSIM2you helps with business travel, remote work, cruises, and study abroad data needs.",
     changeFrequency: "monthly",
     priority: 0.6
   },

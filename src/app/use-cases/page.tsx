@@ -10,7 +10,7 @@ import { createContentPageJsonLd, createMetadata } from "@/lib/seo";
 export const metadata: Metadata = createMetadata({
   path: "/use-cases",
   title: "eSIM Use Cases | eSIM2you",
-  description: "How eSIM2you helps with business travel and remote work data abroad."
+  description: "How eSIM2you helps with business travel, remote work, cruises, and study abroad data needs."
 });
 
 export default function UseCasesHubPage() {
@@ -20,7 +20,7 @@ export default function UseCasesHubPage() {
         data={createContentPageJsonLd({
           path: "/use-cases",
           name: "eSIM use cases",
-          description: "How eSIM2you helps with business travel and remote work data abroad.",
+          description: "How eSIM2you helps with business travel, remote work, cruises, and study abroad data needs.",
           breadcrumbName: "Use cases"
         })}
       />
@@ -29,7 +29,7 @@ export default function UseCasesHubPage() {
         <div className="mx-auto max-w-5xl">
           <h1 className="font-display text-5xl font-black text-brandInk">eSIM use cases</h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">
-            How travelers use eSIM2you for work trips and remote work days abroad.
+            How travelers use eSIM2you for work trips, remote work days, cruise port stops, and study abroad semesters.
           </p>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             {useCasePages.map((page) => (
