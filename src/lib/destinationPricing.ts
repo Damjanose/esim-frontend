@@ -4,6 +4,7 @@ import { backendCountryCode } from "./esim-routes";
 
 export type DestinationOffer = {
   lowPrice: number;
+  highPrice: number;
   currency: string;
   offerCount: number;
 };
@@ -85,6 +86,7 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
   for (const [code, prices] of pricesByCode) {
     offers[code] = {
       lowPrice: Math.min(...prices),
+      highPrice: Math.max(...prices),
       currency: OFFER_CURRENCY,
       offerCount: prices.length
     };

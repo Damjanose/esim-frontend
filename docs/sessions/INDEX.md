@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-12 | [SEO product and ranking slice](./2026-09-12_seo-product-and-ranking-slice.md) | Completed the Product JSON-LD price range fix, removed unsupported trust claims, added priority destination content, six new geo pages, four factual comparisons, and six travel guides |
 | 2026-09-11 | [force-logout all](./2026-09-11_force-logout-all.md) | Individual notifications tab can force-logout every account so they must sign in again |
 | 2026-09-10 | [website SEO architecture](./2026-09-10_website-seo-architecture.md) | Moved destination SEO to /esim/[slug] and guides to /travel/[slug], split the sitemap, added live plan tables and factual /compare pages |
 | 2026-09-10 | [force-logout unlinked](./2026-09-10_force-logout-unlinked.md) | Individual notifications tab can force-logout every account with no linked device so they must sign in again |

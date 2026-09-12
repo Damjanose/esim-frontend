@@ -16,7 +16,7 @@ describe("SEO content page template", () => {
     expect(source).toContain('aria-label="Breadcrumb"');
     expect(source).toContain("<table");
     expect(source).toContain("Related destinations");
-    expect(source).toContain("Lowest-priced plan we sell");
+    expect(source).toContain("Plans from €");
     expect(source).toContain("are the cheapest on the market");
   });
 });

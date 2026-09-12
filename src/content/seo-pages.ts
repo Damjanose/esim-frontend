@@ -31,7 +31,80 @@ export type SeoContentPage = {
   relatedLinks: SeoPageLink[];
 };
 
-export const destinationPages = [
+export const priorityDestinationEnhancements: Record<string, SeoPageSection[]> = {
+  albania: [
+    {
+      title: "Coverage for Albania itineraries",
+      body:
+        "Check the live plan row for the network and validity that fit your route. Coverage can vary between Tirana, the coast, and mountain areas, so download maps and key bookings before leaving reliable Wi-Fi."
+    }
+  ],
+  turkey: [
+    {
+      title: "From Istanbul arrivals to the coast",
+      body:
+        "A Turkey travel eSIM can help with airport transfers, navigation, translation, and messaging in Istanbul, Cappadocia, Antalya, and other stops. Review the plan network and hotspot terms before purchase."
+    }
+  ],
+  italy: [
+    {
+      title: "Travel data for Italian city breaks",
+      body:
+        "Use an Italy eSIM for maps, train tickets, museum bookings, translation, and messaging across Rome, Milan, Florence, Venice, and regional trips. Install before departure and activate data after arrival."
+    }
+  ],
+  greece: [
+    {
+      title: "Useful for island and mainland travel",
+      body:
+        "A Greece eSIM helps with ferry schedules, maps, ride apps, reservations, and messages while moving between Athens and the islands. Check the live plan details because network and hotspot support depend on the package."
+    }
+  ],
+  usa: [
+    {
+      title: "Plan data for road trips and city travel",
+      body:
+        "USA travel data is useful for navigation, rideshare, hotel check-in, national-park planning, and long road trips. Check the plan’s network, validity, and hotspot terms for your route before buying."
+    }
+  ],
+  germany: [
+    {
+      title: "Mobile data across German travel routes",
+      body:
+        "Use a Germany eSIM for rail updates, maps, translation, tickets, and messaging in Berlin, Munich, Frankfurt, and smaller towns. Keep your usual number on a supported dual-SIM phone."
+    }
+  ],
+  france: [
+    {
+      title: "For Paris and travel beyond the capital",
+      body:
+        "A France eSIM can support maps, train bookings, translation, restaurant reservations, and messages across Paris and regional trips. Install on Wi-Fi and confirm the package network before departure."
+    }
+  ],
+  spain: [
+    {
+      title: "Stay connected across Spanish routes",
+      body:
+        "Travel data helps with city navigation, rail and bus bookings, beach-town directions, translation, and messaging in Spain. Compare validity and data size with the length of your itinerary."
+    }
+  ],
+  uk: [
+    {
+      title: "Useful from London to regional trips",
+      body:
+        "A UK eSIM can provide mobile data for maps, transit apps, bookings, and messaging in London, Scotland, Wales, and Northern Ireland. Your normal SIM can remain available for calls if your device supports dual SIM."
+    }
+  ],
+  japan: [
+    {
+      title: "Data for transit, translation, and city travel",
+      body:
+        "Japan travel data is useful for rail navigation, translation, QR tickets, restaurant searches, and messaging in Tokyo, Kyoto, Osaka, and beyond. Install before flying so the connection plan is ready after landing."
+    }
+  ]
+};
+
+const baseDestinationPages = [
   {
     kind: "destination",
     slug: "usa",
@@ -897,10 +970,307 @@ export const destinationPages = [
       { label: "Canada travel eSIM plans", href: "/esim/canada" },
       { label: "Mexico travel eSIM plans", href: "/esim/mexico" }
     ]
+  },
+  {
+    kind: "guide",
+    slug: "how-much-data-when-traveling",
+    path: "/travel/how-much-data-when-traveling",
+    title: "How Much Mobile Data Do I Need When Traveling? | eSIM2you",
+    description: "Estimate travel data needs for maps, messaging, social media, video, and work before choosing an eSIM plan.",
+    eyebrow: "Travel data guide",
+    heading: "How much mobile data do you need for a trip?",
+    intro: "To understand how much mobile data you need, consider trip length, apps, Wi-Fi access, and whether you stream video. Estimate your daily habits first, then compare live destination plans by data and validity.",
+    sections: [
+      { title: "Light use", body: "Maps, messaging, email, and occasional browsing usually need less data than video or hotspot use. Download offline maps where practical." },
+      { title: "Regular travel use", body: "Frequent navigation, social media, photos, bookings, and calls use more data. Choose enough validity for the whole itinerary and leave a small buffer." },
+      { title: "Heavy use", body: "Streaming, remote work, large uploads, or hotspot use can consume data quickly. Check the package terms and consider a higher-data plan." }
+    ],
+    faqs: [
+      { question: "Does video use the most travel data?", answer: "Usually. Video streaming and video calls can use substantially more data than messaging or map directions." },
+      { question: "Can I top up later?", answer: "Top-up availability depends on the account and package; check your account after purchase." }
+    ],
+    relatedLinks: [
+      { label: "Compare live destinations", href: "/destinations" },
+      { label: "Europe eSIM plans", href: "/esim/europe" },
+      { label: "Travel eSIM installation", href: "/travel/how-to-install-esim" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "travel-data-and-wifi",
+    path: "/travel/travel-data-and-wifi",
+    title: "Travel Data and Wi-Fi: Planning Connectivity Abroad | eSIM2you",
+    description: "Plan mobile data and Wi-Fi for travel by comparing eSIM setup, public Wi-Fi, device support, and trip needs.",
+    eyebrow: "Travel connectivity",
+    heading: "Travel data and Wi-Fi: how to stay connected abroad.",
+    intro: "Travel data and Wi-Fi solve different parts of a trip. Learn how to stay connected abroad by using reliable Wi-Fi for large downloads and an eSIM for maps, messages, bookings, and connection when you are moving between places.",
+    sections: [
+      { title: "A travel eSIM starts before arrival", body: "Install digitally on Wi-Fi before departure and avoid searching for a shop immediately after landing. Live plans show the data, validity, network, and price." },
+      { title: "Wi-Fi is useful but not everywhere", body: "Hotel and cafe Wi-Fi can help with large downloads, but it may not be available during transfers, navigation, or arrival." },
+      { title: "Check your phone first", body: "Confirm eSIM support, carrier unlock status, and dual-SIM behavior before buying either option." }
+    ],
+    faqs: [
+      { question: "Can I use an eSIM alongside Wi-Fi?", answer: "Yes. Use Wi-Fi when it is trusted and available, while the eSIM supplies mobile data when you are away from it." },
+      { question: "Should I download maps before traveling?", answer: "Offline maps and key bookings can reduce data use, but a travel eSIM keeps essential mobile access available while you move." }
+    ],
+    relatedLinks: [
+      { label: "USA eSIM plans", href: "/esim/usa" },
+      { label: "Europe eSIM plans", href: "/esim/europe" },
+      { label: "eSIM vs roaming", href: "/travel/esim-vs-roaming" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "keep-your-number-with-esim",
+    path: "/travel/keep-your-number-with-esim",
+    title: "Can I Keep My Normal Number With an eSIM? | eSIM2you",
+    description: "Learn how dual SIM phones can keep your normal number available while a travel eSIM provides mobile data.",
+    eyebrow: "Dual-SIM guide",
+    heading: "Keep your normal number while using travel data.",
+    intro: "Many compatible phones can keep a regular SIM and your normal number active while a travel eSIM handles mobile data. The exact behavior depends on your phone, carrier, and selected data settings.",
+    sections: [
+      { title: "Use the eSIM for mobile data", body: "Select the travel eSIM as the data line and keep your usual line available for calls or messages if your carrier and phone support it." },
+      { title: "Avoid surprise roaming", body: "Review data roaming settings on your regular line and disable automatic switching where your device offers that control." },
+      { title: "Test before departure", body: "Install the profile over Wi-Fi, label the lines clearly, and check which line is selected for data before you fly." }
+    ],
+    faqs: [
+      { question: "Will WhatsApp keep my number?", answer: "WhatsApp can continue using your existing account while the travel eSIM provides the internet connection." },
+      { question: "Can every phone use two lines?", answer: "No. Check eSIM support, carrier restrictions, and your device’s dual-SIM behavior before purchase." }
+    ],
+    relatedLinks: [
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" },
+      { label: "USA eSIM plans", href: "/esim/usa" },
+      { label: "Travel support", href: "/support" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "activate-esim-before-flying",
+    path: "/travel/activate-esim-before-flying",
+    title: "How to Activate an eSIM Before Flying | eSIM2you",
+    description: "Follow a practical pre-flight checklist for installing a travel eSIM and activating data after arrival.",
+    eyebrow: "Pre-flight checklist",
+    heading: "Activate your travel eSIM before the flight.",
+    intro: "Installing your travel eSIM before your flight gives you time to check device compatibility and finish setup over reliable Wi-Fi. In many cases, you can wait to enable travel data until you arrive.",
+    sections: [
+      { title: "Before installation", body: "Confirm your phone is compatible and unlocked, keep the order details accessible, and connect to stable Wi-Fi." },
+      { title: "Install the profile", body: "Use the QR code or manual instructions from your order, label the line with its destination, and follow the phone’s confirmation steps." },
+      { title: "Activate on arrival", body: "Select the travel eSIM for mobile data, enable the required settings, and check the network connection when you land." }
+    ],
+    faqs: [
+      { question: "Do I need to activate data immediately after installing?", answer: "Usually you can install before departure and enable the travel data line when you arrive; follow the package instructions." },
+      { question: "What if installation fails?", answer: "Check Wi-Fi, device compatibility, and the installation guide, then contact support with your order details." }
+    ],
+    relatedLinks: [
+      { label: "Installation guide", href: "/travel/how-to-install-esim" },
+      { label: "Support center", href: "/support" },
+      { label: "Browse destinations", href: "/destinations" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "esim-not-connecting",
+    path: "/travel/esim-not-connecting",
+    title: "What to Do When a Travel eSIM Does Not Connect | eSIM2you",
+    description: "Troubleshoot a travel eSIM connection by checking activation, data-line selection, roaming settings, and coverage.",
+    eyebrow: "Connection troubleshooting",
+    heading: "What to do when your travel eSIM does not connect.",
+    intro: "When your travel eSIM does not connect, the cause can be device settings, activation timing, coverage, or a temporary network issue. Work through the basics before contacting support with your order and device details.",
+    sections: [
+      { title: "Check the active data line", body: "Confirm the travel eSIM is enabled and selected for mobile data. On dual-SIM phones, check that automatic data switching is configured as intended." },
+      { title: "Check network settings", body: "Follow the package instructions for data roaming or network selection, then toggle airplane mode or restart the phone if needed." },
+      { title: "Confirm coverage and validity", body: "Make sure you are in a covered destination and that the plan has started or remains valid. Contact support if the issue continues." }
+    ],
+    faqs: [
+      { question: "Should I restart my phone?", answer: "A restart or brief airplane-mode toggle can help the phone register the travel network after settings change." },
+      { question: "What should I send support?", answer: "Include the order reference, destination, device model, screenshots of relevant settings, and the steps already tried." }
+    ],
+    relatedLinks: [
+      { label: "Support center", href: "/support" },
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" },
+      { label: "Browse live plans", href: "/destinations" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "best-esim-europe-travel",
+    path: "/travel/best-esim-europe-travel",
+    title: "Best eSIM for Europe Travel: How to Compare Plans | eSIM2you",
+    description: "Learn how to compare Europe travel eSIM plans by country coverage, data, validity, network, and price.",
+    eyebrow: "Europe travel guide",
+    heading: "How to choose a Europe travel eSIM.",
+    intro: "Learn how to choose the best eSIM for Europe travel by comparing your countries, trip length, data habits, and device. Compare live package coverage and plan details instead of choosing by a generic data number alone.",
+    sections: [
+      { title: "Match coverage to the itinerary", body: "A multi-country trip may suit a regional plan, while a single-country visit may be simpler with a country package. Check the included destinations." },
+      { title: "Compare data and validity", body: "Choose enough data for maps, messaging, bookings, and your normal usage, then confirm the plan lasts for the full trip." },
+      { title: "Review network and support terms", body: "Check the listed network, hotspot policy, installation instructions, and support options before checkout." }
+    ],
+    faqs: [
+      { question: "Is a Europe regional plan always better?", answer: "Not always. Compare its included countries, price, data, and validity with country plans for the exact itinerary." },
+      { question: "Where can I see current Europe plans?", answer: "Open the live Europe destination page to compare current data, validity, network, and price rows." }
+    ],
+    relatedLinks: [
+      { label: "Europe eSIM plans", href: "/esim/europe" },
+      { label: "France eSIM plans", href: "/esim/france" },
+      { label: "Italy eSIM plans", href: "/esim/italy" }
+    ]
   }
 ] satisfies SeoContentPage[];
 
+const additionalDestinationPages = [
+  {
+    kind: "destination",
+    slug: "netherlands",
+    path: "/esim/netherlands",
+    title: "eSIM Netherlands | Travel Data for Amsterdam and Beyond",
+    description: "Compare live Netherlands travel eSIM plans for Amsterdam, Rotterdam, and trips across the country.",
+    eyebrow: "Netherlands travel eSIM",
+    heading: "Travel data for the Netherlands, ready before arrival.",
+    intro: "Prepare a Netherlands eSIM for maps, train schedules, translation, messaging, and city travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Amsterdam or at your next stop.",
+    sections: [
+      { title: "Useful for city and rail travel", body: "Use mobile data for transit apps, museum reservations, navigation, and booking changes while traveling between Amsterdam, Rotterdam, Utrecht, and smaller towns." },
+      { title: "Check the live plan details", body: "Compare the current data, validity, network, and price rows for your trip. Hotspot availability depends on the package." },
+      { title: "Keep your usual number", body: "On a compatible dual-SIM phone, your normal line can remain available while the Netherlands eSIM supplies travel data." }
+    ],
+    faqs: [
+      { question: "Can I install a Netherlands eSIM before flying?", answer: "Yes. Install it over stable Wi-Fi before departure and enable mobile data after arriving." },
+      { question: "Can I use it outside Amsterdam?", answer: "Check the live package coverage and network details for the cities and routes on your itinerary." }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" },
+      { label: "eSIM vs roaming", href: "/travel/esim-vs-roaming" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "austria",
+    path: "/esim/austria",
+    title: "eSIM Austria | Travel Data for Vienna and the Alps",
+    description: "Compare live Austria travel eSIM plans for Vienna, Salzburg, Innsbruck, and Alpine trips.",
+    eyebrow: "Austria travel eSIM",
+    heading: "Mobile data for Austria, installed before your trip.",
+    intro: "Use an Austria eSIM for maps, rail travel, translation, reservations, and messages across Vienna, Salzburg, Innsbruck, and the Alps. Have travel data installed before your trip, then activate the profile when you arrive.",
+    sections: [
+      { title: "From city breaks to Alpine routes", body: "Travel data helps with train updates, hiking directions, weather, accommodation messages, and bookings when hotel Wi-Fi is unavailable." },
+      { title: "Compare plans for your itinerary", body: "Review live data size, validity, network, and price before choosing. Coverage and hotspot use depend on the selected package." },
+      { title: "Install before leaving home", body: "Install on a compatible device over reliable Wi-Fi, then keep your usual number available if your phone supports dual SIM." }
+    ],
+    faqs: [
+      { question: "Is an Austria eSIM useful for rail travel?", answer: "Yes. Mobile data can help with rail schedules, maps, tickets, and messages while moving between cities." },
+      { question: "When should I activate it?", answer: "Install before departure and turn on the travel data line after arriving in Austria." }
+    ],
+    relatedLinks: [
+      { label: "Europe travel eSIM plans", href: "/esim/europe" },
+      { label: "Germany travel eSIM plans", href: "/esim/germany" },
+      { label: "Travel eSIM installation guide", href: "/travel/how-to-install-esim" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "balkans",
+    path: "/esim/balkans",
+    title: "eSIM for the Balkans | Regional Travel Data | eSIM2you",
+    description: "Compare live regional eSIM data plans for a Balkans itinerary across Albania, Greece, and nearby countries.",
+    eyebrow: "Balkans regional eSIM",
+    heading: "One travel data plan for a multi-country Balkans route.",
+    intro: "One Balkans eSIM can simplify a multi-country route by keeping your connectivity plan digital. Check the countries covered by each live package before buying because regional coverage varies by plan.",
+    sections: [
+      { title: "Built for border-crossing itineraries", body: "Use mobile data for maps, ferry and bus schedules, translation, bookings, and messages while moving between Albania, Greece, Montenegro, Croatia, and nearby destinations." },
+      { title: "Confirm every included country", body: "Regional packages differ. Review the package coverage list, validity, data, network, and hotspot terms for the exact route." },
+      { title: "Prepare before departure", body: "Install over Wi-Fi before the first flight or border crossing, then enable travel data as you enter the covered region." }
+    ],
+    faqs: [
+      { question: "Does every Balkans plan cover every country?", answer: "No. Check the countries listed for the specific package before purchase." },
+      { question: "Can I use a regional plan for a short trip?", answer: "Yes, if its included countries and validity match your itinerary." }
+    ],
+    relatedLinks: [
+      { label: "Albania eSIM plans", href: "/esim/albania" },
+      { label: "Greece eSIM plans", href: "/esim/greece" },
+      { label: "Europe eSIM plans", href: "/esim/europe" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "middle-east",
+    path: "/esim/middle-east",
+    title: "eSIM for the Middle East | Regional Travel Data | eSIM2you",
+    description: "Compare live regional eSIM plans for Middle East travel, with coverage and validity shown per package.",
+    eyebrow: "Middle East regional eSIM",
+    heading: "Plan mobile data across a Middle East itinerary.",
+    intro: "A regional Middle East eSIM can help travelers prepare mobile data across a multi-country itinerary before departure. Coverage is package-specific, so review the included countries and network details before buying.",
+    sections: [
+      { title: "Useful for arrival and city travel", body: "Use data for airport transfers, maps, translation, reservations, messaging, and ride apps while traveling between covered destinations." },
+      { title: "Coverage is package-specific", body: "Check the live package country list, data amount, validity, network, and hotspot policy rather than assuming every regional plan is identical." },
+      { title: "Keep setup simple", body: "Install the eSIM over Wi-Fi before departure and enable it when you reach a covered destination." }
+    ],
+    faqs: [
+      { question: "Which countries are included?", answer: "The included countries are shown on each live regional package; review that list before purchase." },
+      { question: "Can I install it before travel?", answer: "Yes. Install before departure on a compatible phone and activate it on arrival." }
+    ],
+    relatedLinks: [
+      { label: "Asia eSIM plans", href: "/esim/asia" },
+      { label: "UAE eSIM plans", href: "/esim/uae" },
+      { label: "Travel eSIM guides", href: "/travel" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "africa",
+    path: "/esim/africa",
+    title: "eSIM for Africa | Regional Travel Data | eSIM2you",
+    description: "Compare live Africa regional eSIM data plans and review covered countries before your trip.",
+    eyebrow: "Africa regional eSIM",
+    heading: "Stay prepared for a multi-country Africa trip.",
+    intro: "Stay prepared for an Africa trip with a regional eSIM and a digital data option across covered countries. Check the live package coverage, network, data, and validity for your route before purchase.",
+    sections: [
+      { title: "For airports, transfers, and safaris", body: "Mobile data can help with maps, driver coordination, reservations, translation, and messages during city, safari, and multi-stop itineraries." },
+      { title: "Review coverage before buying", body: "Regional plans vary by country and network. Use the package country list and live plan table as the source of truth." },
+      { title: "Install while connected to Wi-Fi", body: "Install before departure, then enable the travel line when you reach a destination included in the package." }
+    ],
+    faqs: [
+      { question: "Will one plan cover every African country?", answer: "No. Coverage depends on the package. Check its included country list before purchase." },
+      { question: "Can I keep my regular SIM?", answer: "On a compatible dual-SIM phone, your regular line can remain available while the eSIM handles data." }
+    ],
+    relatedLinks: [
+      { label: "Europe eSIM plans", href: "/esim/europe" },
+      { label: "Asia eSIM plans", href: "/esim/asia" },
+      { label: "Travel support", href: "/support" }
+    ]
+  },
+  {
+    kind: "destination",
+    slug: "south-america",
+    path: "/esim/south-america",
+    title: "eSIM for South America | Regional Travel Data | eSIM2you",
+    description: "Compare live South America regional eSIM plans for multi-country travel and review coverage before purchase.",
+    eyebrow: "South America regional eSIM",
+    heading: "Prepare mobile data for a South America itinerary.",
+    intro: "Prepare a South America eSIM to simplify connectivity planning across covered countries. Review the exact country list, data, validity, network, and hotspot terms for your trip.",
+    sections: [
+      { title: "Useful between cities and borders", body: "Use mobile data for maps, long-distance transport, translation, hotel messages, and bookings during a multi-country route." },
+      { title: "Choose by route and duration", body: "Compare live plan rows against the countries and number of travel days on your itinerary. Regional packages are not interchangeable." },
+      { title: "Set up before you fly", body: "Install on Wi-Fi before departure and activate the eSIM data line when you arrive in a covered destination." }
+    ],
+    faqs: [
+      { question: "How do I check regional coverage?", answer: "Open the live plan details and review the countries included in the specific package." },
+      { question: "Is hotspot included?", answer: "Hotspot availability depends on the selected package; check its terms before purchase." }
+    ],
+    relatedLinks: [
+      { label: "USA eSIM plans", href: "/esim/usa" },
+      { label: "Travel eSIM guides", href: "/travel" },
+      { label: "Support center", href: "/support" }
+    ]
+  }
+] satisfies SeoContentPage[];
+
+export const destinationPages = [
+  ...baseDestinationPages.filter((page) => page.kind === "destination"),
+  ...additionalDestinationPages
+] satisfies SeoContentPage[];
+
 export const guidePages = [
+  ...baseDestinationPages.filter((page) => page.kind === "guide"),
   {
     kind: "guide",
     slug: "what-is-an-esim",

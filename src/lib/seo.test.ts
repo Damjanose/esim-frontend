@@ -3,6 +3,7 @@ import {
   createContentPageJsonLd,
   createLandingJsonLd,
   createMetadata,
+  createOfferProductJsonLd,
   createWebPageJsonLd,
   indexableRoutes,
   privateRoutePrefixes,
@@ -237,5 +238,32 @@ describe("SEO route contract", () => {
     });
 
     expect(schema["@graph"].some((entry) => entry["@type"] === "FAQPage")).toBe(false);
+  });
+
+  it("emits a complete visible AggregateOffer range without review claims", () => {
+    const product = createOfferProductJsonLd({
+      url: "https://esim.uplisoft.com/esim/japan",
+      name: "eSIM for Japan",
+      description: "Japan travel data",
+      offer: {
+        lowPrice: 9.89,
+        highPrice: 19.5,
+        currency: "EUR",
+        offerCount: 2
+      }
+    });
+
+    expect(product).toMatchObject({
+      "@type": "Product",
+      image: "https://esim.uplisoft.com/og/esim2you-og.png?v=4",
+      offers: {
+        "@type": "AggregateOffer",
+        lowPrice: "9.89",
+        highPrice: "19.50",
+        priceCurrency: "EUR"
+      }
+    });
+    expect(product).not.toHaveProperty("aggregateRating");
+    expect(product).not.toHaveProperty("review");
   });
 });

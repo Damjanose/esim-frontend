@@ -482,6 +482,7 @@ export function DestinationPlans({
 
     return {
       lowPrice: Math.min(...prices),
+      highPrice: Math.max(...prices),
       currency: "EUR",
       offerCount: prices.length,
     };
@@ -688,6 +689,13 @@ export function DestinationPlans({
                   Choose the plan that fits your
                   journey.
                 </p>
+
+                {selectedCountryOffer ? (
+                  <p className="mt-4 inline-flex rounded-full border border-brandTeal/40 bg-midnight/75 px-4 py-2 text-xs font-black text-white">
+                    Plans from €{selectedCountryOffer.lowPrice.toFixed(2)} to €
+                    {selectedCountryOffer.highPrice.toFixed(2)} · {selectedCountryOffer.offerCount} plans
+                  </p>
+                ) : null}
 
                 {heroImage?.sourceUrl ? (
                   <a

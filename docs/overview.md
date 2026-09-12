@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-11
+last_updated: 2026-09-12
 ---
 
 # Project Overview — E-SIM-frontend
@@ -13,7 +13,7 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 - `src/app/bff/*` is a Backend-For-Frontend layer: Next.js route handlers under `bff/auth`, `bff/payments`, `bff/user`, `bff/packages`, `bff/admin`, `bff/country-image` proxy browser requests to the `E-SIM backend` API. REST from the browser never calls Express directly. The **one exception** is Socket.IO from `/xsupport`, which connects to the API origin with the admin dashboard token so unread badges and messages update live.
 - `src/middleware.ts` handles host/protocol canonicalization (redirects `www.esim.uplisoft.com` and `http://` to the canonical `https://esim.uplisoft.com`, strips trailing slashes) and route guarding (`src/lib/route-guard.ts`) for signed-in-only pages; it resolves the public origin from forwarded headers rather than `request.nextUrl`, since production sits behind an Nginx reverse proxy on loopback
 - Session cookies (`ACCESS_COOKIE`, `REFRESH_COOKIE` in `src/lib/session.ts`) are the client-side auth state; BFF routes read/refresh them rather than the page code touching backend tokens directly
-- `src/content/` holds static/CMS-style content for guides and use-case pages
+- `src/content/` holds static/CMS-style content for destination pages, guides, comparisons, and use-case pages. The public content source now contains 27 destination pages, 11 travel guides, and 2 use-case pages; comparison content is maintained separately in `src/content/compare-pages.ts`.
 - `src/services/` holds client-side data-fetching/service logic consumed by pages
 - Test runner is Vitest (`pnpm test`); several BFF routes and the admin dashboard have route-level tests (`*.test.ts` beside the route file, e.g. `src/app/bff/auth/auth-routes.test.ts`, `src/app/xloginy/admin-dashboard.test.ts`)
 - Design reference: `docs/design/mobile-design-system.md`

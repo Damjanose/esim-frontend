@@ -51,7 +51,8 @@ export function SeoContentPageView({
             </h1>
             {offer ? (
               <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brandBlue/30 bg-brandBlue/5 px-4 py-2 text-sm font-black text-brandBlue">
-                eSIM plans from €{offer.lowPrice.toFixed(2)}
+                eSIM plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)} ·{" "}
+                {offer.offerCount} plans
               </p>
             ) : null}
             <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">{page.intro}</p>

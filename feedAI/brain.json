@@ -66,7 +66,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "main",
-    "date": "2026-09-11",
-    "note_latest": "f126: /xnotificationy Force-logout all (POST /bff/admin/users/force-logout-all) pairs with backend f153. See facts.jsonl f126.\n\nf125: canonical destination SEO is /esim/[slug], guides /travel/[slug], sitemap index at /sitemap.xml with /sitemaps/{static,esim,travel,compare}.xml; /cheapest-esim unpublished. See facts.jsonl f125.\n\nf124: /xnotificationy Force-logout unlinked (POST /bff/admin/users/force-logout-unlinked) pairs with backend f152. See facts.jsonl f124."
+    "date": "2026-09-12",
+    "note_latest": "f128: destination Product/AggregateOffer highPrice is derived from real package prices and must match the visible range; review and aggregateRating stay absent until genuine visible reviews exist. See facts.jsonl f128.\n\nf127: public SEO expanded to 27 destinations, 11 guides, 2 use cases, and 7 factual comparisons. See facts.jsonl f127.\n\nf126: /xnotificationy Force-logout all (POST /bff/admin/users/force-logout-all) pairs with backend f153. See facts.jsonl f126."
   }
 }

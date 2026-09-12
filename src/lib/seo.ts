@@ -295,6 +295,7 @@ export function createWebPageJsonLd({
 
 export type DestinationOfferInput = {
   lowPrice: number;
+  highPrice: number;
   currency: string;
   offerCount: number;
 };
@@ -320,12 +321,14 @@ export function createOfferProductJsonLd({
     "@id": `${url}#product`,
     name,
     description,
+    image: ogImage.url,
     brand: { "@id": `${siteUrl}/#organization` },
     offers: {
       "@type": "AggregateOffer",
       url,
       priceCurrency: offer.currency,
       lowPrice: offer.lowPrice.toFixed(2),
+      highPrice: offer.highPrice.toFixed(2),
       offerCount: offer.offerCount,
       availability: "https://schema.org/InStock"
     }

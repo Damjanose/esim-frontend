@@ -4,7 +4,6 @@ import {
   Globe2,
   Headphones,
   ShieldCheck,
-  Star,
   Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -19,14 +18,6 @@ import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { HeroDestinationChips } from "./HeroDestinationChips";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
-
-const travelerImages = [
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=85",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=85",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=85",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=85",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&h=120&q=85"
-];
 
 const benefits = [
   {
@@ -66,25 +57,6 @@ const installationSteps = [
   }
 ];
 
-const testimonials = [
-  {
-    quote:
-      "eSim2you made my Japan trip so easy. The installation was quick and the connection stayed fast throughout the trip.",
-    name: "Sophia R.",
-    country: "USA",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=85"
-  },
-  {
-    quote:
-      "The best eSIM service I have used. It was affordable, reliable and very easy to activate before my flight.",
-    name: "Aisha M.",
-    country: "Canada",
-    image:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=120&h=120&q=85"
-  }
-];
-
 export const metadata: Metadata = createMetadata({
   path: "/",
   title: "eSim2you | Travel Data for 200+ Destinations",
@@ -102,7 +74,7 @@ export default function Home() {
       <DestinationBrowse autoOpenWizard urlFilters={{}} />
       <Benefits />
       <HowItWorks />
-      <TestimonialsAndFaq />
+        <TrustAndFaq />
       <AppDownload />
       <PartnerPromo />
       <Cta />
@@ -143,67 +115,15 @@ function Hero() {
 
         <HeroDestinationChips />
 
-        <HeroTrustSignals />
-      </div>
-    </section>
-  );
-}
-
-function HeroTrustSignals() {
-  return (
-    <div className="mt-9 flex flex-col items-center gap-5 sm:flex-row sm:gap-7">
-      <div>
-        <p className="mb-3 text-xs font-medium text-white/70">
-          Trusted by travelers from
-        </p>
-
-        <div className="flex justify-center -space-x-2">
-          {travelerImages.map((image, index) => (
-            <div
-              className="h-10 w-10 overflow-hidden rounded-full border-2 border-white/80 bg-outline/20 shadow-[0_6px_14px_rgba(0,0,0,0.25)]"
-              key={image}
-            >
-              <Image
-                alt={`eSim2you traveler ${index + 1}`}
-                className="h-full w-full object-cover"
-                height={40}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                src={image}
-                width={40}
-              />
-            </div>
+        <div className="mt-9 flex flex-wrap justify-center gap-3 text-xs font-semibold text-white/85">
+          {["200+ destinations", "Live plan prices", "Install in minutes", "24/7 support"].map((signal) => (
+            <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2" key={signal}>
+              {signal}
+            </span>
           ))}
         </div>
       </div>
-
-      <div>
-        <p className="mb-2 text-xs text-white/70">
-          and 50,000+ reviews
-        </p>
-
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex gap-1">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <span
-                className="grid h-[18px] w-[18px] place-items-center rounded-[4px] bg-[#00b67a]"
-                key={index}
-              >
-                <Star
-                  aria-hidden="true"
-                  className="fill-white text-white"
-                  size={11}
-                />
-              </span>
-            ))}
-          </div>
-
-          <span className="text-xs font-semibold text-white">
-            4.8/5
-          </span>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -475,86 +395,29 @@ function HowItWorks() {
   );
 }
 
-function TestimonialsAndFaq() {
+function TrustAndFaq() {
   return (
     <section className="relative overflow-hidden bg-surface px-5 py-10 text-onSurface md:px-8">
       <div className="relative mx-auto max-w-[1280px]">
         <div className="text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
-            Trusted by travelers
+            Plan with confidence
           </p>
 
           <h2 className="mt-2 font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
-            Loved by Millions Around the World
+            Clear plans. Straightforward setup.
           </h2>
         </div>
 
-        <div className="mt-7 grid items-stretch gap-5 md:grid-cols-[0.82fr_1fr_1fr]">
-          <div className="relative hidden min-h-[285px] md:block">
-            <img
-              alt="eSim2you mobile applications"
-              className="pointer-events-none absolute bottom-[-5px] left-1/2 h-[116%] w-[142%] max-w-none -translate-x-1/2 object-contain object-bottom drop-shadow-[0_24px_32px_rgba(0,0,0,0.45)]"
-              loading="lazy"
-              src="/images/2-iphones.png"
-            />
-          </div>
-
-          {testimonials.slice(0, 2).map((testimonial) => (
-            <article
-              className="group relative flex min-h-[285px] flex-col overflow-hidden rounded-[18px] border border-outline bg-surface p-6 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:border-brandBlue/40 hover:shadow-brandGlow"
-              key={testimonial.name}
-            >
-              <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-brandBlue/30 to-transparent" />
-
-              <span
-                aria-hidden="true"
-                className="relative font-display text-[42px] font-black leading-none text-onSurfaceVariant/35"
-              >
-                “
-              </span>
-
-              <p className="relative mt-2 flex-1 text-sm font-medium leading-7 text-onSurface">
-                {testimonial.quote}
-              </p>
-
-              <div className="relative mt-6 flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <Image
-                    alt={testimonial.name}
-                    className="h-11 w-11 shrink-0 rounded-full border border-outline object-cover shadow-[0_8px_20px_rgba(0,0,0,0.12)]"
-                    height={44}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    src={testimonial.image}
-                    width={44}
-                  />
-
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-onSurface">
-                      {testimonial.name}
-                    </p>
-
-                    <p className="mt-0.5 text-[10px] text-onSurfaceVariant">
-                      {testimonial.country}
-                    </p>
-                  </div>
-                </div>
-
-                <div
-                  aria-label="5 out of 5 stars"
-                  className="flex shrink-0 gap-0.5"
-                >
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <Star
-                      aria-hidden="true"
-                      className="fill-[#ffca28] text-[#ffca28]"
-                      key={index}
-                      size={14}
-                      strokeWidth={1.5}
-                    />
-                  ))}
-                </div>
-              </div>
+        <div className="mt-7 grid gap-5 md:grid-cols-3">
+          {[
+            ["Live availability", "Compare current data, validity, network, and price on each destination page."],
+            ["Ready before arrival", "Install on Wi-Fi before departure and enable travel data when you land."],
+            ["Help when needed", "Use the support center for setup, data, top-up, and refund questions."]
+          ].map(([title, description]) => (
+            <article className="rounded-[18px] border border-outline bg-surface p-6 shadow-brandCard" key={title}>
+              <h3 className="font-display text-lg font-black text-brandInk">{title}</h3>
+              <p className="mt-3 text-sm leading-7 text-onSurfaceVariant">{description}</p>
             </article>
           ))}
         </div>
@@ -771,8 +634,7 @@ function Cta() {
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-white/75 md:text-base">
-                Join millions of travelers who trust eSim2you for seamless
-                connectivity.
+                Choose a live travel data plan and get connected before your trip.
               </p>
             </div>
 

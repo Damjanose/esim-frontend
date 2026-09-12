@@ -5,7 +5,11 @@ import { Navbar } from "./components/Navbar";
 import { LinkButton } from "./components/Button";
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
-import { destinationPages, type SeoContentPage } from "@/content/seo-pages";
+import {
+  destinationPages,
+  priorityDestinationEnhancements,
+  type SeoContentPage
+} from "@/content/seo-pages";
 import { destinationDisplay, destinationH1 } from "@/lib/esim-routes";
 import {
   createContentPageJsonLd,
@@ -38,6 +42,10 @@ export function EsimDestinationPageView({
   const h1 = destinationH1(page.slug) ?? `eSIM for ${countryName}`;
   const neighborLinks = relatedDestinationLinks(page.slug);
   const lowestPriced = plans[0];
+  const sections = [
+    ...page.sections,
+    ...(priorityDestinationEnhancements[page.slug] ?? [])
+  ];
 
   return (
     <main className="min-h-screen bg-white text-onSurface">
@@ -76,7 +84,7 @@ export function EsimDestinationPageView({
             <p className="mt-4 max-w-3xl text-xl font-semibold text-brandInk">{page.heading}</p>
             {offer ? (
               <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brandBlue/30 bg-brandBlue/5 px-4 py-2 text-sm font-black text-brandBlue">
-                Lowest-priced plan we sell from €{offer.lowPrice.toFixed(2)}
+                Plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)}
                 {offer.offerCount > 0 ? ` · ${offer.offerCount} plans` : ""}
               </p>
             ) : null}
@@ -175,7 +183,7 @@ export function EsimDestinationPageView({
         <section className="px-5 pb-16 md:px-8 md:pb-24">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_320px]">
             <div className="space-y-5">
-              {page.sections.map((section) => (
+              {sections.map((section) => (
                 <section className="rounded-xl border border-outline bg-white p-7 shadow-sm" key={section.title}>
                   <div className="flex gap-4">
                     <span className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brandBlue/10 text-brandInk">

@@ -47,6 +47,7 @@ describe("getDestinationOffer", () => {
 
     await expect(getDestinationOffer("japan")).resolves.toEqual({
       lowPrice: 9.89,
+      highPrice: 19.5,
       currency: "EUR",
       offerCount: 2
     });
@@ -62,6 +63,7 @@ describe("getDestinationOffer", () => {
 
     await expect(getDestinationOffer("usa")).resolves.toEqual({
       lowPrice: 12,
+      highPrice: 12,
       currency: "EUR",
       offerCount: 1
     });

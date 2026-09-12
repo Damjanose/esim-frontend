@@ -17,7 +17,7 @@ export type ComparePage = {
   notes: string[];
 };
 
-export const compareUpdatedAt = "2026-09-10";
+export const compareUpdatedAt = "2026-09-12";
 
 export const comparePages: ComparePage[] = [
   {
@@ -148,6 +148,78 @@ export const comparePages: ComparePage[] = [
       "Hotspot, validity, and refund rules depend on the specific package — read the plan details before paying.",
       `Comparison last reviewed ${compareUpdatedAt}.`
     ]
+  },
+  {
+    slug: "yesim-vs-esim2you",
+    path: "/compare/yesim-vs-esim2you",
+    title: "Yesim vs eSIM2you | Travel eSIM Comparison",
+    description: "Compare Yesim and eSIM2you on travel eSIM plans, coverage, checkout, activation, and support.",
+    heading: "Yesim vs eSIM2you",
+    competitor: "Yesim",
+    updatedAt: compareUpdatedAt,
+    intro: "Yesim and eSIM2you both offer digital travel data. This factual comparison focuses on how plans are presented and how travelers prepare for connectivity.",
+    rows: [
+      { factor: "Plan comparison", esim2you: "Live destination pages show data, validity, network, and price", competitor: "Country and regional catalog with plan details" },
+      { factor: "Destinations", esim2you: "200+ destinations and regional bundles", competitor: "International destination catalog" },
+      { factor: "Checkout", esim2you: "Web checkout plus mobile apps", competitor: "Web and app purchase flows" },
+      { factor: "Activation", esim2you: "QR or manual installation on supported phones", competitor: "Digital eSIM installation on supported devices" },
+      { factor: "Support", esim2you: "Web support center and in-app help", competitor: "Help center and customer support" }
+    ],
+    notes: ["Compare the current package terms before buying; prices and features can change.", `Comparison last reviewed ${compareUpdatedAt}.`]
+  },
+  {
+    slug: "holafly-vs-esim2you",
+    path: "/compare/holafly-vs-esim2you",
+    title: "Holafly vs eSIM2you | Travel eSIM Comparison",
+    description: "Compare Holafly and eSIM2you on travel data, destinations, activation, hotspot terms, and support.",
+    heading: "Holafly vs eSIM2you",
+    competitor: "Holafly",
+    updatedAt: compareUpdatedAt,
+    intro: "Holafly and eSIM2you serve travelers looking for mobile data abroad. Use this page to compare practical product factors, then verify the current plan terms.",
+    rows: [
+      { factor: "Plan comparison", esim2you: "Destination pages list live data, validity, network, and price", competitor: "Destination catalog with plan and validity details" },
+      { factor: "Destinations", esim2you: "200+ destinations plus regional plans", competitor: "Global travel eSIM catalog" },
+      { factor: "Hotspot", esim2you: "Depends on the selected package", competitor: "Depends on plan terms" },
+      { factor: "Activation", esim2you: "QR or manual install after purchase", competitor: "Digital installation on supported devices" },
+      { factor: "Support", esim2you: "Web support center and in-app help", competitor: "Help center and customer support" }
+    ],
+    notes: ["Do not assume hotspot or unlimited-use terms; read the exact plan details.", `Comparison last reviewed ${compareUpdatedAt}.`]
+  },
+  {
+    slug: "ubigi-vs-esim2you",
+    path: "/compare/ubigi-vs-esim2you",
+    title: "Ubigi vs eSIM2you | Travel eSIM Comparison",
+    description: "Compare Ubigi and eSIM2you for travel eSIM coverage, plan selection, activation, app use, and support.",
+    heading: "Ubigi vs eSIM2you",
+    competitor: "Ubigi",
+    updatedAt: compareUpdatedAt,
+    intro: "Ubigi and eSIM2you provide digital connectivity for travel. Compare catalog, plan information, activation, and support without relying on unsupported cheapest claims.",
+    rows: [
+      { factor: "Plan comparison", esim2you: "Public pages show live data, validity, network, and price", competitor: "Country and regional plan catalog" },
+      { factor: "Checkout", esim2you: "Web checkout and mobile apps", competitor: "Web and app purchase" },
+      { factor: "Activation", esim2you: "QR or manual install", competitor: "Digital eSIM installation" },
+      { factor: "Hotspot", esim2you: "Package-dependent", competitor: "Package and device-dependent" },
+      { factor: "Support", esim2you: "Support center plus in-app help", competitor: "Help center and support channels" }
+    ],
+    notes: ["Verify current coverage, network, and plan restrictions before checkout.", `Comparison last reviewed ${compareUpdatedAt}.`]
+  },
+  {
+    slug: "roamless-vs-esim2you",
+    path: "/compare/roamless-vs-esim2you",
+    title: "Roamless vs eSIM2you | Travel eSIM Comparison",
+    description: "Compare Roamless and eSIM2you on destination coverage, travel data plans, activation, checkout, and support.",
+    heading: "Roamless vs eSIM2you",
+    competitor: "Roamless",
+    updatedAt: compareUpdatedAt,
+    intro: "Roamless and eSIM2you are alternatives to traditional roaming for travelers. This comparison covers practical differences and points to live eSIM2you destination plans.",
+    rows: [
+      { factor: "Coverage", esim2you: "200+ destinations and regional bundles", competitor: "International coverage catalog" },
+      { factor: "Plan comparison", esim2you: "Live country pages show data, validity, network, and price", competitor: "App-led plan and coverage information" },
+      { factor: "Checkout", esim2you: "Web checkout plus iOS and Android apps", competitor: "App and web purchase options" },
+      { factor: "Activation", esim2you: "Install before travel with QR or manual steps", competitor: "Digital activation on supported devices" },
+      { factor: "Support", esim2you: "Web support center and in-app help", competitor: "In-app help and support" }
+    ],
+    notes: ["Features, prices, and coverage change; verify both providers for the same route.", `Comparison last reviewed ${compareUpdatedAt}.`]
   }
 ];
 

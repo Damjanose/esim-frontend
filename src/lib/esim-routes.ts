@@ -84,7 +84,13 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
   australia: { countryName: "Australia", relatedSlugs: ["indonesia", "asia"] },
   indonesia: { countryName: "Indonesia", relatedSlugs: ["thailand", "asia", "australia"] },
   asia: { countryName: "Asia", relatedSlugs: ["japan", "thailand", "indonesia", "uae"] },
-  "north-america": { countryName: "North America", relatedSlugs: ["usa", "canada", "mexico"] }
+  "north-america": { countryName: "North America", relatedSlugs: ["usa", "canada", "mexico"] },
+  netherlands: { countryName: "Netherlands", relatedSlugs: ["germany", "france", "europe"] },
+  austria: { countryName: "Austria", relatedSlugs: ["germany", "switzerland", "europe"] },
+  balkans: { countryName: "Balkans", relatedSlugs: ["albania", "greece", "italy", "europe"] },
+  "middle-east": { countryName: "Middle East", relatedSlugs: ["uae", "asia", "europe"] },
+  africa: { countryName: "Africa", relatedSlugs: ["europe", "asia"] },
+  "south-america": { countryName: "South America", relatedSlugs: ["usa", "north-america"] }
 };
 
 export function destinationH1(slug: string) {
