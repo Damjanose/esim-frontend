@@ -91,7 +91,7 @@ export function EsimDestinationPageView({
             <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">{page.intro}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <LinkButton href="#plans" size="lg" tone="brand" variant="flat">
-                Compare plans
+                {offer ? `Buy from €${offer.lowPrice.toFixed(2)}` : "View plans"}
                 <ArrowRight aria-hidden="true" size={18} />
               </LinkButton>
               <LinkButton href={landingContent.appLinks.ios.href} size="lg">

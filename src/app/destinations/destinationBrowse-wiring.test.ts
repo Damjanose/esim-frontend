@@ -14,7 +14,7 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(source).toContain("handleRetry");
   });
 
-  it("supports opening the wizard automatically via an autoOpenWizard prop, defaulting to off", () => {
+  it("keeps wizard auto-open disabled by default", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/destinations/DestinationBrowse.tsx"),
       "utf8",
@@ -24,7 +24,7 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(source).toContain("useState(autoOpenWizard)");
   });
 
-  it("gates the auto-opened wizard on the welcome intro's minimum delay AND the data fetch having settled, so it never opens with an empty country list", () => {
+  it("keeps the welcome intro and auto-open transition available only for explicit opt-in flows", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/destinations/DestinationBrowse.tsx"),
       "utf8",
@@ -45,10 +45,23 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(source).not.toContain("autoOpenWizard");
   });
 
-  it("the homepage opts into auto-opening the wizard", () => {
+  it("the homepage keeps the wizard closed until the visitor asks for help", () => {
     const source = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
 
-    expect(source).toContain("<DestinationBrowse autoOpenWizard");
+    expect(source).toContain("<DestinationBrowse urlFilters={{}}");
+    expect(source).not.toContain("<DestinationBrowse autoOpenWizard");
+  });
+
+  it("the wizard closes from Escape as well as its close button and backdrop", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/destinations/HelpMeChooseWizard.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('document.addEventListener("keydown", handleKeyDown)');
+    expect(source).toContain('event.key === "Escape"');
+    expect(source).toContain('role="dialog"');
+    expect(source).toContain('aria-modal="true"');
   });
 
   it("carries the wizard's trip-length/data filters alongside a picked country, instead of dropping them", () => {

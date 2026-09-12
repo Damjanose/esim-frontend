@@ -6,7 +6,7 @@ describe("public navigation shell", () => {
     const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
 
     expect(navbar).toContain('href="/"');
-    expect(navbar).toContain('href="/#download-app"');
+    expect(navbar).toContain('href="/destinations"');
     expect(navbar).toContain('href: "/destinations"');
     expect(navbar).not.toContain('href="#"');
     expect(navbar).not.toContain('href="#download-app"');
@@ -75,5 +75,13 @@ describe("public navigation shell", () => {
     expect(navbar).toContain('href="/profile"');
     expect(navbar).toContain("UserRound");
     expect(navbar).not.toContain("Showroom mode");
+  });
+
+  it("keeps primary purchase navigation available on mobile", () => {
+    const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
+
+    expect(navbar).toContain('aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}');
+    expect(navbar).toContain("lg:hidden");
+    expect(navbar).toContain("Browse eSIM plans");
   });
 });

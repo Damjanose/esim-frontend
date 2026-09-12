@@ -6,12 +6,15 @@ describe("support page content", () => {
 
   it("uses current eSim2you support flows and contact details", () => {
     expect(source).toContain("esim2you@uplisoft.com");
-    expect(source).toContain("Email OTP sign-in");
-    expect(source).toContain("Pokpay checkout");
+    expect(source).toContain("one-time code");
+    expect(source).toContain("secure checkout");
     expect(source).toContain("QR or manual setup");
     expect(source).toContain("remaining data");
     expect(source).toContain("top-up");
     expect(source).toContain("delete your account");
+    expect(source).toContain("Help for your eSIM journey");
+    expect(source).not.toContain("passcode");
+    expect(source).not.toContain("biometric");
   });
 
   it("does not publish stale or unsupported support claims", () => {

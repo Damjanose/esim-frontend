@@ -17,6 +17,7 @@ describe("SEO content page template", () => {
     expect(source).toContain("<table");
     expect(source).toContain("Related destinations");
     expect(source).toContain("Plans from €");
+    expect(source).toContain("Buy from €");
     expect(source).toContain("are the cheapest on the market");
   });
 });

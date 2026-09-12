@@ -65,6 +65,15 @@ export function HelpMeChooseWizard({
     return () => query.removeEventListener("change", onChange);
   }, []);
 
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const [searchingCountry, setSearchingCountry] = useState<{ countryCode: string } | null>(
     null,
   );
@@ -106,8 +115,11 @@ export function HelpMeChooseWizard({
 
   return (
     <div
+      aria-label="Help me choose an eSIM plan"
+      aria-modal="true"
       className="fixed inset-0 z-[200] flex items-center justify-center bg-midnight/60 backdrop-blur-sm"
       onClick={onClose}
+      role="dialog"
     >
       <div
         className="relative max-h-[85vh] w-full max-w-[95vw] overflow-y-auto rounded-[28px] border border-outline bg-surface p-6 shadow-brandCard sm:max-w-lg"

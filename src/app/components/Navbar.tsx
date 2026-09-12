@@ -1,5 +1,8 @@
+"use client";
+
 import { landingContent } from "@/content/landing";
-import { Handshake, UserRound } from "lucide-react";
+import { Handshake, Menu, UserRound, X } from "lucide-react";
+import { useState } from "react";
 import { LinkButton } from "./Button";
 
 type NavbarProps = {
@@ -14,6 +17,7 @@ type NavbarProps = {
 
 export function Navbar({ theme = "light" }: NavbarProps) {
   const isDark = theme === "dark";
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = [
     {
@@ -115,11 +119,57 @@ export function Navbar({ theme = "light" }: NavbarProps) {
             <UserRound aria-hidden="true" size={19} />
           </a>
 
-          <LinkButton className="px-5 sm:px-7" href="/#download-app">
+          <button
+            aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            className={[
+              "grid h-11 w-11 place-items-center rounded-full border lg:hidden",
+              isDark
+                ? "border-white/30 text-white/80 hover:border-white/60 hover:text-white"
+                : "border-outline text-onSurfaceVariant hover:border-brandBlue/40 hover:text-brandBlue",
+            ].join(" ")}
+            onClick={() => setMobileOpen((open) => !open)}
+            type="button"
+          >
+            {mobileOpen ? <X aria-hidden="true" size={19} /> : <Menu aria-hidden="true" size={19} />}
+          </button>
+
+          <LinkButton className="px-5 sm:px-7" href="/destinations">
             Get eSIM Now
           </LinkButton>
         </div>
       </nav>
+
+      {mobileOpen ? (
+        <div className="mx-5 rounded-[22px] border border-outline bg-surface p-3 shadow-brandCard lg:hidden">
+          <div className="flex flex-col gap-1">
+            {navItems.map((item) => (
+              <a
+                className="rounded-xl px-4 py-3 text-sm font-semibold text-brandInk transition hover:bg-mist"
+                href={item.href}
+                key={item.href}
+                onClick={() => setMobileOpen(false)}
+              >
+                {item.label}
+              </a>
+            ))}
+            <a
+              className="rounded-xl px-4 py-3 text-sm font-semibold text-brandInk transition hover:bg-mist"
+              href="/partners/request"
+              onClick={() => setMobileOpen(false)}
+            >
+              Partner with us
+            </a>
+            <a
+              className="mt-1 rounded-xl bg-brandBlue px-4 py-3 text-center text-sm font-black text-white"
+              href="/destinations"
+              onClick={() => setMobileOpen(false)}
+            >
+              Browse eSIM plans
+            </a>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -34,6 +34,12 @@ describe("social sign-in buttons", () => {
 });
 
 describe("email claim after social sign-in", () => {
+  it("explains why checkout requires sign-in before payment", () => {
+    expect(signInForm).toContain('const isCheckout = next.startsWith("/checkout")');
+    expect(signInForm).toContain("Sign in to continue your purchase");
+    expect(signInForm).toContain("your eSIM and QR code arrive in your account");
+  });
+
   it("keeps the link ticket out of the URL", () => {
     expect(linkStep).toContain("challenge.linkTicket");
     expect(linkStep).not.toContain("searchParams");

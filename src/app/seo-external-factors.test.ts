@@ -65,4 +65,14 @@ describe("SEO external factors", () => {
     expect(seoPagesSource).not.toContain('label: "All destinations"');
     expect(seoPagesSource).not.toContain('label: "What is an eSIM?"');
   });
+
+  it("keeps the AI content map on canonical travel and destination URLs", () => {
+    const llms = readFileSync("public/llms.txt", "utf8");
+
+    expect(llms).toContain("https://esim.uplisoft.com/esim/usa");
+    expect(llms).toContain("https://esim.uplisoft.com/travel/what-is-an-esim");
+    expect(llms).toContain("esim2you@uplisoft.com");
+    expect(llms).not.toContain("/guides/");
+    expect(llms).not.toContain("esim@uplisoft.com");
+  });
 });

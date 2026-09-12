@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-12",
-    "note_latest": "f128: destination Product/AggregateOffer highPrice is derived from real package prices and must match the visible range; review and aggregateRating stay absent until genuine visible reviews exist. See facts.jsonl f128.\n\nf127: public SEO expanded to 27 destinations, 11 guides, 2 use cases, and 7 factual comparisons. See facts.jsonl f127.\n\nf126: /xnotificationy Force-logout all (POST /bff/admin/users/force-logout-all) pairs with backend f153. See facts.jsonl f126."
+    "note_latest": "f132: production crawler policy, Search Console/Bing verification, indexing requests, and production Google client-id restoration remain owner-access tasks; do not put provider values in feedAI. See facts.jsonl f132.\n\nf131: public support now describes website/account flows and llms.txt uses canonical destination/travel paths and the live support email. See facts.jsonl f131.\n\nf130/f129: conversion CTAs, closed-by-default wizard behavior, mobile navigation, and removal of unsupported Best value wording are covered by tests. See facts.jsonl f129-f130."
   }
 }

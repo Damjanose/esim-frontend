@@ -42,7 +42,7 @@ type RailDef = {
 
 const RAILS: RailDef[] = [
   { id: "popular", label: "Popular destinations" },
-  { id: "bestValue", label: "Best value" },
+  { id: "bestValue", label: "Featured plans" },
   { id: "unlimited", label: "Unlimited data" },
   { id: "longStay", label: "Long stay (30+ days)" },
   { id: "regional", label: "Regional & global bundles" },

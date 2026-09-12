@@ -8,16 +8,17 @@ eSim2you is a mobile app (iOS and Android) and website (https://esim.uplisoft.co
 
 - [Homepage](https://esim.uplisoft.com/): overview, plans, how it works, FAQ
 - [Destinations](https://esim.uplisoft.com/destinations): browse eSIM data plans by country/region
+- [USA eSIM plans](https://esim.uplisoft.com/esim/usa): live USA plans, pricing, and setup guidance
 - [Support](https://esim.uplisoft.com/support): setup help, troubleshooting, refunds, top-ups
 
 Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Portugal, Switzerland, Turkey, Japan. Full list: https://esim.uplisoft.com/destinations
 
 ## Guides
 
-- What is an eSIM: https://esim.uplisoft.com/guides/what-is-an-esim
-- eSIM vs roaming: https://esim.uplisoft.com/guides/esim-vs-roaming
-- eSIM vs local SIM card: https://esim.uplisoft.com/guides/esim-vs-local-sim
-- How to install an eSIM: https://esim.uplisoft.com/guides/how-to-install-esim
+- What is an eSIM: https://esim.uplisoft.com/travel/what-is-an-esim
+- eSIM vs roaming: https://esim.uplisoft.com/travel/esim-vs-roaming
+- eSIM vs local SIM card: https://esim.uplisoft.com/travel/esim-vs-local-sim
+- How to install an eSIM: https://esim.uplisoft.com/travel/how-to-install-esim
 
 ## Use cases
 
@@ -27,6 +28,6 @@ Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Po
 
 ## Contact
 
-- Support email: esim@uplisoft.com
+- Support email: esim2you@uplisoft.com
 - Instagram: https://www.instagram.com/esim2you
 - Facebook: https://www.facebook.com/people/ESIM2you/61593159061406/

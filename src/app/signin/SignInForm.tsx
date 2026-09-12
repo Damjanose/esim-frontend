@@ -31,6 +31,7 @@ export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = safeNextPath(searchParams.get("next"));
+  const isCheckout = next.startsWith("/checkout");
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -104,12 +105,18 @@ export function SignInForm() {
       </span>
 
       <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
-        {step === "email" ? "Sign in to eSim2you" : "Enter your code"}
+        {step === "email"
+          ? isCheckout
+            ? "Sign in to continue your purchase"
+            : "Sign in to eSim2you"
+          : "Enter your code"}
       </h1>
 
       <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">
         {step === "email"
-          ? "We'll email you a 6-digit code. No password required."
+          ? isCheckout
+            ? "We'll email you a 6-digit code so your eSIM and QR code arrive in your account. No password required."
+            : "We'll email you a 6-digit code. No password required."
           : `We sent a 6-digit code to ${email}.`}
       </p>
 

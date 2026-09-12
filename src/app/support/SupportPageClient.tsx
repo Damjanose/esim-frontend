@@ -55,21 +55,21 @@ const supportCategories: SupportCategory[] = [
   {
     title: "Getting started",
     description:
-      "Use the app marketplace to choose a destination plan and sign in with Email OTP sign-in when you want to purchase or manage eSIMs.",
+      "Choose a destination and plan on the website, then sign in with your email when you are ready to purchase or manage your eSIM.",
     icon: Zap,
     guidance: [
-      "Browse country, regional, and global plans from the marketplace.",
-      "Sign in with the one-time code sent to your email address.",
-      "Open My eSIMs after purchase to view setup details and status.",
+      "Browse country, regional, and global plans before you travel.",
+      "Use the one-time code sent to your email address to access your account.",
+      "Open your account after purchase to view setup details and status.",
     ],
   },
   {
     title: "Installation & setup",
     description:
-      "Install from the eSIM details screen with the guided setup, QR or manual setup, and device compatibility messaging shown in the app.",
+      "Install from your order with the QR code or manual setup details, and check device compatibility before you buy.",
     icon: Smartphone,
     guidance: [
-      "Use direct iOS install when it is available on your device.",
+      "Install over Wi-Fi before your trip whenever possible.",
       "Scan the QR code or copy the SM-DP+ address and activation code.",
       "Do not delete an installed eSIM unless support asks you to.",
     ],
@@ -88,21 +88,21 @@ const supportCategories: SupportCategory[] = [
   {
     title: "Plans, data & top-ups",
     description:
-      "Check remaining data, validity, lifecycle status, and top-up availability from your active eSIM details in the app.",
+      "Check remaining data, validity, plan status, and top-up availability from your account.",
     icon: Wifi,
     guidance: [
-      "Open My eSIMs to see active, ready, expired, and history views.",
+      "Open your account to see active, ready, expired, and history views.",
       "Use the remaining data panel when provider usage is available.",
-      "Start a top-up only when the app shows one for the current eSIM.",
+      "Start a top-up only when your account shows one for the current eSIM.",
     ],
   },
   {
     title: "Payments & refunds",
     description:
-      "eSim2you uses Pokpay checkout for purchases and top-ups, with card details handled outside the app.",
+      "Pay securely during checkout. If a purchase does not complete or you need a refund review, contact support with your order details.",
     icon: CreditCard,
     guidance: [
-      "Complete Pokpay checkout, then return to eSim2you.",
+      "Complete the secure checkout, then return to eSim2you.",
       "If checkout is not complete, reopen the payment step and try again.",
       "For refund review, send the order details and whether the eSIM was installed or used.",
     ],
@@ -110,12 +110,12 @@ const supportCategories: SupportCategory[] = [
   {
     title: "Account & security",
     description:
-      "Manage app passcode, biometric unlock, legal links, billing notes, and account deletion from Profile.",
+      "Manage your signed-in account, billing details, legal preferences, and account deletion from Profile.",
     icon: ShieldCheck,
     guidance: [
-      "Use Profile to lock the app, change passcode, or manage biometric unlock.",
+      "Use Profile to review your account and billing details.",
       "You can delete your account from Profile when signed in.",
-      "Your session is tied to your verified email and protected on this device.",
+      "Your session is tied to your verified email and protected by secure account cookies.",
     ],
   },
 ];
@@ -125,25 +125,25 @@ const faqs: FaqItem[] = [
     category: "Getting started",
     question: "What does eSim2you sell?",
     answer:
-      "eSim2you sells prepaid travel data plans for compatible eSIM devices. Choose a destination in the marketplace, pay securely, then manage installation from My eSIMs in the app.",
+      "eSim2you sells prepaid travel data plans for compatible eSIM devices. Choose a destination in the marketplace, pay securely, then manage installation from your account.",
   },
   {
     category: "Account",
-    question: "How do I sign in?",
+    question: "How do I sign in on the website?",
     answer:
-      "Enter your email address in the app and use the one-time code sent to you. After verification, the app links that email session so you can access purchases and eSIM details.",
+      "Enter your email address on the website and use the one-time code sent to you. After verification, you can access purchases and eSIM details.",
   },
   {
     category: "Payment",
-    question: "How does Pokpay checkout work?",
+    question: "How does checkout work?",
     answer:
-      "When you buy a plan or an available top-up, eSim2you opens Pokpay checkout. Pokpay handles the payment details, and you return to the app so the purchase can be confirmed.",
+      "When you buy a plan or an available top-up, complete the secure checkout and return to eSim2you. Your purchase is confirmed against your account after payment.",
   },
   {
     category: "Installation",
     question: "How do I install my eSIM?",
     answer:
-      "Open the purchased eSIM in My eSIMs. The app shows the best available setup path for your device, including direct iOS install when supported, QR code setup, and manual SM-DP+ details.",
+      "Open the purchased eSIM in your account. Use the QR code or copy the SM-DP+ address and activation code shown for your device.",
   },
   {
     category: "Installation",
@@ -161,13 +161,13 @@ const faqs: FaqItem[] = [
     category: "Plans",
     question: "Where can I check remaining data?",
     answer:
-      "Open My eSIMs and select the active eSIM. When provider usage is available, the app shows remaining data and progress for that plan.",
+      "Open your account and select the active eSIM. When provider usage is available, the site shows remaining data and progress for that plan.",
   },
   {
     category: "Plans",
     question: "Can I add more data with a top-up?",
     answer:
-      "Some eSIMs support top-ups and some do not. If a top-up is available for your current eSIM, the app shows the option on the active eSIM details screen.",
+      "Some eSIMs support top-ups and some do not. If a top-up is available for your current eSIM, your account shows the option on the active eSIM details screen.",
   },
   {
     category: "Refunds",
@@ -179,7 +179,7 @@ const faqs: FaqItem[] = [
     category: "Account",
     question: "How do I delete my account?",
     answer:
-      "Sign in, open Profile, and choose Delete account. The app explains what is removed and what records may be retained for payment, fraud-prevention, tax, or provider obligations.",
+      "Sign in, open Profile, and choose Delete account. The site explains what is removed and what records may be retained for payment, fraud-prevention, tax, or provider obligations.",
   },
 ];
 
@@ -303,13 +303,12 @@ function SupportHero({
         </div>
 
         <h1 className="mt-6 font-display text-4xl font-black leading-[1.02] tracking-[-0.05em] text-brandInk sm:text-5xl lg:text-[64px]">
-          Support for the app you use
+          Help for your eSIM journey
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-onSurfaceVariant sm:text-base">
-          Find help for Email OTP sign-in, Pokpay checkout, QR or
-          manual setup, remaining data, top-up availability, refunds,
-          and connection troubleshooting.
+          Find help for sign-in, checkout, QR or manual setup, remaining data,
+          top-ups, refunds, and connection troubleshooting.
         </p>
 
         <div className="relative mx-auto mt-9 max-w-[720px]">
@@ -327,7 +326,7 @@ function SupportHero({
                 autoComplete="off"
                 className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-brandInk outline-none placeholder:text-onSurfaceVariant sm:text-base"
                 onChange={(event) => onSearchChange(event.target.value)}
-                placeholder="Search sign-in, setup, Pokpay, top-up..."
+                placeholder="Search sign-in, setup, checkout, top-up..."
                 type="search"
                 value={searchQuery}
               />
@@ -350,7 +349,7 @@ function SupportHero({
           </div>
 
           <p className="mt-4 text-xs text-onSurfaceVariant">
-            Popular: install, no internet, Pokpay, refund, delete account
+            Popular: install, no internet, checkout, refund, delete account
           </p>
         </div>
       </div>
@@ -381,8 +380,8 @@ function SupportCategories({
         </div>
 
         <p className="max-w-md text-sm leading-6 text-onSurfaceVariant">
-          These topics mirror current app flows, so the guidance matches
-          what you can open in eSim2you today.
+          These topics mirror current website flows, so the guidance matches
+          what you can do in eSim2you today.
         </p>
       </div>
 
@@ -403,7 +402,7 @@ function SupportCategories({
                 </span>
 
                 <span className="mt-2 rounded-full border border-outline bg-mist px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-onSurfaceVariant">
-                  In app
+                  On the website
                 </span>
               </div>
 
@@ -474,8 +473,8 @@ function FaqSection({
             </h2>
 
             <p className="mt-4 max-w-md text-sm leading-7 text-onSurfaceVariant">
-              Quick answers about sign-in, setup, connectivity, Pokpay
-              checkout, plan data, refunds, and account management.
+          Quick answers about sign-in, setup, connectivity, checkout, plan data,
+          refunds, and account management.
             </p>
 
             <div className="mt-7 rounded-[18px] border border-outline bg-mist p-5">
@@ -579,15 +578,15 @@ function QuickHelp() {
       icon: Download,
       title: "Installation guide",
       description:
-        "Read the public setup guide, then use My eSIMs for your exact QR or manual setup details.",
+        "Read the public setup guide, then use your account for exact QR or manual setup details.",
       label: "View guide",
       href: "/travel/how-to-install-esim",
     },
     {
       icon: Globe2,
       title: "Browse destinations",
-      description:
-        "Compare available destination plans before you buy in the eSim2you app.",
+        description:
+        "Compare available destination plans before you buy on the eSim2you website.",
       label: "Browse plans",
       href: "/destinations",
     },
@@ -712,13 +711,13 @@ function ContactSupport() {
           />
 
           <SupportInfo
-            description="Account, passcode, biometric unlock, and payment details stay protected."
+            description="Your account and payment details stay protected with secure sign-in."
             icon={KeyRound}
             title="Secure by design"
           />
 
           <SupportInfo
-            description="Profile includes a signed-in flow to delete your account from the app."
+            description="Profile includes a signed-in flow to delete your account from the website."
             icon={Trash2}
             title="Account control"
           />

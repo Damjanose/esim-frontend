@@ -71,7 +71,7 @@ export default function Home() {
 
       <Navbar theme="dark" />
       <Hero />
-      <DestinationBrowse autoOpenWizard urlFilters={{}} />
+      <DestinationBrowse urlFilters={{}} />
       <Benefits />
       <HowItWorks />
         <TrustAndFaq />
