@@ -56,7 +56,9 @@ describe("SEO content pages", () => {
       "/travel/esim-vs-roaming",
       "/travel/how-to-install-esim",
       "/travel/internet-abroad",
-      "/travel/esim-vs-local-sim"
+      "/travel/esim-vs-local-sim",
+      "/travel/best-esim-usa-travel",
+      "/travel/best-esim-uk-travel"
     ]);
     expect(useCasePages.map((page) => page.path)).toEqual([
       "/use-cases/business-travel",
@@ -68,7 +70,7 @@ describe("SEO content pages", () => {
     const paths = publicSeoPages.map((page) => page.path);
 
     expect(new Set(paths).size).toBe(paths.length);
-    expect(paths).toHaveLength(40);
+    expect(paths).toHaveLength(42);
 
     for (const page of publicSeoPages) {
       expect(page.title.trim().length).toBeGreaterThan(20);

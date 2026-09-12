@@ -98,4 +98,4 @@ export function destinationH1(slug: string) {
   return name ? `eSIM for ${name}` : null;
 }
 
-export const seoContentUpdatedAt = new Date("2026-09-10T00:00:00.000Z");
+export const seoContentUpdatedAt = new Date("2026-09-12T00:00:00.000Z");

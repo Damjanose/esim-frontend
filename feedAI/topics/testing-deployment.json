@@ -1,7 +1,7 @@
 {
   "topic": "testing-deployment",
   "covers": "Vitest setup and conventions, deploy script, env-file discipline, production topology.",
-  "facts": ["f025", "f026", "f029", "f030"],
+  "facts": ["f025", "f026", "f029", "f030", "f138"],
   "testing": {
     "runner": "vitest 2.1, config at vitest.config.ts",
     "environment": "node (not jsdom) — tests exercise pure functions/route-handler logic, not DOM rendering",
@@ -19,7 +19,8 @@
       ".env.local": "gitignored, wins locally over .env.production, NEVER exists on the server",
       "consequence": "any env var an engineer only sets in .env.local silently does not exist in production after `update.sh` — this exact gap made the Google sign-in button fail to render in prod until .env.production/.env.example were added (f029)"
     },
-    "nginx_api_carveout": "nginx proxies ALL of /api/* to the Express backend; this is why browser-facing Next route handlers live under /bff/** instead — see topics/backend-integration.json"
+    "nginx_api_carveout": "nginx proxies ALL of /api/* to the Express backend; this is why browser-facing Next route handlers live under /bff/** instead — see topics/backend-integration.json",
+    "indexnow": "update.sh's last step runs `pnpm run indexnow` (scripts/ping-indexnow.mjs), non-fatal on failure. The script fetches the live sitemap.xml + child segments and POSTs every URL to https://api.indexnow.org/indexnow with the key from public/f0cff59a140c9ed46080afdc578bf9f7.txt. Google does not participate in IndexNow — this only speeds up Bing/Yandex-family recrawl (f138)."
   },
   "type_checking": "pnpm exec tsc --noEmit (no dedicated script in package.json, run manually per session logs); tsconfig.tsbuildinfo is a generated incremental cache, never read/edit it directly."
 }

@@ -54,4 +54,7 @@ echo
 echo "Service status:"
 systemctl status "$SERVICE_NAME" --no-pager
 
+echo "Pinging IndexNow (non-fatal if it fails)..."
+pnpm run indexnow || echo "IndexNow ping failed; continuing deploy."
+
 echo "Frontend deploy complete!"

@@ -7,7 +7,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run"
+    "test": "vitest run",
+    "indexnow": "node scripts/ping-indexnow.mjs"
   },
   "dependencies": {
     "@nebula-ltd/pok-payments-js": "2.0.1",

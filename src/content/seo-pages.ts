@@ -1475,6 +1475,54 @@ export const guidePages = [
       { label: "USA travel eSIM plans", href: "/esim/usa" },
       { label: "Europe travel eSIM plans", href: "/esim/europe" }
     ]
+  },
+  {
+    kind: "guide",
+    slug: "best-esim-usa-travel",
+    path: "/travel/best-esim-usa-travel",
+    title: "Best eSIM for USA Travel: How to Compare Plans | eSIM2you",
+    description: "Learn how to compare USA travel eSIM plans by coverage, data, validity, network, and price.",
+    eyebrow: "USA travel guide",
+    heading: "How to choose a USA travel eSIM.",
+    intro: "Learn how to choose the best eSIM for USA travel by comparing your route, trip length, data habits, and device. Compare live package details instead of choosing by a generic data number alone.",
+    sections: [
+      { title: "Match coverage to a multi-state route", body: "A single-city trip and a multi-state road trip have different needs. Check that the package covers every state on your itinerary." },
+      { title: "Compare data and validity", body: "Choose enough data for maps, messaging, bookings, and your normal usage, then confirm the plan lasts for the full trip." },
+      { title: "Review network and support terms", body: "Check the listed network, hotspot policy, installation instructions, and support options before checkout." }
+    ],
+    faqs: [
+      { question: "Is a nationwide USA plan always enough for a multi-state trip?", answer: "Usually, but confirm the package's network coverage and hotspot terms match the states and cities on your route." },
+      { question: "Where can I see current USA plans?", answer: "Open the live USA destination page to compare current data, validity, network, and price rows." }
+    ],
+    relatedLinks: [
+      { label: "USA eSIM plans", href: "/esim/usa" },
+      { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" }
+    ]
+  },
+  {
+    kind: "guide",
+    slug: "best-esim-uk-travel",
+    path: "/travel/best-esim-uk-travel",
+    title: "Best eSIM for UK Travel: How to Compare Plans | eSIM2you",
+    description: "Learn how to compare UK travel eSIM plans by coverage, data, validity, network, and price.",
+    eyebrow: "UK travel guide",
+    heading: "How to choose a UK travel eSIM.",
+    intro: "Learn how to choose the best eSIM for UK travel by comparing your itinerary, trip length, data habits, and device. Compare live package details instead of choosing by a generic data number alone.",
+    sections: [
+      { title: "Match coverage to your itinerary", body: "A London-only trip and a UK-wide itinerary have different needs. Check that the package covers every city and region on your route." },
+      { title: "Compare data and validity", body: "Choose enough data for maps, messaging, bookings, and your normal usage, then confirm the plan lasts for the full trip." },
+      { title: "Review network and support terms", body: "Check the listed network, hotspot policy, installation instructions, and support options before checkout." }
+    ],
+    faqs: [
+      { question: "Is a UK plan different from a Europe regional plan?", answer: "Yes. Compare a UK-specific package against a Europe regional plan's included countries, price, data, and validity for your exact itinerary." },
+      { question: "Where can I see current UK plans?", answer: "Open the live UK destination page to compare current data, validity, network, and price rows." }
+    ],
+    relatedLinks: [
+      { label: "UK eSIM plans", href: "/esim/uk" },
+      { label: "Europe eSIM plans", href: "/esim/europe" },
+      { label: "eSIM vs local SIM card", href: "/travel/esim-vs-local-sim" }
+    ]
   }
 ] satisfies SeoContentPage[];
 
