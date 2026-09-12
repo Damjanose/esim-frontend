@@ -6,6 +6,9 @@ import { Navbar } from "../components/Navbar";
 import { SiteFooter } from "../SiteFooter";
 import { comparePages } from "@/content/compare-pages";
 import { createContentPageJsonLd, createMetadata } from "@/lib/seo";
+import { getGlobalOffer } from "@/lib/destinationPricing";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = createMetadata({
   path: "/compare",
@@ -14,7 +17,9 @@ export const metadata: Metadata = createMetadata({
     "Factual comparisons of eSIM2you with other travel eSIM providers. Live prices stay on destination pages."
 });
 
-export default function CompareHubPage() {
+export default async function CompareHubPage() {
+  const offer = await getGlobalOffer();
+
   return (
     <main className="min-h-screen bg-white text-onSurface">
       <JsonLd
@@ -23,7 +28,8 @@ export default function CompareHubPage() {
           name: "Compare travel eSIMs",
           description:
             "Factual comparisons of eSIM2you with other travel eSIM providers. Live prices stay on destination pages.",
-          breadcrumbName: "Compare"
+          breadcrumbName: "Compare",
+          offer: offer ?? undefined
         })}
       />
       <Navbar />

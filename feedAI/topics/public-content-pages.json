@@ -28,7 +28,11 @@
     "f129",
     "f130",
     "f131",
-    "f132"
+    "f132",
+    "f133",
+    "f134",
+    "f135",
+    "f136"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim — it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
@@ -38,14 +42,14 @@
   "seo_content_pages": {
     "file": "src/content/seo-pages.ts",
     "type": "SeoContentPage: {kind:'destination'|'guide'|'use-case', slug, path, title, description, heading, eyebrow, intro, sections[], faqs[], relatedLinks[]}",
-    "counts": "27 destinationPages, 11 guidePages under /travel/*, 2 useCasePages, and 7 comparePages. Destination and guide content lives in src/content/seo-pages.ts; comparison content lives in src/content/compare-pages.ts.",
+    "counts": "27 destinationPages, 11 guidePages under /travel/*, 2 useCasePages, and 8 comparePages (Airalo, Nomad, Saily, Yesim, Holafly, Ubigi, Roamless, Sim Local). Destination and guide content lives in src/content/seo-pages.ts; comparison content lives in src/content/compare-pages.ts. Every ComparePage entry now also has a faqs[] field (f134).",
     "shared_renderer": "Guides and use-cases still use SeoContentPageView. Destination pages use EsimDestinationPageView (keyword H1, breadcrumbs, live plan table). Routes: src/app/esim/[slug]/page.tsx, src/app/travel/[slug]/page.tsx, src/app/use-cases/[slug]/page.tsx (f125, supersedes the /destinations/[slug] + /guides/[slug] layout in f042).",
     "static_generation": "Each [slug] route calls generateStaticParams() from its content array.",
     "destinations_index": "src/app/destinations/page.tsx remains the interactive catalog. Known ?country= values permanentRedirect to /esim/[slug]; unknown countries still render DestinationPlans and are noindex. Destination SEO pages are /esim/[slug], not /destinations/[slug].",
-    "pricing_and_schema": "getDestinationOffer and getDestinationPlanRows share one slim cached catalog (fetch /packages cache:'no-store', unstable_cache 3600s). Destination Product/AggregateOffer JSON-LD includes a real lowPrice/highPrice range and image, matching the visible badge; review and aggregateRating are intentionally omitted until genuine visible reviews exist (f123, f125, f128). /esim/[slug] exports revalidate = 3600."
+    "pricing_and_schema": "getDestinationOffer and getDestinationPlanRows share one slim cached catalog (fetch /packages cache:'no-store', unstable_cache 3600s); getGlobalOffer() (f134) aggregates that same catalog into a sitewide min/max range for compare pages, at no extra network cost. Destination Product/AggregateOffer JSON-LD includes a real lowPrice/highPrice range and image, matching the visible badge; review and aggregateRating are intentionally omitted until genuine visible reviews exist (f123, f125, f128, f135). The UK destination page and all /compare/[slug] pages also show a secondary GBP estimate from src/lib/exchangeRate.ts (f133) -- display-only, checkout stays EUR. /esim/[slug] exports revalidate = 3600, as do /compare/[slug] and /compare (f134)."
   },
   "guides_and_use_cases": {
-    "note": "Guides live at /travel and /travel/[slug] with a hub index. Use-cases have /use-cases hub + [slug]. Compare pages live in src/content/compare-pages.ts. /cheapest-esim is intentionally unpublished (f125)."
+    "note": "Guides live at /travel and /travel/[slug] with a hub index. Use-cases have /use-cases hub + [slug]. Compare pages live in src/content/compare-pages.ts and now emit FAQPage + Product/AggregateOffer JSON-LD, not just BreadcrumbList/WebPage (f134). /cheapest-esim is intentionally unpublished (f125)."
   },
   "support_page": {
     "file": "src/app/support/SupportPageClient.tsx (client component, rendered by src/app/support/page.tsx)",

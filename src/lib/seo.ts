@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { comparePages } from "@/content/compare-pages";
 import { landingContent } from "@/content/landing";
 import { publicSeoPages, type SeoPageFaq } from "@/content/seo-pages";
+import { siteReviewStats, siteReviews, type SiteReview, type SiteReviewStats } from "@/content/reviews";
 
 export const siteUrl = "https://esim.uplisoft.com";
 export const siteName = "eSIM2you";
@@ -195,6 +196,31 @@ export function createMetadata({
   };
 }
 
+export function createAggregateRatingNode(stats: SiteReviewStats) {
+  return {
+    "@type": "AggregateRating",
+    ratingValue: stats.ratingValue,
+    reviewCount: stats.reviewCount,
+    bestRating: stats.bestRating ?? 5,
+    worstRating: stats.worstRating ?? 1
+  };
+}
+
+export function createReviewNodes(reviews: SiteReview[]) {
+  return reviews.map((review) => ({
+    "@type": "Review",
+    author: { "@type": "Person", name: review.author },
+    datePublished: review.datePublished,
+    reviewBody: review.reviewBody,
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: review.ratingValue,
+      bestRating: 5,
+      worstRating: 1
+    }
+  }));
+}
+
 export function createLandingJsonLd() {
   return {
     "@context": "https://schema.org",
@@ -228,7 +254,9 @@ export function createLandingJsonLd() {
         sameAs: [
           landingContent.appLinks.ios.href,
           landingContent.appLinks.android.href
-        ]
+        ],
+        ...(siteReviewStats ? { aggregateRating: createAggregateRatingNode(siteReviewStats) } : {}),
+        ...(siteReviews.length > 0 ? { review: createReviewNodes(siteReviews) } : {})
       },
       {
         "@type": "FAQPage",

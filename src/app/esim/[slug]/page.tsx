@@ -4,6 +4,7 @@ import { EsimDestinationPageView } from "../../EsimDestinationPage";
 import { destinationPages } from "@/content/seo-pages";
 import { createMetadata } from "@/lib/seo";
 import { getDestinationOffer, getDestinationPlanRows } from "@/lib/destinationPricing";
+import { getGbpRate } from "@/lib/exchangeRate";
 
 export const revalidate = 3600;
 
@@ -40,9 +41,10 @@ export default async function EsimDestinationPage({ params }: PageProps) {
     notFound();
   }
 
-  const [offer, plans] = await Promise.all([
+  const [offer, plans, gbpRate] = await Promise.all([
     getDestinationOffer(page.slug),
-    getDestinationPlanRows(page.slug)
+    getDestinationPlanRows(page.slug),
+    page.slug === "uk" ? getGbpRate() : Promise.resolve(null)
   ]);
 
   return (
@@ -50,6 +52,7 @@ export default async function EsimDestinationPage({ params }: PageProps) {
       offer={offer ?? undefined}
       page={page}
       plans={plans}
+      gbpRate={gbpRate ?? undefined}
     />
   );
 }

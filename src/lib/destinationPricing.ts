@@ -137,3 +137,18 @@ export async function getDestinationPlanRows(slug: string): Promise<DestinationP
   const catalog = await getCachedCatalog();
   return catalog.plans[backendCountryCode(slug)] ?? [];
 }
+
+export async function getGlobalOffer(): Promise<DestinationOffer | null> {
+  const catalog = await getCachedCatalog();
+  const offers = Object.values(catalog.offers);
+  if (offers.length === 0) {
+    return null;
+  }
+
+  return {
+    lowPrice: Math.min(...offers.map((offer) => offer.lowPrice)),
+    highPrice: Math.max(...offers.map((offer) => offer.highPrice)),
+    currency: OFFER_CURRENCY,
+    offerCount: offers.reduce((sum, offer) => sum + offer.offerCount, 0)
+  };
+}

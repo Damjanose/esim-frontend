@@ -1,6 +1,6 @@
 # eSim2you
 
-> eSim2you sells prepaid travel eSIMs (digital SIM cards) for 200+ destinations worldwide, with a focus on the United States and Europe. Travelers buy a data plan in the app or on the website, install the eSIM in minutes via QR code, and get mobile internet abroad without roaming fees or a physical SIM swap.
+> eSim2you sells prepaid travel eSIMs (digital SIM cards) for 200+ destinations worldwide, with dedicated plans for the United States, the United Kingdom, and the rest of Europe. Travelers buy a data plan in the app or on the website, install the eSIM in minutes via QR code, and get mobile internet abroad without roaming fees or a physical SIM swap.
 
 eSim2you is a mobile app (iOS and Android) and website (https://esim.uplisoft.com) for buying and managing travel eSIM data plans. Plans cover single countries (e.g. USA, France, UK, Japan, Turkey) and regions (e.g. Europe multi-country plans). Setup takes minutes via QR code or manual installation, no physical SIM required, and no roaming surcharges.
 
@@ -9,6 +9,8 @@ eSim2you is a mobile app (iOS and Android) and website (https://esim.uplisoft.co
 - [Homepage](https://esim.uplisoft.com/): overview, plans, how it works, FAQ
 - [Destinations](https://esim.uplisoft.com/destinations): browse eSIM data plans by country/region
 - [USA eSIM plans](https://esim.uplisoft.com/esim/usa): live USA plans, pricing, and setup guidance
+- [UK eSIM plans](https://esim.uplisoft.com/esim/uk): live UK plans, pricing, and setup guidance
+- [Europe eSIM plans](https://esim.uplisoft.com/esim/europe): live Europe multi-country plans, pricing, and setup guidance
 - [Support](https://esim.uplisoft.com/support): setup help, troubleshooting, refunds, top-ups
 
 Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Portugal, Switzerland, Turkey, Japan. Full list: https://esim.uplisoft.com/destinations

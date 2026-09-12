@@ -1,3 +1,5 @@
+import type { SeoPageFaq } from "./seo-pages";
+
 export type CompareRow = {
   factor: string;
   esim2you: string;
@@ -15,6 +17,7 @@ export type ComparePage = {
   intro: string;
   rows: CompareRow[];
   notes: string[];
+  faqs: SeoPageFaq[];
 };
 
 export const compareUpdatedAt = "2026-09-12";
@@ -61,6 +64,18 @@ export const comparePages: ComparePage[] = [
     notes: [
       "We do not claim eSIM2you is cheaper than Airalo. Compare the live eSIM2you table on a destination page with Airalo’s current offer for the same trip.",
       `Comparison last reviewed ${compareUpdatedAt}. Features can change.`
+    ],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Airalo?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Airalo's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Airalo?",
+        answer:
+          "eSIM2you covers 200+ destinations plus regional bundles. Check the specific destination page to confirm coverage before comparing plans with Airalo."
+      }
     ]
   },
   {
@@ -104,6 +119,18 @@ export const comparePages: ComparePage[] = [
     notes: [
       "Price, hotspot rules, and refund terms should be confirmed on each provider’s checkout page before you buy.",
       `Comparison last reviewed ${compareUpdatedAt}.`
+    ],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Nomad?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Nomad's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Nomad?",
+        answer:
+          "eSIM2you covers 200+ destinations and regional bundles. Check the specific destination page to confirm coverage before comparing plans with Nomad."
+      }
     ]
   },
   {
@@ -147,6 +174,18 @@ export const comparePages: ComparePage[] = [
     notes: [
       "Hotspot, validity, and refund rules depend on the specific package — read the plan details before paying.",
       `Comparison last reviewed ${compareUpdatedAt}.`
+    ],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Saily?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Saily's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Saily?",
+        answer:
+          "eSIM2you covers 200+ destinations. Check the specific destination page to confirm coverage before comparing plans with Saily."
+      }
     ]
   },
   {
@@ -165,7 +204,19 @@ export const comparePages: ComparePage[] = [
       { factor: "Activation", esim2you: "QR or manual installation on supported phones", competitor: "Digital eSIM installation on supported devices" },
       { factor: "Support", esim2you: "Web support center and in-app help", competitor: "Help center and customer support" }
     ],
-    notes: ["Compare the current package terms before buying; prices and features can change.", `Comparison last reviewed ${compareUpdatedAt}.`]
+    notes: ["Compare the current package terms before buying; prices and features can change.", `Comparison last reviewed ${compareUpdatedAt}.`],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Yesim?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Yesim's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Yesim?",
+        answer:
+          "eSIM2you covers 200+ destinations and regional bundles. Check the specific destination page to confirm coverage before comparing plans with Yesim."
+      }
+    ]
   },
   {
     slug: "holafly-vs-esim2you",
@@ -183,7 +234,19 @@ export const comparePages: ComparePage[] = [
       { factor: "Activation", esim2you: "QR or manual install after purchase", competitor: "Digital installation on supported devices" },
       { factor: "Support", esim2you: "Web support center and in-app help", competitor: "Help center and customer support" }
     ],
-    notes: ["Do not assume hotspot or unlimited-use terms; read the exact plan details.", `Comparison last reviewed ${compareUpdatedAt}.`]
+    notes: ["Do not assume hotspot or unlimited-use terms; read the exact plan details.", `Comparison last reviewed ${compareUpdatedAt}.`],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Holafly?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Holafly's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Holafly?",
+        answer:
+          "eSIM2you covers 200+ destinations plus regional plans. Check the specific destination page to confirm coverage before comparing plans with Holafly."
+      }
+    ]
   },
   {
     slug: "ubigi-vs-esim2you",
@@ -201,7 +264,19 @@ export const comparePages: ComparePage[] = [
       { factor: "Hotspot", esim2you: "Package-dependent", competitor: "Package and device-dependent" },
       { factor: "Support", esim2you: "Support center plus in-app help", competitor: "Help center and support channels" }
     ],
-    notes: ["Verify current coverage, network, and plan restrictions before checkout.", `Comparison last reviewed ${compareUpdatedAt}.`]
+    notes: ["Verify current coverage, network, and plan restrictions before checkout.", `Comparison last reviewed ${compareUpdatedAt}.`],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Ubigi?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Ubigi's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Ubigi?",
+        answer:
+          "eSIM2you covers 200+ destinations. Check the specific destination page to confirm coverage before comparing plans with Ubigi."
+      }
+    ]
   },
   {
     slug: "roamless-vs-esim2you",
@@ -219,7 +294,49 @@ export const comparePages: ComparePage[] = [
       { factor: "Activation", esim2you: "Install before travel with QR or manual steps", competitor: "Digital activation on supported devices" },
       { factor: "Support", esim2you: "Web support center and in-app help", competitor: "In-app help and support" }
     ],
-    notes: ["Features, prices, and coverage change; verify both providers for the same route.", `Comparison last reviewed ${compareUpdatedAt}.`]
+    notes: ["Features, prices, and coverage change; verify both providers for the same route.", `Comparison last reviewed ${compareUpdatedAt}.`],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Roamless?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Roamless's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Does eSIM2you cover the same destinations as Roamless?",
+        answer:
+          "eSIM2you covers 200+ destinations and regional bundles. Check the specific destination page to confirm coverage before comparing plans with Roamless."
+      }
+    ]
+  },
+  {
+    slug: "sim-local-vs-esim2you",
+    path: "/compare/sim-local-vs-esim2you",
+    title: "Sim Local vs eSIM2you | Travel eSIM Comparison",
+    description: "Compare Sim Local and eSIM2you on travel eSIM plans, destination coverage, checkout, activation, and support.",
+    heading: "Sim Local vs eSIM2you",
+    competitor: "Sim Local",
+    updatedAt: compareUpdatedAt,
+    intro: "Sim Local and eSIM2you both sell travel data for international trips. This comparison covers practical product differences — check the live eSIM2you destination page for current pricing.",
+    rows: [
+      { factor: "Plan comparison", esim2you: "Destination pages list live data, validity, network, and price", competitor: "Country and regional plan catalog" },
+      { factor: "Stores", esim2you: "Fully digital — no airport kiosk needed", competitor: "Airport stores (e.g. Heathrow, Gatwick) plus online" },
+      { factor: "Checkout", esim2you: "Web checkout plus iOS and Android apps", competitor: "Online and in-store purchase" },
+      { factor: "Activation", esim2you: "QR or manual install after purchase", competitor: "QR or in-store setup depending on purchase channel" },
+      { factor: "Support", esim2you: "Web support center and in-app help", competitor: "In-store and online customer support" }
+    ],
+    notes: ["We do not claim eSIM2you is cheaper than Sim Local. Compare the live eSIM2you table on a destination page with Sim Local’s current offer for the same trip.", `Comparison last reviewed ${compareUpdatedAt}.`],
+    faqs: [
+      {
+        question: "Is eSIM2you cheaper than Sim Local?",
+        answer:
+          "It depends on the destination and current promotions. Compare eSIM2you's live destination price with Sim Local's checkout price for the same data and validity before buying."
+      },
+      {
+        question: "Do I need to visit a store to get an eSIM2you plan, like with Sim Local?",
+        answer:
+          "No — eSIM2you is fully digital with no airport kiosk needed. Sim Local also sells online, but is known for physical stores at airports such as Heathrow and Gatwick."
+      }
+    ]
   }
 ];
 

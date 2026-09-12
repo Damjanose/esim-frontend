@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-12",
-    "note_latest": "f132: production crawler policy, Search Console/Bing verification, indexing requests, and production Google client-id restoration remain owner-access tasks; do not put provider values in feedAI. See facts.jsonl f132.\n\nf131: public support now describes website/account flows and llms.txt uses canonical destination/travel paths and the live support email. See facts.jsonl f131.\n\nf130/f129: conversion CTAs, closed-by-default wizard behavior, mobile navigation, and removal of unsupported Best value wording are covered by tests. See facts.jsonl f129-f130."
+    "note_latest": "f133-f136: UK/EU AI-search visibility slice -- GBP display estimate on /esim/uk and all /compare/[slug] pages (src/lib/exchangeRate.ts, backend GET /currencies), an 8th compare page (Sim Local) plus faqs[] on every compare entry, FAQPage+Product/AggregateOffer JSON-LD now on compare pages via getGlobalOffer(), a gated (still-empty) Review/AggregateRating schema path in createLandingJsonLd, and llms.txt now featuring UK/Europe as dedicated Key pages links. See facts.jsonl f133-f136.\n\nf132: production crawler policy, Search Console/Bing verification, indexing requests, and production Google client-id restoration remain owner-access tasks; do not put provider values in feedAI. See facts.jsonl f132.\n\nf131: public support now describes website/account flows and llms.txt uses canonical destination/travel paths and the live support email. See facts.jsonl f131."
   }
 }

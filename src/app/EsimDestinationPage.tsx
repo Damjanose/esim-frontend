@@ -16,6 +16,7 @@ import {
   type DestinationOfferInput
 } from "@/lib/seo";
 import type { DestinationPlanRow } from "@/lib/destinationPricing";
+import { convertEurToGbp, formatGbp } from "@/lib/exchangeRate";
 
 function relatedDestinationLinks(slug: string) {
   const related = destinationDisplay[slug]?.relatedSlugs ?? [];
@@ -32,11 +33,13 @@ function relatedDestinationLinks(slug: string) {
 export function EsimDestinationPageView({
   page,
   offer,
-  plans
+  plans,
+  gbpRate
 }: {
   page: SeoContentPage;
   offer?: DestinationOfferInput;
   plans: DestinationPlanRow[];
+  gbpRate?: number;
 }) {
   const countryName = destinationDisplay[page.slug]?.countryName ?? page.eyebrow;
   const h1 = destinationH1(page.slug) ?? `eSIM for ${countryName}`;
@@ -85,7 +88,17 @@ export function EsimDestinationPageView({
             {offer ? (
               <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brandBlue/30 bg-brandBlue/5 px-4 py-2 text-sm font-black text-brandBlue">
                 Plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)}
+                {gbpRate
+                  ? ` (~${formatGbp(convertEurToGbp(offer.lowPrice, gbpRate))}–${formatGbp(
+                      convertEurToGbp(offer.highPrice, gbpRate)
+                    )})`
+                  : ""}
                 {offer.offerCount > 0 ? ` · ${offer.offerCount} plans` : ""}
+              </p>
+            ) : null}
+            {offer && gbpRate ? (
+              <p className="mt-2 text-xs font-semibold text-onSurfaceVariant">
+                Approximate GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
               </p>
             ) : null}
             <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">{page.intro}</p>
