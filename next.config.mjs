@@ -19,12 +19,26 @@ const nextConfig = {
         hostname: "*.wikimedia.org",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "flagcdn.com",
+        pathname: "/**",
+      },
     ],
   },
   async headers() {
     return [
       {
         source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/:path(logo-icon.png|app-logo.png)",
         headers: [
           {
             key: "Cache-Control",

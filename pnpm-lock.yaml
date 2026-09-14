@@ -32,9 +32,6 @@ importers:
       socket.io-client:
         specifier: ^4.8.3
         version: 4.8.3
-      world-countries:
-        specifier: ^5.1.0
-        version: 5.1.0
     devDependencies:
       '@types/node':
         specifier: ^22.10.7
@@ -1414,9 +1411,6 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
-  world-countries@5.1.0:
-    resolution: {integrity: sha512-CXR6EBvTbArDlDDIWU3gfKb7Qk0ck2WNZ234b/A0vuecPzIfzzxH+O6Ejnvg1sT8XuiZjVlzOH0h08ZtaO7g0w==}
-
   wrap-ansi@6.2.0:
     resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
     engines: {node: '>=8'}
@@ -2611,8 +2605,6 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
-
-  world-countries@5.1.0: {}
 
   wrap-ansi@6.2.0:
     dependencies:

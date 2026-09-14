@@ -67,6 +67,12 @@ type PackagesResponse = {
 };
 
 const PACKAGE_OPTION_LIMIT = 10;
+const CATALOG_CACHE_TTL_MS = 60_000;
+
+let packageOptionsCache: { expiresAt: number; value: HeroPackageOption[] } | null = null;
+let packageOptionsRequest: Promise<HeroPackageOption[]> | null = null;
+let packageGroupsCache: { expiresAt: number; value: PackageGroupOptions } | null = null;
+let packageGroupsRequest: Promise<PackageGroupOptions> | null = null;
 
 function slugify(value: string) {
   return value
@@ -374,25 +380,32 @@ export function mapPackagesPayload(
 export async function fetchPackageOptions(): Promise<
   HeroPackageOption[]
 > {
-  const response = await fetch("/bff/packages", {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to load packages: ${response.status}`,
-    );
+  if (packageOptionsCache && packageOptionsCache.expiresAt > Date.now()) {
+    return packageOptionsCache.value;
   }
+  if (packageOptionsRequest) return packageOptionsRequest;
 
-  const payload = (await response.json()) as
-    | PackagesResponse
-    | ApiPackage[];
+  packageOptionsRequest = (async () => {
+    const response = await fetch("/bff/packages", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
 
-  return mapPackagesPayload(payload);
+    if (!response.ok) {
+      throw new Error(`Failed to load packages: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as PackagesResponse | ApiPackage[];
+    const value = mapPackagesPayload(payload);
+    packageOptionsCache = { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, value };
+    return value;
+  })();
+
+  try {
+    return await packageOptionsRequest;
+  } finally {
+    packageOptionsRequest = null;
+  }
 }
 
 export type PackageGroupsRailId =
@@ -437,21 +450,30 @@ export function mapPackageGroupsPayload(
 }
 
 export async function fetchPackageGroups(): Promise<PackageGroupOptions> {
-  const response = await fetch("/bff/packages/groups", {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to load package groups: ${response.status}`,
-    );
+  if (packageGroupsCache && packageGroupsCache.expiresAt > Date.now()) {
+    return packageGroupsCache.value;
   }
+  if (packageGroupsRequest) return packageGroupsRequest;
 
-  const payload = (await response.json()) as PackageGroupsResponse;
+  packageGroupsRequest = (async () => {
+    const response = await fetch("/bff/packages/groups", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
 
-  return mapPackageGroupsPayload(payload);
+    if (!response.ok) {
+      throw new Error(`Failed to load package groups: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as PackageGroupsResponse;
+    const value = mapPackageGroupsPayload(payload);
+    packageGroupsCache = { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, value };
+    return value;
+  })();
+
+  try {
+    return await packageGroupsRequest;
+  } finally {
+    packageGroupsRequest = null;
+  }
 }

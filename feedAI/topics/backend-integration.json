@@ -8,13 +8,14 @@
     "f023",
     "f028",
     "f079",
-    "f110"
+    "f110",
+    "f143"
   ],
   "why_bff_exists": "nginx in production proxies the ENTIRE /api/* prefix to the Express backend, including paths Next never claims. Next route handlers used to live at src/app/api/** and were silently unreachable in prod (Express 404 'Cannot GET ...'). Fixed 2026-08-13 by git-mv'ing all 20 route handlers to src/app/bff/**. See f003, f028.",
   "core_module": {
     "file": "src/lib/backend.ts",
     "getBackendApiUrl()": "process.env.BACKEND_API_URL ?? NEXT_PUBLIC_API_URL ?? 'https://esim.uplisoft.com/api' (default applies in ALL envs incl. next dev)",
-    "backendFetch<T>(path, {method,body,token})": "cache:'no-store'; sets Authorization: Bearer <token> when given; unwraps envelope {status,data,error,message}; returns BackendResult<T> = {ok:true,data} | {ok:false,status,message,payload?}",
+    "backendFetch<T>(path, {method,body,token,next})": "defaults to cache:'no-store'; public catalog BFF routes may pass next.revalidate=60 to honor the optimized backend cache; sets Authorization: Bearer <token> when given; unwraps envelope {status,data,error,message}; returns BackendResult<T> = {ok:true,data} | {ok:false,status,message,payload?}",
     "backendFetchFormData / backendFetchBinary": "multipart POST and raw GET for /xsupport attachments. Do not JSON-stringify FormData; do not set Content-Type on uploads (f110).",
     "socket_exception": "Socket.IO from /xsupport to the Express origin is the only browser→API channel. REST stays on BFF (f110).",
     "error_collapse": "any fetch throw or JSON parse failure -> {ok:false,status:502,message:'We could not reach the eSIM service. Please try again.'}",

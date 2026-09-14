@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { backendFetch } from "@/lib/backend";
 
 export async function GET() {
-  const result = await backendFetch<{ packages?: unknown[] }>("/packages");
+  const result = await backendFetch<{ packages?: unknown[] }>("/packages", {
+    next: { revalidate: 60 }
+  });
 
   if (!result.ok) {
     return NextResponse.json(
@@ -11,5 +13,12 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ status: "success", data: result.data });
+  return NextResponse.json(
+    { status: "success", data: result.data },
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120"
+      }
+    }
+  );
 }

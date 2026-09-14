@@ -106,7 +106,7 @@ describe("landingContent", () => {
     const homeLinkMatch = navSource.match(/<a[^>]*aria-label="eSim2you home"[\s\S]*?<\/a>/);
     expect(homeLinkMatch).not.toBeNull();
     expect(homeLinkMatch![0]).not.toContain("Globe2");
-    expect(homeLinkMatch![0]).toContain("<img");
+    expect(homeLinkMatch![0]).toContain("<Image");
     expect(layoutSource).toContain('url: "/favicon.png"');
   });
 });

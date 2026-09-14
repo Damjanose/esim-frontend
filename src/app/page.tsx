@@ -557,11 +557,12 @@ function AppDownload() {
 
               <div className="pointer-events-none absolute bottom-3 left-1/2 h-[50px] w-[72%] -translate-x-1/2 rounded-full bg-black/70 blur-[28px]" />
 
-              <img
+              <Image
                 alt="eSim2you mobile application"
                 className="relative z-10 max-h-[390px] w-full max-w-[520px] object-contain object-bottom drop-shadow-[0_35px_45px_rgba(0,0,0,0.5)]"
-                loading="lazy"
+                height={1080}
                 src="/images/app-store.png"
+                width={1080}
               />
             </div>
           </div>
@@ -619,12 +620,13 @@ function Cta() {
 
           <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[linear-gradient(90deg,rgba(6,17,49,0.88)_0%,rgba(6,17,49,0.66)_45%,rgba(6,17,49,0.5)_100%)]" />
 
-          <img
+          <Image
             alt="Traveler using eSim2you in the mountains"
             className="pointer-events-none absolute bottom-0 left-[58%] z-20 hidden h-[145%] max-w-none -translate-x-1/2 object-contain object-bottom md:block lg:left-[60%]"
-            loading="lazy"
+            height={612}
             referrerPolicy="no-referrer"
             src="/images/person.png"
+            width={408}
           />
 
           <div className="relative z-10 flex min-h-[220px] flex-col justify-center gap-7 overflow-hidden rounded-[22px] px-7 py-9 md:min-h-[190px] md:flex-row md:items-center md:justify-between md:px-12 md:py-8">
