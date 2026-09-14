@@ -22,6 +22,7 @@ type PricingRow = {
   originalPrice: number;
   retailPrice: number;
   discountEnabled: boolean;
+  discountLabel: boolean;
   discountType: DiscountType;
   discountValue: number;
   discountDirection: DiscountDirection;
@@ -55,6 +56,7 @@ type ResetPricingPayload = {
 type Draft = {
   retailPrice: string;
   discountEnabled: boolean;
+  discountLabel: boolean;
   discountType: DiscountType;
   discountValue: string;
   discountDirection: DiscountDirection;
@@ -64,6 +66,7 @@ function toDraft(row: PricingRow): Draft {
   return {
     retailPrice: String(row.retailPrice),
     discountEnabled: row.discountEnabled,
+    discountLabel: Boolean(row.discountLabel),
     discountType: row.discountType,
     discountValue: String(row.discountValue),
     discountDirection: row.discountDirection
@@ -207,6 +210,7 @@ export default function AdminPricingPage() {
         body: JSON.stringify({
           retailPrice,
           discountEnabled: draft.discountEnabled,
+          discountLabel: draft.discountLabel,
           discountType: draft.discountType,
           discountValue,
           discountDirection: draft.discountDirection
@@ -605,6 +609,16 @@ export default function AdminPricingPage() {
                                 type="checkbox"
                               />
                               Adjust
+                            </label>
+                            <label className="mt-1 flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-midnight">
+                              <input
+                                checked={draft.discountLabel}
+                                onChange={(event) =>
+                                  updateDraft(row.packageId, { discountLabel: event.target.checked })
+                                }
+                                type="checkbox"
+                              />
+                              Discount label
                             </label>
                             <div className="mt-1.5 flex gap-1">
                               <select
