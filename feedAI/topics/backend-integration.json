@@ -9,7 +9,9 @@
     "f028",
     "f079",
     "f110",
-    "f143"
+    "f143",
+    "f145",
+    "f146"
   ],
   "why_bff_exists": "nginx in production proxies the ENTIRE /api/* prefix to the Express backend, including paths Next never claims. Next route handlers used to live at src/app/api/** and were silently unreachable in prod (Express 404 'Cannot GET ...'). Fixed 2026-08-13 by git-mv'ing all 20 route handlers to src/app/bff/**. See f003, f028.",
   "core_module": {
@@ -42,7 +44,7 @@
     "trap": "src/app/checkout/return/route.ts and src/app/account/topup/return/route.ts are OUTSIDE app/bff (they are page-adjacent return handlers reached directly by Pokpay redirect, not browser fetch calls)."
   },
   "public_vs_authenticated_data": {
-    "public_catalog": "Server Components call src/services/server-packages.ts -> backendFetch('/packages') straight to backend origin, no cookies.",
+    "public_catalog": "Server Components call src/services/server-packages.ts -> backendFetch('/packages') straight to backend origin, no cookies; successful mapped results are cached in-process for 60 seconds and concurrent callers share one in-flight request. If an expired refresh fails, the last successful catalog is returned as stale while the failed response is never cached.",
     "browser_catalog": "Client code calls src/services/packages.ts -> fetch('/bff/packages') -> same shape via mapPackagesPayload() shared with server path (f023)."
   },
   "env_vars": {

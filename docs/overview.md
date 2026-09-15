@@ -15,6 +15,7 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 - Session cookies (`ACCESS_COOKIE`, `REFRESH_COOKIE` in `src/lib/session.ts`) are the client-side auth state; BFF routes read/refresh them rather than the page code touching backend tokens directly
 - `src/content/` holds static/CMS-style content for destination pages, guides, comparisons, and use-case pages. The public content source now contains 27 destination pages, 11 travel guides, and 2 use-case pages; comparison content is maintained separately in `src/content/compare-pages.ts`.
 - `src/services/` holds client-side data-fetching/service logic consumed by pages
+- Server-side public catalog lookups reuse a successful mapped result for 60 seconds, coalesce concurrent requests, and serve the last successful catalog as stale data when an expired refresh fails; authenticated/private data remains uncached
 - Test runner is Vitest (`pnpm test`); several BFF routes and the admin dashboard have route-level tests (`*.test.ts` beside the route file, e.g. `src/app/bff/auth/auth-routes.test.ts`, `src/app/xloginy/admin-dashboard.test.ts`)
 - Design reference: `docs/design/mobile-design-system.md`
 

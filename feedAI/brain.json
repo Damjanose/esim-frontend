@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "fix/frontend-optimization-review",
     "date": "2026-09-15",
-    "note_latest": "f144: unversioned logo-icon.png and app-logo.png use a one-hour revalidating cache instead of a year-long immutable cache."
+    "note_latest": "f146: the public server package catalog uses a successful-result 60-second in-process cache with concurrent request coalescing and stale fallback during refresh failures; private data remains uncached."
   }
 }
