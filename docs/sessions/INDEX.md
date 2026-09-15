@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-15 | [production-env-switch](./2026-09-15_production-env-switch.md) | Pointed web API and support Socket.IO environment values at production |
 | 2026-09-15 | [server-catalog-cache](./2026-09-15_server-catalog-cache.md) | Added bounded server catalog caching and in-flight request coalescing for public package lookups |
 | 2026-09-15 | [frontend-optimization-pr-review-comments](./2026-09-15_frontend-optimization-pr-review-comments.md) | Stopped serving unversioned logo PNGs as year-long immutable assets |
 | 2026-09-14 | [full-app-optimization](./2026-09-14_full-app-optimization.md) | Public catalog BFF caching/deduplication, deferred wizard code, image caching/compression, and local backend testing improvements |
