@@ -127,6 +127,15 @@
         "f110"
       ],
       "source": "docs/sessions/2026-09-09_support-chat-inbox.md"
+    },
+    {
+      "symptom": "A logo PNG update is ignored by browsers/CDNs for up to a year",
+      "root_cause": "Stable /logo-icon.png and /app-logo.png URLs were given Cache-Control immutable max-age=31536000 while the bytes behind those names changed",
+      "fix": "Serve those two paths with public, max-age=3600, must-revalidate. Keep long immutable caching only for hashed /images/:path* assets.",
+      "facts": [
+        "f144"
+      ],
+      "source": "next.config.mjs"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
@@ -141,6 +150,7 @@
     "f066",
     "f110",
     "f114",
-    "f123"
+    "f123",
+    "f144"
   ]
 }

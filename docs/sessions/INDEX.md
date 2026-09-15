@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-15 | [frontend-optimization-pr-review-comments](./2026-09-15_frontend-optimization-pr-review-comments.md) | Stopped serving unversioned logo PNGs as year-long immutable assets |
 | 2026-09-14 | [full-app-optimization](./2026-09-14_full-app-optimization.md) | Public catalog BFF caching/deduplication, deferred wizard code, image caching/compression, and local backend testing improvements |
 | 2026-09-12 | [Conversion, Google, and AI search follow-up](./2026-09-12_conversion-google-ai.md) | Closed the homepage wizard by default, improved navigation and destination conversion CTAs, rewrote web support copy, corrected llms.txt canonical URLs, and documented manual search/outreach follow-up |
 | 2026-09-14 | [discount-label-ribbon](./2026-09-14_discount_label_ribbon.md) | Added the per-package Discount label checkbox to hidden pricing management |

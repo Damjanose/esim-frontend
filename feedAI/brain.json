@@ -66,7 +66,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "fix/frontend-optimization-review",
-    "date": "2026-09-14",
-    "note_latest": "f143: public package BFF routes honor the optimized backend's 60-second cache, browser catalog calls dedupe for one minute, and local development explicitly targets BACKEND_API_URL when configured. Images, deferred wizard code, loading skeletons, and the navbar client island were also optimized. See facts.jsonl f143 and docs/sessions/2026-09-14_full-app-optimization.md."
+    "date": "2026-09-15",
+    "note_latest": "f144: unversioned logo-icon.png and app-logo.png use a one-hour revalidating cache instead of a year-long immutable cache."
   }
 }

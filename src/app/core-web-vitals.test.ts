@@ -16,6 +16,16 @@ describe("Core Web Vitals performance contract", () => {
     expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
   });
 
+  it("does not mark unversioned logo files as immutable year-long cache", async () => {
+    const configSource = await readFile(join(process.cwd(), "next.config.mjs"), "utf8");
+
+    expect(configSource).toContain('source: "/:path(logo-icon.png|app-logo.png)"');
+    expect(configSource).toContain("public, max-age=3600, must-revalidate");
+    expect(configSource).not.toMatch(
+      /source: "\/:path\(logo-icon\.png\|app-logo\.png\)"[\s\S]*?immutable/,
+    );
+  });
+
   it("allows the remote image hosts used by public marketing images", async () => {
     const configSource = await readFile(join(process.cwd(), "next.config.mjs"), "utf8");
 
