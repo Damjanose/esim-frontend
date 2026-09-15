@@ -79,9 +79,11 @@ describe("public navigation shell", () => {
 
   it("keeps primary purchase navigation available on mobile", () => {
     const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
+    const mobileMenu = readFileSync("src/app/components/MobileNavbarMenu.tsx", "utf8");
 
-    expect(navbar).toContain('aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}');
-    expect(navbar).toContain("lg:hidden");
-    expect(navbar).toContain("Browse eSIM plans");
+    expect(navbar).toContain("MobileNavbarMenu");
+    expect(mobileMenu).toContain('aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}');
+    expect(mobileMenu).toContain("lg:hidden");
+    expect(mobileMenu).toContain("Browse eSIM plans");
   });
 });

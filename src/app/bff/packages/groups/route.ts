@@ -7,7 +7,7 @@ export async function GET() {
     bestValue?: unknown[];
     unlimited?: unknown[];
     longStay?: unknown[];
-  }>("/packages/groups");
+  }>("/packages/groups", { next: { revalidate: 60 } });
 
   if (!result.ok) {
     return NextResponse.json(
@@ -16,5 +16,12 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ status: "success", data: result.data });
+  return NextResponse.json(
+    { status: "success", data: result.data },
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120"
+      }
+    }
+  );
 }

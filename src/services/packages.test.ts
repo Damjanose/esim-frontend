@@ -104,6 +104,21 @@ describe("mapPackageGroupsPayload", () => {
     });
   });
 
+  it("derives searchable coverage when optimized payloads omit coveredDestinations", () => {
+    const regionalPackage = {
+      ...apiPackage,
+      id: "europe-1gb",
+      country: "Europe",
+      countryCode: "europe",
+      filters: ["regional"],
+      countries: [{ countryCode: "DE", title: "Germany" }],
+    };
+    const option = mapPackagesPayload([regionalPackage])[0]!;
+
+    expect(planCoversDestination(option, "Germany")).toBe(true);
+    expect(planCoversDestination(option, "DE")).toBe(true);
+  });
+
   it("matches a covered country by name and ISO code", () => {
     const regionalPackage = {
       ...apiPackage,

@@ -2,6 +2,7 @@
 
 import { ChevronDown, ChevronUp, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -20,8 +21,13 @@ import {
 } from "@/services/destinationFilters";
 import { destinationBrowseHref } from "@/lib/esim-routes";
 import { useConsent } from "../ConsentManager";
-import { HelpMeChooseWizard, type WizardResult } from "./HelpMeChooseWizard";
+import type { WizardResult } from "./HelpMeChooseWizard";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
+
+const HelpMeChooseWizard = dynamic(
+  () => import("./HelpMeChooseWizard").then((module) => module.HelpMeChooseWizard),
+  { ssr: false },
+);
 
 /** Minimum time the welcome intro stays on screen before the wizard opens. */
 const WELCOME_MIN_DELAY_MS = 2000;

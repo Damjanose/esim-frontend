@@ -32,6 +32,7 @@ export type BackendRequest = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   token?: string;
+  next?: { revalidate?: number };
 };
 
 type BackendEnvelope<T> = {
@@ -45,7 +46,7 @@ const UNREACHABLE_MESSAGE = "We could not reach the eSIM service. Please try aga
 
 export async function backendFetch<T>(
   path: string,
-  { method = "GET", body, token }: BackendRequest = {}
+  { method = "GET", body, token, next }: BackendRequest = {}
 ): Promise<BackendResult<T>> {
   const headers = new Headers({ Accept: "application/json" });
   if (body !== undefined) {
@@ -57,12 +58,13 @@ export async function backendFetch<T>(
 
   let response: Response;
   try {
-    response = await fetch(`${getBackendApiUrl()}${path}`, {
+    const requestInit: RequestInit & { next?: { revalidate?: number } } = {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
-      cache: "no-store"
-    });
+      ...(next ? { next } : { cache: "no-store" })
+    };
+    response = await fetch(`${getBackendApiUrl()}${path}`, requestInit);
   } catch {
     return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
   }
