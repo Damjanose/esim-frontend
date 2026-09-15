@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Check,
+  CircleHelp,
   Globe2,
   Headphones,
   ShieldCheck,
@@ -15,6 +16,7 @@ import { SiteFooter } from "./SiteFooter";
 import { Navbar } from './components/Navbar'
 import { LinkButton } from "./components/Button";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
+import { landingContent } from "@/content/landing";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { HeroDestinationChips } from "./HeroDestinationChips";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
@@ -61,7 +63,7 @@ export const metadata: Metadata = createMetadata({
   path: "/",
   title: "eSim2you | Travel Data for 200+ Destinations",
   description:
-    "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
+    "Buy a digital eSIM for 200+ destinations with instant activation and high-speed data. No physical SIM or roaming fees — set up in minutes before you travel."
 });
 
 export default function Home() {
@@ -397,7 +399,10 @@ function HowItWorks() {
 
 function TrustAndFaq() {
   return (
-    <section className="relative overflow-hidden bg-surface px-5 py-10 text-onSurface md:px-8">
+    <section
+      className="relative overflow-hidden bg-surface px-5 py-10 text-onSurface md:px-8"
+      id="faq"
+    >
       <div className="relative mx-auto max-w-[1280px]">
         <div className="text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
@@ -420,6 +425,27 @@ function TrustAndFaq() {
               <p className="mt-3 text-sm leading-7 text-onSurfaceVariant">{description}</p>
             </article>
           ))}
+        </div>
+
+        <div className="mx-auto mt-10 max-w-3xl">
+          <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
+            Quick answers before you travel
+          </p>
+          <div className="mt-5 space-y-3">
+            {landingContent.faqs.map((faq) => (
+              <details className="group rounded-xl border border-outline bg-white p-5 shadow-sm" key={faq.question}>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-black text-brandInk">
+                  {faq.question}
+                  <CircleHelp
+                    aria-hidden="true"
+                    className="shrink-0 text-brandBlue transition group-open:rotate-45"
+                    size={20}
+                  />
+                </summary>
+                <p className="mt-4 leading-7 text-onSurfaceVariant">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </div>
     </section>

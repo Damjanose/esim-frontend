@@ -111,7 +111,7 @@ const baseDestinationPages = [
     path: "/esim/usa",
     title: "eSIM USA | Travel Data for the United States | eSIM2you",
     description:
-      "Buy a eSim2you for the USA, install your travel data before departure, and stay online without surprise roaming fees.",
+      "Get an eSIM2you plan for the USA, install your travel data before departure, and stay online without surprise roaming fees.",
     eyebrow: "USA travel eSIM",
     heading: "Travel data for the United States, ready before you land.",
     intro:
@@ -357,7 +357,7 @@ const baseDestinationPages = [
     path: "/esim/germany",
     title: "eSIM for Germany | Travel Data for Berlin and Beyond",
     description:
-      "Buy a eSim2you for Germany travel data, install it before departure, and use mobile internet in Berlin, Munich, and beyond.",
+      "Get an eSIM2you plan for Germany, install it before departure, and use mobile internet in Berlin, Munich, and beyond.",
     eyebrow: "Germany travel eSIM",
     heading: "Germany travel data for maps, cities, and messaging.",
     intro:
@@ -480,7 +480,7 @@ const baseDestinationPages = [
     path: "/esim/greece",
     title: "eSIM for Greece | Travel Data for Athens and the Islands",
     description:
-      "Buy a eSim2you for Greece travel data, use mobile internet in Athens, and stay connected across the Greek islands.",
+      "Get an eSIM2you plan for Greece, use mobile internet in Athens, and stay connected across the Greek islands.",
     eyebrow: "Greece travel eSIM",
     heading: "Greece travel data for Athens and the islands.",
     intro:
@@ -603,7 +603,7 @@ const baseDestinationPages = [
     path: "/esim/thailand",
     title: "eSIM for Thailand | Travel Data for Bangkok and Beyond",
     description:
-      "Buy a eSim2you for Thailand, install it before you land, and use mobile data in Bangkok, Phuket, and Chiang Mai without roaming fees.",
+      "Get an eSIM2you plan for Thailand, install it before you land, and use mobile data in Bangkok, Phuket, and Chiang Mai without roaming fees.",
     eyebrow: "Thailand travel eSIM",
     heading: "Travel data for Thailand, ready before you land.",
     intro:
@@ -726,7 +726,7 @@ const baseDestinationPages = [
     path: "/esim/canada",
     title: "eSIM for Canada | Travel Data for Toronto, Vancouver, and More",
     description:
-      "Buy a eSim2you for Canada, install it in minutes, and stay online in Toronto, Vancouver, and Montreal without roaming fees.",
+      "Get an eSIM2you plan for Canada, install it in minutes, and stay online in Toronto, Vancouver, and Montreal without roaming fees.",
     eyebrow: "Canada travel eSIM",
     heading: "Travel data for Canada, ready before you land.",
     intro:

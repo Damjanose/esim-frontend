@@ -60,7 +60,7 @@ export const indexableRoutes: IndexableRoute[] = [
     url: `${siteUrl}/`,
     title: "eSIM2you | Travel Data for 200+ Destinations",
     description:
-      "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees.",
+      "Buy a digital eSIM for 200+ destinations with instant activation and high-speed data. No physical SIM or roaming fees — set up in minutes before you travel.",
     changeFrequency: "monthly",
     priority: 1
   },
