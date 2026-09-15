@@ -73,11 +73,14 @@ describe("SEO content pages", () => {
 
   it("keeps public SEO page paths unique and copy complete", () => {
     const paths = publicSeoPages.map((page) => page.path);
+    const slugs = publicSeoPages.map((page) => page.slug);
 
     expect(new Set(paths).size).toBe(paths.length);
+    expect(new Set(slugs).size).toBe(slugs.length);
     expect(paths).toHaveLength(47);
 
     for (const page of publicSeoPages) {
+      expect(page.slug.trim().length).toBeGreaterThan(1);
       expect(page.title.trim().length).toBeGreaterThan(20);
       expect(page.description.trim().length).toBeGreaterThan(50);
       expect(page.heading.trim().length).toBeGreaterThan(10);
@@ -85,6 +88,8 @@ describe("SEO content pages", () => {
       expect(page.sections.length).toBeGreaterThanOrEqual(2);
       expect(page.faqs.length).toBeGreaterThanOrEqual(2);
       expect(seoPageByPath[page.path]).toBe(page);
+      expect(`${page.title} ${page.description} ${page.heading} ${page.intro}`)
+        .not.toContain("Buy a eSim2you");
     }
   });
 

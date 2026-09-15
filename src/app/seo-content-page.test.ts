@@ -20,4 +20,15 @@ describe("SEO content page template", () => {
     expect(source).toContain("Buy from €");
     expect(source).toContain("are the cheapest on the market");
   });
+
+  it("uses the homepage visual language for the destination hero and plan section", () => {
+    const source = readFileSync("src/app/EsimDestinationPage.tsx", "utf8");
+
+    expect(source).toContain('import Image from "next/image"');
+    expect(source).toContain('src="/images/mountain.webp"');
+    expect(source).toContain("bg-brandInk");
+    expect(source).toContain("rounded-[26px]");
+    expect(source).toContain("Live plan pricing");
+    expect(source).toContain("Ready before you land");
+  });
 });

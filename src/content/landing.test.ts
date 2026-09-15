@@ -47,6 +47,24 @@ describe("landingContent", () => {
     expect(pageSource).toContain(`href="${landingContent.appLinks.android.href}"`);
   });
 
+  it("renders the homepage FAQ section from the same content used by schema", () => {
+    const pageSource = readFileSync("src/app/page.tsx", "utf8");
+
+    expect(pageSource).toContain('id="faq"');
+    expect(pageSource).toContain("landingContent.faqs.map");
+    expect(pageSource).toContain("faq.question");
+    expect(pageSource).toContain("faq.answer");
+  });
+
+  it("uses descriptive alt text for homepage destination and flag images", () => {
+    const pageSource = readFileSync("src/app/page.tsx", "utf8");
+    const browseSource = readFileSync("src/app/destinations/DestinationBrowse.tsx", "utf8");
+
+    expect(pageSource).toContain('alt={`${row.country} flag`}');
+    expect(browseSource).toContain('alt={`${pkg.country} flag`}');
+    expect(browseSource).toContain('alt={`${country.country} flag`}');
+  });
+
   it("renders premium store buttons with platform icons", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 

@@ -319,7 +319,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                       >
                         {pkg.flagUri ? (
                           <img
-                            alt=""
+                            alt={`${pkg.country} flag`}
                             className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
                             src={pkg.flagUri}
                           />
@@ -368,7 +368,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                       >
                         {country.flagUri ? (
                           <img
-                            alt=""
+                            alt={`${country.country} flag`}
                             className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
                             src={country.flagUri}
                           />

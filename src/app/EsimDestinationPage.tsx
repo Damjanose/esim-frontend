@@ -1,5 +1,6 @@
 import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { JsonLd } from "./JsonLd";
 import { Navbar } from "./components/Navbar";
 import { LinkButton } from "./components/Button";
@@ -51,7 +52,7 @@ export function EsimDestinationPageView({
   ];
 
   return (
-    <main className="min-h-screen bg-white text-onSurface">
+    <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
       <JsonLd
         data={createContentPageJsonLd({
           path: page.path,
@@ -66,27 +67,37 @@ export function EsimDestinationPageView({
       <Navbar />
 
       <article>
-        <section className="relative isolate overflow-hidden bg-surface px-5 pb-16 pt-24 text-onSurface md:px-8 md:pb-24">
-          <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-brandBlue/8 blur-[140px]" />
-          <div className="mx-auto max-w-5xl">
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm font-bold text-onSurfaceVariant">
-              <Link className="transition hover:text-brandBlue" href="/">
+        <section className="relative isolate overflow-hidden bg-surface px-5 pb-14 pt-24 md:px-8 md:pb-20">
+          <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[26px] bg-brandInk px-6 py-8 text-white shadow-[0_24px_70px_rgba(6,17,49,0.18)] sm:px-10 sm:py-12 lg:px-16 lg:py-14">
+            <Image
+              alt=""
+              className="pointer-events-none absolute inset-0 -z-0 h-full w-full object-cover opacity-30"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 1152px"
+              src="/images/mountain.webp"
+            />
+            <div className="pointer-events-none absolute inset-0 -z-0 bg-[linear-gradient(110deg,rgba(6,17,49,0.98)_0%,rgba(6,17,49,0.88)_48%,rgba(11,73,183,0.52)_100%)]" />
+            <div className="pointer-events-none absolute -right-24 -top-28 -z-0 h-72 w-72 rounded-full bg-brandTeal/25 blur-3xl" />
+            <div className="relative z-10">
+              <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm font-bold text-white/65">
+              <Link className="transition hover:text-white" href="/">
                 Home
               </Link>
               <span aria-hidden="true">/</span>
-              <Link className="transition hover:text-brandBlue" href="/destinations">
+              <Link className="transition hover:text-white" href="/destinations">
                 Destinations
               </Link>
               <span aria-hidden="true">/</span>
-              <span className="text-brandInk">{countryName}</span>
-            </nav>
-            <p className="mt-10 text-sm font-black uppercase text-brandBlue">{page.eyebrow}</p>
-            <h1 className="mt-4 max-w-4xl font-display text-5xl font-black leading-tight text-brandInk md:text-7xl">
+              <span className="text-white">{countryName}</span>
+              </nav>
+              <p className="mt-10 text-sm font-black uppercase tracking-[0.18em] text-brandTeal">{page.eyebrow}</p>
+            <h1 className="mt-4 max-w-4xl font-display text-5xl font-black leading-[1.02] tracking-[-0.04em] text-white md:text-7xl">
               {h1}
             </h1>
-            <p className="mt-4 max-w-3xl text-xl font-semibold text-brandInk">{page.heading}</p>
+            <p className="mt-4 max-w-3xl text-xl font-semibold text-white/90">{page.heading}</p>
             {offer ? (
-              <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brandBlue/30 bg-brandBlue/5 px-4 py-2 text-sm font-black text-brandBlue">
+              <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black text-white backdrop-blur">
                 Plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)}
                 {gbpRate
                   ? ` (~${formatGbp(convertEurToGbp(offer.lowPrice, gbpRate))}–${formatGbp(
@@ -97,31 +108,51 @@ export function EsimDestinationPageView({
               </p>
             ) : null}
             {offer && gbpRate ? (
-              <p className="mt-2 text-xs font-semibold text-onSurfaceVariant">
+              <p className="mt-2 text-xs font-semibold text-white/60">
                 Approximate GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
               </p>
             ) : null}
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-onSurfaceVariant">{page.intro}</p>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/75">{page.intro}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <LinkButton href="#plans" size="lg" tone="brand" variant="flat">
+              <LinkButton href="#plans" size="lg" tone="brand">
                 {offer ? `Buy from €${offer.lowPrice.toFixed(2)}` : "View plans"}
                 <ArrowRight aria-hidden="true" size={18} />
               </LinkButton>
-              <LinkButton href={landingContent.appLinks.ios.href} size="lg">
+              <LinkButton className="border-white/25 bg-white/10 text-white hover:bg-white/20" href={landingContent.appLinks.ios.href} size="lg">
                 {landingContent.appLinks.ios.label}
                 <ArrowRight aria-hidden="true" size={18} />
               </LinkButton>
             </div>
+            <div className="mt-10 grid max-w-3xl gap-3 sm:grid-cols-3">
+              {[
+                ["Live plan pricing", offer ? `${offer.offerCount} options available` : "Compare current options"],
+                ["Ready before you land", "Install on stable Wi-Fi"],
+                ["Data-first travel", "Keep your usual number"]
+              ].map(([label, value]) => (
+                <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur" key={label}>
+                  <p className="text-xs font-black text-white">{label}</p>
+                  <p className="mt-1 text-xs font-semibold text-white/60">{value}</p>
+                </div>
+              ))}
+            </div>
+            </div>
           </div>
         </section>
 
-        <section className="px-5 py-16 md:px-8 md:py-24" id="plans">
+        <section className="bg-surface px-5 py-12 md:px-8 md:py-20" id="plans">
           <div className="mx-auto max-w-6xl">
-            <p className="text-sm font-black uppercase text-brandBlue">Plan comparison</p>
-            <h2 className="mt-3 font-display text-4xl font-black text-brandInk">
-              Live {countryName} eSIM plans
-            </h2>
-            <p className="mt-3 max-w-3xl leading-7 text-onSurfaceVariant">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">Plan comparison</p>
+                <h2 className="mt-3 font-display text-4xl font-black tracking-[-0.03em] text-brandInk">
+                  Live {countryName} eSIM plans
+                </h2>
+              </div>
+              <span className="w-fit rounded-full border border-brandBlue/20 bg-brandBlue/5 px-4 py-2 text-xs font-black text-brandBlue">
+                Current availability
+              </span>
+            </div>
+            <p className="max-w-3xl leading-7 text-onSurfaceVariant">
               Prices are what eSIM2you currently sells for this destination. We do not claim these
               are the cheapest on the market. Prefer the lowest-priced row for a short trip, or a
               higher-data / longer-validity row when that matches your itinerary.
@@ -134,12 +165,12 @@ export function EsimDestinationPageView({
             ) : null}
 
             {plans.length > 0 ? (
-              <div className="mt-8 overflow-x-auto rounded-xl border border-outline bg-white shadow-sm">
+              <div className="mt-8 overflow-x-auto rounded-[26px] border border-outline bg-white shadow-brandCard">
                 <table className="min-w-full text-left text-sm">
                   <caption className="sr-only">
                     {countryName} eSIM plans with data, validity, network, and price
                   </caption>
-                  <thead className="bg-mist font-black text-brandInk">
+                  <thead className="bg-gradient-to-r from-brandBlue/10 to-brandTeal/10 font-black text-brandInk">
                     <tr>
                       <th className="px-4 py-3" scope="col">
                         Plan

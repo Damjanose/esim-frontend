@@ -65,8 +65,8 @@
   },
   "sync": {
     "commit": "working-tree",
-    "branch": "fix/frontend-optimization-review",
+    "branch": "main",
     "date": "2026-09-15",
-    "note_latest": "f146: the public server package catalog uses a successful-result 60-second in-process cache with concurrent request coalescing and stale fallback during refresh failures; private data remains uncached."
+    "note_latest": "f148: the shared destination SEO template now uses a homepage-matched dark hero card, live plan summary cards, and a rounded current-availability plan table without changing its data, schema, or purchase flow."
   }
 }
