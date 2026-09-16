@@ -23,6 +23,7 @@ type PricingRow = {
   retailPrice: number;
   discountEnabled: boolean;
   discountLabel: boolean;
+  trending: boolean;
   discountType: DiscountType;
   discountValue: number;
   discountDirection: DiscountDirection;
@@ -57,6 +58,7 @@ type Draft = {
   retailPrice: string;
   discountEnabled: boolean;
   discountLabel: boolean;
+  trending: boolean;
   discountType: DiscountType;
   discountValue: string;
   discountDirection: DiscountDirection;
@@ -67,6 +69,7 @@ function toDraft(row: PricingRow): Draft {
     retailPrice: String(row.retailPrice),
     discountEnabled: row.discountEnabled,
     discountLabel: Boolean(row.discountLabel),
+    trending: Boolean(row.trending),
     discountType: row.discountType,
     discountValue: String(row.discountValue),
     discountDirection: row.discountDirection
@@ -211,6 +214,7 @@ export default function AdminPricingPage() {
           retailPrice,
           discountEnabled: draft.discountEnabled,
           discountLabel: draft.discountLabel,
+          trending: draft.trending,
           discountType: draft.discountType,
           discountValue,
           discountDirection: draft.discountDirection
@@ -619,6 +623,16 @@ export default function AdminPricingPage() {
                                 type="checkbox"
                               />
                               Discount label
+                            </label>
+                            <label className="mt-1 flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-midnight">
+                              <input
+                                checked={draft.trending}
+                                onChange={(event) =>
+                                  updateDraft(row.packageId, { trending: event.target.checked })
+                                }
+                                type="checkbox"
+                              />
+                              Trending
                             </label>
                             <div className="mt-1.5 flex gap-1">
                               <select

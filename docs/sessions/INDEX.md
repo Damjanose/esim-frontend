@@ -2,6 +2,7 @@
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-16 | [xpricing-trending-selection](./2026-09-16_xpricing-trending-selection.md) | Added a per-package Trending selector to the hidden pricing admin page |
 | 2026-09-15 | [destination-page-redesign](./2026-09-15_destination-page-redesign.md) | Restyled the shared destination hero and live plan section to match the homepage’s dark, blue, and teal visual system |
 | 2026-09-15 | [seo-growth-improvements](./2026-09-15_seo-growth-improvements.md) | Fixed homepage FAQ/schema parity, destination flag alt text, homepage metadata, repeated destination copy, and added SEO regression checks |
 | 2026-09-15 | [production-env-switch](./2026-09-15_production-env-switch.md) | Pointed web API and support Socket.IO environment values at production |

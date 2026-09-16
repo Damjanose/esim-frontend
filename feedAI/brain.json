@@ -67,6 +67,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-15",
-    "note_latest": "f148: the shared destination SEO template now uses a homepage-matched dark hero card, live plan summary cards, and a rounded current-availability plan table without changing its data, schema, or purchase flow."
+    "note_latest": "f149: /xpricing now saves a per-package Trending selection through the existing pricing BFF PUT."
   }
 }
