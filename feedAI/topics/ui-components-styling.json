@@ -10,12 +10,14 @@
     "f033",
     "f034",
     "f035",
-    "f058"
+    "f058",
+    "f150"
   ],
   "notable_components": {
     "src/app/components/Button.tsx + buttonClasses.ts": "canonical CTA component as of 2026-08-18 \u2014 resolveButtonClasses({variant: primary|flat, tone: brand|danger, size: sm|md|lg}) mirrors mobile's resolveButtonVisual; used by PayButton, SignOutButton, Navbar CTA, DeleteAccountCard (f032)",
     "src/app/HeroPackageSearch.tsx": "landing-page search box; uses src/services/packages.ts fetchPackageOptions()/filterPackageOptions()",
     "src/app/destinations/DestinationPlans.tsx": "country-specific plan listing; now also renders voiceMinutes/smsCount when present (f035)",
+    "src/app/destinations/DestinationBrowse.tsx": "destination directory section with curated rails and an all-destinations grid; now also shows a 'Trending now' section sourced from admin pricing `trending` flags, with an independent sort picker (recommended/price low/high/longest validity) for just the trending cards (f150)",
     "src/app/components/Navbar.tsx": "site nav; profile icon is a STATIC link regardless of session state (f022) \u2014 deliberate, so public pages stay statically generated; middleware/route-guard handles the actual bounce",
     "src/app/components/SettingsSection.tsx": "section/row primitives reused across /profile, /profile/billing",
     "src/app/checkout/PayButton.tsx": "see topics/account-flows.json",

@@ -45,6 +45,10 @@ describe("hidden admin package pricing page", () => {
     expect(pageSource).toContain("Discount label");
     expect(pageSource).toContain("trending");
     expect(pageSource).toContain("Trending");
+    expect(pageSource).toContain("rowFilter");
+    expect(pageSource).toContain("Adjust on");
+    expect(pageSource).toContain("Trending on");
+    expect(pageSource).toContain("Discount label on");
     expect(pageSource).toContain("discountLabel: Boolean(row.discountLabel)");
     expect(pageSource).toContain("Bulk discount");
     expect(pageSource).toContain("bulk-discount");

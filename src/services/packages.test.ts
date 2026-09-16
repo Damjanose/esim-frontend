@@ -76,6 +76,13 @@ describe("mapPackageGroupsPayload", () => {
     expect(groups.popular[0]).toMatchObject({ hasDiscount: true, retailPrice: 8 });
   });
 
+  it("carries the admin trending toggle to public package options", () => {
+    const trendingPackage = { ...apiPackage, trending: true };
+    const groups = mapPackageGroupsPayload({ popular: [trendingPackage] });
+
+    expect(groups.popular[0]).toMatchObject({ trending: true });
+  });
+
   it("omits hasDiscount/retailPrice when the backend doesn't set hasDiscount", () => {
     const groups = mapPackageGroupsPayload({ popular: [apiPackage] });
 

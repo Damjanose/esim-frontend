@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
+import { ArrowDownUp, ChevronDown, ChevronUp, Flame, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -46,6 +46,8 @@ type RailDef = {
   label: string;
 };
 
+type TrendingSortOption = "recommended" | "price-low" | "price-high" | "duration";
+
 const RAILS: RailDef[] = [
   { id: "popular", label: "Popular destinations" },
   { id: "bestValue", label: "Featured plans" },
@@ -64,6 +66,22 @@ const EMPTY_GROUPS: PackageGroupOptions = {
 
 function normalizeCountryCode(value: string) {
   return value.trim().toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
+}
+
+function isUnlimitedPlan(plan: HeroPackageOption) {
+  return (
+    plan.dataNumericGb >= 999 ||
+    plan.dataLabel.toLowerCase().includes("unlimited") ||
+    plan.title.toLowerCase().includes("unlimited")
+  );
+}
+
+function getPlanValueScore(plan: HeroPackageOption) {
+  if (plan.priceNumeric <= 0) return 0;
+  if (isUnlimitedPlan(plan)) {
+    return Math.max(plan.durationDays, 1) / plan.priceNumeric;
+  }
+  return Math.max(plan.dataNumericGb, 0.1) / plan.priceNumeric;
 }
 
 function toCountryOptions(packages: readonly HeroPackageOption[]): CountryOption[] {
@@ -140,6 +158,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   const [welcomeMinDelayDone, setWelcomeMinDelayDone] = useState(false);
   const [gridSearch, setGridSearch] = useState("");
   const [showAllDestinations, setShowAllDestinations] = useState(false);
+  const [trendingSort, setTrendingSort] = useState<TrendingSortOption>("recommended");
   /** Bumped to re-run the load effect when the user clicks "Try again". */
   const [retryCount, setRetryCount] = useState(0);
 
@@ -217,6 +236,22 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
       normalizeDestinationValue(`${c.country} ${c.countryCode}`).includes(q),
     );
   }, [filteredPackages, gridSearch]);
+
+  const trendingPackages = useMemo(() => {
+    const plans = filteredPackages.filter((pkg) => pkg.trending === true);
+    return [...plans].sort((first, second) => {
+      switch (trendingSort) {
+        case "price-low":
+          return first.priceNumeric - second.priceNumeric;
+        case "price-high":
+          return second.priceNumeric - first.priceNumeric;
+        case "duration":
+          return second.durationDays - first.durationDays;
+        default:
+          return getPlanValueScore(second) - getPlanValueScore(first);
+      }
+    });
+  }, [filteredPackages, trendingSort]);
 
   const isGridSearching = gridSearch.trim().length > 0;
   const visibleCountries =
@@ -301,6 +336,71 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
           </div>
         ) : (
           <>
+            {trendingPackages.length > 0 ? (
+              <div className="mt-8 rounded-[18px] border border-outline bg-mist/55 p-4 sm:p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-error/10 text-error">
+                      <Flame aria-hidden="true" size={16} />
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
+                        Trending now
+                      </p>
+                      <p className="text-sm font-black text-brandInk">
+                        {trendingPackages.length} plan{trendingPackages.length === 1 ? "" : "s"} selected by the team
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="flex h-10 w-fit items-center gap-2 rounded-full border border-outline bg-white px-3.5">
+                    <ArrowDownUp aria-hidden="true" className="text-brandBlue" size={14} />
+                    <span className="text-[11px] font-bold text-onSurfaceVariant">Sort</span>
+                    <select
+                      className="bg-white text-xs font-black text-brandInk outline-none"
+                      onChange={(event) => setTrendingSort(event.target.value as TrendingSortOption)}
+                      value={trendingSort}
+                    >
+                      <option value="recommended">Recommended</option>
+                      <option value="price-low">Price: low to high</option>
+                      <option value="price-high">Price: high to low</option>
+                      <option value="duration">Longest validity</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {trendingPackages.map((pkg) => (
+                    <Link
+                      className="group flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 shadow-brandCard transition hover:border-brandBlue/50"
+                      href={destinationBrowseHref(pkg.countryCode)}
+                      key={pkg.id}
+                    >
+                      {pkg.flagUri ? (
+                        <img
+                          alt={`${pkg.country} flag`}
+                          className="h-10 w-10 shrink-0 rounded-full border border-outline object-cover"
+                          src={pkg.flagUri}
+                        />
+                      ) : (
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
+                          <Globe2 aria-hidden="true" size={16} />
+                        </span>
+                      )}
+
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-brandInk">{pkg.country}</p>
+                        <p className="truncate text-xs font-semibold text-onSurfaceVariant">
+                          {pkg.dataLabel} · {pkg.durationLabel}
+                        </p>
+                        <p className="text-xs font-black text-brandBlue">from {pkg.price}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             {RAILS.map((rail) => {
               const items = groups[rail.id];
               if (items.length === 0) return null;

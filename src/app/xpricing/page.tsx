@@ -8,6 +8,7 @@ import { useAdminSession } from "../useAdminSession";
 
 type DiscountType = "percentage" | "flat";
 type DiscountDirection = "decrease" | "increase";
+type RowFilter = "all" | "adjust" | "trending" | "discount-label";
 
 type PricingRow = {
   packageId: string;
@@ -100,6 +101,7 @@ export default function AdminPricingPage() {
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
+  const [rowFilter, setRowFilter] = useState<RowFilter>("all");
   const [isLoading, setIsLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -151,14 +153,27 @@ export default function AdminPricingPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return packages;
-    return packages.filter(
-      (row) =>
+    return packages.filter((row) => {
+      const draft = drafts[row.packageId] ?? toDraft(row);
+      const matchesSearch =
+        !q ||
         row.title.toLowerCase().includes(q) ||
         (row.country ?? "").toLowerCase().includes(q) ||
-        row.packageId.toLowerCase().includes(q)
-    );
-  }, [packages, search]);
+        row.packageId.toLowerCase().includes(q);
+      if (!matchesSearch) return false;
+
+      switch (rowFilter) {
+        case "adjust":
+          return draft.discountEnabled;
+        case "trending":
+          return draft.trending;
+        case "discount-label":
+          return draft.discountLabel;
+        default:
+          return true;
+      }
+    });
+  }, [drafts, packages, rowFilter, search]);
 
   const discountedCount = useMemo(() => packages.filter((row) => row.discountEnabled).length, [packages]);
 
@@ -509,12 +524,24 @@ export default function AdminPricingPage() {
 
             <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line/70 px-5 py-3.5">
-                <input
-                  className="h-10 w-full max-w-sm rounded-xl border border-line px-3.5 text-sm outline-none transition focus:border-cyan"
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search by title, country, or package id"
-                  value={search}
-                />
+                <div className="flex w-full max-w-2xl flex-wrap items-center gap-2">
+                  <input
+                    className="h-10 min-w-[240px] flex-1 rounded-xl border border-line px-3.5 text-sm outline-none transition focus:border-cyan"
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search by title, country, or package id"
+                    value={search}
+                  />
+                  <select
+                    className="h-10 rounded-xl border border-line bg-white px-3 text-sm font-semibold text-midnight outline-none transition focus:border-cyan"
+                    onChange={(event) => setRowFilter(event.target.value as RowFilter)}
+                    value={rowFilter}
+                  >
+                    <option value="all">All rows</option>
+                    <option value="adjust">Adjust on</option>
+                    <option value="trending">Trending on</option>
+                    <option value="discount-label">Discount label on</option>
+                  </select>
+                </div>
                 <p className="text-xs font-bold text-muted">
                   Showing {filtered.length} of {packages.length}
                 </p>
