@@ -10,9 +10,10 @@ one level up (`../CLAUDE.md`).
 ## Docs workflow
 
 ### At session start
-1. Read `docs/sessions/INDEX.md` — scan the index table for any session related to your current task.
-2. If a match is found, read that session file in full before starting work.
-3. If the task touches routing/middleware, the BFF layer, or auth, also check `feedAI/topics/routing.json`, `backend-integration.json`, or `auth.json`.
+1. Focus for this repo is **web**. Do not load mobile or backend feedAI.
+2. Read this repo's `feedAI/brain.json`, grep `feedAI/facts.jsonl` for the task, load one topic.
+3. Scan `docs/sessions/INDEX.md` for a matching row; read that session file only if it matches.
+4. If the task touches routing/middleware, the BFF layer, or auth, load that **one** topic (`routing`, `backend-integration`, or `auth`) — not all three.
 
 ### At session end
 1. Create `docs/sessions/YYYY-MM-DD_topic.md` using the template at the top of `docs/sessions/INDEX.md` (see the other two repos' `docs/sessions/INDEX.md` for the template shape if this repo's is missing one).

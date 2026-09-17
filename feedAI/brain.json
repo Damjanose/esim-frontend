@@ -7,9 +7,12 @@
     "fixed_in_brain": "\u226420 recent ids \u2014 full history: grep facts.jsonl",
     "rule": "never delete knowledge without a facts.jsonl line; trim topics not facts"
   },
+  "focus": "web",
   "load": [
+    "only when session focus is web (aliases: front, frontend, next) or cwd is this repo",
+    "do not load velocity-eSim or E-SIM backend feedAI",
     "brain.json",
-    "grep facts.jsonl",
+    "grep facts.jsonl for 1–3 task keywords — never Read the whole file",
     "ONE topics/{t}.json from route[]"
   ],
   "route": {
@@ -66,7 +69,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "main",
-    "date": "2026-09-15",
-    "note_latest": "f149: /xpricing now saves a per-package Trending selection through the existing pricing BFF PUT."
+    "date": "2026-09-17",
+    "note_latest": "f152: Session focus is web; load only this feedAI (grep facts, one topic). Root protocol f015."
   }
 }

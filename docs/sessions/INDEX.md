@@ -1,7 +1,10 @@
 # Session Index
 
+Focus for this repo is **web**. Sessions should not load mobile or backend feedAI.
+
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-17 | [feedai-session-focus](./2026-09-17_feedai-session-focus.md) | Sessions declare focus web first and load only this repo's feedAI |
 | 2026-09-17 | [trending-packages-section](./2026-09-17_trending-packages-section.md) | Added a public `/destinations` "Trending now" section with sorting, plus `/xpricing` row filters for Adjust/Trending/Discount label |
 | 2026-09-16 | [xpricing-trending-selection](./2026-09-16_xpricing-trending-selection.md) | Added a per-package Trending selector to the hidden pricing admin page |
 | 2026-09-15 | [destination-page-redesign](./2026-09-15_destination-page-redesign.md) | Restyled the shared destination hero and live plan section to match the homepage’s dark, blue, and teal visual system |

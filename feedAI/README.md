@@ -19,11 +19,13 @@ primary source of "why") and any `CLAUDE.md`/`AGENTS.md` in this repo or the wor
 
 ## Load protocol
 
+Session focus for this repo is **web**. Do not load mobile or backend feedAI.
+
 0. Optionally run `feedAI/check-health.sh` from this repo root (not the workspace
    root). It flags topic files over the 10KB budget. It is not a git commit hook.
 1. Read `brain.json` first — it's the map, not the territory.
-2. `grep` `facts.jsonl` for anything relevant to the task (topic files can lag; the log can't).
-3. Load exactly ONE `topics/*.json` file matched by `brain.json`'s `route` table for the task at hand.
+2. `grep` `facts.jsonl` for 1–3 task keywords — never Read the whole file.
+3. Load exactly ONE `topics/*.json` file matched by `brain.json`'s `route` table.
 4. Only pull in a second topic file if the task genuinely spans two subsystems.
 
 Do not read all of `topics/*.json` up front — that defeats the point of splitting them.
