@@ -17,6 +17,7 @@ type ErrorEvent = {
   area: string;
   message: string;
   internalCode: string | null;
+  originalRequestBody: unknown;
   safeRequestBody: unknown;
   safeQuery: unknown;
   providerName: string | null;
@@ -28,6 +29,7 @@ type ErrorEvent = {
   relatedPackageId: string | null;
   relatedIccid: string | null;
   repairAction: string | null;
+  backendResponse: unknown;
   resolvedAt: string | null;
   resolvedBy: string | null;
   adminNotes: string | null;
@@ -64,8 +66,8 @@ function buildSafeCurl(error: ErrorEvent) {
     `  -H "Content-Type: application/json"`,
     `  -H "Authorization: Bearer <user-token>"`
   ];
-  if (error.safeRequestBody && error.method !== "GET") {
-    lines.push(`  --data '${JSON.stringify(error.safeRequestBody)}'`);
+  if (error.originalRequestBody && error.method !== "GET") {
+    lines.push(`  --data '${JSON.stringify(error.originalRequestBody)}'`);
   }
   return lines.join(" \\\n");
 }
@@ -449,6 +451,12 @@ export default function AdminErrorInboxPage() {
                     </dl>
 
                     <div>
+                      <p className="text-xs font-black uppercase tracking-wide text-muted">Original request body</p>
+                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
+                        {stringifyJson(selectedError.originalRequestBody)}
+                      </pre>
+                    </div>
+                    <div>
                       <p className="text-xs font-black uppercase tracking-wide text-muted">Safe request body</p>
                       <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
                         {stringifyJson(selectedError.safeRequestBody)}
@@ -458,6 +466,12 @@ export default function AdminErrorInboxPage() {
                       <p className="text-xs font-black uppercase tracking-wide text-muted">Safe query</p>
                       <pre className="mt-1 max-h-32 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
                         {stringifyJson(selectedError.safeQuery)}
+                      </pre>
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wide text-muted">Backend response</p>
+                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
+                        {stringifyJson(selectedError.backendResponse)}
                       </pre>
                     </div>
                     <div>
