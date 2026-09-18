@@ -241,33 +241,40 @@ function getCountryOptions(
   );
 }
 
-function useCountryHeroImage(country?: string) {
+function useCountryHeroImage(input: {
+  country?: string;
+  slug?: string;
+}) {
   const [image, setImage] =
     useState<CountryHeroImage | null>(null);
 
   const [loading, setLoading] =
     useState(false);
 
-  useEffect(() => {
-    const normalizedCountry = country?.trim();
+  const country = input.country?.trim() ?? "";
+  const slug = input.slug?.trim() ?? "";
 
-    if (!normalizedCountry) {
+  useEffect(() => {
+    if (!country && !slug) {
       setImage(null);
       setLoading(false);
       return;
     }
 
-    const countryName = normalizedCountry;
+    const countryName = country;
+    const destinationSlug = slug;
     const controller = new AbortController();
 
     async function loadCountryImage() {
       try {
         setLoading(true);
 
+        const params = new URLSearchParams();
+        if (destinationSlug) params.set("slug", destinationSlug);
+        if (countryName) params.set("country", countryName);
+
         const response = await fetch(
-          `/bff/country-image?country=${encodeURIComponent(
-            countryName,
-          )}`,
+          `/bff/country-image?${params.toString()}`,
           {
             signal: controller.signal,
             cache: "force-cache",
@@ -314,7 +321,7 @@ function useCountryHeroImage(country?: string) {
     return () => {
       controller.abort();
     };
-  }, [country]);
+  }, [country, slug]);
 
   return {
     image,
@@ -590,9 +597,10 @@ export function DestinationPlans({
   const {
     image: heroImage,
     loading: heroImageLoading,
-  } = useCountryHeroImage(
-    selectedCountry?.country,
-  );
+  } = useCountryHeroImage({
+    country: selectedCountry?.country,
+    slug: selectedCountry?.countryCode ?? countryCode,
+  });
 
   function selectCountry(
     country: CountryOption,
