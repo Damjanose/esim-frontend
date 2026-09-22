@@ -3,6 +3,7 @@ import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE } from "@/lib/session";
 import { POST as createIntent } from "../bff/payments/intent/route";
 import { POST as applyPromo } from "../bff/checkout/apply-promo/route";
 import { POST as provisionPayment } from "../bff/payments/provision/route";
+import { GET as checkoutReturn } from "./return/route";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -292,6 +293,97 @@ describe("POST /bff/checkout/apply-promo", () => {
     );
 
     expect(response.status).toBe(401);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("GET /checkout/return", () => {
+  function returnRequest(query: string, cookies: string) {
+    return new Request(`http://localhost:3000/checkout/return${query}`, {
+      headers: { cookie: cookies }
+    });
+  }
+
+  it("provisions the paid order and sends the buyer to their new eSIM", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ status: "success", data: { order: provisionedOrder } }, 201)
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await checkoutReturn(
+      returnRequest(
+        "?payment_id=sdk_order_123",
+        `${ACCESS_COOKIE}=good-token; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`
+      )
+    );
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("http://localhost:3000/account/1001?new=1");
+
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ payment_id: "sdk_order_123" });
+
+    expect(response.headers.get("set-cookie")).toContain(`${PENDING_PAYMENT_COOKIE}=;`);
+  });
+
+  it("falls back to the pending-payment cookie when Pokpay returns without the id", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ status: "success", data: { order: provisionedOrder } }, 201)
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await checkoutReturn(
+      returnRequest("", `${ACCESS_COOKIE}=good-token; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`)
+    );
+
+    expect(response.status).toBe(303);
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({ payment_id: "sdk_order_123" });
+  });
+
+  it("sends the buyer to the failure page when the payment did not complete", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "error", error: "Payment has not succeeded" }, 402))
+    );
+
+    const response = await checkoutReturn(
+      returnRequest(
+        "?payment_id=sdk_order_123",
+        `${ACCESS_COOKIE}=good-token; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`
+      )
+    );
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toContain("/checkout/failed");
+    expect(response.headers.get("location")).toContain("reason=unpaid");
+  });
+
+  it("never claims the card was untouched when provisioning fails for another reason", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "error", error: "Provider unavailable" }, 502))
+    );
+
+    const response = await checkoutReturn(
+      returnRequest(
+        "?payment_id=sdk_order_123",
+        `${ACCESS_COOKIE}=good-token; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`
+      )
+    );
+
+    expect(response.headers.get("location")).toContain("reason=provisioning");
+    expect(response.headers.get("location")).not.toContain("reason=unpaid");
+  });
+
+  it("sends the buyer somewhere sensible when there is no payment reference at all", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await checkoutReturn(returnRequest("", `${ACCESS_COOKIE}=good-token`));
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toContain("reason=missing_payment");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

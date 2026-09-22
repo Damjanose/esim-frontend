@@ -12,7 +12,7 @@
     "only when session focus is web (aliases: front, frontend, next) or cwd is this repo",
     "do not load velocity-eSim or E-SIM backend feedAI",
     "brain.json",
-    "grep facts.jsonl for 1–3 task keywords — never Read the whole file",
+    "grep facts.jsonl for 1\u20133 task keywords \u2014 never Read the whole file",
     "ONE topics/{t}.json from route[]"
   ],
   "route": {
@@ -69,7 +69,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "main",
-    "date": "2026-09-17",
-    "note_latest": "f152: Session focus is web; load only this feedAI (grep facts, one topic). Root protocol f015."
+    "date": "2026-09-22",
+    "note_latest": "f154: plan checkout returns to Pokpay hosted page; legal.ts updated for card data."
   }
 }

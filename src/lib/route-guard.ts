@@ -7,11 +7,12 @@ const GUARDED_PREFIXES = [
 ];
 
 /**
- * The top-up return carries its own short-lived payment cookie and must stay
- * reachable even if the session cookie has lapsed while the visitor was on
- * Pokpay. The goodbye page is reached with the session deliberately cleared.
+ * Hosted-checkout returns carry their own short-lived payment cookie and must
+ * stay reachable even if the session cookie has lapsed while the visitor was
+ * on Pokpay. The goodbye page is reached with the session deliberately cleared.
+ * Provisioning itself still requires a valid session at the BFF layer.
  */
-const UNGUARDED_PATHS = ["/account/topup/return", "/profile/deleted"];
+const UNGUARDED_PATHS = ["/account/topup/return", "/checkout/return", "/profile/deleted"];
 
 /**
  * Presence of a session cookie is all middleware can cheaply check. It is a

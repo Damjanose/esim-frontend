@@ -31,6 +31,12 @@ describe("guardedRedirect", () => {
     expect(guardedRedirect("/account/topup/return", "?payment_id=abc", false)).toBeNull();
   });
 
+  it("does not guard the plan checkout return, even though it sits under /checkout", () => {
+    // Session may lapse while the buyer is on Pokpay; the return handler still
+    // needs to run so it can send them to /checkout/failed rather than sign-in.
+    expect(guardedRedirect("/checkout/return", "?payment_id=abc", false)).toBeNull();
+  });
+
   it("lets a just-deleted account read its goodbye page", () => {
     // Deletion clears the session, so guarding this would bounce the visitor to
     // sign-in for an account that no longer exists.

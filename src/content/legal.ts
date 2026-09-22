@@ -13,7 +13,7 @@ export type LegalDocument = {
 
 export const termsDocument = {
   title: "Terms of Service",
-  lastUpdated: "May 9, 2026",
+  lastUpdated: "September 22, 2026",
   sections: [
     {
       title: "Agreement",
@@ -42,7 +42,7 @@ export const termsDocument = {
     {
       title: "Fees & purchases",
       paragraphs: [
-        "Prices shown in the App are determined at checkout. Taxes or carrier fees may apply. Unless stated otherwise, plans are prepaid and non-refundable once activated or delivered according to the plan's terms. Chargebacks or payment disputes may affect your ability to use the service."
+        "Prices shown at checkout are determined when you pay. Taxes or carrier fees may apply. On the website, card payments are taken by Pokpay on Pokpay's hosted payment page; eSim2you does not collect your card number, expiry, or security code. Unless stated otherwise, plans are prepaid and non-refundable once activated or delivered according to the plan's terms. Chargebacks or payment disputes may affect your ability to use the service."
       ]
     },
     {
@@ -72,20 +72,21 @@ export const termsDocument = {
 
 export const policyDocument = {
   title: "Privacy Policy",
-  lastUpdated: "May 9, 2026",
+  lastUpdated: "September 22, 2026",
   sections: [
     {
       title: "Overview",
       paragraphs: [
-        'eSim2you ("we", "us") respects your privacy. This Policy describes how we collect, use, store, and share personal information when you use our mobile application and related services to browse, purchase, activate, and manage prepaid travel eSIM data plans.'
+        'eSim2you ("we", "us") respects your privacy. This Policy describes how we collect, use, store, and share personal information when you use our website, mobile application, and related services to browse, purchase, activate, and manage prepaid travel eSIM data plans.'
       ]
     },
     {
       title: "Information we collect",
       paragraphs: [
-        "Account & verification: phone number, one-time passcodes, and related authentication signals needed to secure your account.",
-        "Profile & usage: app interactions, device type, OS version, app version, diagnostics, and crash data to keep the service reliable.",
-        "Transaction data: plan purchases, payment references, activation timestamps, and carrier identifiers needed to deliver connectivity.",
+        "Account & verification: phone number, one-time passcodes, email, and related authentication signals needed to secure your account.",
+        "Profile & usage: app and website interactions, device type, OS version, app version, diagnostics, and crash data to keep the service reliable.",
+        "Billing address: the name, address, email, and phone number you provide for receipts and payment verification.",
+        "Transaction data: plan purchases, payment references, amounts, currency, payment status, activation timestamps, and carrier identifiers needed to deliver connectivity. On the website, card number, expiry, and security code are entered on Pokpay's hosted payment page and are not sent to or stored by eSim2you.",
         "Support communications: messages you send to support and metadata needed to respond.",
         "Optional biometrics: if you enable device biometrics, biometric templates stay on your device; we do not receive your raw biometric data."
       ]
@@ -93,7 +94,7 @@ export const policyDocument = {
     {
       title: "How we use information",
       paragraphs: [
-        "We use personal data to provide and improve the App; verify identity; process purchases and activations; detect fraud and abuse; comply with law; communicate service messages; and analyze aggregated usage to improve performance and features. We do not sell your personal information."
+        "We use personal data to provide and improve the App and website; verify identity; process purchases and activations; detect fraud and abuse; comply with law; communicate service messages; and analyze aggregated usage to improve performance and features. We do not sell your personal information."
       ]
     },
     {
@@ -106,7 +107,7 @@ export const policyDocument = {
     {
       title: "Sharing",
       paragraphs: [
-        "We share information with mobile operators and technical partners as needed to provision data plans; with payment processors for transactions; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
+        "We share information with mobile operators and technical partners as needed to provision data plans; with Pokpay, our payment processor, which collects card details on its hosted payment page to take payment; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
       ]
     },
     {
@@ -118,13 +119,13 @@ export const policyDocument = {
     {
       title: "Security",
       paragraphs: [
-        "We use administrative, technical, and organizational measures designed to protect personal information. No method of transmission or storage is completely secure; use strong device passcodes and keep your OS updated."
+        "We use administrative, technical, and organizational measures designed to protect personal information. On the website, card details are entered on Pokpay's payment page, not on eSim2you servers. No method of transmission or storage is completely secure; use strong device passcodes and keep your OS updated."
       ]
     },
     {
       title: "Your choices & rights",
       paragraphs: [
-        "Depending on where you live, you may have rights to access, correct, delete, or export personal data, or to object to or restrict certain processing. Contact us to exercise rights; we may verify your request. You may disable optional analytics where the App provides controls."
+        "Depending on where you live, you may have rights to access, correct, delete, or export personal data, or to object to or restrict certain processing. Contact us to exercise rights; we may verify your request. You may disable optional analytics where the App or website provides controls."
       ]
     },
     {
@@ -136,18 +137,18 @@ export const policyDocument = {
     {
       title: "Children",
       paragraphs: [
-        "The App is not directed at children under 13 or the minimum age in your region. We do not knowingly collect personal information from children; contact us if you believe we have, and we will take appropriate steps."
+        "The App and website are not directed at children under 13 or the minimum age in your region. We do not knowingly collect personal information from children; contact us if you believe we have, and we will take appropriate steps."
       ]
     },
     {
       title: "Changes",
       paragraphs: [
-        "We may update this Policy and will post the new date at the top. Material changes may be communicated through the App or email where appropriate."
+        "We may update this Policy and will post the new date at the top. Material changes may be communicated through the App, website, or email where appropriate."
       ]
     },
     {
       title: "Contact",
-      paragraphs: [`Privacy questions or requests: use in-app support or contact us at ${SUPPORT_EMAIL}.`]
+      paragraphs: [`Privacy questions or requests: use in-app or website support or contact us at ${SUPPORT_EMAIL}.`]
     }
   ]
 } satisfies LegalDocument;
