@@ -8,6 +8,7 @@ import {
   Bell,
   Bug,
   LifeBuoy,
+  Map,
   MessageSquareQuote,
   Percent,
   Rocket,
@@ -29,7 +30,8 @@ const adminLinks: Array<{
   { href: "/xactivityy", label: "Activity", full: "User activity", Icon: Activity },
   { href: "/xpartnersy", label: "Partners", full: "Partner program", Icon: Users },
   { href: "/xsupport", label: "Support", full: "Support inbox", Icon: LifeBuoy },
-  { href: "/xtestimonialsy", label: "Quotes", full: "Testimonials", Icon: MessageSquareQuote }
+  { href: "/xtestimonialsy", label: "Quotes", full: "Testimonials", Icon: MessageSquareQuote },
+  { href: "/xtripplany", label: "Trips", full: "Trip plans", Icon: Map }
 ];
 
 export function AdminNav() {
