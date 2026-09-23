@@ -3,6 +3,15 @@
   "covers": "Symptom -> root cause -> fix history: auth (Google/Apple sign-in), routing/redirects, BFF, env/deploy. See troubleshooting-destinations.json for destinations-page/wizard/pricing-display bugs.",
   "entries": [
     {
+      "symptom": "Frontend deploy prints IndexNow ping failed 403 UserForbiddedToAccessSite, then ELIFECYCLE exit code 1, then Frontend deploy complete.",
+      "root_cause": "The key file at /f0cff59a140c9ed46080afdc578bf9f7.txt is public and exact. api.indexnow.org (Bing) still returns 403 when the Bing Webmaster property was imported from Google Search Console. Yandex accepts the same payload with 202.",
+      "fix": "Ping Yandex as well as Bing, and treat the deploy as successful when either accepts. To clear Bing's 403, re-verify esim.uplisoft.com in Bing Webmaster Tools with Bing's XML file instead of a Google import.",
+      "facts": [
+        "f156"
+      ],
+      "source": "scripts/ping-indexnow.mjs"
+    },
+    {
       "symptom": "pnpm build warns Failed to set Next.js data cache for https://esim.uplisoft.com/api/packages, items over 2MB can not be cached.",
       "root_cause": "getDestinationOffer fetched the full catalog with next:{revalidate:3600}. Next's data cache has a 2MB cap; /api/packages is ~2.7MB.",
       "fix": "Fetch /packages with cache:'no-store', cache only a slim per-country offer index via unstable_cache (3600s), and set export const revalidate = 3600 on /destinations/[slug].",

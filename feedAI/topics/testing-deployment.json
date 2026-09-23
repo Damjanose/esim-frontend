@@ -20,7 +20,7 @@
       "consequence": "any env var an engineer only sets in .env.local silently does not exist in production after `update.sh` — this exact gap made the Google sign-in button fail to render in prod until .env.production/.env.example were added (f029)"
     },
     "nginx_api_carveout": "nginx proxies ALL of /api/* to the Express backend; this is why browser-facing Next route handlers live under /bff/** instead — see topics/backend-integration.json",
-    "indexnow": "update.sh's last step runs `pnpm run indexnow` (scripts/ping-indexnow.mjs), non-fatal on failure. The script fetches the live sitemap.xml + child segments and POSTs every URL to https://api.indexnow.org/indexnow with the key from public/f0cff59a140c9ed46080afdc578bf9f7.txt. Google does not participate in IndexNow — this only speeds up Bing/Yandex-family recrawl (f138)."
+    "indexnow": "update.sh's last step runs `pnpm run indexnow` (scripts/ping-indexnow.mjs), non-fatal on failure. The script fetches the live sitemap and POSTs it to Yandex and api.indexnow.org with the key in public/f0cff59a140c9ed46080afdc578bf9f7.txt. The deploy succeeds when either engine accepts. Bing's 403 UserForbiddedToAccessSite is a Webmaster Tools verification problem, not a missing key file (f156). Google does not participate in IndexNow (f138)."
   },
   "type_checking": "pnpm exec tsc --noEmit (no dedicated script in package.json, run manually per session logs); tsconfig.tsbuildinfo is a generated incremental cache, never read/edit it directly."
 }
