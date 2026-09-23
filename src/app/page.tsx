@@ -16,6 +16,9 @@ import { SiteFooter } from "./SiteFooter";
 import { Navbar } from './components/Navbar'
 import { LinkButton } from "./components/Button";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
+import { loadPublicTestimonials } from "@/lib/loadPublicTestimonials";
+import { testimonialsToSiteReviews } from "@/lib/testimonials";
+import { Testimonials } from "./Testimonials";
 import { landingContent } from "@/content/landing";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { HeroDestinationChips } from "./HeroDestinationChips";
@@ -66,16 +69,19 @@ export const metadata: Metadata = createMetadata({
     "Buy a digital eSIM for 200+ destinations with instant activation and high-speed data. No physical SIM or roaming fees — set up in minutes before you travel."
 });
 
-export default function Home() {
+export default async function Home() {
+  const testimonials = await loadPublicTestimonials();
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
-      <JsonLd data={createLandingJsonLd()} />
+      <JsonLd data={createLandingJsonLd(testimonialsToSiteReviews(testimonials))} />
 
       <Navbar theme="dark" />
       <Hero />
       <DestinationBrowse urlFilters={{}} />
       <Benefits />
       <HowItWorks />
+      <Testimonials items={testimonials} />
         <TrustAndFaq />
       <AppDownload />
       <PartnerPromo />

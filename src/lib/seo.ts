@@ -42,6 +42,7 @@ export const privateRoutePrefixes = [
   "/xpartnersy",
   "/xpricing",
   "/xsupport",
+  "/xtestimonialsy",
   "/xversion"
 ] as const;
 
@@ -221,7 +222,7 @@ export function createReviewNodes(reviews: SiteReview[]) {
   }));
 }
 
-export function createLandingJsonLd() {
+export function createLandingJsonLd(reviews: SiteReview[] = siteReviews) {
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -256,7 +257,7 @@ export function createLandingJsonLd() {
           landingContent.appLinks.android.href
         ],
         ...(siteReviewStats ? { aggregateRating: createAggregateRatingNode(siteReviewStats) } : {}),
-        ...(siteReviews.length > 0 ? { review: createReviewNodes(siteReviews) } : {})
+        ...(reviews.length > 0 ? { review: createReviewNodes(reviews) } : {})
       },
       {
         "@type": "FAQPage",
