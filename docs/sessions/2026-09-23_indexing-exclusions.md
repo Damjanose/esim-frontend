@@ -27,3 +27,5 @@ status: complete
 ## Follow-ups
 
 After deploy, resubmit the sitemap in Search Console and request indexing only for the homepage, `/esim/japan`, and `/use-cases/study-abroad`. Do not validate the noindex or canonical-alternate reports.
+
+The sitemap index lastmod for each part is now the newest URL inside that part. `/sitemap.xsl` is only a browser view of the same XML.

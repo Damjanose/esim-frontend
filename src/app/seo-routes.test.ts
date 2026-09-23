@@ -34,6 +34,12 @@ describe("Next SEO routes", () => {
     for (const id of sitemapSegmentIds) {
       expect(indexXml).toContain(`https://esim.uplisoft.com/sitemaps/${id}.xml`);
     }
+    expect(indexXml).toMatch(
+      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-09-22T00:00:00\.000Z<\/lastmod>/
+    );
+    expect(indexXml).toMatch(
+      /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-09-12T00:00:00\.000Z<\/lastmod>/
+    );
 
     const esim = sitemapEntriesFor("esim");
     const travel = sitemapEntriesFor("travel");

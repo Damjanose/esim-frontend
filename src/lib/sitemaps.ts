@@ -38,6 +38,14 @@ export function sitemapEntriesFor(id: SitemapSegmentId): MetadataRoute.Sitemap {
   return indexableRoutes.filter((route) => segmentForPath(route.path) === id).map(toSitemapEntry);
 }
 
+export function sitemapSegmentLastModified(id: SitemapSegmentId): Date {
+  const times = sitemapEntriesFor(id).map((entry) => {
+    const value = entry.lastModified;
+    return value instanceof Date ? value.getTime() : new Date(value ?? 0).getTime();
+  });
+  return new Date(Math.max(...times));
+}
+
 export function allSitemapEntries(): MetadataRoute.Sitemap {
   return sitemapSegmentIds.flatMap((id) => sitemapEntriesFor(id));
 }

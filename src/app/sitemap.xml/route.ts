@@ -1,18 +1,20 @@
-import { seoContentUpdatedAt } from "@/lib/esim-routes";
 import { siteUrl } from "@/lib/seo";
-import { sitemapSegmentIds } from "@/lib/sitemaps";
+import { sitemapSegmentIds, sitemapSegmentLastModified } from "@/lib/sitemaps";
+
+const stylesheet = `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>`;
 
 export function GET() {
-  const lastmod = seoContentUpdatedAt.toISOString();
   const body = `<?xml version="1.0" encoding="UTF-8"?>
+${stylesheet}
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemapSegmentIds
-  .map(
-    (id) => `  <sitemap>
+  .map((id) => {
+    const lastmod = sitemapSegmentLastModified(id).toISOString();
+    return `  <sitemap>
     <loc>${siteUrl}/sitemaps/${id}.xml</loc>
     <lastmod>${lastmod}</lastmod>
-  </sitemap>`
-  )
+  </sitemap>`;
+  })
   .join("\n")}
 </sitemapindex>
 `;

@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-23",
-    "note_latest": "f157-f158: robots.txt disallows private prefixes without a trailing slash; policy and terms sitemap lastmod comes from legal.ts."
+    "note_latest": "f159: sitemap index lastmod is the newest URL in each part; /sitemap.xsl is a browser view only."
   }
 }
