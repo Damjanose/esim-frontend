@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { proxyAdminJson } from "@/lib/admin-bff";
 
 export function GET(request: Request) {
@@ -5,6 +6,14 @@ export function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const body = await request.text();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { status: "error", message: "Invalid JSON body" },
+      { status: 400 }
+    );
+  }
   return proxyAdminJson(request, "/admin/itinerary-settings", { method: "PUT", body });
 }

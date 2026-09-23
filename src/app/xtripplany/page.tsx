@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
+import { CURRENCY_CODES } from "@/lib/currencyCodes";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
@@ -244,12 +245,21 @@ export default function AdminTripPlanPage() {
 
               <label className="mt-4 block text-xs font-bold text-muted">
                 Price currency
-                <input
+                <select
                   className={fieldClass}
-                  maxLength={3}
-                  onChange={(event) => setPriceCurrency(event.target.value.toUpperCase())}
-                  value={priceCurrency}
-                />
+                  onChange={(event) => setPriceCurrency(event.target.value)}
+                  value={
+                    CURRENCY_CODES.includes(priceCurrency as (typeof CURRENCY_CODES)[number])
+                      ? priceCurrency
+                      : "USD"
+                  }
+                >
+                  {CURRENCY_CODES.map((code) => (
+                    <option key={code} value={code}>
+                      {code}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <p className="mt-3 text-xs font-semibold text-muted">
