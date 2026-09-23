@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: privateRoutePrefixes.map((prefix) => `${prefix}/`)
+      disallow: [...privateRoutePrefixes]
     },
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl

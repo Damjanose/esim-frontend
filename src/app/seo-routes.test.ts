@@ -16,11 +16,14 @@ describe("Next SEO routes", () => {
     expect(rules.rules).toEqual({
       userAgent: "*",
       allow: "/",
-      disallow: privateRoutePrefixes.map((prefix) => `${prefix}/`)
+      disallow: [...privateRoutePrefixes]
     });
     expect(privateRoutePrefixes).toEqual(
-      expect.arrayContaining(["/xpricing", "/xversion", "/xactivityy", "/xpartnersy", "/xnotificationy"])
+      expect.arrayContaining(["/checkout", "/signin", "/profile", "/xpricing", "/xversion", "/xactivityy", "/xpartnersy", "/xnotificationy"])
     );
+    const disallow = (rules.rules as { disallow: string[] }).disallow;
+    expect(disallow).toEqual(expect.arrayContaining(["/checkout", "/signin", "/profile"]));
+    expect(disallow.some((rule) => rule.endsWith("/"))).toBe(false);
   });
 
   it("splits the sitemap into named public segments with real lastModified dates", async () => {
@@ -58,6 +61,12 @@ describe("Next SEO routes", () => {
     );
     expect(all.every((entry) => entry.url.startsWith("https://esim.uplisoft.com"))).toBe(true);
     expect(all.every((entry) => entry.lastModified instanceof Date)).toBe(true);
+    expect(all.find((entry) => entry.url.endsWith("/policy"))?.lastModified).toEqual(
+      new Date("2026-09-22T00:00:00.000Z")
+    );
+    expect(all.find((entry) => entry.url.endsWith("/terms"))?.lastModified).toEqual(
+      new Date("2026-09-22T00:00:00.000Z")
+    );
     expect(all.some((entry) => entry.url.includes("/xloginy"))).toBe(false);
     expect(all.some((entry) => entry.url.includes("/bff/"))).toBe(false);
     expect(all.some((entry) => entry.url.includes("/destinations/usa"))).toBe(false);

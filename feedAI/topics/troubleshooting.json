@@ -3,6 +3,15 @@
   "covers": "Symptom -> root cause -> fix history: auth (Google/Apple sign-in), routing/redirects, BFF, env/deploy. See troubleshooting-destinations.json for destinations-page/wizard/pricing-display bugs.",
   "entries": [
     {
+      "symptom": "Search Console lists /signin, /profile, and /checkout?package= as crawled, then excluded by noindex.",
+      "root_cause": "robots.ts disallowed only prefix-plus-slash (/checkout/). That does not match /checkout or /checkout?package=. Google could fetch the URL, then honored the page noindex.",
+      "fix": "Disallow each privateRoutePrefixes entry as the prefix itself so /checkout, /signin, and /profile cover the exact path, a trailing slash, and a query string. Keep noindex on those pages.",
+      "facts": [
+        "f157"
+      ],
+      "source": "src/app/robots.ts; src/lib/seo.ts"
+    },
+    {
       "symptom": "Frontend deploy prints IndexNow ping failed 403 UserForbiddedToAccessSite, then ELIFECYCLE exit code 1, then Frontend deploy complete.",
       "root_cause": "The key file at /f0cff59a140c9ed46080afdc578bf9f7.txt is public and exact. api.indexnow.org (Bing) still returns 403 when the Bing Webmaster property was imported from Google Search Console. Yandex accepts the same payload with 202.",
       "fix": "Ping Yandex as well as Bing, and treat the deploy as successful when either accepts. To clear Bing's 403, re-verify esim.uplisoft.com in Bing Webmaster Tools with Bing's XML file instead of a Google import.",

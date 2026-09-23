@@ -1,7 +1,7 @@
 {
   "topic": "routing",
   "covers": "Middleware, canonicalization, auth route guard, public-origin derivation, hidden admin routes, SEO route classification.",
-  "facts": ["f009", "f010", "f011", "f027", "f030", "f125"],
+  "facts": ["f009", "f010", "f011", "f027", "f030", "f125", "f157"],
   "middleware": {
     "file": "src/middleware.ts",
     "matcher": "excludes _next/static, _next/image, favicon.ico, og/",
@@ -37,7 +37,7 @@
   "seo_private_prefixes": {
     "file": "src/lib/seo.ts",
     "list": ["/api", "/admin", "/account", "/auth", "/bff", "/billing", "/checkout", "/dashboard", "/profile", "/signin", "/xactivityy", "/xerrors", "/xloginy", "/xnotificationy", "/xpartnersy", "/xpricing", "/xsupport", "/xversion"],
-    "effect": "Disallow'd in robots.txt and excluded from sitemap segments; /api kept in the list even though it's served by Express (still non-indexable)"
+    "effect": "Each prefix is Disallow'd as itself in robots.txt (Disallow: /checkout matches /checkout, /checkout/, and /checkout?package=) and excluded from sitemap segments. A trailing-slash-only rule misses the exact path and query URLs. /api stays in the list even though Express serves it (still non-indexable). Pages also send noindex (f157)."
   },
   "canonical_host": "esim.uplisoft.com (apex, not www), enforced by middleware; production Next process binds 127.0.0.1:3020 behind nginx"
 }
