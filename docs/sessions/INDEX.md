@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-23 | [trip-plan admin xtripplany](./2026-09-23_trip-plan-admin-xtripplany.md) | Hidden `/xtripplany` sets trip-plan provider, write-only key, quota, and USD download price; traveler UI is mobile-only |
 | 2026-09-23 | [indexing exclusions](./2026-09-23_indexing-exclusions.md) | robots.txt now blocks private paths without a trailing slash; legal sitemap dates follow legal.ts |
 | 2026-09-17 | [feedai-session-focus](./2026-09-17_feedai-session-focus.md) | Sessions declare focus web first and load only this repo's feedAI |
 | 2026-09-17 | [trending-packages-section](./2026-09-17_trending-packages-section.md) | Added a public `/destinations` "Trending now" section with sorting, plus `/xpricing` row filters for Adjust/Trending/Discount label |
