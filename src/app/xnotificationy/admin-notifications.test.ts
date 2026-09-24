@@ -36,6 +36,9 @@ describe("hidden admin notifications page", () => {
     expect(pageSource).toContain('method: "PATCH"');
     expect(pageSource).toContain('method: "DELETE"');
     expect(pageSource).toContain("/send");
+    expect(pageSource).toContain("Open in app");
+    expect(pageSource).toContain("passId");
+    expect(pageSource).toContain("MARKETPLACE_PASS_OPTIONS");
   });
 
   it("renders hidden admin navigation including push notifications", () => {
