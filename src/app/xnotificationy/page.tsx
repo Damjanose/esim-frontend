@@ -6,9 +6,15 @@ import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
 import { IndividualNotificationsTab } from "./IndividualNotificationsTab";
-import { labelForPassId, MARKETPLACE_PASS_OPTIONS } from "./marketplacePassOptions";
-
-type NotificationOpenAction = { type: "marketplace"; passId: string } | null;
+import { MarketplaceOpenActionFields } from "./MarketplaceOpenActionFields";
+import {
+  EMPTY_OPEN_ACTION_DRAFT,
+  openActionRequestBody,
+  openActionToDraft,
+  summarizeOpenAction,
+  type NotificationOpenAction,
+  type OpenActionDraft,
+} from "./marketplaceOpenAction";
 
 type NotificationMessage = {
   id: string;
@@ -48,14 +54,14 @@ export default function AdminNotificationsPage() {
 
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
-  const [newPassId, setNewPassId] = useState("");
+  const [newOpenAction, setNewOpenAction] = useState<OpenActionDraft>(EMPTY_OPEN_ACTION_DRAFT);
   const [newFieldsInvalid, setNewFieldsInvalid] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
-  const [editPassId, setEditPassId] = useState("");
+  const [editOpenAction, setEditOpenAction] = useState<OpenActionDraft>(EMPTY_OPEN_ACTION_DRAFT);
   const [editFieldsInvalid, setEditFieldsInvalid] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -117,7 +123,7 @@ export default function AdminNotificationsPage() {
         body: JSON.stringify({
           title: newTitle.trim(),
           body: newBody.trim(),
-          passId: newPassId || null,
+          ...openActionRequestBody(newOpenAction),
         })
       });
       const payload = (await response.json()) as MutatePayload;
@@ -133,7 +139,7 @@ export default function AdminNotificationsPage() {
       setNotifications((current) => [payload.data!.notification!, ...current]);
       setNewTitle("");
       setNewBody("");
-      setNewPassId("");
+      setNewOpenAction(EMPTY_OPEN_ACTION_DRAFT);
       setNotice("Notification added.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create notification");
@@ -146,7 +152,7 @@ export default function AdminNotificationsPage() {
     setEditingId(row.id);
     setEditTitle(row.title ?? "");
     setEditBody(row.body ?? "");
-    setEditPassId(row.openAction?.passId ?? "");
+    setEditOpenAction(openActionToDraft(row.openAction ?? null));
     setEditFieldsInvalid(false);
   }
 
@@ -154,7 +160,7 @@ export default function AdminNotificationsPage() {
     setEditingId(null);
     setEditTitle("");
     setEditBody("");
-    setEditPassId("");
+    setEditOpenAction(EMPTY_OPEN_ACTION_DRAFT);
     setEditFieldsInvalid(false);
   }
 
@@ -177,7 +183,7 @@ export default function AdminNotificationsPage() {
         body: JSON.stringify({
           title: editTitle.trim(),
           body: editBody.trim(),
-          passId: editPassId || null,
+          ...openActionRequestBody(editOpenAction),
         })
       });
       const payload = (await response.json()) as MutatePayload;
@@ -377,24 +383,11 @@ export default function AdminNotificationsPage() {
                 value={newBody}
               />
               {newFieldsInvalid ? <p className="mt-1 text-xs font-bold text-red-700">Enter a title, a body, or both.</p> : null}
-              <label className="mt-4 block text-sm font-bold text-midnight" htmlFor="new-pass">
-                Open in app
-              </label>
-              <select
-                className="mt-1.5 h-11 w-full rounded-xl border border-line bg-white px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-                id="new-pass"
-                onChange={(event) => setNewPassId(event.target.value)}
-                value={newPassId}
-              >
-                {MARKETPLACE_PASS_OPTIONS.map((option) => (
-                  <option key={option.id || "none"} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-xs font-semibold text-muted">
-                When the user taps the notification, open Marketplace with this continental pass selected.
-              </p>
+              <MarketplaceOpenActionFields
+                draft={newOpenAction}
+                idPrefix="new"
+                onChange={setNewOpenAction}
+              />
               <button
                 className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua shadow-glow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isCreating}
@@ -436,21 +429,11 @@ export default function AdminNotificationsPage() {
                             rows={2}
                             value={editBody}
                           />
-                          <label className="mb-1 mt-2 block text-xs font-bold text-midnight" htmlFor={`edit-pass-${row.id}`}>
-                            Open in app
-                          </label>
-                          <select
-                            className="mb-2 h-10 w-full rounded-xl border border-line bg-white px-3 text-sm outline-none focus:border-cyan"
-                            id={`edit-pass-${row.id}`}
-                            onChange={(event) => setEditPassId(event.target.value)}
-                            value={editPassId}
-                          >
-                            {MARKETPLACE_PASS_OPTIONS.map((option) => (
-                              <option key={option.id || "none"} value={option.id}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
+                          <MarketplaceOpenActionFields
+                            draft={editOpenAction}
+                            idPrefix={`edit-${row.id}`}
+                            onChange={setEditOpenAction}
+                          />
                           {editFieldsInvalid ? (
                             <p className="mb-2 text-xs font-bold text-red-700">Enter a title, a body, or both.</p>
                           ) : null}
@@ -486,7 +469,7 @@ export default function AdminNotificationsPage() {
                               <p className={row.title ? "mt-1 text-sm text-muted" : "text-sm text-muted"}>{row.body}</p>
                             ) : null}
                             <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-cyanDeep">
-                              Open → {labelForPassId(row.openAction?.passId)}
+                              Open → {summarizeOpenAction(row.openAction ?? null)}
                             </p>
                           </div>
                           <div className="flex shrink-0 gap-2">

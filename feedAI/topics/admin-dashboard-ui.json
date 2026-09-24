@@ -109,5 +109,5 @@
     "renders": "Unread/Open/Solved tabs with unread badge, email search, master-detail chat, photo bubbles, Mark as solved. Opening an unread thread POSTs /read. Solved threads move to the archive tab.",
     "shared_helpers": "Support response types live in src/app/xsupport/support-types.ts; admin BFF request helpers live in src/lib/admin-bff.ts (f116)."
   },
-  "notification_open_in_app": "f161: xnotificationy Open in app continental-pass select; passId on create/edit/individual send"
+  "notification_open_in_app": "f161/f162: xnotificationy Open in app = continental pass + full advanced filters (MarketplaceOpenActionFields); posts openAction JSON; destinations hybrid catalog+custom slug"
 }

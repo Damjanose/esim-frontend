@@ -36,9 +36,11 @@ describe("hidden admin notifications page", () => {
     expect(pageSource).toContain('method: "PATCH"');
     expect(pageSource).toContain('method: "DELETE"');
     expect(pageSource).toContain("/send");
-    expect(pageSource).toContain("Open in app");
-    expect(pageSource).toContain("passId");
-    expect(pageSource).toContain("MARKETPLACE_PASS_OPTIONS");
+    expect(pageSource).toContain("MarketplaceOpenActionFields");
+    expect(pageSource).toContain("openAction");
+    expect(pageSource).toContain("openActionRequestBody");
+    const fieldsSource = readFileSync("src/app/xnotificationy/MarketplaceOpenActionFields.tsx", "utf8");
+    expect(fieldsSource).toContain("Open in app");
   });
 
   it("renders hidden admin navigation including push notifications", () => {

@@ -2,7 +2,12 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { LogOut, Search, Send } from "lucide-react";
-import { MARKETPLACE_PASS_OPTIONS } from "./marketplacePassOptions";
+import { MarketplaceOpenActionFields } from "./MarketplaceOpenActionFields";
+import {
+  EMPTY_OPEN_ACTION_DRAFT,
+  openActionRequestBody,
+  type OpenActionDraft,
+} from "./marketplaceOpenAction";
 
 type UserSearchResult = { email: string; hasDeviceToken: boolean };
 
@@ -43,7 +48,7 @@ export function IndividualNotificationsTab({
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [passId, setPassId] = useState("");
+  const [openActionDraft, setOpenActionDraft] = useState<OpenActionDraft>(EMPTY_OPEN_ACTION_DRAFT);
   const [fieldsInvalid, setFieldsInvalid] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
@@ -200,7 +205,11 @@ export function IndividualNotificationsTab({
       const response = await fetch(`/bff/admin/users/${encodeURIComponent(selected.email)}/notify`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), body: body.trim(), passId: passId || null }),
+        body: JSON.stringify({
+          title: title.trim(),
+          body: body.trim(),
+          ...openActionRequestBody(openActionDraft),
+        }),
       });
       const payload = (await response.json()) as SendPayload;
 
@@ -223,7 +232,7 @@ export function IndividualNotificationsTab({
       );
       setTitle("");
       setBody("");
-      setPassId("");
+      setOpenActionDraft(EMPTY_OPEN_ACTION_DRAFT);
       setSelected(null);
       void loadHistory();
     } catch (err) {
@@ -344,21 +353,11 @@ export function IndividualNotificationsTab({
               rows={2}
               value={body}
             />
-            <label className="mt-4 block text-sm font-bold text-midnight" htmlFor="individual-pass">
-              Open in app
-            </label>
-            <select
-              className="mt-1.5 h-11 w-full rounded-xl border border-line bg-white px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-              id="individual-pass"
-              onChange={(event) => setPassId(event.target.value)}
-              value={passId}
-            >
-              {MARKETPLACE_PASS_OPTIONS.map((option) => (
-                <option key={option.id || "none"} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <MarketplaceOpenActionFields
+              draft={openActionDraft}
+              idPrefix="individual"
+              onChange={setOpenActionDraft}
+            />
             {fieldsInvalid ? <p className="mt-1 text-xs font-bold text-red-700">Enter a title, a body, or both.</p> : null}
 
             <button
