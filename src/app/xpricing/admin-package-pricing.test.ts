@@ -54,7 +54,10 @@ describe("hidden admin package pricing page", () => {
     expect(pageSource).toContain("bulkProfitMode");
     expect(pageSource).toContain("Set exact profit");
     expect(pageSource).toContain('useState<BulkProfitMode>("set")');
+    expect(pageSource).toContain("/bff/admin/packages/pricing/bulk-profit");
+    expect(pageSource).toContain("Applying…");
     expect(pageSource).toContain("profit:");
+    expect(existsSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts")).toBe(true);
     expect(pageSource).not.toContain("updateDraft(row.packageId, { retailPrice:");
     expect(pageSource).toContain("Adjustment");
     expect(pageSource).toContain("discountLabel");
@@ -96,11 +99,13 @@ describe("hidden admin package pricing page", () => {
     expect(existsSync("src/app/bff/admin/packages/pricing/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/[packageId]/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/bulk-discount/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/reset/route.ts")).toBe(true);
 
     const listProxy = readFileSync("src/app/bff/admin/packages/pricing/route.ts", "utf8");
     const editProxy = readFileSync("src/app/bff/admin/packages/pricing/[packageId]/route.ts", "utf8");
     const bulkProxy = readFileSync("src/app/bff/admin/packages/pricing/bulk-discount/route.ts", "utf8");
+    const bulkProfitProxy = readFileSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts", "utf8");
     const resetProxy = readFileSync("src/app/bff/admin/packages/pricing/reset/route.ts", "utf8");
 
     expect(listProxy).toContain("/admin/packages/pricing");
@@ -111,6 +116,9 @@ describe("hidden admin package pricing page", () => {
     expect(bulkProxy).toContain("/admin/packages/pricing/bulk-discount");
     expect(bulkProxy).toContain("backendFetch");
     expect(bulkProxy).toContain('method: "POST"');
+    expect(bulkProfitProxy).toContain("/admin/packages/pricing/bulk-profit");
+    expect(bulkProfitProxy).toContain("backendFetch");
+    expect(bulkProfitProxy).toContain('method: "POST"');
     expect(resetProxy).toContain("/admin/packages/pricing/reset");
     expect(resetProxy).toContain("backendFetch");
     expect(resetProxy).toContain('method: "POST"');

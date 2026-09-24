@@ -51,6 +51,12 @@ type BulkDiscountPayload = {
   message?: string;
 };
 
+type BulkProfitPayload = {
+  status?: string;
+  data?: { updatedCount?: number; clampedCount?: number; mode?: string; value?: number };
+  message?: string;
+};
+
 type ResetPricingPayload = {
   status?: string;
   data?: { resetCount?: number; packages?: PricingRow[] };
@@ -138,17 +144,6 @@ function previewSellPrice(buyPrice: number, profitDraft: string): number | null 
   return sellFromProfit(buyPrice, profit);
 }
 
-function applyProfitAdjustment(
-  profit: number,
-  direction: DiscountDirection,
-  type: DiscountType,
-  value: number
-) {
-  const delta = type === "flat" ? value : profit * (value / 100);
-  const raw = direction === "increase" ? profit + delta : profit - delta;
-  return roundMoney(raw);
-}
-
 function previewFinalPrice(buyPrice: number, draft: Draft): number | null {
   const retailPrice = previewSellPrice(buyPrice, draft.profit);
   const discountValue = Number(draft.discountValue);
@@ -187,10 +182,12 @@ export default function AdminPricingPage() {
   const [isBulkProfitApplying, setIsBulkProfitApplying] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
-  async function loadPricing(nextToken = token) {
+  async function loadPricing(nextToken = token, options?: { clearError?: boolean }) {
     if (!nextToken) return;
     setIsLoading(true);
-    setError("");
+    if (options?.clearError !== false) {
+      setError("");
+    }
 
     try {
       const response = await fetch("/bff/admin/packages/pricing", {
@@ -212,7 +209,9 @@ export default function AdminPricingPage() {
       setDrafts(Object.fromEntries(rows.map((row) => [row.packageId, toDraft(row)])));
       setSelectedIds(new Set());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load package pricing");
+      if (options?.clearError !== false) {
+        setError(err instanceof Error ? err.message : "Could not load package pricing");
+      }
       setPackages([]);
     } finally {
       setIsLoading(false);
@@ -399,66 +398,36 @@ export default function AdminPricingPage() {
       return;
     }
 
-    const targets =
-      scope === "all" ? packages : packages.filter((row) => selectedIds.has(row.packageId));
-    if (targets.length === 0) {
-      setError("No packages to update.");
-      return;
-    }
+    const packageIds = scope === "all" ? "all" : Array.from(selectedIds);
 
     setIsBulkProfitApplying(true);
     setError("");
     setNotice("");
 
     try {
-      let updatedCount = 0;
-      let clampedCount = 0;
-      for (const row of targets) {
-        const draft = drafts[row.packageId] ?? toDraft(row);
-        let nextProfit: number;
-        if (bulkProfitMode === "set") {
-          nextProfit = roundMoney(value);
-        } else {
-          const currentProfit = Number(draft.profit);
-          if (!Number.isFinite(currentProfit)) {
-            throw new Error(`Invalid profit on ${row.packageId}`);
-          }
-          nextProfit = applyProfitAdjustment(
-            currentProfit,
-            bulkProfitDirection,
-            bulkProfitType,
-            value
-          );
-        }
-        const uncappedSell = sellFromProfit(row.originalPrice, nextProfit);
-        const retailPrice = clampSellPrice(row, uncappedSell);
-        if (retailPrice !== uncappedSell) clampedCount += 1;
-        const discountValue = Number(draft.discountValue);
+      const response = await fetch("/bff/admin/packages/pricing/bulk-profit", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageIds,
+          mode: bulkProfitMode,
+          value,
+          direction: bulkProfitDirection,
+          type: bulkProfitType
+        })
+      });
+      const payload = (await response.json()) as BulkProfitPayload;
 
-        const response = await fetch(`/bff/admin/packages/pricing/${encodeURIComponent(row.packageId)}`, {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            retailPrice,
-            discountEnabled: draft.discountEnabled,
-            discountLabel: draft.discountLabel,
-            trending: draft.trending,
-            discountType: draft.discountType,
-            discountValue: Number.isFinite(discountValue) ? discountValue : 0,
-            discountDirection: draft.discountDirection
-          })
-        });
-        const payload = (await response.json()) as PricingRowPayload;
-
-        if (response.status === 401) {
-          handleUnauthorized();
-          throw new Error("Session expired. Sign in again.");
-        }
-        if (!response.ok || payload.status !== "success") {
-          throw new Error(payload.message ?? `Could not update profit for ${row.packageId}`);
-        }
-        updatedCount += 1;
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
       }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not apply bulk profit");
+      }
+
+      const updatedCount = payload.data?.updatedCount ?? 0;
+      const clampedCount = payload.data?.clampedCount ?? 0;
 
       const modeLabel =
         bulkProfitMode === "set"
@@ -469,10 +438,11 @@ export default function AdminPricingPage() {
           ? ` (${clampedCount} clamped to buy…suggested sell range)`
           : "";
       setNotice(`${modeLabel} on ${updatedCount} package(s)${clampNote}.`);
-      await loadPricing();
+      await loadPricing(token, { clearError: false });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not apply bulk profit");
-      await loadPricing();
+      const message = err instanceof Error ? err.message : "Could not apply bulk profit";
+      await loadPricing(token, { clearError: false });
+      setError(message);
     } finally {
       setIsBulkProfitApplying(false);
     }
@@ -726,7 +696,7 @@ export default function AdminPricingPage() {
                   onClick={() => void applyBulkProfit("selected")}
                   type="button"
                 >
-                  Apply to selected ({selectedIds.size})
+                  {isBulkProfitApplying ? "Applying…" : `Apply to selected (${selectedIds.size})`}
                 </button>
                 <button
                   className="h-10 rounded-xl border border-red-200 bg-white px-4 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
@@ -734,14 +704,17 @@ export default function AdminPricingPage() {
                   onClick={() => void applyBulkProfit("all")}
                   type="button"
                 >
-                  Apply to ALL packages
+                  {isBulkProfitApplying ? "Applying…" : "Apply to ALL packages"}
                 </button>
               </div>
               <p className="mt-3 text-xs font-semibold text-muted">
                 {bulkProfitMode === "set"
                   ? "Set exact profit saves sell price as buy + that amount on every target package (clamped between buy and Airalo suggested sell)."
                   : "Adjust mode changes each row's current profit by % or flat amount, then saves sell as buy + profit (same clamp)."}{" "}
-                Adjustment fields are left unchanged.
+                Runs as one server request. Adjustment fields are left unchanged.
+                {isBulkProfitApplying ? (
+                  <span className="mt-1 block font-bold text-cyanDeep">Updating packages on the server…</span>
+                ) : null}
               </p>
             </section>
 
