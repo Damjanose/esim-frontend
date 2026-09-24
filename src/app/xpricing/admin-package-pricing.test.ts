@@ -51,6 +51,9 @@ describe("hidden admin package pricing page", () => {
     expect(pageSource).toContain("clampSellPrice");
     expect(pageSource).toContain("Bulk profit");
     expect(pageSource).toContain("applyBulkProfit");
+    expect(pageSource).toContain("bulkProfitMode");
+    expect(pageSource).toContain("Set exact profit");
+    expect(pageSource).toContain('useState<BulkProfitMode>("set")');
     expect(pageSource).toContain("profit:");
     expect(pageSource).not.toContain("updateDraft(row.packageId, { retailPrice:");
     expect(pageSource).toContain("Adjustment");

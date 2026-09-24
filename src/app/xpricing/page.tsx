@@ -9,6 +9,7 @@ import { useAdminSession } from "../useAdminSession";
 type DiscountType = "percentage" | "flat";
 type DiscountDirection = "decrease" | "increase";
 type RowFilter = "all" | "adjust" | "trending" | "discount-label";
+type BulkProfitMode = "set" | "adjust";
 
 type PricingRow = {
   packageId: string;
@@ -179,8 +180,9 @@ export default function AdminPricingPage() {
   const [bulkValue, setBulkValue] = useState("10");
   const [bulkDirection, setBulkDirection] = useState<DiscountDirection>("decrease");
   const [isBulkApplying, setIsBulkApplying] = useState(false);
+  const [bulkProfitMode, setBulkProfitMode] = useState<BulkProfitMode>("set");
   const [bulkProfitType, setBulkProfitType] = useState<DiscountType>("flat");
-  const [bulkProfitValue, setBulkProfitValue] = useState("0.50");
+  const [bulkProfitValue, setBulkProfitValue] = useState("1.50");
   const [bulkProfitDirection, setBulkProfitDirection] = useState<DiscountDirection>("increase");
   const [isBulkProfitApplying, setIsBulkProfitApplying] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -389,7 +391,11 @@ export default function AdminPricingPage() {
 
     const value = Number(bulkProfitValue);
     if (!Number.isFinite(value) || value < 0) {
-      setError("Enter a valid profit adjustment value.");
+      setError(
+        bulkProfitMode === "set"
+          ? "Enter a valid profit amount (0 or more)."
+          : "Enter a valid profit adjustment value."
+      );
       return;
     }
 
@@ -406,19 +412,27 @@ export default function AdminPricingPage() {
 
     try {
       let updatedCount = 0;
+      let clampedCount = 0;
       for (const row of targets) {
         const draft = drafts[row.packageId] ?? toDraft(row);
-        const currentProfit = Number(draft.profit);
-        if (!Number.isFinite(currentProfit)) {
-          throw new Error(`Invalid profit on ${row.packageId}`);
+        let nextProfit: number;
+        if (bulkProfitMode === "set") {
+          nextProfit = roundMoney(value);
+        } else {
+          const currentProfit = Number(draft.profit);
+          if (!Number.isFinite(currentProfit)) {
+            throw new Error(`Invalid profit on ${row.packageId}`);
+          }
+          nextProfit = applyProfitAdjustment(
+            currentProfit,
+            bulkProfitDirection,
+            bulkProfitType,
+            value
+          );
         }
-        const nextProfit = applyProfitAdjustment(
-          currentProfit,
-          bulkProfitDirection,
-          bulkProfitType,
-          value
-        );
-        const retailPrice = clampSellPrice(row, sellFromProfit(row.originalPrice, nextProfit));
+        const uncappedSell = sellFromProfit(row.originalPrice, nextProfit);
+        const retailPrice = clampSellPrice(row, uncappedSell);
+        if (retailPrice !== uncappedSell) clampedCount += 1;
         const discountValue = Number(draft.discountValue);
 
         const response = await fetch(`/bff/admin/packages/pricing/${encodeURIComponent(row.packageId)}`, {
@@ -446,7 +460,15 @@ export default function AdminPricingPage() {
         updatedCount += 1;
       }
 
-      setNotice(`Applied profit adjustment to ${updatedCount} package(s).`);
+      const modeLabel =
+        bulkProfitMode === "set"
+          ? `Set profit to ${formatPrice(value)}`
+          : "Applied profit adjustment";
+      const clampNote =
+        clampedCount > 0
+          ? ` (${clampedCount} clamped to buy…suggested sell range)`
+          : "";
+      setNotice(`${modeLabel} on ${updatedCount} package(s)${clampNote}.`);
       await loadPricing();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not apply bulk profit");
@@ -652,11 +674,23 @@ export default function AdminPricingPage() {
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Bulk profit</h2>
-              <div className="mt-3 grid gap-3 md:grid-cols-5 md:items-end">
+              <div className="mt-3 grid gap-3 md:grid-cols-6 md:items-end">
+                <label className="text-xs font-bold text-muted">
+                  Mode
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    onChange={(event) => setBulkProfitMode(event.target.value as BulkProfitMode)}
+                    value={bulkProfitMode}
+                  >
+                    <option value="set">Set exact profit</option>
+                    <option value="adjust">Adjust (+/−)</option>
+                  </select>
+                </label>
                 <label className="text-xs font-bold text-muted">
                   Direction
                   <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight disabled:opacity-50"
+                    disabled={bulkProfitMode === "set"}
                     onChange={(event) => setBulkProfitDirection(event.target.value as DiscountDirection)}
                     value={bulkProfitDirection}
                   >
@@ -667,7 +701,8 @@ export default function AdminPricingPage() {
                 <label className="text-xs font-bold text-muted">
                   Type
                   <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight disabled:opacity-50"
+                    disabled={bulkProfitMode === "set"}
                     onChange={(event) => setBulkProfitType(event.target.value as DiscountType)}
                     value={bulkProfitType}
                   >
@@ -676,11 +711,12 @@ export default function AdminPricingPage() {
                   </select>
                 </label>
                 <label className="text-xs font-bold text-muted">
-                  Value
+                  {bulkProfitMode === "set" ? "Profit amount" : "Value"}
                   <input
                     className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
                     inputMode="decimal"
                     onChange={(event) => setBulkProfitValue(event.target.value)}
+                    placeholder={bulkProfitMode === "set" ? "1.50" : "0.50"}
                     value={bulkProfitValue}
                   />
                 </label>
@@ -702,8 +738,10 @@ export default function AdminPricingPage() {
                 </button>
               </div>
               <p className="mt-3 text-xs font-semibold text-muted">
-                Bulk profit adjusts each row&apos;s profit, then saves sell price as buy + profit, clamped
-                between buy price and Airalo suggested sell. Adjustment fields are left unchanged.
+                {bulkProfitMode === "set"
+                  ? "Set exact profit saves sell price as buy + that amount on every target package (clamped between buy and Airalo suggested sell)."
+                  : "Adjust mode changes each row's current profit by % or flat amount, then saves sell as buy + profit (same clamp)."}{" "}
+                Adjustment fields are left unchanged.
               </p>
             </section>
 

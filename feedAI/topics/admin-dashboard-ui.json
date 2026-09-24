@@ -31,7 +31,8 @@
     "f163",
     "f164",
     "f165",
-    "f166"
+    "f166",
+    "f167"
   ],
   "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
