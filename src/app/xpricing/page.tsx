@@ -21,6 +21,7 @@ type PricingRow = {
   dataLabel: string;
   durationDays: number;
   originalPrice: number;
+  recommendedRetailPrice?: number;
   retailPrice: number;
   discountEnabled: boolean;
   discountLabel: boolean;
@@ -56,7 +57,7 @@ type ResetPricingPayload = {
 };
 
 type Draft = {
-  retailPrice: string;
+  profit: string;
   discountEnabled: boolean;
   discountLabel: boolean;
   trending: boolean;
@@ -67,7 +68,7 @@ type Draft = {
 
 function toDraft(row: PricingRow): Draft {
   return {
-    retailPrice: String(row.retailPrice),
+    profit: String(profitFromPrices(row.originalPrice, row.retailPrice)),
     discountEnabled: row.discountEnabled,
     discountLabel: Boolean(row.discountLabel),
     trending: Boolean(row.trending),
@@ -77,20 +78,86 @@ function toDraft(row: PricingRow): Draft {
   };
 }
 
+/** Fixed Pokpay fee shown on every pricing row (EUR). */
+const POK_FEE = 0.25;
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
 function formatPrice(value: number) {
   return new Intl.NumberFormat("en", { style: "currency", currency: "EUR" }).format(value);
 }
 
-function previewFinalPrice(draft: Draft): number | null {
-  const retailPrice = Number(draft.retailPrice);
+function profitFromPrices(buyPrice: number, sellPrice: number) {
+  return roundMoney(sellPrice - buyPrice);
+}
+
+function sellFromProfit(buyPrice: number, profit: number) {
+  return Math.max(0, roundMoney(buyPrice + profit));
+}
+
+function suggestedSellPrice(row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">) {
+  return row.recommendedRetailPrice ?? row.originalPrice;
+}
+
+/** Sell price must sit between Airalo buy (min) and Airalo suggested retail (max). */
+function sellPriceBounds(row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">) {
+  const min = row.originalPrice;
+  const max = Math.max(min, suggestedSellPrice(row));
+  return { min, max };
+}
+
+function clampSellPrice(
+  row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">,
+  sellPrice: number
+) {
+  const { min, max } = sellPriceBounds(row);
+  return Math.min(max, Math.max(min, roundMoney(sellPrice)));
+}
+
+function validateSellPrice(
+  row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">,
+  sellPrice: number
+): string | null {
+  if (!Number.isFinite(sellPrice)) return "Sell price must be a number.";
+  const { min, max } = sellPriceBounds(row);
+  if (sellPrice < min) {
+    return `Sell price must be at least the buy price (${formatPrice(min)}).`;
+  }
+  if (sellPrice > max) {
+    return `Sell price must be at most Airalo's suggested sell (${formatPrice(max)}).`;
+  }
+  return null;
+}
+
+function previewSellPrice(buyPrice: number, profitDraft: string): number | null {
+  const profit = Number(profitDraft);
+  if (!Number.isFinite(buyPrice) || !Number.isFinite(profit)) return null;
+  return sellFromProfit(buyPrice, profit);
+}
+
+function applyProfitAdjustment(
+  profit: number,
+  direction: DiscountDirection,
+  type: DiscountType,
+  value: number
+) {
+  const delta = type === "flat" ? value : profit * (value / 100);
+  const raw = direction === "increase" ? profit + delta : profit - delta;
+  return roundMoney(raw);
+}
+
+function previewFinalPrice(buyPrice: number, draft: Draft): number | null {
+  const retailPrice = previewSellPrice(buyPrice, draft.profit);
   const discountValue = Number(draft.discountValue);
-  if (!Number.isFinite(retailPrice) || retailPrice < 0) return null;
+  if (retailPrice == null) return null;
   if (!draft.discountEnabled) return retailPrice;
   if (!Number.isFinite(discountValue) || discountValue < 0) return null;
 
   const delta = draft.discountType === "flat" ? discountValue : retailPrice * (discountValue / 100);
   const raw = draft.discountDirection === "increase" ? retailPrice + delta : retailPrice - delta;
-  return Math.max(0, Math.round(raw * 100) / 100);
+  return Math.max(0, roundMoney(raw));
 }
 
 export default function AdminPricingPage() {
@@ -112,6 +179,10 @@ export default function AdminPricingPage() {
   const [bulkValue, setBulkValue] = useState("10");
   const [bulkDirection, setBulkDirection] = useState<DiscountDirection>("decrease");
   const [isBulkApplying, setIsBulkApplying] = useState(false);
+  const [bulkProfitType, setBulkProfitType] = useState<DiscountType>("flat");
+  const [bulkProfitValue, setBulkProfitValue] = useState("0.50");
+  const [bulkProfitDirection, setBulkProfitDirection] = useState<DiscountDirection>("increase");
+  const [isBulkProfitApplying, setIsBulkProfitApplying] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
   async function loadPricing(nextToken = token) {
@@ -204,12 +275,19 @@ export default function AdminPricingPage() {
 
   async function saveRow(packageId: string) {
     const draft = drafts[packageId];
-    if (!draft) return;
+    const row = packages.find((item) => item.packageId === packageId);
+    if (!draft || !row) return;
 
-    const retailPrice = Number(draft.retailPrice);
+    const profit = Number(draft.profit);
     const discountValue = Number(draft.discountValue);
-    if (!Number.isFinite(retailPrice) || retailPrice < 0) {
-      setError("Sell price must be a number of 0 or more.");
+    if (!Number.isFinite(profit)) {
+      setError("Profit must be a number.");
+      return;
+    }
+    const retailPrice = sellFromProfit(row.originalPrice, profit);
+    const sellError = validateSellPrice(row, retailPrice);
+    if (sellError) {
+      setError(sellError);
       return;
     }
     if (draft.discountEnabled && (!Number.isFinite(discountValue) || discountValue < 0)) {
@@ -246,7 +324,7 @@ export default function AdminPricingPage() {
       }
 
       const updated = payload.data.pricing;
-      setPackages((current) => current.map((row) => (row.packageId === packageId ? updated : row)));
+      setPackages((current) => current.map((item) => (item.packageId === packageId ? updated : item)));
       setDrafts((current) => ({ ...current, [packageId]: toDraft(updated) }));
       setNotice(`Saved ${updated.title}.`);
     } catch (err) {
@@ -303,6 +381,81 @@ export default function AdminPricingPage() {
     }
   }
 
+  async function applyBulkProfit(scope: "selected" | "all") {
+    if (scope === "selected" && selectedIds.size === 0) {
+      setError("Select at least one package first.");
+      return;
+    }
+
+    const value = Number(bulkProfitValue);
+    if (!Number.isFinite(value) || value < 0) {
+      setError("Enter a valid profit adjustment value.");
+      return;
+    }
+
+    const targets =
+      scope === "all" ? packages : packages.filter((row) => selectedIds.has(row.packageId));
+    if (targets.length === 0) {
+      setError("No packages to update.");
+      return;
+    }
+
+    setIsBulkProfitApplying(true);
+    setError("");
+    setNotice("");
+
+    try {
+      let updatedCount = 0;
+      for (const row of targets) {
+        const draft = drafts[row.packageId] ?? toDraft(row);
+        const currentProfit = Number(draft.profit);
+        if (!Number.isFinite(currentProfit)) {
+          throw new Error(`Invalid profit on ${row.packageId}`);
+        }
+        const nextProfit = applyProfitAdjustment(
+          currentProfit,
+          bulkProfitDirection,
+          bulkProfitType,
+          value
+        );
+        const retailPrice = clampSellPrice(row, sellFromProfit(row.originalPrice, nextProfit));
+        const discountValue = Number(draft.discountValue);
+
+        const response = await fetch(`/bff/admin/packages/pricing/${encodeURIComponent(row.packageId)}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            retailPrice,
+            discountEnabled: draft.discountEnabled,
+            discountLabel: draft.discountLabel,
+            trending: draft.trending,
+            discountType: draft.discountType,
+            discountValue: Number.isFinite(discountValue) ? discountValue : 0,
+            discountDirection: draft.discountDirection
+          })
+        });
+        const payload = (await response.json()) as PricingRowPayload;
+
+        if (response.status === 401) {
+          handleUnauthorized();
+          throw new Error("Session expired. Sign in again.");
+        }
+        if (!response.ok || payload.status !== "success") {
+          throw new Error(payload.message ?? `Could not update profit for ${row.packageId}`);
+        }
+        updatedCount += 1;
+      }
+
+      setNotice(`Applied profit adjustment to ${updatedCount} package(s).`);
+      await loadPricing();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not apply bulk profit");
+      await loadPricing();
+    } finally {
+      setIsBulkProfitApplying(false);
+    }
+  }
+
   async function resetPricing(packageIds: "all" | string[]) {
     if (packageIds !== "all" && packageIds.length === 0) {
       setError("Select at least one package first.");
@@ -352,8 +505,9 @@ export default function AdminPricingPage() {
               Price management
             </h1>
             <p className="mt-1 text-sm font-semibold text-muted">
-              Set the sell price and adjustments per package. Buy price is what Airalo charges us; sell price is
-              what you set to charge customers; Price is the final amount shown in the marketplace.
+              Set profit and adjustments per package. Buy price is what Airalo charges us; Suggested sell is
+              Airalo&apos;s recommended retail; sell price is buy plus profit and must stay between buy and
+              suggested sell; Price is the final amount shown in the marketplace after adjustments.
             </p>
           </div>
           {token ? (
@@ -390,7 +544,7 @@ export default function AdminPricingPage() {
             setPassword={session.setPassword}
           />
         ) : (
-          <div className="grid gap-5">
+          <div className="grid min-w-0 gap-5">
             {error ? (
               <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
                 {error}
@@ -492,7 +646,64 @@ export default function AdminPricingPage() {
                 </button>
               </div>
               <p className="mt-3 text-xs font-semibold text-muted">
-                Bulk discount only changes the adjustment fields — sell prices are left as they are.
+                Bulk discount only changes the adjustment fields — sell prices and profit are left as they are.
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
+              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Bulk profit</h2>
+              <div className="mt-3 grid gap-3 md:grid-cols-5 md:items-end">
+                <label className="text-xs font-bold text-muted">
+                  Direction
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    onChange={(event) => setBulkProfitDirection(event.target.value as DiscountDirection)}
+                    value={bulkProfitDirection}
+                  >
+                    <option value="decrease">Decrease profit</option>
+                    <option value="increase">Increase profit</option>
+                  </select>
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  Type
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    onChange={(event) => setBulkProfitType(event.target.value as DiscountType)}
+                    value={bulkProfitType}
+                  >
+                    <option value="percentage">Percentage</option>
+                    <option value="flat">Flat amount</option>
+                  </select>
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  Value
+                  <input
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    inputMode="decimal"
+                    onChange={(event) => setBulkProfitValue(event.target.value)}
+                    value={bulkProfitValue}
+                  />
+                </label>
+                <button
+                  className="h-10 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-black text-aqua shadow-glow transition hover:opacity-90 disabled:opacity-50"
+                  disabled={isBulkProfitApplying}
+                  onClick={() => void applyBulkProfit("selected")}
+                  type="button"
+                >
+                  Apply to selected ({selectedIds.size})
+                </button>
+                <button
+                  className="h-10 rounded-xl border border-red-200 bg-white px-4 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
+                  disabled={isBulkProfitApplying}
+                  onClick={() => void applyBulkProfit("all")}
+                  type="button"
+                >
+                  Apply to ALL packages
+                </button>
+              </div>
+              <p className="mt-3 text-xs font-semibold text-muted">
+                Bulk profit adjusts each row&apos;s profit, then saves sell price as buy + profit, clamped
+                between buy price and Airalo suggested sell. Adjustment fields are left unchanged.
               </p>
             </section>
 
@@ -522,7 +733,7 @@ export default function AdminPricingPage() {
               </div>
             </section>
 
-            <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+            <section className="min-w-0 overflow-hidden rounded-2xl border border-line bg-white shadow-card">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line/70 px-5 py-3.5">
                 <div className="flex w-full max-w-2xl flex-wrap items-center gap-2">
                   <input
@@ -546,8 +757,8 @@ export default function AdminPricingPage() {
                   Showing {filtered.length} of {packages.length}
                 </p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse text-left text-sm">
+              <div className="max-w-full overflow-x-auto overscroll-x-contain">
+                <table className="w-max min-w-full border-collapse text-left text-sm">
                   <thead>
                     <tr className="bg-[#f8fdfe]">
                       <th className="px-5 py-3">
@@ -576,7 +787,16 @@ export default function AdminPricingPage() {
                         Buy price
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Pok
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Suggested sell
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Sell price
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Profit
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Adjustment
@@ -590,9 +810,17 @@ export default function AdminPricingPage() {
                   <tbody>
                     {filtered.map((row) => {
                       const draft = drafts[row.packageId] ?? toDraft(row);
-                      const preview = previewFinalPrice(draft);
+                      const sellPrice = previewSellPrice(row.originalPrice, draft.profit);
+                      const preview = previewFinalPrice(row.originalPrice, draft);
+                      const profit = Number(draft.profit);
+                      const profitValid = Number.isFinite(profit);
+                      const sellOutOfBounds =
+                        sellPrice != null && validateSellPrice(row, sellPrice) != null;
                       const discounted =
-                        draft.discountEnabled && preview != null && preview !== Number(draft.retailPrice);
+                        draft.discountEnabled &&
+                        preview != null &&
+                        sellPrice != null &&
+                        preview !== sellPrice;
 
                       return (
                         <tr className="border-t border-line/60 align-top hover:bg-[#fbfeff]" key={row.packageId}>
@@ -622,12 +850,37 @@ export default function AdminPricingPage() {
                           <td className="whitespace-nowrap px-3 py-3 text-muted" title="What Airalo charges us for this package">
                             {formatPrice(row.originalPrice)}
                           </td>
+                          <td
+                            className="whitespace-nowrap px-3 py-3 text-muted"
+                            title="Fixed Pokpay fee"
+                          >
+                            {formatPrice(POK_FEE)}
+                          </td>
+                          <td
+                            className="whitespace-nowrap px-3 py-3 text-muted"
+                            title="Airalo recommended retail price"
+                          >
+                            {formatPrice(row.recommendedRetailPrice ?? row.originalPrice)}
+                          </td>
+                          <td
+                            className={`whitespace-nowrap px-3 py-3 font-bold ${
+                              sellOutOfBounds ? "text-red-600" : "text-midnight"
+                            }`}
+                            title={`Buy + profit; must be between ${formatPrice(row.originalPrice)} and ${formatPrice(suggestedSellPrice(row))}`}
+                          >
+                            {sellPrice == null ? "—" : formatPrice(sellPrice)}
+                          </td>
                           <td className="px-3 py-3">
                             <input
-                              className="h-9 w-24 rounded-lg border border-line px-2 text-sm outline-none focus:border-cyan"
+                              className={`h-9 w-24 rounded-lg border px-2 text-sm outline-none focus:border-cyan ${
+                                sellOutOfBounds || (profitValid && profit < 0)
+                                  ? "border-red-400 text-red-600"
+                                  : "border-line text-midnight"
+                              }`}
                               inputMode="decimal"
-                              onChange={(event) => updateDraft(row.packageId, { retailPrice: event.target.value })}
-                              value={draft.retailPrice}
+                              onChange={(event) => updateDraft(row.packageId, { profit: event.target.value })}
+                              title={`Profit so sell stays between buy (${formatPrice(row.originalPrice)}) and suggested (${formatPrice(suggestedSellPrice(row))})`}
+                              value={draft.profit}
                             />
                           </td>
                           <td className="px-3 py-3">
@@ -701,7 +954,7 @@ export default function AdminPricingPage() {
                             ) : discounted ? (
                               <span className="flex flex-col leading-tight">
                                 <span className="text-xs text-muted line-through">
-                                  {formatPrice(Number(draft.retailPrice))}
+                                  {formatPrice(sellPrice!)}
                                 </span>
                                 <span className="font-black text-midnight">{formatPrice(preview)}</span>
                               </span>
@@ -734,7 +987,7 @@ export default function AdminPricingPage() {
                     })}
                     {filtered.length === 0 ? (
                       <tr>
-                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={11}>
+                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={14}>
                           {isLoading ? "Loading packages..." : "No packages found"}
                         </td>
                       </tr>
