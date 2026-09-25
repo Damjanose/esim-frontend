@@ -67,4 +67,17 @@ describe("hidden admin app version page", () => {
     expect(proxy).toContain("/admin/app-version/report");
     expect(proxy).toContain("backendFetch");
   });
+
+  it("offers a two-step clear for device version tracking via the check-ins proxy", () => {
+    const pageSource = readFileSync("src/app/xversion/page.tsx", "utf8");
+    expect(pageSource).toContain("/bff/admin/app-version/check-ins");
+    expect(pageSource).toContain('method: "DELETE"');
+    expect(pageSource).toContain("Confirm clear");
+    expect(pageSource).toContain("Clear tracking");
+
+    expect(existsSync("src/app/bff/admin/app-version/check-ins/route.ts")).toBe(true);
+    const proxy = readFileSync("src/app/bff/admin/app-version/check-ins/route.ts", "utf8");
+    expect(proxy).toContain("/admin/app-version/check-ins");
+    expect(proxy).toContain('method: "DELETE"');
+  });
 });

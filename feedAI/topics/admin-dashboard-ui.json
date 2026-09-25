@@ -34,7 +34,8 @@
     "f166",
     "f167",
     "f168",
-    "f169"
+    "f169",
+    "f170"
   ],
   "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
@@ -73,9 +74,11 @@
     "note": "min-version setter + usage report never got a feedAI entry when built (earlier 2026-08-24 commits) — backfilled here alongside the report addition (f060).",
     "min_version_setter": "GET/PUT /bff/admin/app-version -> {version, updatedAt}, proxying backend GET/PUT /admin/app-version. Text input + Save, same load/error/notice pattern as the other x* pages.",
     "usage_report": "added 2026-08-24 (f060). Second section on the same page: GET /bff/admin/app-version/report -> {report:[{platform,version,deviceCount}]}, proxying backend GET /admin/app-version/report. Rendered as two grouped lists (Android, iOS), version -> device count, newest version first (pre-sorted server-side). Own Refresh button; loaded in the same useEffect as the version setter.",
+    "clear_tracking": "f170 (2026-09-25): two-step Clear tracking → Confirm clear / Cancel on the report card. DELETE /bff/admin/app-version/check-ins -> {deletedCount}; empties the report locally; does not change the minimum version.",
     "proxies": [
       "src/app/bff/admin/app-version/route.ts",
-      "src/app/bff/admin/app-version/report/route.ts"
+      "src/app/bff/admin/app-version/report/route.ts",
+      "src/app/bff/admin/app-version/check-ins/route.ts"
     ]
   },
   "xnotificationy_broadcast_notifications": {

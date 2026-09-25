@@ -69,7 +69,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "main",
-    "date": "2026-09-24",
-    "note_latest": "f169: xpricing uses bulk-profit API"
+    "date": "2026-09-25",
+    "note_latest": "f170: /xversion Clear tracking wipes AppVersionCheckIn"
   }
 }

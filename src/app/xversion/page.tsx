@@ -41,6 +41,8 @@ export default function AdminVersionPage() {
   const [report, setReport] = useState<ReportRow[]>([]);
   const [isReportLoading, setIsReportLoading] = useState(false);
   const [reportError, setReportError] = useState("");
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   async function loadVersion(nextToken = token) {
     if (!nextToken) return;
@@ -145,6 +147,45 @@ export default function AdminVersionPage() {
     }
   }
 
+  async function clearCheckIns() {
+    setIsClearing(true);
+    setReportError("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/bff/admin/app-version/check-ins", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = (await response.json()) as {
+        status?: string;
+        data?: { deletedCount?: number };
+        message?: string;
+      };
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success" || typeof payload.data?.deletedCount !== "number") {
+        throw new Error(payload.message ?? "Could not clear device version tracking");
+      }
+
+      setReport([]);
+      setConfirmClear(false);
+      setNotice(
+        payload.data.deletedCount === 0
+          ? "Device version tracking was already empty."
+          : `Cleared ${payload.data.deletedCount} device check-in${payload.data.deletedCount === 1 ? "" : "s"}. Tracking starts fresh on next app launch.`
+      );
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Could not clear device version tracking");
+      setConfirmClear(false);
+    } finally {
+      setIsClearing(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-cloud">
       <AdminNav />
@@ -236,20 +277,58 @@ export default function AdminVersionPage() {
             </section>
 
             <section className="max-w-2xl rounded-2xl border border-line bg-white p-5 shadow-card">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-[10px] font-black uppercase tracking-wide text-muted">
                   Installed versions by platform
                 </p>
-                <button
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-white px-3 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
-                  disabled={isReportLoading}
-                  onClick={() => void loadReport()}
-                  type="button"
-                >
-                  <RefreshCw aria-hidden="true" size={12} />
-                  {isReportLoading ? "Loading..." : "Refresh"}
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-white px-3 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                    disabled={isReportLoading || isClearing}
+                    onClick={() => void loadReport()}
+                    type="button"
+                  >
+                    <RefreshCw aria-hidden="true" size={12} />
+                    {isReportLoading ? "Loading..." : "Refresh"}
+                  </button>
+                  {!confirmClear ? (
+                    <button
+                      className="inline-flex h-8 items-center rounded-lg border border-red-200 bg-red-50 px-3 text-[11px] font-bold text-red-700 transition hover:border-red-300 disabled:opacity-50"
+                      disabled={isClearing || isReportLoading}
+                      onClick={() => setConfirmClear(true)}
+                      type="button"
+                    >
+                      Clear tracking
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="inline-flex h-8 items-center rounded-lg border border-red-300 bg-red-600 px-3 text-[11px] font-bold text-white transition hover:bg-red-700 disabled:opacity-50"
+                        disabled={isClearing}
+                        onClick={() => void clearCheckIns()}
+                        type="button"
+                      >
+                        {isClearing ? "Clearing..." : "Confirm clear"}
+                      </button>
+                      <button
+                        className="inline-flex h-8 items-center rounded-lg border border-line bg-white px-3 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                        disabled={isClearing}
+                        onClick={() => setConfirmClear(false)}
+                        type="button"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
+
+              {confirmClear ? (
+                <p className="mt-3 text-xs font-semibold text-red-700">
+                  This deletes every device version check-in. The report will be empty until apps check in again. The
+                  minimum version setting is not changed.
+                </p>
+              ) : null}
 
               {reportError ? (
                 <p className="mt-3 text-xs font-semibold text-red-700">{reportError}</p>
