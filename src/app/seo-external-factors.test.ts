@@ -62,6 +62,13 @@ describe("SEO external factors", () => {
 
     expect(footerSource).toContain("Browse all eSIM destinations");
     expect(footerSource).toContain("eSim2you support");
+    expect(footerSource).toContain("Business travel eSIM guide");
+    expect(footerSource).toContain("Remote work eSIM guide");
+    expect(footerSource).toContain("Cruise port-day eSIM guide");
+    expect(footerSource).toContain("Study abroad eSIM guide");
+    expect(footerSource).toContain("How much travel data do you need");
+    expect(footerSource).toContain("Travel data and Wi-Fi planning");
+    expect(footerSource).toContain("Keep your number with a travel eSIM");
     expect(seoPagesSource).not.toContain('label: "All destinations"');
     expect(seoPagesSource).not.toContain('label: "What is an eSIM?"');
   });

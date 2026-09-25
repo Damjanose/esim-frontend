@@ -4,25 +4,33 @@ import { socialLinks } from "@/lib/seo";
 import { Facebook, Instagram } from "lucide-react";
 import { PrivacyChoicesLink } from "./ConsentManager";
 
+const footerUseCaseLabels: Record<string, string> = {
+  "business-travel": "Business travel eSIM guide",
+  "remote-work": "Remote work eSIM guide",
+  cruises: "Cruise port-day eSIM guide",
+  "study-abroad": "Study abroad eSIM guide"
+};
+
+const footerGuideLabels: Record<string, string> = {
+  "how-much-data-when-traveling": "How much travel data do you need",
+  "travel-data-and-wifi": "Travel data and Wi-Fi planning",
+  "keep-your-number-with-esim": "Keep your number with a travel eSIM",
+  "what-is-an-esim": "Beginner guide to eSIMs",
+  "esim-vs-roaming": "Compare eSIM and roaming",
+  "how-to-install-esim": "Travel eSIM installation guide"
+};
+
 const footerExploreLinks = [
   { label: "Browse all eSIM destinations", href: "/destinations" },
   { label: "Compare travel eSIMs", href: "/compare" },
   { label: "Travel eSIM guides", href: "/travel" },
   ...useCasePages.map((page) => ({
-    label:
-      page.slug === "business-travel"
-        ? "Business travel eSIM guide"
-        : "Remote work eSIM guide",
+    label: footerUseCaseLabels[page.slug] ?? page.heading,
     href: page.path
   }))
 ];
 const footerResourceLinks = guidePages.slice(0, 3).map((page) => ({
-  label:
-    page.slug === "what-is-an-esim"
-      ? "Beginner guide to eSIMs"
-      : page.slug === "esim-vs-roaming"
-        ? "Compare eSIM and roaming"
-        : "Travel eSIM installation guide",
+  label: footerGuideLabels[page.slug] ?? page.heading,
   href: page.path
 }));
 const footerCompanyLinks = [

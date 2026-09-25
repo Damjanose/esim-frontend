@@ -41,7 +41,8 @@
     "f147",
     "f148",
     "f158",
-    "f159"
+    "f159",
+    "f175"
   ],
   "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim — it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
@@ -62,6 +63,7 @@
   "guides_and_use_cases": {
     "note": "Guides live at /travel and /travel/[slug] with a hub index. Use-cases have /use-cases hub + [slug]. Compare pages live in src/content/compare-pages.ts and now emit FAQPage + Product/AggregateOffer JSON-LD, not just BreadcrumbList/WebPage (f134). /cheapest-esim is intentionally unpublished (f125)."
   },
+  "site_footer_anchors": "SiteFooter Explore/Resources labels are slug maps (footerUseCaseLabels / footerGuideLabels), not catch-all ternaries — duplicate Remote work / installation labels were a regression when cruises/study-abroad and prepended base guides landed (f175).",
   "support_page": {
     "file": "src/app/support/SupportPageClient.tsx (client component, rendered by src/app/support/page.tsx)",
     "content_source": "Own hardcoded arrays (supportCategories: 6 categories — Getting started/Installation/Connection issues/Plans & top-ups/Payments & refunds/Account & security; faqs: 10 Q&A items) defined INSIDE this component file, not in src/content/ — a separate dataset from landing.ts's 4 FAQs, with no shared source (f041).",
