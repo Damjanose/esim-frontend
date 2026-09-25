@@ -33,6 +33,8 @@ describe("hidden admin error inbox", () => {
     expect(errorInboxSource).toContain("Copy email");
     expect(errorInboxSource).toContain("Copy cURL");
     expect(errorInboxSource).toContain("authorizationHeader");
+    expect(errorInboxSource).toContain("displayBackendResponse");
+    expect(errorInboxSource).toContain("backendResponse");
     expect(errorInboxSource).toContain("Mark resolved");
     expect(errorInboxSource).toContain("Repair action");
     expect(errorInboxSource).not.toContain('option value="info"');

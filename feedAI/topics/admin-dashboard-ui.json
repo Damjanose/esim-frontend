@@ -1,6 +1,6 @@
 {
   "topic": "admin-dashboard-ui",
-  "covers": "The actual UI/behavior of the hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast + individual notifications, /xactivityy, /xpartnersy, /xsupport) \u2014 routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
+  "covers": "The actual UI/behavior of the hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast + individual notifications, /xactivityy, /xpartnersy, /xsupport) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
   "facts": [
     "f044",
     "f045",
@@ -36,17 +36,18 @@
     "f168",
     "f169",
     "f170",
-    "f171"
+    "f171",
+    "f174"
   ],
   "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
-    "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata \u2014 belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
+    "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {
-    "storage": "All three pages store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' \u2014 logging in on one page also authenticates the others on the next load.",
-    "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) \u2014 an XSS on any admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
-    "duplication": "RESOLVED (f052): all three pages now use the shared src/app/useAdminSession.ts hook + AdminLoginCard.tsx \u2014 xloginy and xerrors were retrofitted onto it during the 2026-08-23 premium redesign, closing out what f045 originally flagged.",
-    "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) \u2014 this file only covers how the Next.js pages consume it."
+    "storage": "All three pages store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' — logging in on one page also authenticates the others on the next load.",
+    "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) — an XSS on any admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
+    "duplication": "RESOLVED (f052): all three pages now use the shared src/app/useAdminSession.ts hook + AdminLoginCard.tsx — xloginy and xerrors were retrofitted onto it during the 2026-08-23 premium redesign, closing out what f045 originally flagged.",
+    "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) — this file only covers how the Next.js pages consume it."
   },
   "xloginy_purchase_dashboard": {
     "file": "src/app/xloginy/page.tsx",
@@ -59,9 +60,9 @@
     "file": "src/app/xerrors/page.tsx",
     "data_source": "GET /bff/admin/errors (filterable by email/requestId/area/severity/unresolvedOnly) -> ErrorEvent[]; PATCH /bff/admin/errors/:id to set resolved/adminNotes; POST /bff/admin/errors/:id/repair to run the backend's repairAction",
     "layout": "master-detail: a filterable table on the left (time/severity/area/email/method+path/status/message/state), clicking a row selects it and shows full detail in a right-hand aside (request id, user, API path, provider info, related payment/package/ICCID, repair action, safe request body/query as pretty-printed JSON).",
-    "safe_curl_reconstruction": "buildSafeCurl() client-side rebuilds a copy-pasteable curl command from the error's method/path/safeRequestBody for reproducing the failing request \u2014 uses a hardcoded base URL 'https://esim.uplisoft.com' (f046), so this reconstructed curl always points at production regardless of which backend the admin actually meant to test against.",
-    "actions": "Copy request id, Copy safe cURL (clipboard), Save admin notes, Mark resolved, and (only when the error has a repairAction) Run repair \u2014 a one-click trigger of the backend's idempotent provisioning retry (see E-SIM backend feedAI's admin.json 'repair_actions').",
-    "note": "f171: list uses realFailuresOnly (404/5xx/critical); Copy email + replay cURL with authorizationHeader; no severity info/warning filter."
+    "safe_curl_reconstruction": "buildSafeCurl() client-side rebuilds a copy-pasteable curl command from the error's method/path/safeRequestBody for reproducing the failing request — uses a hardcoded base URL 'https://esim.uplisoft.com' (f046), so this reconstructed curl always points at production regardless of which backend the admin actually meant to test against.",
+    "actions": "Copy request id, Copy safe cURL (clipboard), Save admin notes, Mark resolved, and (only when the error has a repairAction) Run repair — a one-click trigger of the backend's idempotent provisioning retry (see E-SIM backend feedAI's admin.json 'repair_actions').",
+    "note": "f171/f174: list uses realFailuresOnly; Copy email + replay cURL with authorizationHeader; displayBackendResponse reconstructs from message when backendResponse is null; no severity info/warning filter."
   },
   "xpricing_price_management": {
     "file": "src/app/xpricing/page.tsx",
@@ -73,10 +74,10 @@
   },
   "xversion_app_version": {
     "file": "src/app/xversion/page.tsx",
-    "note": "min-version setter + usage report never got a feedAI entry when built (earlier 2026-08-24 commits) \u2014 backfilled here alongside the report addition (f060).",
+    "note": "min-version setter + usage report never got a feedAI entry when built (earlier 2026-08-24 commits) — backfilled here alongside the report addition (f060).",
     "min_version_setter": "GET/PUT /bff/admin/app-version -> {version, updatedAt}, proxying backend GET/PUT /admin/app-version. Text input + Save, same load/error/notice pattern as the other x* pages.",
     "usage_report": "added 2026-08-24 (f060). Second section on the same page: GET /bff/admin/app-version/report -> {report:[{platform,version,deviceCount}]}, proxying backend GET /admin/app-version/report. Rendered as two grouped lists (Android, iOS), version -> device count, newest version first (pre-sorted server-side). Own Refresh button; loaded in the same useEffect as the version setter.",
-    "clear_tracking": "f170 (2026-09-25): two-step Clear tracking \u2192 Confirm clear / Cancel on the report card. DELETE /bff/admin/app-version/check-ins -> {deletedCount}; empties the report locally; does not change the minimum version.",
+    "clear_tracking": "f170 (2026-09-25): two-step Clear tracking → Confirm clear / Cancel on the report card. DELETE /bff/admin/app-version/check-ins -> {deletedCount}; empties the report locally; does not change the minimum version.",
     "proxies": [
       "src/app/bff/admin/app-version/route.ts",
       "src/app/bff/admin/app-version/report/route.ts",
@@ -85,7 +86,7 @@
   },
   "xnotificationy_broadcast_notifications": {
     "file": "src/app/xnotificationy/page.tsx",
-    "note": "f087 (2026-09-02): built in an earlier, undocumented pass (commits a9e7bc5, 750a2f2) \u2014 backfilled here. Standard AdminNav/AdminLoginCard/useAdminSession shell, same pattern as the other 4 admin pages.",
+    "note": "f087 (2026-09-02): built in an earlier, undocumented pass (commits a9e7bc5, 750a2f2) — backfilled here. Standard AdminNav/AdminLoginCard/useAdminSession shell, same pattern as the other 4 admin pages.",
     "data_source": "GET/POST/PUT/DELETE /bff/admin/notifications (NotificationMessage CRUD) and POST /bff/admin/notifications/:id/send, proxying E-SIM backend's f117 endpoints.",
     "renders": "a create form (title/body, at least one required) and a list of saved NotificationMessage drafts, each with Edit/Delete/Send actions. Send calls the backend's batched Firebase broadcast and surfaces {sentCount, failureCount} in a notice.",
     "proxies": [
@@ -109,10 +110,10 @@
   },
   "xactivityy_activity_tracking": {
     "file": "src/app/xactivityy/page.tsx",
-    "note": "f091: inactivity-interval settings (GET/PATCH /bff/admin/activity/settings), read-only activity list (GET /bff/admin/activity), one global 'Send now' (POST /bff/admin/activity/notify-now) \u2014 no per-row notify, backend only supports a global broadcast. Standard AdminNav/useAdminSession shell. Widened backendFetch's method union (src/lib/backend.ts) to include PATCH."
+    "note": "f091: inactivity-interval settings (GET/PATCH /bff/admin/activity/settings), read-only activity list (GET /bff/admin/activity), one global 'Send now' (POST /bff/admin/activity/notify-now) — no per-row notify, backend only supports a global broadcast. Standard AdminNav/useAdminSession shell. Widened backendFetch's method union (src/lib/backend.ts) to include PATCH."
   },
   "xpartnersy_partner_admin": {
-    "note": "f092: affiliate/partner program admin surface. Full detail in topics/partners.json (kept out of this file to stay under budget) \u2014 also covers the larger customer-facing partner pages."
+    "note": "f092: affiliate/partner program admin surface. Full detail in topics/partners.json (kept out of this file to stay under budget) — also covers the larger customer-facing partner pages."
   },
   "xsupport_support_inbox": {
     "file": "src/app/xsupport/page.tsx",

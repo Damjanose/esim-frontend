@@ -13,11 +13,12 @@
     "f104",
     "f105",
     "f154",
-    "f172"
+    "f172",
+    "f173"
   ],
   "checkout": {
     "component": "src/app/checkout/CheckoutWizard.tsx (Billing -> in-page CardStep via usePOK)",
-    "flow": "Billing step (steps/BillingStep.tsx) collects/saves the 8-field billing address via GET/PUT bff/user/billing-address. In parallel, POST bff/payments/intent {package_id, promo_code?} returns {paymentId, environment, checkoutUrl?} and sets the esim_pending_payment cookie. Once billing is ready and paymentId is present, CardStep (steps/CardStep.tsx) shows number/expiry/CVC fields and calls @nebula-ltd/pok-payments-js usePOK.processPayment with the saved billing address. On success, CheckoutWizard POSTs /bff/payments/provision {payment_id} and router.push(/account/{orderId}?new=1). There is no window.location.assign to Pokpay for plan purchase.",
+    "flow": "Billing step (steps/BillingStep.tsx) collects/saves the 8-field billing address via GET/PUT bff/user/billing-address. In parallel, POST bff/payments/intent {package_id, promo_code?} returns {paymentId, environment, checkoutUrl?} and sets the esim_pending_payment cookie — the BFF deliberately omits return_url so local→prod (or any non-allowlisted origin) does not 400 with 'return_url origin is not allowed'. Once billing is ready and paymentId is present, CardStep (steps/CardStep.tsx) shows number/expiry/CVC fields and calls @nebula-ltd/pok-payments-js usePOK.processPayment with the saved billing address. On success, CheckoutWizard POSTs /bff/payments/provision {payment_id} and router.push(/account/{orderId}?new=1). There is no window.location.assign to Pokpay for plan purchase.",
     "in_app_card": "as of 2026-09-25, plan purchase again uses the in-page CardStep / usePOK / @nebula-ltd/pok-payments-js path (f172 supersedes f154 for the checkout surface). Card fields never leave the page as a hosted redirect.",
     "auth_edge_case": "401 from the intent call redirects the browser to /signin?next=/checkout?package=<id> instead of showing an error",
     "double_submit_guard": "CheckoutWizard does not create an intent while disabled={promoPending} is true — intent is only created/refreshed when the promo state is settled",

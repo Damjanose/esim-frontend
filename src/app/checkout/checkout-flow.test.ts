@@ -53,12 +53,12 @@ describe("POST /bff/payments/intent", () => {
     expect(response.status).toBe(200);
     expect(payload.data.paymentId).toBe(paymentSession.paymentId);
     expect(payload.data.environment).toBe(paymentSession.environment);
-    // Backend may still return checkoutUrl for other clients; plan UI uses paymentId.
 
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const sent = JSON.parse(String(init.body));
     expect(sent.package_id).toBe("hej-telecom-in-30days-20gb");
-    expect(sent.return_url).toBe("http://localhost:3000/checkout/return");
+    // In-app CardStep: never send return_url (avoids allowlist failures on local→prod).
+    expect(sent).not.toHaveProperty("return_url");
 
     const pending = response.headers
       .getSetCookie()
@@ -67,29 +67,27 @@ describe("POST /bff/payments/intent", () => {
     expect(pending).toContain("HttpOnly");
   });
 
-  it("builds the return url from the public host, not the server bind address", async () => {
+  it("does not require a public return origin for in-app plan checkout", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
     vi.stubGlobal("fetch", fetchMock);
 
-    // Next resolves request.url from the bind address, so a deployed site would
-    // otherwise send Pokpay a localhost return_url the allowlist must reject.
-    await createIntent(
+    // Localhost against a production backend used to 400 with
+    // "return_url origin is not allowed" when we still posted return_url.
+    const response = await createIntent(
       new Request("http://localhost:3000/bff/payments/intent", {
         method: "POST",
         headers: {
           "content-type": "application/json",
           cookie: `${ACCESS_COOKIE}=good-token`,
-          "x-forwarded-host": "esim.uplisoft.com",
-          "x-forwarded-proto": "https"
+          host: "localhost:3000"
         },
         body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })
       })
     );
 
+    expect(response.status).toBe(200);
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body)).return_url).toBe(
-      "https://esim.uplisoft.com/checkout/return"
-    );
+    expect(JSON.parse(String(init.body))).not.toHaveProperty("return_url");
   });
 
   it("refuses to start a payment without a session", async () => {

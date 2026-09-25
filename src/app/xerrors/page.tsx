@@ -61,6 +61,20 @@ function stringifyJson(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
 
+/** Prefer the stored JSON body; for older rows fall back to the message field. */
+function displayBackendResponse(error: Pick<ErrorEvent, "backendResponse" | "message" | "statusCode">) {
+  if (error.backendResponse != null) return stringifyJson(error.backendResponse);
+  if (error.message?.trim()) {
+    return stringifyJson({
+      status: "error",
+      message: error.message,
+      statusCode: error.statusCode,
+      _note: "Reconstructed from message — full response body was not stored for this event"
+    });
+  }
+  return "N/A";
+}
+
 function displaySeverity(error: Pick<ErrorEvent, "statusCode" | "severity">) {
   if (error.statusCode === 404 || error.statusCode >= 500 || error.severity === "critical") {
     return "critical";
@@ -75,14 +89,20 @@ function authorizationHeaderForCurl(error: ErrorEvent) {
   return `Authorization: Bearer ${raw}`;
 }
 
+function requestBodyForCurl(error: ErrorEvent) {
+  return error.originalRequestBody ?? error.safeRequestBody ?? null;
+}
+
 function buildSafeCurl(error: ErrorEvent) {
   const lines = [
     `curl -X ${error.method} "https://esim.uplisoft.com${error.path}"`,
     `  -H "Content-Type: application/json"`,
     `  -H "${authorizationHeaderForCurl(error)}"`
   ];
-  if (error.originalRequestBody && error.method !== "GET") {
-    lines.push(`  --data '${JSON.stringify(error.originalRequestBody)}'`);
+  const body = requestBodyForCurl(error);
+  if (body != null && error.method !== "GET") {
+    // Prefer double-quoted JSON so single quotes inside values don't break the shell.
+    lines.push(`  --data ${JSON.stringify(JSON.stringify(body))}`);
   }
   return lines.join(" \\\n");
 }
@@ -496,7 +516,7 @@ export default function AdminErrorInboxPage() {
                     <div>
                       <p className="text-xs font-black uppercase tracking-wide text-muted">Backend response</p>
                       <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
-                        {stringifyJson(selectedError.backendResponse)}
+                        {displayBackendResponse(selectedError)}
                       </pre>
                     </div>
                     <div>

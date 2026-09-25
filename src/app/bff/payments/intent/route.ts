@@ -1,5 +1,4 @@
 import { backendFetch } from "@/lib/backend";
-import { getPublicOrigin } from "@/lib/public-origin";
 import { applyCookies, errorJson, readSessionTokens, successJson } from "@/lib/route-response";
 import { buildPendingPaymentCookie } from "@/lib/session";
 import { callWithSession } from "@/lib/with-session";
@@ -31,16 +30,16 @@ export async function POST(request: Request) {
   // non-empty promoCode as present (see routes/payments.ts nonEmptyString).
   const promoCode = typeof body.promo_code === "string" ? body.promo_code.trim() : "";
 
-  // Must be the public origin: Pokpay sends a real browser here, and the backend
-  // checks it against POKPAY_WEB_RETURN_ORIGINS.
-  const returnUrl = new URL("/checkout/return", getPublicOrigin(request)).toString();
-
+  // Plan checkout is in-page CardStep / usePOK — no Pokpay hosted redirect, so
+  // do not send return_url. Sending localhost (or any non-allowlisted origin)
+  // against production yields "return_url origin is not allowed" before the
+  // card form can load. Mobile omits return_url the same way; the backend then
+  // falls back to its app deep-link default for Pokpay's unused redirect fields.
   const attempt = await callWithSession(readSessionTokens(request), (token) =>
     backendFetch<PaymentSession>("/payments/intent", {
       method: "POST",
       body: {
         package_id: packageId,
-        return_url: returnUrl,
         ...(promoCode ? { promoCode } : {})
       },
       token
@@ -51,7 +50,7 @@ export async function POST(request: Request) {
     return errorJson(attempt.message, attempt.status, {}, attempt.cookies);
   }
 
-  // Pokpay may return without the id in the query, so keep our own reference.
+  // Keep a local reference in case provision needs it after pay.
   return applyCookies(successJson(attempt.data, attempt.cookies), [
     buildPendingPaymentCookie(attempt.data.paymentId)
   ]);

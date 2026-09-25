@@ -161,6 +161,20 @@
       "fix": "Always pass realFailuresOnly=true (404 / >=500 / critical). New events store authorizationHeader for replay cURL. PCI fields still redacted. Deploy backend migration for authorizationHeader."
     },
     {
+      "symptom": "Checkout step 02 shows red 'return_url origin is not allowed' and no card fields (local next against production API).",
+      "cause": "BFF POST /bff/payments/intent was still sending return_url built from localhost; production POKPAY_WEB_RETURN_ORIGINS only allows https://esim.uplisoft.com.",
+      "fix": "Plan intent omits return_url (in-app CardStep does not redirect). Top-ups keep return_url. Reload /checkout after the BFF change (f173)."
+    },
+    {
+      "symptom": "/xerrors detail Backend response is N/A; replay cURL for /payments/intent with localhost return_url does not match expectations.",
+      "cause": "Backend never persisted ErrorEvent.backendResponse (tracker bug). The stored body with return_url=http://localhost:3000 correctly 400s with return_url origin is not allowed against production allowlist.",
+      "fix": "Deploy backend f209 so new rows store the JSON body. UI displayBackendResponse reconstructs from message for older rows. Plan checkout BFF already omits return_url (f173); replay without return_url to exercise the success path.",
+      "facts": [
+        "f174"
+      ],
+      "source": "src/app/xerrors/page.tsx; E-SIM backend errorEventTracker"
+    },
+    {
       "symptom": "Site footer Explore shows three 'Remote work eSIM guide' links and Resources shows three 'Travel eSIM installation guide' links.",
       "cause": "Labels used a binary slug ternary with a catch-all fallback, while useCasePages grew to 4 and guidePages.slice(0,3) no longer matched the old what-is/esim-vs/install slugs.",
       "fix": "Map each slug in footerUseCaseLabels / footerGuideLabels; fall back to page.heading for unknown slugs (f175).",
@@ -185,6 +199,7 @@
     "f123",
     "f144",
     "f171",
+    "f174",
     "f175"
   ]
 }
