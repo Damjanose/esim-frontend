@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-25",
-    "note_latest": "f172: /checkout in-app Pok CardStep (not hosted redirect)"
+    "note_latest": "f179: /.well-known AASA + assetlinks for mobile package share links (/checkout?package=)"
   }
 }

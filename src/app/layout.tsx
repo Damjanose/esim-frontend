@@ -4,6 +4,8 @@ import { createMetadata, siteUrl } from "@/lib/seo";
 import { ConsentProvider } from "./ConsentManager";
 import { GoogleTag } from "./GoogleTag";
 import { MetaPixel } from "./MetaPixel";
+import { Suspense } from "react";
+import { OpenInAppBanner } from "./components/OpenInAppBanner";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -63,6 +65,9 @@ export default function RootLayout({
           <GoogleTag />
           <MetaPixel />
           {children}
+          <Suspense fallback={null}>
+            <OpenInAppBanner />
+          </Suspense>
         </ConsentProvider>
       </body>
     </html>
