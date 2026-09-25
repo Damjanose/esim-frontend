@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { guardedRedirect } from "./route-guard";
 
 describe("guardedRedirect", () => {
-  it("sends anonymous visitors from checkout to sign-in, preserving the plan", () => {
+  it("allows anonymous visitors to view the checkout/plan details", () => {
     expect(
       guardedRedirect("/checkout", "?package=hej-telecom-in-30days-20gb", false)
-    ).toBe("/signin?next=%2Fcheckout%3Fpackage%3Dhej-telecom-in-30days-20gb");
+    ).toBeNull();
   });
 
   it("sends anonymous visitors from the account area to sign-in", () => {
@@ -16,8 +16,7 @@ describe("guardedRedirect", () => {
     expect(guardedRedirect("/profile", "", false)).toBe("/signin?next=%2Fprofile");
   });
 
-  it("lets signed-in visitors through", () => {
-    expect(guardedRedirect("/checkout", "?package=abc", true)).toBeNull();
+  it("lets signed-in visitors through guarded routes", () => {
     expect(guardedRedirect("/account", "", true)).toBeNull();
     expect(guardedRedirect("/profile", "", true)).toBeNull();
   });

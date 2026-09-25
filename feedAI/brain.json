@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-25",
-    "note_latest": "f179: /.well-known AASA + assetlinks for mobile package share links (/checkout?package=)"
+    "note_latest": "f180: /checkout unguarded; free account can view package details, signin banner appears on checkout form"
   }
 }

@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CalendarClock, ChevronDown, Database, Globe2, Phone } from "lucide-react";
+import { CalendarClock, ChevronDown, Database, Globe2, Phone, LogIn } from "lucide-react";
 import { discountPercentOff, formatOriginalPrice, formatPriceFromCents, hasActiveDiscount } from "@/services/discountPricing";
 import type { HeroPackageOption } from "@/services/packages";
+import { LinkButton } from "@/app/components/Button";
 import { CheckoutWizard } from "./CheckoutWizard";
 import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
 
@@ -79,6 +80,28 @@ export function CheckoutPriceSection({
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px] lg:items-start lg:gap-16">
       <div className="min-w-0 order-2 lg:order-1">
+        {!accountEmail ? (
+          <div className="mb-8 rounded-lg border border-brandBlue/30 bg-brandBlue/5 p-5">
+            <div className="flex items-start gap-3">
+              <LogIn className="mt-1 shrink-0 text-brandBlue" size={20} />
+              <div className="min-w-0">
+                <h3 className="font-semibold text-brandInk">Sign in to complete your purchase</h3>
+                <p className="mt-1 text-sm text-onSurfaceVariant">
+                  Sign in or create an account to proceed with this eSIM purchase.
+                </p>
+                <LinkButton
+                  href={`/signin?next=${encodeURIComponent(`/checkout?package=${plan.id}`)}`}
+                  variant="primary"
+                  size="sm"
+                  className="mt-3"
+                >
+                  Sign in to checkout
+                </LinkButton>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <CheckoutWizard
           accountEmail={accountEmail}
           countries={countries}

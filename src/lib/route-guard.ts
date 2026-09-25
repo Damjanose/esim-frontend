@@ -1,6 +1,5 @@
 const GUARDED_PREFIXES = [
   "/account",
-  "/checkout",
   "/profile",
   "/partners/status",
   "/partners/request"
