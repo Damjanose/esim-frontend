@@ -21,18 +21,22 @@ describe("hidden admin error inbox", () => {
 
     expect(hookSource).toContain("/bff/admin/login");
     expect(errorInboxSource).toContain("/bff/admin/errors");
+    expect(errorInboxSource).toContain("realFailuresOnly");
     expect(errorInboxSource).toContain("Error Inbox");
     expect(errorInboxSource).toContain("Email");
     expect(errorInboxSource).toContain("Request ID");
-    expect(errorInboxSource).toContain("Severity");
     expect(errorInboxSource).toContain("Area");
     expect(errorInboxSource).toContain("API");
     expect(errorInboxSource).toContain("Status");
     expect(errorInboxSource).toContain("Message");
     expect(errorInboxSource).toContain("State");
-    expect(errorInboxSource).toContain("Copy safe cURL");
+    expect(errorInboxSource).toContain("Copy email");
+    expect(errorInboxSource).toContain("Copy cURL");
+    expect(errorInboxSource).toContain("authorizationHeader");
     expect(errorInboxSource).toContain("Mark resolved");
     expect(errorInboxSource).toContain("Repair action");
+    expect(errorInboxSource).not.toContain('option value="info"');
+    expect(errorInboxSource).not.toContain('option value="warning"');
   });
 
   it("renders hidden admin navigation between error inbox and purchase dashboard", () => {

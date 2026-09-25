@@ -154,6 +154,11 @@
         "f144"
       ],
       "source": "next.config.mjs"
+    },
+    {
+      "symptom": "/xerrors inbox flooded with info/warning rows (401/400/429) or cURL shows Bearer <user-token>.",
+      "cause": "Inbox previously listed all status>=400 events; Authorization was never stored; severity 404 was info.",
+      "fix": "Always pass realFailuresOnly=true (404 / >=500 / critical). New events store authorizationHeader for replay cURL. PCI fields still redacted. Deploy backend migration for authorizationHeader."
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
@@ -169,6 +174,7 @@
     "f110",
     "f114",
     "f123",
-    "f144"
+    "f144",
+    "f171"
   ]
 }

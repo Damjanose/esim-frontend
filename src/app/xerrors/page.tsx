@@ -17,6 +17,7 @@ type ErrorEvent = {
   area: string;
   message: string;
   internalCode: string | null;
+  authorizationHeader: string | null;
   originalRequestBody: unknown;
   safeRequestBody: unknown;
   safeQuery: unknown;
@@ -60,11 +61,25 @@ function stringifyJson(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
 
+function displaySeverity(error: Pick<ErrorEvent, "statusCode" | "severity">) {
+  if (error.statusCode === 404 || error.statusCode >= 500 || error.severity === "critical") {
+    return "critical";
+  }
+  return error.severity === "warning" ? "warning" : "critical";
+}
+
+function authorizationHeaderForCurl(error: ErrorEvent) {
+  const raw = error.authorizationHeader?.trim();
+  if (!raw) return 'Authorization: Bearer <user-token>';
+  if (/^bearer\s+/i.test(raw)) return `Authorization: ${raw}`;
+  return `Authorization: Bearer ${raw}`;
+}
+
 function buildSafeCurl(error: ErrorEvent) {
   const lines = [
     `curl -X ${error.method} "https://esim.uplisoft.com${error.path}"`,
     `  -H "Content-Type: application/json"`,
-    `  -H "Authorization: Bearer <user-token>"`
+    `  -H "${authorizationHeaderForCurl(error)}"`
   ];
   if (error.originalRequestBody && error.method !== "GET") {
     lines.push(`  --data '${JSON.stringify(error.originalRequestBody)}'`);
@@ -100,7 +115,6 @@ export default function AdminErrorInboxPage() {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterRequestId, setFilterRequestId] = useState("");
   const [filterArea, setFilterArea] = useState("");
-  const [filterSeverity, setFilterSeverity] = useState("");
   const [unresolvedOnly, setUnresolvedOnly] = useState(true);
   const [adminNotes, setAdminNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -111,7 +125,7 @@ export default function AdminErrorInboxPage() {
   const summary = useMemo(() => {
     return {
       unresolved: errors.filter((item) => !item.resolvedAt).length,
-      critical: errors.filter((item) => item.severity === "critical").length,
+      critical: errors.filter((item) => displaySeverity(item) === "critical").length,
       payments: errors.filter((item) => item.area === "payments").length
     };
   }, [errors]);
@@ -126,7 +140,7 @@ export default function AdminErrorInboxPage() {
     if (filterEmail.trim()) params.set("email", filterEmail.trim());
     if (filterRequestId.trim()) params.set("requestId", filterRequestId.trim());
     if (filterArea) params.set("area", filterArea);
-    if (filterSeverity) params.set("severity", filterSeverity);
+    params.set("realFailuresOnly", "true");
     params.set("unresolvedOnly", String(unresolvedOnly));
 
     try {
@@ -238,7 +252,9 @@ export default function AdminErrorInboxPage() {
             <h1 className="mt-1 font-display text-[26px] font-black tracking-tight text-midnight md:text-[30px]">
               Error Inbox
             </h1>
-            <p className="mt-1 text-sm font-semibold text-muted">Admin debugging for failed API requests.</p>
+            <p className="mt-1 text-sm font-semibold text-muted">
+              Real failures only (404, 5xx, critical). Card fields never appear in cURL.
+            </p>
           </div>
           {token ? (
             <div className="flex gap-2">
@@ -293,7 +309,7 @@ export default function AdminErrorInboxPage() {
             </div>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
-              <div className="grid gap-3 md:grid-cols-6 md:items-end">
+              <div className="grid gap-3 md:grid-cols-5 md:items-end">
                 <label className="text-xs font-bold text-muted">
                   Email
                   <input
@@ -324,19 +340,6 @@ export default function AdminErrorInboxPage() {
                     <option value="orders">orders</option>
                     <option value="user">user</option>
                     <option value="admin">admin</option>
-                  </select>
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  Severity
-                  <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
-                    onChange={(event) => setFilterSeverity(event.target.value)}
-                    value={filterSeverity}
-                  >
-                    <option value="">All</option>
-                    <option value="critical">critical</option>
-                    <option value="warning">warning</option>
-                    <option value="info">info</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-2 text-xs font-bold text-midnight">
@@ -385,7 +388,9 @@ export default function AdminErrorInboxPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {errors.map((item) => (
+                      {errors.map((item) => {
+                        const severity = displaySeverity(item);
+                        return (
                         <tr
                           className={`cursor-pointer border-t border-line/60 transition hover:bg-[#fbfeff] ${
                             selectedError?.id === item.id ? "bg-[#eafcff]" : ""
@@ -396,9 +401,9 @@ export default function AdminErrorInboxPage() {
                           <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDate(item.createdAt)}</td>
                           <td className="px-3 py-3">
                             <span
-                              className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${severityBadgeClass(item.severity)}`}
+                              className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${severityBadgeClass(severity)}`}
                             >
-                              {item.severity}
+                              {severity}
                             </span>
                           </td>
                           <td className="px-3 py-3 text-muted">{item.area}</td>
@@ -410,7 +415,8 @@ export default function AdminErrorInboxPage() {
                           <td className="px-3 py-3 text-midnight">{item.message}</td>
                           <td className="px-4 py-3 text-muted">{item.resolvedAt ? "Resolved" : "Open"}</td>
                         </tr>
-                      ))}
+                        );
+                      })}
                       {errors.length === 0 ? (
                         <tr>
                           <td className="px-4 py-8 text-center font-bold text-muted" colSpan={8}>
@@ -427,11 +433,30 @@ export default function AdminErrorInboxPage() {
                 {selectedError ? (
                   <div className="grid gap-3">
                     <h2 className="font-display text-lg font-black text-midnight">Error Details</h2>
+                    <div className="rounded-xl border border-line bg-[#f8fdfe] p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wide text-muted">User to contact</p>
+                      {selectedError.userEmail ? (
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          <p className="font-mono text-sm font-bold text-midnight">{selectedError.userEmail}</p>
+                          <button
+                            className="rounded-lg border border-line bg-white px-2.5 py-1 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                            disabled={isMutating}
+                            onClick={() => {
+                              void navigator.clipboard?.writeText(selectedError.userEmail ?? "");
+                              setNotice("Email copied");
+                            }}
+                            type="button"
+                          >
+                            Copy email
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="mt-1 text-sm font-semibold text-muted">No email on this request</p>
+                      )}
+                    </div>
                     <dl className="grid grid-cols-[130px_1fr] gap-2 text-sm">
                       <dt className="font-bold text-muted">Request ID</dt>
                       <dd className="font-mono text-xs text-midnight">{selectedError.requestId}</dd>
-                      <dt className="font-bold text-muted">User</dt>
-                      <dd className="text-midnight">{selectedError.userEmail ?? "N/A"}</dd>
                       <dt className="font-bold text-muted">API</dt>
                       <dd className="font-mono text-xs text-midnight">
                         {selectedError.method} {selectedError.path}
@@ -475,7 +500,11 @@ export default function AdminErrorInboxPage() {
                       </pre>
                     </div>
                     <div>
-                      <p className="text-xs font-black uppercase tracking-wide text-muted">Copy safe cURL</p>
+                      <p className="text-xs font-black uppercase tracking-wide text-muted">Replay cURL</p>
+                      <p className="mt-1 text-[11px] font-semibold text-muted">
+                        Uses the stored Bearer when available. Tokens expire; older rows may still show a
+                        placeholder. Card fields are never included.
+                      </p>
                       <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
                         {buildSafeCurl(selectedError)}
                       </pre>
@@ -500,11 +529,22 @@ export default function AdminErrorInboxPage() {
                       </button>
                       <button
                         className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
+                        disabled={isMutating || !selectedError.userEmail}
+                        onClick={() => {
+                          void navigator.clipboard?.writeText(selectedError.userEmail ?? "");
+                          setNotice("Email copied");
+                        }}
+                        type="button"
+                      >
+                        Copy email
+                      </button>
+                      <button
+                        className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
                         disabled={isMutating}
                         onClick={() => navigator.clipboard?.writeText(buildSafeCurl(selectedError))}
                         type="button"
                       >
-                        Copy safe cURL
+                        Copy cURL
                       </button>
                       <button
                         className="rounded-lg bg-gradient-to-r from-midnight to-ink px-3 py-2 text-xs font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
