@@ -37,7 +37,7 @@ afterEach(() => {
 });
 
 describe("POST /bff/payments/intent", () => {
-  it("asks the backend for a checkout url and remembers the payment id", async () => {
+  it("asks the backend for a payment session and remembers the payment id", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -51,7 +51,9 @@ describe("POST /bff/payments/intent", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload.data.checkoutUrl).toBe(paymentSession.checkoutUrl);
+    expect(payload.data.paymentId).toBe(paymentSession.paymentId);
+    expect(payload.data.environment).toBe(paymentSession.environment);
+    // Backend may still return checkoutUrl for other clients; plan UI uses paymentId.
 
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     const sent = JSON.parse(String(init.body));

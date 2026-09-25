@@ -13,7 +13,7 @@ export type LegalDocument = {
 
 export const termsDocument = {
   title: "Terms of Service",
-  lastUpdated: "September 22, 2026",
+  lastUpdated: "September 25, 2026",
   sections: [
     {
       title: "Agreement",
@@ -42,7 +42,7 @@ export const termsDocument = {
     {
       title: "Fees & purchases",
       paragraphs: [
-        "Prices shown at checkout are determined when you pay. Taxes or carrier fees may apply. On the website, card payments are taken by Pokpay on Pokpay's hosted payment page; eSim2you does not collect your card number, expiry, or security code. Unless stated otherwise, plans are prepaid and non-refundable once activated or delivered according to the plan's terms. Chargebacks or payment disputes may affect your ability to use the service."
+        "Prices shown at checkout are determined when you pay. Taxes or carrier fees may apply. On the website, plan purchases collect card details in the checkout form; the card is encrypted in your browser by Pokpay before it is sent, and eSim2you does not store your card number, expiry, or security code. Some other payments (such as top-ups) may still use Pokpay's hosted payment page. Unless stated otherwise, plans are prepaid and non-refundable once activated or delivered according to the plan's terms. Chargebacks or payment disputes may affect your ability to use the service."
       ]
     },
     {
@@ -72,7 +72,7 @@ export const termsDocument = {
 
 export const policyDocument = {
   title: "Privacy Policy",
-  lastUpdated: "September 22, 2026",
+  lastUpdated: "September 25, 2026",
   sections: [
     {
       title: "Overview",
@@ -86,7 +86,7 @@ export const policyDocument = {
         "Account & verification: phone number, one-time passcodes, email, and related authentication signals needed to secure your account.",
         "Profile & usage: app and website interactions, device type, OS version, app version, diagnostics, and crash data to keep the service reliable.",
         "Billing address: the name, address, email, and phone number you provide for receipts and payment verification.",
-        "Transaction data: plan purchases, payment references, amounts, currency, payment status, activation timestamps, and carrier identifiers needed to deliver connectivity. On the website, card number, expiry, and security code are entered on Pokpay's hosted payment page and are not sent to or stored by eSim2you.",
+        "Transaction data: plan purchases, payment references, amounts, currency, payment status, activation timestamps, and carrier identifiers needed to deliver connectivity. On website plan checkout, card number, expiry, and security code are entered in the checkout form and encrypted in your browser by Pokpay before transmission; eSim2you does not store those card details.",
         "Support communications: messages you send to support and metadata needed to respond.",
         "Optional biometrics: if you enable device biometrics, biometric templates stay on your device; we do not receive your raw biometric data."
       ]
@@ -107,7 +107,7 @@ export const policyDocument = {
     {
       title: "Sharing",
       paragraphs: [
-        "We share information with mobile operators and technical partners as needed to provision data plans; with Pokpay, our payment processor, which collects card details on its hosted payment page to take payment; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
+        "We share information with mobile operators and technical partners as needed to provision data plans; with Pokpay, our payment processor, which encrypts and processes card details to take payment; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
       ]
     },
     {
@@ -119,7 +119,7 @@ export const policyDocument = {
     {
       title: "Security",
       paragraphs: [
-        "We use administrative, technical, and organizational measures designed to protect personal information. On the website, card details are entered on Pokpay's payment page, not on eSim2you servers. No method of transmission or storage is completely secure; use strong device passcodes and keep your OS updated."
+        "We use administrative, technical, and organizational measures designed to protect personal information. On website plan checkout, card details are encrypted in your browser by Pokpay before they leave your device and are not stored by eSim2you. No method of transmission or storage is completely secure; use strong device passcodes and keep your OS updated."
       ]
     },
     {

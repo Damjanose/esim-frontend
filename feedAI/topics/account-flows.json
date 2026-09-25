@@ -12,16 +12,18 @@
     "f101",
     "f104",
     "f105",
-    "f154"
+    "f154",
+    "f172"
   ],
   "checkout": {
-    "component": "src/app/checkout/CheckoutWizard.tsx (Billing -> redirect to Pokpay hosted page)",
-    "flow": "Billing step (steps/BillingStep.tsx) collects/saves the 8-field billing address via GET/PUT bff/user/billing-address. In parallel, POST bff/payments/intent {package_id, promo_code?} returns {paymentId, checkoutUrl} and sets the esim_pending_payment cookie. Once billing is ready and checkoutUrl is present, CheckoutWizard does window.location.assign(checkoutUrl) — the card is entered on Pokpay, never on this site. Pokpay returns to GET /checkout/return, which POST /payments/provision {payment_id} and 303s to /account/{orderId}?new=1 (or /checkout/failed).",
-    "hosted_redirect": "as of 2026-09-22, plan purchase again uses Pokpay hosted checkout (same pattern as top-ups). The 2026-09-04 inline CardStep / usePOK / @nebula-ltd/pok-payments-js path was removed (f154 supersedes f102/f105 for the checkout surface).",
+    "component": "src/app/checkout/CheckoutWizard.tsx (Billing -> in-page CardStep via usePOK)",
+    "flow": "Billing step (steps/BillingStep.tsx) collects/saves the 8-field billing address via GET/PUT bff/user/billing-address. In parallel, POST bff/payments/intent {package_id, promo_code?} returns {paymentId, environment, checkoutUrl?} and sets the esim_pending_payment cookie. Once billing is ready and paymentId is present, CardStep (steps/CardStep.tsx) shows number/expiry/CVC fields and calls @nebula-ltd/pok-payments-js usePOK.processPayment with the saved billing address. On success, CheckoutWizard POSTs /bff/payments/provision {payment_id} and router.push(/account/{orderId}?new=1). There is no window.location.assign to Pokpay for plan purchase.",
+    "in_app_card": "as of 2026-09-25, plan purchase again uses the in-page CardStep / usePOK / @nebula-ltd/pok-payments-js path (f172 supersedes f154 for the checkout surface). Card fields never leave the page as a hosted redirect.",
     "auth_edge_case": "401 from the intent call redirects the browser to /signin?next=/checkout?package=<id> instead of showing an error",
-    "double_submit_guard": "CheckoutWizard does not redirect while disabled={promoPending} is true — intent is only created/refreshed when the promo state is settled",
-    "charged_but_not_provisioned": "if provision fails after Pokpay return, /checkout/return redirects to /checkout/failed?reason=provisioning (or unpaid for 402) with the payment id — never re-opens a card form on our domain",
-    "still_uses_hosted_redirect": "top-ups (/account/topup) and partner wallet top-ups also use checkoutUrl hosted-redirect; plan purchase on /checkout now matches them"
+    "double_submit_guard": "CheckoutWizard does not create an intent while disabled={promoPending} is true — intent is only created/refreshed when the promo state is settled",
+    "charged_but_not_provisioned": "if provision fails after card success, CheckoutWizard shows an inline error with the payment reference — it does not open a hosted Pokpay page",
+    "still_uses_hosted_redirect": "top-ups (/account/topup) and partner wallet top-ups still use checkoutUrl hosted-redirect + return routes; plan purchase on /checkout does not",
+    "legacy_return_route": "GET /checkout/return remains (UNGUARDED) for any leftover Pokpay redirects / pending cookies; primary plan success path is client provision after usePOK"
   },
   "order_lifecycle": {
     "file": "src/lib/order-groups.ts",
@@ -45,11 +47,11 @@
   "payment_failure_reporting": {
     "rule": "only an upstream 402 is surfaced as reason=unpaid; every other failure (network, 5xx, timeout) is reported as reason=provisioning",
     "why": "a non-402 failure might have already captured the card, so the UI must not claim nothing was charged",
-    "scope_note": "as of 2026-09-22, package purchase again uses /checkout/failed?reason= via /checkout/return, matching top-ups and partner wallet top-ups"
+    "scope_note": "package purchase failures after in-app card success surface inline on CheckoutWizard; /checkout/failed?reason= remains for the legacy /checkout/return path and matches top-up/partner failure UX"
   },
   "billing": {
     "route": "/profile/billing (BillingForm.tsx) and the checkout wizard's BillingStep.tsx",
-    "card_details_status": "PUT /user/card-details returns 410 Gone -- saved cards are permanently disabled server-side; website card entry happens on Pokpay's hosted page after billing is saved, not via an in-page form",
+    "card_details_status": "PUT /user/card-details returns 410 Gone -- saved cards are permanently disabled server-side; website plan checkout enters card details in CardStep (encrypted by Pokpay in-browser), not via a saved-card form",
     "editable_fields": "as of 2026-09-04, GET/PUT bff/user/billing-address uses the FULL 8-field shape (holdersName, email, countryCode, administrativeArea, locality, address1, postalCode, phoneNumber) -- previously only forwarded 4 legacy fields (line1/city/postal/country) even though the backend has supported all 8 since the mobile in-app checkout work; validation rules/messages owned by backend, mirrored client-side in src/lib/billingValidation.ts (BILLING_FIELDS is the single source of truth for field config, shared by BillingForm.tsx and BillingStep.tsx)",
     "country_dropdown_2026-09-05": "f104: countryCode in both BillingForm.tsx and the checkout BillingStep.tsx is now a <select> (not <input>) sourced from a `countries` prop, fetched server-side (GET /esim/countries, filtered to geography==='local') by each one's parent page and threaded down through client-component props -- checkout's chain is page.tsx -> CheckoutPriceSection -> CheckoutWizard -> BillingStep. Do not source this from the package catalog's countryCode field -- that's Airalo's slug, not an ISO code (see topics/partners.json's promo_code-adjacent country-dropdown entry for the field that DOES use the package catalog)."
   },
@@ -65,7 +67,7 @@
     "component": "src/app/checkout/PromoCodeField.tsx + CheckoutPriceSection.tsx",
     "flow": "apply/change UX ('Partner Code: XXXX ✓' + Change link) -> POST /bff/checkout/apply-promo {promoCode, packageId} -> backend POST /payments/apply-promo -> {applied:true, discountPct, finalCustomerPriceCents} or {applied:false}. Applied code persists to localStorage keyed by packageId and silently re-validates against the live endpoint on return visits — a transient failure during that re-check does NOT wipe the stored code, only a confirmed applied:false does.",
     "payment_intent_wiring": "CheckoutWizard's POST /bff/payments/intent threads promoCode through as promo_code on the wire, forwarded to the backend as camelCase promoCode, and OMITTED entirely (not sent as '') when no code is applied (f094).",
-    "loading_gate": "while an apply/re-validate call is in flight, price display shows a loading state (no full-price flash) and CheckoutWizard is disabled so it does not create or redirect with a stale promo — closes a gap where a customer could pay at full price before a just-submitted promo code actually applied.",
+    "loading_gate": "while an apply/re-validate call is in flight, price display shows a loading state (no full-price flash) and CheckoutWizard is disabled so it does not create an intent with a stale promo — closes a gap where a customer could pay at full price before a just-submitted promo code actually applied.",
     "interaction_with_admin_discount": "unaffected: plan.hasDiscount/retailPrice is a different, admin-set retail-discount mechanism baked into plan.price. Once a promo is applied, the displayed total becomes the backend's finalCustomerPriceCents outright rather than being recomputed/stacked client-side."
   },
   "conversion_tracking": {
