@@ -29,6 +29,8 @@ type Dashboard = {
   partnerType: string;
   promoCode: string | null;
   discountPct: number;
+  maxDiscountPct: number;
+  partnerProfitCents: number;
   validCustomerCount: number;
   commissionBalanceCents: number;
   walletBalanceCents: number;
@@ -173,7 +175,10 @@ function DashboardContent({
       </div>
 
       <WalletPanel />
-      <DiscountPanel discountPct={dashboard.discountPct} />
+      <DiscountPanel
+        discountPct={dashboard.discountPct}
+        maxDiscountPct={dashboard.maxDiscountPct ?? 15}
+      />
 
       <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
         <h2 className="font-display text-xl font-black text-brandInk">Recent commissions</h2>

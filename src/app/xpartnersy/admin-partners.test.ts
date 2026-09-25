@@ -55,9 +55,12 @@ describe("hidden admin partners page", () => {
     expect(pageSource).toContain("Supplier Cost");
     expect(pageSource).toContain("Customer Discount");
     expect(pageSource).toContain("Customer Pays");
-    expect(pageSource).toContain("Affiliate Commission");
+    expect(pageSource).toContain("Partner profit (fixed)");
     expect(pageSource).toContain("Remaining Margin");
     expect(pageSource).toContain("configuration_not_allowed");
+    expect(pageSource).toContain("/bff/admin/partners/program-settings");
+    expect(pageSource).toContain('"reject"');
+    expect(pageSource).toContain("package-profits");
   });
 
   it("renders the hold-period input wired to the hold-period BFF route", () => {

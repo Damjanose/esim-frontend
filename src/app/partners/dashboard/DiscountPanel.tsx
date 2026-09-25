@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { Loader2, Percent } from "lucide-react";
 import { Button } from "@/app/components/Button";
 
-const MAX_DISCOUNT_PCT = 20;
-
-/**
- * Lets a partner set their own discount % for their promo code — applies to
- * every package and every customer (first-time or repeat) using it. See
- * `E-SIM backend/docs/superpowers/specs/2026-09-04-partner-set-discount-design.md`.
- */
-export function DiscountPanel({ discountPct }: { discountPct: number }) {
+export function DiscountPanel({
+  discountPct,
+  maxDiscountPct = 15,
+}: {
+  discountPct: number;
+  maxDiscountPct?: number;
+}) {
   const router = useRouter();
 
   const [draft, setDraft] = useState(String(discountPct));
@@ -26,8 +25,8 @@ export function DiscountPanel({ discountPct }: { discountPct: number }) {
     setSuccess(false);
 
     const value = Number.parseInt(draft, 10);
-    if (!Number.isInteger(value) || value < 0 || value > MAX_DISCOUNT_PCT) {
-      setError(`Enter a whole number between 0 and ${MAX_DISCOUNT_PCT}.`);
+    if (!Number.isInteger(value) || value < 0 || value > maxDiscountPct) {
+      setError(`Enter a whole number between 0 and ${maxDiscountPct}.`);
       return;
     }
 
@@ -69,7 +68,7 @@ export function DiscountPanel({ discountPct }: { discountPct: number }) {
       </h2>
       <p className="mt-2 text-sm text-onSurfaceVariant">
         Set the discount customers get when they use your promo code, on any package
-        (0–{MAX_DISCOUNT_PCT}%).
+        (0–{maxDiscountPct}%). Some cheaper packages may receive less so margins stay safe.
       </p>
 
       <form className="mt-4 flex items-center gap-2.5" onSubmit={submit}>
@@ -81,7 +80,7 @@ export function DiscountPanel({ discountPct }: { discountPct: number }) {
           disabled={busy}
           id="partner-discount-pct"
           inputMode="numeric"
-          max={MAX_DISCOUNT_PCT}
+          max={maxDiscountPct}
           min={0}
           onChange={(event) => {
             setSuccess(false);

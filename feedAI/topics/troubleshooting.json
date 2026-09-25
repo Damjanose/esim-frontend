@@ -182,6 +182,24 @@
         "f175"
       ],
       "source": "src/app/SiteFooter.tsx"
+    },
+    {
+      "symptom": "Admin edits a package's 'Minimum profit (cents)' or 'Affiliate commission %' in /xpartnersy, saves successfully, and nothing changes — the preview table doesn't react and real checkout gating is unaffected.",
+      "cause": "Both inputs were vestigial after the move to global PartnerProgramSettings: the backend never read the persisted per-package values for gating, and draftPreview computed safeFloor from companyFloorCentsDraft (the global program setting) rather than the per-package field beside it.",
+      "fix": "Removed both inputs, their AffiliateDraft/AffiliateConfig fields, and their PUT payload entries; added a note that floor/max come from program settings. Backend stopped accepting them too.",
+      "facts": [
+        "f177"
+      ],
+      "source": "src/app/xpartnersy/page.tsx"
+    },
+    {
+      "symptom": "A bff/dev/* helper route that mints session cookies is reachable in an environment it shouldn't be.",
+      "cause": "The route's only guard checked whether the server's own BACKEND_API_URL contained 127.0.0.1/localhost. That reads server config, not the request, so a production deploy misconfigured or proxied to a loopback backend passes the check and mints a session for any caller-supplied token pair.",
+      "fix": "Return 403 when process.env.NODE_ENV === 'production' before any other check; keep the loopback check as a second condition.",
+      "facts": [
+        "f178"
+      ],
+      "source": "src/app/bff/dev/local-session/route.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
@@ -200,6 +218,8 @@
     "f144",
     "f171",
     "f174",
-    "f175"
+    "f175",
+    "f177",
+    "f178"
   ]
 }

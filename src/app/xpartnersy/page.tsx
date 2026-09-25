@@ -18,7 +18,14 @@ import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
 
-type PartnerStatus = "PendingApproval" | "Pending" | "Active" | "Suspended" | "Cancelled" | string;
+type PartnerStatus =
+  | "PendingApproval"
+  | "Pending"
+  | "Active"
+  | "Suspended"
+  | "Cancelled"
+  | "Rejected"
+  | string;
 
 type Partner = {
   userEmail: string;
@@ -27,6 +34,8 @@ type Partner = {
   country: string;
   businessName: string | null;
   promoCode: string | null;
+  partnerProfitCents?: number;
+  discountPct?: number;
   validCustomerCount: number;
   commissionBalanceCents: number;
   walletBalanceCents: number;
@@ -50,9 +59,11 @@ type MarginScenario = {
 
 type AffiliateConfig = {
   affiliateEnabled: boolean;
-  affiliateCommissionPct: number;
   partnerBuyDiscountPct: number;
+  /** The program-wide margin floor, not a per-package value. */
   minimumProfitCents: number;
+  partnerProfitCents?: number;
+  globalMaxDiscountPct?: number;
   preview: { worstCase: MarginScenario };
 };
 
@@ -60,9 +71,7 @@ type AffiliateConfigPayload = { status?: string; data?: AffiliateConfig; message
 
 type AffiliateDraft = {
   affiliateEnabled: boolean;
-  affiliateCommissionPct: string;
   partnerBuyDiscountPct: string;
-  minimumProfitCents: string;
 };
 
 type HoldPeriodPayload = { status?: string; data?: { holdDays?: number }; message?: string };
@@ -87,9 +96,7 @@ const STATUS_OPTIONS = ["All", "PendingApproval", "Pending", "Active", "Suspende
 function toAffiliateDraft(config: AffiliateConfig): AffiliateDraft {
   return {
     affiliateEnabled: config.affiliateEnabled,
-    affiliateCommissionPct: String(config.affiliateCommissionPct),
-    partnerBuyDiscountPct: String(config.partnerBuyDiscountPct),
-    minimumProfitCents: String(config.minimumProfitCents)
+    partnerBuyDiscountPct: String(config.partnerBuyDiscountPct)
   };
 }
 
@@ -102,24 +109,19 @@ function formatDate(value: string) {
 }
 
 /**
- * Mirrors the backend's computeFinalCustomerPrice / computeCommissionAmount /
- * computeRemainingMargin (E-SIM backend/src/services/partnerCommission.calc.ts)
- * so the panel can preview the effect of an unsaved draft as-you-type. The
- * server's GET only returns a preview for the currently-saved config — there
- * is no query-param preview endpoint — so a live-as-you-edit preview has to
- * be computed client-side against the same normalPriceCents/supplierCostCents
- * the GET response carries for the selected package.
+ * Mirrors backend partnerCommission.calc fixed-profit + clamp math for draft preview.
+ * affiliateCommissionCents here means the fixed EUR-cent partner profit snapshot.
  */
 function previewScenario(
   normalPriceCents: number,
   supplierCostCents: number,
   discountPct: number,
-  commissionPct: number
+  partnerProfitCents: number
 ): MarginScenario {
   const raw = normalPriceCents - normalPriceCents * (discountPct / 100);
   const customerPaysCents = Math.max(0, Math.round(raw));
   const customerDiscountCents = normalPriceCents - customerPaysCents;
-  const affiliateCommissionCents = Math.round(customerPaysCents * (commissionPct / 100));
+  const affiliateCommissionCents = Math.max(0, Math.round(partnerProfitCents));
   const remainingMarginCents = customerPaysCents - supplierCostCents - affiliateCommissionCents;
   return {
     normalPriceCents,
@@ -131,7 +133,25 @@ function previewScenario(
   };
 }
 
-const WORST_CASE_DISCOUNT_PCT = 20;
+function computeEffectiveDiscountPctClient(input: {
+  retailCents: number;
+  costCents: number;
+  partnerProfitCents: number;
+  floorCents: number;
+  partnerPct: number;
+  globalMaxPct: number;
+}): number {
+  if (input.retailCents <= 0) return 0;
+  const minPayable = input.costCents + input.partnerProfitCents + input.floorCents;
+  const roomPct = Math.max(0, ((input.retailCents - minPayable) / input.retailCents) * 100);
+  let pct = Math.floor(Math.min(Math.max(0, input.partnerPct), Math.max(0, input.globalMaxPct), roomPct));
+  while (pct > 0) {
+    const paid = Math.max(0, Math.round(input.retailCents - input.retailCents * (pct / 100)));
+    if (paid - input.costCents - input.partnerProfitCents >= input.floorCents) return pct;
+    pct -= 1;
+  }
+  return 0;
+}
 
 function isDraftAllowed(scenario: MarginScenario, minimumProfitCents: number): boolean {
   return scenario.remainingMarginCents >= minimumProfitCents;
@@ -159,6 +179,19 @@ export default function AdminPartnersPage() {
   const [holdDays, setHoldDays] = useState<number | null>(null);
   const [holdDaysDraft, setHoldDaysDraft] = useState("");
   const [isSavingHoldDays, setIsSavingHoldDays] = useState(false);
+
+  const [maxDiscountPctDraft, setMaxDiscountPctDraft] = useState("15");
+  const [companyFloorCentsDraft, setCompanyFloorCentsDraft] = useState("150");
+  const [isSavingProgramSettings, setIsSavingProgramSettings] = useState(false);
+
+  const [selectedPartnerEmail, setSelectedPartnerEmail] = useState<string | null>(null);
+  const [promoCodeDraft, setPromoCodeDraft] = useState("");
+  const [profitCentsDraft, setProfitCentsDraft] = useState("100");
+  const [isSavingPartnerDetail, setIsSavingPartnerDetail] = useState(false);
+  const [packageProfits, setPackageProfits] = useState<Array<{ packageId: string; profitCents: number }>>([]);
+  const [overridePackageId, setOverridePackageId] = useState("");
+  const [overrideProfitCents, setOverrideProfitCents] = useState("100");
+  const [isSavingPackageOverride, setIsSavingPackageOverride] = useState(false);
 
   const [reviewQueue, setReviewQueue] = useState<ReviewCredit[]>([]);
   const [isLoadingReviewQueue, setIsLoadingReviewQueue] = useState(false);
@@ -262,6 +295,234 @@ export default function AdminPartnersPage() {
     }
   }
 
+  async function loadProgramSettings(nextToken = token) {
+    if (!nextToken) return;
+    try {
+      const response = await fetch("/bff/admin/partners/program-settings", {
+        headers: { Authorization: `Bearer ${nextToken}` },
+        cache: "no-store"
+      });
+      const payload = (await response.json()) as {
+        status?: string;
+        data?: { maxDiscountPct?: number; companyFloorCents?: number };
+        message?: string;
+      };
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+      if (!response.ok || payload.status !== "success" || !payload.data) {
+        throw new Error(payload.message ?? "Could not load program settings");
+      }
+      setMaxDiscountPctDraft(String(payload.data.maxDiscountPct ?? 15));
+      setCompanyFloorCentsDraft(String(payload.data.companyFloorCents ?? 150));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load program settings");
+    }
+  }
+
+  async function saveProgramSettings() {
+    const maxDiscountPct = Number(maxDiscountPctDraft);
+    const companyFloorCents = Number(companyFloorCentsDraft);
+    if (!Number.isInteger(maxDiscountPct) || maxDiscountPct < 0 || maxDiscountPct > 100) {
+      setError("Max discount % must be an integer 0–100.");
+      return;
+    }
+    if (!Number.isInteger(companyFloorCents) || companyFloorCents < 0) {
+      setError("Company floor must be a non-negative integer (EUR cents).");
+      return;
+    }
+    setIsSavingProgramSettings(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch("/bff/admin/partners/program-settings", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ maxDiscountPct, companyFloorCents })
+      });
+      const payload = (await response.json()) as {
+        status?: string;
+        data?: { maxDiscountPct?: number; companyFloorCents?: number };
+        message?: string;
+      };
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success" || !payload.data) {
+        throw new Error(payload.message ?? "Could not save program settings");
+      }
+      setMaxDiscountPctDraft(String(payload.data.maxDiscountPct));
+      setCompanyFloorCentsDraft(String(payload.data.companyFloorCents));
+      setNotice(
+        `Program settings saved: max ${payload.data.maxDiscountPct}% discount, floor €${((payload.data.companyFloorCents ?? 0) / 100).toFixed(2)}.`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save program settings");
+    } finally {
+      setIsSavingProgramSettings(false);
+    }
+  }
+
+  async function loadPackageProfits(email: string, nextToken = token) {
+    if (!nextToken) return;
+    try {
+      const response = await fetch(`/bff/admin/partners/${encodeURIComponent(email)}/package-profits`, {
+        headers: { Authorization: `Bearer ${nextToken}` },
+        cache: "no-store"
+      });
+      const payload = (await response.json()) as {
+        status?: string;
+        data?: { packageProfits?: Array<{ packageId: string; profitCents: number }> };
+        message?: string;
+      };
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not load package profits");
+      }
+      setPackageProfits(payload.data?.packageProfits ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load package profits");
+      setPackageProfits([]);
+    }
+  }
+
+  async function savePackageProfitOverride() {
+    if (!selectedPartnerEmail) return;
+    const packageId = overridePackageId.trim();
+    const profitCents = Number(overrideProfitCents);
+    if (!packageId) {
+      setError("Package id is required for an override.");
+      return;
+    }
+    if (!Number.isInteger(profitCents) || profitCents < 0) {
+      setError("Override profit must be a non-negative integer (EUR cents).");
+      return;
+    }
+    setIsSavingPackageOverride(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(
+        `/bff/admin/partners/${encodeURIComponent(selectedPartnerEmail)}/package-profits/${encodeURIComponent(packageId)}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ profitCents })
+        }
+      );
+      const payload = (await response.json()) as { status?: string; message?: string };
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not save package profit override");
+      }
+      setNotice(`${selectedPartnerEmail}: override for ${packageId} saved.`);
+      setOverridePackageId("");
+      await loadPackageProfits(selectedPartnerEmail);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save package profit override");
+    } finally {
+      setIsSavingPackageOverride(false);
+    }
+  }
+
+  async function deletePackageProfitOverride(packageId: string) {
+    if (!selectedPartnerEmail) return;
+    setIsSavingPackageOverride(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(
+        `/bff/admin/partners/${encodeURIComponent(selectedPartnerEmail)}/package-profits/${encodeURIComponent(packageId)}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      const payload = (await response.json()) as { status?: string; message?: string };
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not delete package profit override");
+      }
+      setNotice(`${selectedPartnerEmail}: override for ${packageId} removed.`);
+      await loadPackageProfits(selectedPartnerEmail);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete package profit override");
+    } finally {
+      setIsSavingPackageOverride(false);
+    }
+  }
+
+  async function saveSelectedPartnerDetail() {
+    if (!selectedPartnerEmail) return;
+    setIsSavingPartnerDetail(true);
+    setError("");
+    setNotice("");
+    try {
+      const promoCode = promoCodeDraft.trim().toUpperCase();
+      const partnerProfitCents = Number(profitCentsDraft);
+      if (!promoCode) throw new Error("Promo code is required.");
+      if (!Number.isInteger(partnerProfitCents) || partnerProfitCents < 0) {
+        throw new Error("Partner profit must be a non-negative integer (EUR cents).");
+      }
+
+      const promoResponse = await fetch(
+        `/bff/admin/partners/${encodeURIComponent(selectedPartnerEmail)}/promo-code`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ promoCode })
+        }
+      );
+      const promoPayload = (await promoResponse.json()) as PartnerActionPayload;
+      if (promoResponse.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!promoResponse.ok || promoPayload.status !== "success") {
+        throw new Error(promoPayload.message ?? "Could not update promo code");
+      }
+
+      const profitResponse = await fetch(
+        `/bff/admin/partners/${encodeURIComponent(selectedPartnerEmail)}/profit`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ partnerProfitCents })
+        }
+      );
+      const profitPayload = (await profitResponse.json()) as PartnerActionPayload;
+      if (!profitResponse.ok || profitPayload.status !== "success") {
+        throw new Error(profitPayload.message ?? "Could not update partner profit");
+      }
+
+      setNotice(`${selectedPartnerEmail}: promo code and profit updated.`);
+      await loadPartners();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save partner detail");
+    } finally {
+      setIsSavingPartnerDetail(false);
+    }
+  }
+
   async function loadReviewQueue(nextToken = token) {
     if (!nextToken) return;
     setIsLoadingReviewQueue(true);
@@ -317,7 +578,7 @@ export default function AdminPartnersPage() {
     );
   }, [packages, packageSearch]);
 
-  async function runPartnerAction(email: string, action: "approve" | "suspend" | "cancel" | "verify") {
+  async function runPartnerAction(email: string, action: "approve" | "suspend" | "cancel" | "verify" | "reject") {
     setPartnerActionEmail(email);
     setError("");
     setNotice("");
@@ -347,28 +608,36 @@ export default function AdminPartnersPage() {
     if (!affiliateBase || !affiliateDraft) return null;
     const normalPriceCents = affiliateBase.preview.worstCase.normalPriceCents;
     const supplierCostCents = affiliateBase.preview.worstCase.supplierCostCents;
-    const commissionPct = Number(affiliateDraft.affiliateCommissionPct);
-    const minimumProfitCents = Number(affiliateDraft.minimumProfitCents);
-    if (!Number.isFinite(commissionPct) || !Number.isFinite(minimumProfitCents)) {
-      return null;
-    }
-    const worstCase = previewScenario(normalPriceCents, supplierCostCents, WORST_CASE_DISCOUNT_PCT, commissionPct);
-    const allowed = !affiliateDraft.affiliateEnabled || isDraftAllowed(worstCase, minimumProfitCents);
-    return { worstCase, allowed, minimumProfitCents };
-  }, [affiliateBase, affiliateDraft]);
+    const partnerBuyDiscountPct = Number(affiliateDraft.partnerBuyDiscountPct);
+    if (!Number.isFinite(partnerBuyDiscountPct)) return null;
+
+    const partnerProfitCents = affiliateBase.partnerProfitCents ?? 100;
+    const floorCents = Number(companyFloorCentsDraft);
+    const globalMaxPct = Number(maxDiscountPctDraft);
+    const safeFloor = Number.isFinite(floorCents) ? floorCents : affiliateBase.minimumProfitCents;
+    const safeMax = Number.isFinite(globalMaxPct)
+      ? globalMaxPct
+      : (affiliateBase.globalMaxDiscountPct ?? 15);
+
+    const effectivePct = computeEffectiveDiscountPctClient({
+      retailCents: normalPriceCents,
+      costCents: supplierCostCents,
+      partnerProfitCents,
+      floorCents: safeFloor,
+      partnerPct: safeMax,
+      globalMaxPct: safeMax
+    });
+    const worstCase = previewScenario(normalPriceCents, supplierCostCents, effectivePct, partnerProfitCents);
+    const allowed = !affiliateDraft.affiliateEnabled || isDraftAllowed(worstCase, safeFloor);
+    return { worstCase, allowed, minimumProfitCents: safeFloor, effectivePct };
+  }, [affiliateBase, affiliateDraft, companyFloorCentsDraft, maxDiscountPctDraft]);
 
   async function saveAffiliateConfig() {
     if (!affiliateDraft || !selectedPackageId) return;
 
-    const affiliateCommissionPct = Number(affiliateDraft.affiliateCommissionPct);
     const partnerBuyDiscountPct = Number(affiliateDraft.partnerBuyDiscountPct);
-    const minimumProfitCents = Number(affiliateDraft.minimumProfitCents);
-    if (
-      !Number.isFinite(affiliateCommissionPct) ||
-      !Number.isFinite(partnerBuyDiscountPct) ||
-      !Number.isFinite(minimumProfitCents)
-    ) {
-      setError("All affiliate-config fields must be numbers.");
+    if (!Number.isFinite(partnerBuyDiscountPct)) {
+      setError("Partner buy discount % must be a number.");
       return;
     }
 
@@ -383,9 +652,7 @@ export default function AdminPartnersPage() {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             affiliateEnabled: affiliateDraft.affiliateEnabled,
-            affiliateCommissionPct,
-            partnerBuyDiscountPct,
-            minimumProfitCents
+            partnerBuyDiscountPct
           })
         }
       );
@@ -533,6 +800,7 @@ export default function AdminPartnersPage() {
                 void loadPartners(nextToken);
                 void loadPackages(nextToken);
                 void loadHoldPeriod(nextToken);
+                void loadProgramSettings(nextToken);
                 void loadReviewQueue(nextToken);
               }
             }}
@@ -594,7 +862,20 @@ export default function AdminPartnersPage() {
                   <tbody>
                     {partners.map((partner) => (
                       <tr className="border-t border-line/60 align-top hover:bg-[#fbfeff]" key={partner.userEmail}>
-                        <td className="px-5 py-3 font-bold text-midnight">{partner.userEmail}</td>
+                        <td className="px-5 py-3 font-bold text-midnight">
+                          <button
+                            className="text-left underline-offset-2 hover:underline"
+                            onClick={() => {
+                              setSelectedPartnerEmail(partner.userEmail);
+                              setPromoCodeDraft(partner.promoCode ?? "");
+                              setProfitCentsDraft(String(partner.partnerProfitCents ?? 100));
+                              void loadPackageProfits(partner.userEmail);
+                            }}
+                            type="button"
+                          >
+                            {partner.userEmail}
+                          </button>
+                        </td>
                         <td className="px-3 py-3 text-midnight">{partner.status}</td>
                         <td className="px-3 py-3 text-muted">
                           {partner.partnerType} · {partner.country}
@@ -605,7 +886,30 @@ export default function AdminPartnersPage() {
                         <td className="px-3 py-3 text-midnight">{formatMoney(partner.walletBalanceCents)}</td>
                         <td className="px-5 py-3">
                           <div className="flex flex-wrap gap-1.5">
-                            {partner.status === "Active" ? (
+                            {partner.status === "PendingApproval" ? (
+                              <>
+                                <button
+                                  className="h-8 rounded-lg bg-gradient-to-r from-midnight to-ink px-2.5 text-[11px] font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                                  disabled={partnerActionEmail === partner.userEmail}
+                                  onClick={() => void runPartnerAction(partner.userEmail, "approve")}
+                                  type="button"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  className="h-8 rounded-lg border border-rose-300 px-2.5 text-[11px] font-bold text-rose-700 transition hover:border-rose-500 disabled:opacity-50"
+                                  disabled={partnerActionEmail === partner.userEmail}
+                                  onClick={() => {
+                                    if (window.confirm(`Reject partner request from ${partner.userEmail}?`)) {
+                                      void runPartnerAction(partner.userEmail, "reject");
+                                    }
+                                  }}
+                                  type="button"
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            ) : partner.status === "Active" ? (
                               <button
                                 className="h-8 rounded-lg border border-amber-300 px-2.5 text-[11px] font-bold text-amber-700 transition hover:border-amber-500 disabled:opacity-50"
                                 disabled={partnerActionEmail === partner.userEmail}
@@ -720,19 +1024,6 @@ export default function AdminPartnersPage() {
                       Affiliate enabled
                     </label>
                     <label className="text-xs font-bold text-muted">
-                      Affiliate commission %
-                      <input
-                        className="mt-1 h-9 w-28 rounded-lg border border-line px-2 text-sm font-normal text-midnight"
-                        inputMode="decimal"
-                        onChange={(event) =>
-                          setAffiliateDraft((current) =>
-                            current ? { ...current, affiliateCommissionPct: event.target.value } : current
-                          )
-                        }
-                        value={affiliateDraft.affiliateCommissionPct}
-                      />
-                    </label>
-                    <label className="text-xs font-bold text-muted">
                       Partner buy discount %
                       <input
                         className="mt-1 h-9 w-28 rounded-lg border border-line px-2 text-sm font-normal text-midnight"
@@ -745,20 +1036,12 @@ export default function AdminPartnersPage() {
                         value={affiliateDraft.partnerBuyDiscountPct}
                       />
                     </label>
-                    <label className="text-xs font-bold text-muted">
-                      Minimum profit (cents)
-                      <input
-                        className="mt-1 h-9 w-32 rounded-lg border border-line px-2 text-sm font-normal text-midnight"
-                        inputMode="numeric"
-                        onChange={(event) =>
-                          setAffiliateDraft((current) =>
-                            current ? { ...current, minimumProfitCents: event.target.value } : current
-                          )
-                        }
-                        value={affiliateDraft.minimumProfitCents}
-                      />
-                    </label>
                   </div>
+
+                  <p className="text-xs text-muted">
+                    The margin floor and max discount applied to this package come from the
+                    program settings, not from per-package values.
+                  </p>
 
                   {draftPreview ? (
                     <div className="overflow-x-auto rounded-xl border border-line">
@@ -769,7 +1052,7 @@ export default function AdminPartnersPage() {
                               Metric
                             </th>
                             <th className="px-3 py-2 text-[10px] font-black uppercase tracking-wide text-muted">
-                              Worst case ({WORST_CASE_DISCOUNT_PCT}% discount)
+                              Worst case ({draftPreview.effectivePct}% effective discount)
                             </th>
                           </tr>
                         </thead>
@@ -799,7 +1082,7 @@ export default function AdminPartnersPage() {
                             </td>
                           </tr>
                           <tr className="border-t border-line/60">
-                            <td className="px-3 py-2 font-bold text-midnight">Affiliate Commission</td>
+                            <td className="px-3 py-2 font-bold text-midnight">Partner profit (fixed)</td>
                             <td className="px-3 py-2 text-midnight">
                               {formatMoney(draftPreview.worstCase.affiliateCommissionCents)}
                             </td>
@@ -849,8 +1132,43 @@ export default function AdminPartnersPage() {
               )}
             </section>
 
-            {/* Hold period */}
-            <section className="flex flex-wrap items-end gap-4 rounded-2xl border border-line bg-white p-5 shadow-card">
+            {/* Program settings + hold period */}
+            <section className="flex flex-wrap items-end gap-6 rounded-2xl border border-line bg-white p-5 shadow-card">
+              <div>
+                <label className="block text-sm font-bold text-midnight" htmlFor="max-discount-pct">
+                  Max partner discount %
+                </label>
+                <input
+                  className="mt-1.5 h-11 w-24 rounded-xl border border-line px-3 text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/20"
+                  id="max-discount-pct"
+                  inputMode="numeric"
+                  onChange={(event) => setMaxDiscountPctDraft(event.target.value)}
+                  value={maxDiscountPctDraft}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-midnight" htmlFor="company-floor-cents">
+                  Company floor (EUR cents)
+                </label>
+                <input
+                  className="mt-1.5 h-11 w-28 rounded-xl border border-line px-3 text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/20"
+                  id="company-floor-cents"
+                  inputMode="numeric"
+                  onChange={(event) => setCompanyFloorCentsDraft(event.target.value)}
+                  value={companyFloorCentsDraft}
+                />
+                <p className="mt-1 text-xs font-semibold text-muted">
+                  paid − cost − partnerProfit ≥ this amount
+                </p>
+              </div>
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua shadow-glow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSavingProgramSettings}
+                onClick={() => void saveProgramSettings()}
+                type="button"
+              >
+                {isSavingProgramSettings ? "Saving..." : "Save program settings"}
+              </button>
               <div>
                 <label className="block text-sm font-bold text-midnight" htmlFor="hold-days">
                   Commission hold period
@@ -875,9 +1193,135 @@ export default function AdminPartnersPage() {
                 onClick={() => void saveHoldDays()}
                 type="button"
               >
-                {isSavingHoldDays ? "Saving..." : "Save"}
+                {isSavingHoldDays ? "Saving..." : "Save hold"}
               </button>
             </section>
+
+            {selectedPartnerEmail ? (
+              <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
+                <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">
+                  Partner detail — {selectedPartnerEmail}
+                </h2>
+                <p className="mt-1 text-xs text-muted">
+                  Admin-only promo code and fixed EUR profit (cents). Changing the code invalidates the old one
+                  immediately.
+                </p>
+                <div className="mt-4 flex flex-wrap items-end gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-midnight" htmlFor="partner-promo-code">
+                      Promo code
+                    </label>
+                    <input
+                      className="mt-1.5 h-11 w-48 rounded-xl border border-line px-3 text-sm uppercase outline-none focus:border-cyan"
+                      id="partner-promo-code"
+                      onChange={(event) => setPromoCodeDraft(event.target.value)}
+                      value={promoCodeDraft}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-midnight" htmlFor="partner-profit-cents">
+                      Profit (EUR cents)
+                    </label>
+                    <input
+                      className="mt-1.5 h-11 w-32 rounded-xl border border-line px-3 text-sm outline-none focus:border-cyan"
+                      id="partner-profit-cents"
+                      inputMode="numeric"
+                      onChange={(event) => setProfitCentsDraft(event.target.value)}
+                      value={profitCentsDraft}
+                    />
+                  </div>
+                  <button
+                    className="inline-flex h-10 items-center rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua disabled:opacity-60"
+                    disabled={isSavingPartnerDetail}
+                    onClick={() => void saveSelectedPartnerDetail()}
+                    type="button"
+                  >
+                    {isSavingPartnerDetail ? "Saving..." : "Save code & profit"}
+                  </button>
+                  <button
+                    className="inline-flex h-10 items-center rounded-xl border border-line px-4 text-xs font-bold text-midnight"
+                    onClick={() => {
+                      setSelectedPartnerEmail(null);
+                      setPackageProfits([]);
+                    }}
+                    type="button"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                <div className="mt-6 border-t border-line/70 pt-4">
+                  <h3 className="text-[11px] font-black uppercase tracking-wide text-muted">
+                    Per-package profit overrides
+                  </h3>
+                  <p className="mt-1 text-xs text-muted">
+                    Optional. Default profit above applies unless a package id is listed here.
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-end gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-midnight" htmlFor="override-package-id">
+                        Package id
+                      </label>
+                      <input
+                        className="mt-1 h-10 w-56 rounded-xl border border-line px-3 text-sm outline-none focus:border-cyan"
+                        id="override-package-id"
+                        list="partner-package-ids"
+                        onChange={(event) => setOverridePackageId(event.target.value)}
+                        placeholder="e.g. albania-1gb-7days"
+                        value={overridePackageId}
+                      />
+                      <datalist id="partner-package-ids">
+                        {packages.map((row) => (
+                          <option key={row.packageId} value={row.packageId}>
+                            {row.title}
+                          </option>
+                        ))}
+                      </datalist>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-midnight" htmlFor="override-profit-cents">
+                        Profit (EUR cents)
+                      </label>
+                      <input
+                        className="mt-1 h-10 w-28 rounded-xl border border-line px-3 text-sm outline-none focus:border-cyan"
+                        id="override-profit-cents"
+                        inputMode="numeric"
+                        onChange={(event) => setOverrideProfitCents(event.target.value)}
+                        value={overrideProfitCents}
+                      />
+                    </div>
+                    <button
+                      className="inline-flex h-10 items-center rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua disabled:opacity-60"
+                      disabled={isSavingPackageOverride}
+                      onClick={() => void savePackageProfitOverride()}
+                      type="button"
+                    >
+                      {isSavingPackageOverride ? "Saving..." : "Add / update override"}
+                    </button>
+                  </div>
+                  {packageProfits.length > 0 ? (
+                    <ul className="mt-3 space-y-1.5 text-sm">
+                      {packageProfits.map((row) => (
+                        <li className="flex flex-wrap items-center gap-3" key={row.packageId}>
+                          <span className="font-bold text-midnight">{row.packageId}</span>
+                          <span className="text-muted">{formatMoney(row.profitCents)}</span>
+                          <button
+                            className="text-xs font-bold text-rose-700 underline-offset-2 hover:underline disabled:opacity-50"
+                            disabled={isSavingPackageOverride}
+                            onClick={() => void deletePackageProfitOverride(row.packageId)}
+                            type="button"
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-3 text-xs font-semibold text-muted">No overrides yet.</p>
+                  )}
+                </div>
+              </section>
+            ) : null}
 
             {/* Review queue */}
             <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">

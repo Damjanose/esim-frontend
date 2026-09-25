@@ -64,6 +64,11 @@ const STATUS_COPY: Record<
     icon: XCircle,
     title: "Your partner account is cancelled",
     body: "Your partner account has been cancelled. Contact support if you'd like to discuss reinstating it."
+  },
+  Rejected: {
+    icon: XCircle,
+    title: "Your partner application was not approved",
+    body: "After review, we are unable to approve your partner application at this time. Contact support if you have questions."
   }
 };
 

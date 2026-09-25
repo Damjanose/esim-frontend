@@ -5,15 +5,15 @@ type RouteContext = {
   params: Promise<{ email: string }>;
 };
 
-export async function POST(request: Request, context: RouteContext) {
+export async function PATCH(request: Request, context: RouteContext) {
   const authorization = request.headers.get("Authorization") ?? "";
   const token = authorization.replace(/^Bearer\s+/i, "").trim();
   const email = (await context.params).email;
   const body = await request.json().catch(() => ({}));
 
   const result = await backendFetch<unknown>(
-    `/admin/partners/${encodeURIComponent(email)}/approve`,
-    { method: "POST", token, body }
+    `/admin/partners/${encodeURIComponent(email)}/profit`,
+    { method: "PATCH", token, body }
   );
 
   if (!result.ok) {
