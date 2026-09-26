@@ -12,7 +12,7 @@ describe("hidden admin purchase dashboard", () => {
     expect(homeSource).not.toContain("/xloginy");
     expect(dashboardSource).toContain('"use client"');
     expect(dashboardSource).toContain("useAdminSession");
-    expect(hookSource).toContain("sessionStorage");
+    expect(hookSource).toContain("readAdminTokenCookie");
   });
 
   it("renders an admin login, purchase table, and SVG purchases-over-time chart", () => {

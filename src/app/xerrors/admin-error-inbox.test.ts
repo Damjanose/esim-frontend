@@ -12,7 +12,7 @@ describe("hidden admin error inbox", () => {
     expect(homeSource).not.toContain("/xerrors");
     expect(errorInboxSource).toContain('"use client"');
     expect(errorInboxSource).toContain("useAdminSession");
-    expect(hookSource).toContain("sessionStorage");
+    expect(hookSource).toContain("readAdminTokenCookie");
   });
 
   it("renders utility filters, table columns, and plain error detail actions", () => {

@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-26",
-    "note_latest": "f181: /xtripplany edits-per-plan setting for trip plan prompt edits"
+    "note_latest": "f182: admin token persisted in a cookie until it expires (was sessionStorage)"
   }
 }

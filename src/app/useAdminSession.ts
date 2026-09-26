@@ -1,8 +1,26 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  adminTokenCookie,
+  adminTokenMaxAgeSeconds,
+  clearedAdminTokenCookie,
+  readAdminTokenCookie
+} from "@/lib/adminTokenCookie";
 
-export const ADMIN_TOKEN_STORAGE_KEY = "velocity-admin-dashboard-token";
+function isSecurePage(): boolean {
+  return window.location.protocol === "https:";
+}
+
+/** Keeps the token in a cookie until it expires, so a new tab or browser restart stays signed in. */
+function saveToken(token: string): void {
+  const maxAge = adminTokenMaxAgeSeconds(token);
+  document.cookie = maxAge > 0 ? adminTokenCookie(token, maxAge, isSecurePage()) : clearedAdminTokenCookie(isSecurePage());
+}
+
+function clearToken(): void {
+  document.cookie = clearedAdminTokenCookie(isSecurePage());
+}
 
 type AdminLoginResponse = {
   status?: string;
@@ -25,8 +43,9 @@ export function useAdminSession() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const storedToken = sessionStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
-    if (storedToken) setToken(storedToken);
+    const storedToken = readAdminTokenCookie(document.cookie);
+    if (storedToken && adminTokenMaxAgeSeconds(storedToken) > 0) setToken(storedToken);
+    else if (storedToken) clearToken();
   }, []);
 
   const login = useCallback(
@@ -48,7 +67,7 @@ export function useAdminSession() {
           throw new Error(payload.message ?? "Invalid admin credentials");
         }
 
-        sessionStorage.setItem(ADMIN_TOKEN_STORAGE_KEY, nextToken);
+        saveToken(nextToken);
         setToken(nextToken);
         setPassword("");
         return nextToken;
@@ -63,13 +82,13 @@ export function useAdminSession() {
   );
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+    clearToken();
     setToken("");
   }, []);
 
   /** Call when a request comes back 401: clears the stale token so the login form reappears. */
   const handleUnauthorized = useCallback(() => {
-    sessionStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+    clearToken();
     setToken("");
   }, []);
 

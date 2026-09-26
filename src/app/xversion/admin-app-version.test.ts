@@ -24,7 +24,7 @@ describe("hidden admin app version page", () => {
     const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
 
     expect(pageSource).toContain("useAdminSession");
-    expect(hookSource).toContain("velocity-admin-dashboard-token");
+    expect(hookSource).toContain("readAdminTokenCookie");
   });
 
   it("loads and saves the minimum version through the admin app-version proxy", () => {

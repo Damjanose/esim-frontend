@@ -26,7 +26,7 @@ describe("hidden admin package pricing page", () => {
     const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
 
     expect(pageSource).toContain("useAdminSession");
-    expect(hookSource).toContain("velocity-admin-dashboard-token");
+    expect(hookSource).toContain("readAdminTokenCookie");
     expect(hookSource).toContain("/bff/admin/login");
   });
 
