@@ -278,4 +278,35 @@ describe("SEO route contract", () => {
     expect(product).not.toHaveProperty("aggregateRating");
     expect(product).not.toHaveProperty("review");
   });
+
+  it("marks editorial pages as an Article by the organization, without a Product", () => {
+    const schema = createContentPageJsonLd({
+      path: "/compare/airalo-vs-esim2you",
+      name: "Airalo vs eSIM2you",
+      description: "Feature comparison.",
+      breadcrumbName: "Airalo vs eSIM2you",
+      article: { dateModified: new Date("2026-09-12T00:00:00.000Z") }
+    });
+    const types = schema["@graph"].map((node) => node["@type"]);
+    const article = schema["@graph"].find((node) => node["@type"] === "Article");
+
+    expect(types).not.toContain("Product");
+    expect(article).toMatchObject({
+      headline: "Airalo vs eSIM2you",
+      mainEntityOfPage: { "@id": "https://esim.uplisoft.com/compare/airalo-vs-esim2you#webpage" },
+      dateModified: "2026-09-12T00:00:00.000Z",
+      author: { "@id": "https://esim.uplisoft.com/#organization" }
+    });
+  });
+
+  it("keeps Product markup off compare pages and Article on travel guides", () => {
+    const compareHub = readFileSync("src/app/compare/page.tsx", "utf8");
+    const compareSlug = readFileSync("src/app/compare/[slug]/page.tsx", "utf8");
+    const travelSlug = readFileSync("src/app/travel/[slug]/page.tsx", "utf8");
+
+    expect(compareHub).not.toContain("offer:");
+    expect(compareSlug).not.toMatch(/offer: offer/);
+    expect(compareSlug).toContain("article: { dateModified: seoContentUpdatedAt }");
+    expect(travelSlug).toContain("<SeoContentPageView asArticle");
+  });
 });

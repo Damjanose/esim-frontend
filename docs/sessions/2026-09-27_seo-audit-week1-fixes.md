@@ -51,9 +51,14 @@ The re-audit scored 73, up from 64. It raised two new code items, and both are f
 - **Coverage lists.** Regional `/esim` pages now render "N countries covered by every <Region> plan", followed by the countries. The list is the intersection of the backend packages' `countries` for that region. Current counts: Europe 41, Asia 18, Africa 36, North America 3, Latin America 17, Middle East & North Africa 13. `/esim/balkans` explains that it uses the Europe plans and that Kosovo is not included (f194).
 - **Mobile overflow.** 375px phones laid `/esim/*` out at 479px. The cause was the plan table's `sr-only` "Buy" header escaping an unpositioned `overflow-x-auto` wrapper. Adding `relative` to the wrapper fixed it. I checked 8 public pages at 375px on a local production build, and all are now 375 (f195).
 
+## Schema and homepage links
+
+- **Article markup.** `/travel/*` guides and `/compare/[slug]` now emit `Article`. The author and publisher are the Organization, and `dateModified` is the content update date. `/compare` and `/compare/*` no longer emit a `Product` built from the site-wide price range. Per-plan `Offer[]` on `/esim` was skipped: the plans are variants, so it needs ProductGroup modelling (f196).
+- **Homepage links.** A new server-rendered "Top eSIM destinations" block links 12 `/esim` pages with live from-prices. Before this, the homepage HTML had 0 crawlable `/esim` links (f197). On a local build, homepage CLS stayed at 0 and the mobile width stayed at 375.
+
 ## Verification
 
-- `pnpm test`: 67 files, 543 tests passing.
+- `pnpm test`: 67 files, 546 tests passing.
 - `pnpm exec tsc --noEmit`: clean.
 
 ## Follow-ups

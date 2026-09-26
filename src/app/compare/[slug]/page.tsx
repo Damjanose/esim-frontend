@@ -7,6 +7,7 @@ import { Navbar } from "../../components/Navbar";
 import { SiteFooter } from "../../SiteFooter";
 import { comparePages } from "@/content/compare-pages";
 import { createContentPageJsonLd, createMetadata } from "@/lib/seo";
+import { seoContentUpdatedAt } from "@/lib/esim-routes";
 import { getGlobalOffer } from "@/lib/destinationPricing";
 import { convertEurToGbp, formatGbp, getGbpRate } from "@/lib/exchangeRate";
 
@@ -48,7 +49,8 @@ export default async function ComparePage({ params }: PageProps) {
           breadcrumbName: page.heading,
           parent: { name: "Compare", path: "/compare" },
           faqs: page.faqs,
-          offer: offer ?? undefined
+          // Editorial comparison, not a product page: no Product/Offer markup here.
+          article: { dateModified: seoContentUpdatedAt }
         })}
       />
       <Navbar />

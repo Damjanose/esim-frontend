@@ -90,4 +90,17 @@ describe("SEO external factors", () => {
       .filter((url) => !/\.(txt|xml)$/.test(url));
     expect(linked.filter((url) => !sitemapUrls.has(url))).toEqual([]);
   });
+
+  it("links the homepage server HTML to the top /esim money pages", () => {
+    const home = readFileSync("src/app/page.tsx", "utf8");
+    const block = readFileSync("src/app/TopDestinationLinks.tsx", "utf8");
+    const esimPaths = new Set(allSitemapEntries().map((entry) => new URL(entry.url).pathname));
+
+    expect(home).toContain("<TopDestinationLinks />");
+    expect(block).not.toContain('"use client"');
+    for (const slug of ["usa", "uk", "europe"]) {
+      expect(block).toContain(`"${slug}"`);
+      expect(esimPaths.has(`/esim/${slug}`)).toBe(true);
+    }
+  });
 });

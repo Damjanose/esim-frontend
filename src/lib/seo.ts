@@ -372,7 +372,8 @@ export function createContentPageJsonLd({
   breadcrumbName,
   parent,
   faqs = [],
-  offer
+  offer,
+  article
 }: {
   path: string;
   name: string;
@@ -384,6 +385,12 @@ export function createContentPageJsonLd({
   };
   faqs?: SeoPageFaq[];
   offer?: DestinationOfferInput;
+  /**
+   * Mark editorial pages (travel guides, comparisons) as an Article. There are no
+   * per-guide authors or publish dates yet, so the Organization is the author and
+   * only dateModified (the content update date the sitemap also uses) is emitted.
+   */
+  article?: { dateModified: Date };
 }) {
   const url = absoluteUrl(path);
   const breadcrumbItems = [
@@ -445,6 +452,22 @@ export function createContentPageJsonLd({
 
   if (offer) {
     graph.push(createOfferProductJsonLd({ url, name, description, offer }));
+  }
+
+  if (article) {
+    graph.push({
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: name,
+      description,
+      url,
+      mainEntityOfPage: { "@id": `${url}#webpage` },
+      image: ogImage.url,
+      dateModified: article.dateModified.toISOString(),
+      inLanguage: "en",
+      author: { "@id": `${siteUrl}/#organization` },
+      publisher: { "@id": `${siteUrl}/#organization` }
+    });
   }
 
   return {

@@ -6,11 +6,13 @@ import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import type { SeoContentPage } from "@/content/seo-pages";
 import { createContentPageJsonLd, type DestinationOfferInput } from "@/lib/seo";
+import { seoContentUpdatedAt } from "@/lib/esim-routes";
 
 export function SeoContentPageView({
   page,
   parent,
-  offer
+  offer,
+  asArticle = false
 }: {
   page: SeoContentPage;
   parent: {
@@ -18,6 +20,8 @@ export function SeoContentPageView({
     path: string;
   };
   offer?: DestinationOfferInput;
+  /** Editorial guides get Article markup; marketing landing pages don't. */
+  asArticle?: boolean;
 }) {
   return (
     <main className="min-h-screen bg-white text-onSurface">
@@ -29,7 +33,8 @@ export function SeoContentPageView({
           breadcrumbName: page.heading,
           parent,
           faqs: page.faqs,
-          offer
+          offer,
+          article: asArticle ? { dateModified: seoContentUpdatedAt } : undefined
         })}
       />
       <Navbar />

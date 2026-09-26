@@ -20,6 +20,7 @@ import { loadPublicTestimonials } from "@/lib/loadPublicTestimonials";
 import { Testimonials } from "./Testimonials";
 import { landingContent } from "@/content/landing";
 import { HeroPackageSearch } from "./HeroPackageSearch";
+import { TopDestinationLinks } from "./TopDestinationLinks";
 import { HeroDestinationChips } from "./HeroDestinationChips";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
 
@@ -78,6 +79,7 @@ export default async function Home() {
       <Navbar theme="dark" />
       <Hero />
       <DestinationBrowse urlFilters={{}} />
+      <TopDestinationLinks />
       <Benefits />
       <HowItWorks />
       <Testimonials items={testimonials} />

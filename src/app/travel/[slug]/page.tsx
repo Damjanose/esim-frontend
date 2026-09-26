@@ -37,5 +37,5 @@ export default async function TravelGuidePage({ params }: PageProps) {
     notFound();
   }
 
-  return <SeoContentPageView page={page} parent={{ name: "Travel guides", path: "/travel" }} />;
+  return <SeoContentPageView asArticle page={page} parent={{ name: "Travel guides", path: "/travel" }} />;
 }
