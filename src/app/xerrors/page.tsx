@@ -135,6 +135,7 @@ export default function AdminErrorInboxPage() {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterRequestId, setFilterRequestId] = useState("");
   const [filterArea, setFilterArea] = useState("");
+  const [filterUser, setFilterUser] = useState<"" | "signed-in" | "anonymous">("");
   const [unresolvedOnly, setUnresolvedOnly] = useState(true);
   const [adminNotes, setAdminNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -160,6 +161,7 @@ export default function AdminErrorInboxPage() {
     if (filterEmail.trim()) params.set("email", filterEmail.trim());
     if (filterRequestId.trim()) params.set("requestId", filterRequestId.trim());
     if (filterArea) params.set("area", filterArea);
+    if (filterUser) params.set("hasEmail", String(filterUser === "signed-in"));
     params.set("realFailuresOnly", "true");
     params.set("unresolvedOnly", String(unresolvedOnly));
 
@@ -329,7 +331,7 @@ export default function AdminErrorInboxPage() {
             </div>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
-              <div className="grid gap-3 md:grid-cols-5 md:items-end">
+              <div className="grid gap-3 md:grid-cols-6 md:items-end">
                 <label className="text-xs font-bold text-muted">
                   Email
                   <input
@@ -360,6 +362,19 @@ export default function AdminErrorInboxPage() {
                     <option value="orders">orders</option>
                     <option value="user">user</option>
                     <option value="admin">admin</option>
+                    <option value="unknown">unknown</option>
+                  </select>
+                </label>
+                <label className="text-xs font-bold text-muted">
+                  User
+                  <select
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    onChange={(event) => setFilterUser(event.target.value as typeof filterUser)}
+                    value={filterUser}
+                  >
+                    <option value="">All</option>
+                    <option value="signed-in">With email</option>
+                    <option value="anonymous">No email</option>
                   </select>
                 </label>
                 <label className="flex items-center gap-2 text-xs font-bold text-midnight">
