@@ -63,6 +63,8 @@ export function destinationBrowseHref(countryCode: string): string {
 export type DestinationDisplay = {
   countryName: string;
   relatedSlugs: string[];
+  /** Shown above the live coverage list on regional pages. */
+  coverageNote?: string;
 };
 
 export const destinationDisplay: Record<string, DestinationDisplay> = {
@@ -78,7 +80,7 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
   japan: { countryName: "Japan", relatedSlugs: ["asia", "thailand"] },
   europe: {
     countryName: "Europe",
-    relatedSlugs: ["albania", "france", "germany", "greece", "italy", "spain", "uk"]
+    relatedSlugs: ["albania", "france", "germany", "greece", "italy", "spain", "uk", "balkans"]
   },
   portugal: { countryName: "Portugal", relatedSlugs: ["spain", "europe"] },
   switzerland: { countryName: "Switzerland", relatedSlugs: ["germany", "france", "europe"] },
@@ -94,10 +96,23 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
   austria: { countryName: "Austria", relatedSlugs: ["germany", "switzerland", "europe"] },
   ireland: { countryName: "Ireland", relatedSlugs: ["uk", "france", "europe"] },
   croatia: { countryName: "Croatia", relatedSlugs: ["balkans", "italy", "europe"] },
-  balkans: { countryName: "Balkans", relatedSlugs: ["albania", "greece", "italy", "europe"] },
-  "middle-east": { countryName: "Middle East", relatedSlugs: ["uae", "asia", "europe"] },
+  balkans: {
+    countryName: "Balkans",
+    relatedSlugs: ["albania", "greece", "croatia", "europe"],
+    coverageNote:
+      "Balkans trips use our Europe regional plans, so one eSIM covers the Balkan countries below and the rest of Europe. Kosovo is not included."
+  },
+  "middle-east": {
+    countryName: "Middle East",
+    relatedSlugs: ["uae", "asia", "europe"],
+    coverageNote: "These Middle East and North Africa plans cover the countries below."
+  },
   africa: { countryName: "Africa", relatedSlugs: ["europe", "asia"] },
-  "south-america": { countryName: "South America", relatedSlugs: ["usa", "north-america"] }
+  "south-america": {
+    countryName: "South America",
+    relatedSlugs: ["usa", "north-america"],
+    coverageNote: "These Latin America plans cover the South and Central American countries listed below."
+  }
 };
 
 export function destinationH1(slug: string) {

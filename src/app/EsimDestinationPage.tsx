@@ -35,17 +35,21 @@ export function EsimDestinationPageView({
   page,
   offer,
   plans,
+  coverage = [],
   gbpRate
 }: {
   page: SeoContentPage;
   offer?: DestinationOfferInput;
   plans: DestinationPlanRow[];
+  /** Countries every plan covers; only set for regional destinations. */
+  coverage?: string[];
   gbpRate?: number;
 }) {
   const countryName = destinationDisplay[page.slug]?.countryName ?? page.eyebrow;
   const h1 = destinationH1(page.slug) ?? `eSIM for ${countryName}`;
   const neighborLinks = relatedDestinationLinks(page.slug);
   const lowestPriced = plans[0];
+  const coverageNote = destinationDisplay[page.slug]?.coverageNote;
   const sections = [
     ...page.sections,
     ...(priorityDestinationEnhancements[page.slug] ?? [])
@@ -164,8 +168,11 @@ export function EsimDestinationPageView({
               </p>
             ) : null}
 
+            {/* `relative` keeps the sr-only (absolute) caption and "Buy" header inside this
+                scroller; without it they escape to the page and widen the mobile layout
+                viewport (375px phones rendered /esim/* at 479px). */}
             {plans.length > 0 ? (
-              <div className="mt-8 overflow-x-auto rounded-[26px] border border-outline bg-white shadow-brandCard">
+              <div className="relative mt-8 overflow-x-auto rounded-[26px] border border-outline bg-white shadow-brandCard">
                 <table className="min-w-full text-left text-sm">
                   <caption className="sr-only">
                     {countryName} eSIM plans with data, validity, network, and price
@@ -221,6 +228,27 @@ export function EsimDestinationPageView({
                 destinations or check back shortly.
               </p>
             )}
+
+            {coverage.length > 0 ? (
+              <div className="mt-8 rounded-[26px] border border-outline bg-mist p-6 md:p-8" id="coverage">
+                <h3 className="font-display text-2xl font-black text-brandInk">
+                  {coverage.length} countries covered by every {countryName} plan
+                </h3>
+                {coverageNote ? (
+                  <p className="mt-3 max-w-3xl leading-7 text-onSurfaceVariant">{coverageNote}</p>
+                ) : null}
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {coverage.map((country) => (
+                    <li
+                      className="rounded-full border border-outline bg-white px-3 py-1.5 text-sm font-bold text-brandInk"
+                      key={country}
+                    >
+                      {country}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         </section>
 

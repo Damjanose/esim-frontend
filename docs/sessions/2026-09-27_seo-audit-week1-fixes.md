@@ -44,9 +44,16 @@ Measured with a local production build and Lighthouse 13 on mobile, 3 runs per p
   - `fetchPriority="high"` on the faded `/esim/[slug]` background made LCP noisy and worse.
 - Still open, and outside the code: Cloudflare Email Obfuscation injects a render-blocking `email-decode.min.js` on every page. Turning it off is a dashboard toggle (Scrape Shield).
 
+## Re-audit follow-ups: coverage lists and mobile overflow
+
+The re-audit scored 73, up from 64. It raised two new code items, and both are fixed here.
+
+- **Coverage lists.** Regional `/esim` pages now render "N countries covered by every <Region> plan", followed by the countries. The list is the intersection of the backend packages' `countries` for that region. Current counts: Europe 41, Asia 18, Africa 36, North America 3, Latin America 17, Middle East & North Africa 13. `/esim/balkans` explains that it uses the Europe plans and that Kosovo is not included (f194).
+- **Mobile overflow.** 375px phones laid `/esim/*` out at 479px. The cause was the plan table's `sr-only` "Buy" header escaping an unpositioned `overflow-x-auto` wrapper. Adding `relative` to the wrapper fixed it. I checked 8 public pages at 375px on a local production build, and all are now 375 (f195).
+
 ## Verification
 
-- `pnpm test`: 67 files, 540 tests passing.
+- `pnpm test`: 67 files, 543 tests passing.
 - `pnpm exec tsc --noEmit`: clean.
 
 ## Follow-ups

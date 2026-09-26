@@ -29,6 +29,7 @@ type ApiPackage = {
   priceNumeric?: number;
   network?: string;
   filters?: string[];
+  countries?: { countryCode?: string; title?: string }[];
 };
 
 type PackagesResponse = {
@@ -38,10 +39,13 @@ type PackagesResponse = {
 
 type OfferIndex = Record<string, DestinationOffer>;
 type PlanIndex = Record<string, DestinationPlanRow[]>;
+/** Regional code -> country names included in EVERY plan for that code. */
+type CoverageIndex = Record<string, string[]>;
 
 type DestinationCatalog = {
   offers: OfferIndex;
   plans: PlanIndex;
+  coverage: CoverageIndex;
 };
 
 const OFFER_CURRENCY = "EUR";
@@ -50,6 +54,7 @@ const MAX_PLANS_PER_DESTINATION = 12;
 function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
   const pricesByCode = new Map<string, number[]>();
   const plansByCode = new Map<string, DestinationPlanRow[]>();
+  const coverageByCode = new Map<string, Set<string>>();
 
   for (const pkg of packages) {
     const code = pkg.countryCode?.trim().toLowerCase();
@@ -73,6 +78,18 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
       price: pkg.price?.trim() || `€${pkg.priceNumeric.toFixed(2)}`,
       priceNumeric: pkg.priceNumeric
     };
+
+    const planCountries = new Set(
+      (pkg.countries ?? []).map((country) => country.title?.trim() ?? "").filter(Boolean)
+    );
+    const covered = coverageByCode.get(code);
+    if (covered) {
+      for (const country of covered) {
+        if (!planCountries.has(country)) covered.delete(country);
+      }
+    } else {
+      coverageByCode.set(code, planCountries);
+    }
 
     const rows = plansByCode.get(code);
     if (rows) {
@@ -99,7 +116,16 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
       .slice(0, MAX_PLANS_PER_DESTINATION);
   }
 
-  return { offers, plans };
+  // Only multi-country (regional) plans need a coverage list; single-country
+  // plans would just repeat the destination name.
+  const coverage: CoverageIndex = {};
+  for (const [code, countries] of coverageByCode) {
+    if (countries.size > 1) {
+      coverage[code] = [...countries].sort((a, b) => a.localeCompare(b));
+    }
+  }
+
+  return { offers, plans, coverage };
 }
 
 async function loadCatalog(): Promise<DestinationCatalog> {
@@ -110,13 +136,13 @@ async function loadCatalog(): Promise<DestinationCatalog> {
     });
 
     if (!response.ok) {
-      return { offers: {}, plans: {} };
+      return { offers: {}, plans: {}, coverage: {} };
     }
 
     const payload = (await response.json()) as PackagesResponse;
     return catalogFromPackages(payload.data?.packages ?? payload.packages ?? []);
   } catch {
-    return { offers: {}, plans: {} };
+    return { offers: {}, plans: {}, coverage: {} };
   }
 }
 
@@ -136,6 +162,11 @@ export async function getDestinationOffer(slug: string): Promise<DestinationOffe
 export async function getDestinationPlanRows(slug: string): Promise<DestinationPlanRow[]> {
   const catalog = await getCachedCatalog();
   return catalog.plans[backendCountryCode(slug)] ?? [];
+}
+
+export async function getDestinationCoverage(slug: string): Promise<string[]> {
+  const catalog = await getCachedCatalog();
+  return catalog.coverage?.[backendCountryCode(slug)] ?? [];
 }
 
 export async function getGlobalOffer(): Promise<DestinationOffer | null> {

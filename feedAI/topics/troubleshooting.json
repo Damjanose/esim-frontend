@@ -243,6 +243,15 @@
         "f193"
       ],
       "source": "public/llms.txt"
+    },
+    {
+      "symptom": "On phones /esim/* pages can be panned sideways; mobile emulation reports window.innerWidth 479 at a 375px viewport while every element measures <=375 and the fixed cookie banner stretches to 479.",
+      "cause": "The plan table's scroll wrapper (overflow-x-auto) was not positioned, so the table's sr-only (position:absolute) caption and 'Buy' header used the page as containing block and escaped both the scroller and main's overflow-x-hidden; the 'Buy' header sat at x~479 in the 500px table.",
+      "fix": "Add `relative` to the wrapper. To find such culprits: in a 375px isMobile page, hide candidates one by one and watch window.innerWidth return to 375.",
+      "facts": [
+        "f195"
+      ],
+      "source": "src/app/EsimDestinationPage.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

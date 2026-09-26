@@ -5,7 +5,11 @@ vi.mock("next/cache", () => ({
   unstable_cache: <T extends (...args: never[]) => unknown>(fn: T) => fn
 }));
 
-import { getDestinationOffer, getDestinationPlanRows } from "./destinationPricing";
+import {
+  getDestinationCoverage,
+  getDestinationOffer,
+  getDestinationPlanRows
+} from "./destinationPricing";
 
 function packagesResponse(packages: unknown[]) {
   return new Response(JSON.stringify({ status: "success", data: { packages } }), {
@@ -111,5 +115,41 @@ describe("getDestinationPlanRows", () => {
         network: "4G/5G"
       })
     ]);
+  });
+});
+
+describe("getDestinationCoverage", () => {
+  const europe = (countries: string[], price: number) => ({
+    countryCode: "europe",
+    priceNumeric: price,
+    countries: countries.map((title) => ({ title }))
+  });
+
+  it("lists only the countries every regional plan covers, sorted", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        packagesResponse([
+          europe(["Serbia", "Albania", "Greece"], 3),
+          europe(["Albania", "Serbia"], 5)
+        ])
+      )
+    );
+
+    // /esim/balkans is served by the backend `europe` plans.
+    await expect(getDestinationCoverage("balkans")).resolves.toEqual(["Albania", "Serbia"]);
+  });
+
+  it("returns nothing for single-country destinations", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        packagesResponse([
+          { countryCode: "japan", priceNumeric: 4, countries: [{ title: "Japan" }] }
+        ])
+      )
+    );
+
+    await expect(getDestinationCoverage("japan")).resolves.toEqual([]);
   });
 });

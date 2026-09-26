@@ -52,4 +52,12 @@ describe("Core Web Vitals performance contract", () => {
     expect(source).toContain('import Image from "next/image"');
     expect(source).not.toMatch(/<img[^>]*app-logo\.png/);
   });
+
+  it("keeps the destination plan table's sr-only cells inside its scroller", async () => {
+    const source = await readFile(join(process.cwd(), "src/app/EsimDestinationPage.tsx"), "utf8");
+
+    // An unpositioned overflow-x-auto wrapper lets absolute sr-only children escape and
+    // widen the mobile layout viewport (375px phones rendered /esim/* at 479px).
+    expect(source).toContain('className="relative mt-8 overflow-x-auto');
+  });
 });
