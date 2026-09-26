@@ -257,7 +257,7 @@ describe("SEO route contract", () => {
 
     expect(product).toMatchObject({
       "@type": "Product",
-      image: "https://esim.uplisoft.com/og/esim2you-og.png?v=4",
+      image: "https://esim.uplisoft.com/og/esim2you-og.png?v=5",
       offers: {
         "@type": "AggregateOffer",
         lowPrice: "9.89",

@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "indexnow": "node scripts/ping-indexnow.mjs"
+    "indexnow": "node scripts/ping-indexnow.mjs",
+    "og:render": "node scripts/render-og.mjs"
   },
   "dependencies": {
     "@nebula-ltd/pok-payments-js": "2.0.1",

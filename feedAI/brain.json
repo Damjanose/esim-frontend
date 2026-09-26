@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-26",
-    "note_latest": "f183: testimonials section adapts its layout to the quote count; f182: admin token persisted in a cookie"
+    "note_latest": "f186: OG share image generated from scripts/og/og-image.html via pnpm og:render (v5); f183: testimonials section adapts its layout to the quote count; f182: admin token persisted in a cookie"
   }
 }

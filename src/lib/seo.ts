@@ -10,12 +10,12 @@ export const supportEmail = "esim2you@uplisoft.com";
 // Bump this whenever public/og/esim2you-og.png changes so link-preview
 // crawlers (iMessage, WhatsApp, Slack, Facebook, LinkedIn, X) fetch the
 // new image instead of serving a stale cached copy of the old URL.
-const ogImageVersion = "4";
+const ogImageVersion = "5";
 export const ogImage = {
   url: `${siteUrl}/og/esim2you-og.png?v=${ogImageVersion}`,
   width: 1200,
   height: 630,
-  alt: "eSim2you travel data app preview"
+  alt: "eSim2you: easy setup, instant connection. Travel eSIM for 200+ destinations."
 };
 export const appLogoUrl = `${siteUrl}/app-logo.png`;
 
