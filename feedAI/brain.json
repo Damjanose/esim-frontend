@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-27",
-    "note_latest": "f191: homepage testimonials no longer emitted as review schema; f188-f190: SEO audit week-1 fixes (regional /esim mapping, ireland/croatia H1s, robots.txt /x* removal, App Store link)"
+    "note_latest": "f192: mobile CWV — hero fetchPriority, chip placeholders (CLS 0.139->0), footer logo next/image; inlineCss rejected. f191: testimonials not review schema; f188-f190: audit week-1 fixes"
   }
 }

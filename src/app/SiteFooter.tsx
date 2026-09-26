@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { landingContent } from "@/content/landing";
 import { guidePages, useCasePages } from "@/content/seo-pages";
 import { socialLinks } from "@/lib/seo";
@@ -48,10 +49,12 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_1.4fr]">
           <div>
             <div className="flex items-center gap-3 font-display text-lg font-black">
-              <img
+              <Image
                 alt="eSim2you app logo"
                 className="h-9 w-9 rounded-lg shadow-brandCard"
+                height={36}
                 src="/app-logo.png"
+                width={36}
               />
               {landingContent.brand}
             </div>

@@ -27,9 +27,26 @@ The 2026-09-26 claude-seo audit of esim.uplisoft.com scored the site 64/100. The
 
 After the owner decided, the homepage stopped turning approved testimonials into `SoftwareApplication.review` markup. `page.tsx` now calls `createLandingJsonLd()`, and the unused `testimonialsToSiteReviews` was deleted. The visible testimonials section is unchanged. Review schema now comes only from verified third-party numbers in `src/content/reviews.ts` (f191).
 
+## Phase 2, item 2: mobile Core Web Vitals
+
+Measured with a local production build and Lighthouse 13 on mobile, 3 runs per page:
+
+| Page | LCP before | LCP after | CLS before | CLS after |
+|---|---|---|---|---|
+| `/` | 3.76 s | 3.54 s | 0.139 | 0 |
+| `/esim/usa` | 2.99 s | 2.76 s | 0 | 0 |
+
+- Homepage hero `<Image>`: added `fetchPriority="high"`. `priority` alone emits a preload with no priority hint.
+- `HeroDestinationChips`: added placeholder pills while loading. The hero vertically centers its content, so chips that appeared late shifted the search box (the whole homepage CLS).
+- Footer logo: changed from a plain `<img>` of the 1024px PNG to `next/image` at 36x36.
+- Rejected after measuring:
+  - `experimental.inlineCss` made the `/esim/usa` HTML go from 16KB to 46KB, and its LCP got worse.
+  - `fetchPriority="high"` on the faded `/esim/[slug]` background made LCP noisy and worse.
+- Still open, and outside the code: Cloudflare Email Obfuscation injects a render-blocking `email-decode.min.js` on every page. Turning it off is a dashboard toggle (Scrape Shield).
+
 ## Verification
 
-- `pnpm test`: 67 files, 538 tests passing.
+- `pnpm test`: 67 files, 540 tests passing.
 - `pnpm exec tsc --noEmit`: clean.
 
 ## Follow-ups

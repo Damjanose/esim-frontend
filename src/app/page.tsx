@@ -98,6 +98,7 @@ function Hero() {
         className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover"
         fill
         priority
+        fetchPriority="high"
         sizes="100vw"
         src="/images/mountain.webp"
       />

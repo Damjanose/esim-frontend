@@ -7,6 +7,9 @@ import { fetchPackageGroups, type HeroPackageOption } from "@/services/packages"
 import { destinationBrowseHref } from "@/lib/esim-routes";
 
 const CHIP_COUNT = 8;
+// Typical rendered chip widths (flag + country name), so the placeholder
+// wraps into the same number of rows as the real chips.
+const CHIP_PLACEHOLDER_WIDTHS = [118, 92, 104, 86, 128, 96, 110, 90];
 
 /**
  * Same `popular` group DestinationBrowse's "Popular destinations" rail
@@ -29,7 +32,7 @@ function dedupeByCountry(packages: readonly HeroPackageOption[]): HeroPackageOpt
 }
 
 export function HeroDestinationChips() {
-  const [popular, setPopular] = useState<HeroPackageOption[]>([]);
+  const [popular, setPopular] = useState<HeroPackageOption[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -64,6 +67,22 @@ export function HeroDestinationChips() {
         <RefreshCw aria-hidden="true" size={13} />
         Popular destinations unavailable — try again
       </button>
+    );
+  }
+
+  if (popular === null) {
+    // Reserve the chips' space while they load: the hero centers its content
+    // vertically, so appearing chips used to push the search box up (CLS).
+    return (
+      <div aria-hidden="true" className="mt-6 flex flex-wrap justify-center gap-2.5 lg:justify-start">
+        {CHIP_PLACEHOLDER_WIDTHS.map((width, index) => (
+          <span
+            className="h-[38px] rounded-full border border-white/15 bg-white/5"
+            key={index}
+            style={{ width }}
+          />
+        ))}
+      </div>
     );
   }
 

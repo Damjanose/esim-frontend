@@ -11,6 +11,8 @@ describe("Core Web Vitals performance contract", () => {
     expect(pageSource).toContain('import Image from "next/image"');
     expect(pageSource).toContain('src="/images/mountain.webp"');
     expect(pageSource).toContain("priority");
+    // `priority` alone preloads without a priority hint; LCP needs it high.
+    expect(pageSource).toContain('fetchPriority="high"');
     expect(pageSource).toContain('sizes="100vw"');
     expect(existsSync(heroWebpPath)).toBe(true);
     expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
@@ -35,5 +37,19 @@ describe("Core Web Vitals performance contract", () => {
     // originals, thumb.wikimedia.org for thumbnails, ...) depending on what
     // its imageinfo API returns for a given image.
     expect(configSource).toContain('hostname: "*.wikimedia.org"');
+  });
+
+  it("reserves hero chip space while popular destinations load (CLS)", async () => {
+    const source = await readFile(join(process.cwd(), "src/app/HeroDestinationChips.tsx"), "utf8");
+
+    expect(source).toContain("CHIP_PLACEHOLDER_WIDTHS");
+    expect(source).toContain("if (popular === null)");
+  });
+
+  it("serves the footer logo through next/image at its display size", async () => {
+    const source = await readFile(join(process.cwd(), "src/app/SiteFooter.tsx"), "utf8");
+
+    expect(source).toContain('import Image from "next/image"');
+    expect(source).not.toMatch(/<img[^>]*app-logo\.png/);
   });
 });

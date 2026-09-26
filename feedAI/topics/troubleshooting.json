@@ -225,6 +225,15 @@
       "fix": "Add {\" \"} before the responsive <br>. Apply the same pattern to any heading that uses a breakpoint-only <br>.",
       "facts": [],
       "source": "src/app/destinations/page.tsx"
+    },
+    {
+      "symptom": "Homepage CLS ~0.14 on mobile; Lighthouse blames the 'Search travel destination' box in the hero.",
+      "cause": "HeroDestinationChips returned null until its client-side fetchPackageGroups() resolved, then inserted ~3 rows of chips. The hero column is flex justify-center inside min-h-[640px], so the added height re-centered everything and shifted the search box up.",
+      "fix": "Render aria-hidden placeholder pills (CHIP_PLACEHOLDER_WIDTHS, h-[38px]) while popular===null; return null only once loaded and empty. Any client-loaded block inside a vertically centered hero must reserve its height.",
+      "facts": [
+        "f192"
+      ],
+      "source": "src/app/HeroDestinationChips.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
