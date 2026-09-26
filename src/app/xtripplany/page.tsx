@@ -12,6 +12,7 @@ type Settings = {
   apiKeySet: boolean;
   generationLimit: number;
   windowDays: number;
+  editLimit: number;
   priceAmount: number;
   priceCurrency: string;
 };
@@ -36,6 +37,7 @@ export default function AdminTripPlanPage() {
   const [apiKey, setApiKey] = useState("");
   const [generationLimit, setGenerationLimit] = useState("3");
   const [windowDays, setWindowDays] = useState("25");
+  const [editLimit, setEditLimit] = useState("3");
   const [priceAmount, setPriceAmount] = useState("2");
   const [priceCurrency, setPriceCurrency] = useState("USD");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +50,7 @@ export default function AdminTripPlanPage() {
     setProvider(next.provider);
     setGenerationLimit(String(next.generationLimit));
     setWindowDays(String(next.windowDays));
+    setEditLimit(String(next.editLimit));
     setPriceAmount(String(next.priceAmount));
     setPriceCurrency(next.priceCurrency);
     setApiKey("");
@@ -87,9 +90,14 @@ export default function AdminTripPlanPage() {
     if (!token) return;
     const limit = Number(generationLimit);
     const days = Number(windowDays);
+    const edits = Number(editLimit);
     const price = Number(priceAmount);
     if (!Number.isInteger(limit) || limit < 1 || !Number.isInteger(days) || days < 1) {
       setError("Limit and window must be whole numbers above zero.");
+      return;
+    }
+    if (!Number.isInteger(edits) || edits < 0) {
+      setError("Edits per plan must be a whole number, zero or more.");
       return;
     }
     if (!Number.isFinite(price) || price < 0) {
@@ -111,6 +119,7 @@ export default function AdminTripPlanPage() {
           provider,
           generationLimit: limit,
           windowDays: days,
+          editLimit: edits,
           priceAmount: price,
           priceCurrency: priceCurrency.trim().toUpperCase(),
           ...(apiKey.trim() ? { apiKey: apiKey.trim() } : {})
@@ -231,6 +240,19 @@ export default function AdminTripPlanPage() {
                   onChange={(event) => setWindowDays(event.target.value)}
                   value={windowDays}
                 />
+              </label>
+
+              <label className="mt-4 block text-xs font-bold text-muted">
+                Edits per plan
+                <input
+                  className={fieldClass}
+                  inputMode="numeric"
+                  onChange={(event) => setEditLimit(event.target.value)}
+                  value={editLimit}
+                />
+                <span className="mt-1 block font-normal">
+                  Prompt edits a user can make to each plan while it is inside the window. 0 turns editing off.
+                </span>
               </label>
 
               <label className="mt-4 block text-xs font-bold text-muted">
