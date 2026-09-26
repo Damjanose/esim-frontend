@@ -5,6 +5,8 @@
  *   installed it lands on a "get the app" page (`src/app/pkg/[id]`).
  * - `https://esim.uplisoft.com/checkout?package={id}`: older shares. Without the
  *   app it falls through to the web checkout for that package.
+ * - `https://esim.uplisoft.com/esim/id/{token}`: a shared eSIM. Without the app
+ *   it lands on a redacted "shared eSIM" page (`src/app/esim/id/[esimId]`).
  *
  * Served from `/.well-known/*` by route handlers so they come back as JSON with
  * no redirect, which both platforms require.
@@ -18,6 +20,15 @@ export const APP_LINK_PATHS = ["/checkout"] as const;
 
 /** Prefix of the shared package link `/pkg/{id}`, also claimed by the app. */
 export const PACKAGE_LINK_PREFIX = "/pkg";
+
+/**
+ * Prefix of the shared eSIM link `/esim/id/{token}`, claimed by the app. Two
+ * segments on purpose: `/esim/{slug}` is the destination-marketing route, so
+ * claiming `/esim/id/*` (not `/esim/*`) keeps those marketing pages web-only.
+ * Keep in sync with the mobile app's `ESIM_LINK_WEB_PATH` and the backend's
+ * `ESIM_SHARE_PATH_PREFIX`.
+ */
+export const ESIM_LINK_PREFIX = "/esim/id";
 
 /**
  * SHA-256 fingerprints of the certificates Android builds are signed with:
@@ -40,10 +51,11 @@ export function appleAppSiteAssociation() {
           appIDs: [appID],
           components: [
             { "/": `${PACKAGE_LINK_PREFIX}/*` },
+            { "/": `${ESIM_LINK_PREFIX}/*` },
             ...APP_LINK_PATHS.map((path) => ({ "/": path, "?": { package: "?*" } }))
           ],
           appID,
-          paths: [`${PACKAGE_LINK_PREFIX}/*`, ...APP_LINK_PATHS]
+          paths: [`${PACKAGE_LINK_PREFIX}/*`, `${ESIM_LINK_PREFIX}/*`, ...APP_LINK_PATHS]
         }
       ]
     }
@@ -84,6 +96,23 @@ export function appSchemeUrlForPackage(packageId: string) {
 export function androidIntentUrlForPackage(packageId: string, fallbackUrl: string) {
   return (
     `intent://pkg/${encodeURIComponent(packageId)}` +
+    `#Intent;scheme=velocity-esim;package=${APP_ID};` +
+    `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
+  );
+}
+
+/** The app's custom scheme link for a shared eSIM; opens the app when installed. */
+export function appSchemeUrlForEsim(token: string) {
+  return `velocity-esim://esim/${encodeURIComponent(token)}`;
+}
+
+/**
+ * Android Chrome intent for a shared eSIM: opens the app when installed,
+ * otherwise Chrome goes to `fallbackUrl` (the Play Store listing).
+ */
+export function androidIntentUrlForEsim(token: string, fallbackUrl: string) {
+  return (
+    `intent://esim/${encodeURIComponent(token)}` +
     `#Intent;scheme=velocity-esim;package=${APP_ID};` +
     `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
   );

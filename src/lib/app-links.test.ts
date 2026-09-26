@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   androidAssetLinks,
+  androidIntentUrlForEsim,
   androidIntentUrlForPackage,
+  appSchemeUrlForEsim,
   appSchemeUrlForPackage,
   appleAppSiteAssociation,
   jsonFileResponse,
@@ -9,14 +11,15 @@ import {
 } from "./app-links";
 
 describe("app links verification files", () => {
-  it("claims /pkg/* and /checkout?package= for the iOS app", () => {
+  it("claims /pkg/*, /esim/id/* and /checkout?package= for the iOS app", () => {
     const [detail] = appleAppSiteAssociation().applinks.details;
     expect(detail.appIDs).toEqual(["R72R8C56GK.com.uplisoft.velocityesim"]);
     expect(detail.components).toEqual([
       { "/": "/pkg/*" },
+      { "/": "/esim/id/*" },
       { "/": "/checkout", "?": { package: "?*" } }
     ]);
-    expect(detail.paths).toEqual(["/pkg/*", "/checkout"]);
+    expect(detail.paths).toEqual(["/pkg/*", "/esim/id/*", "/checkout"]);
   });
 
   it("builds an Android intent that falls back to the store", () => {
@@ -53,5 +56,13 @@ describe("app links verification files", () => {
 
   it("builds the app scheme link", () => {
     expect(appSchemeUrlForPackage("a b")).toBe("velocity-esim://pkg/a%20b");
+  });
+
+  it("builds the eSIM app scheme link and Android intent", () => {
+    expect(appSchemeUrlForEsim("tok en")).toBe("velocity-esim://esim/tok%20en");
+    expect(androidIntentUrlForEsim("tok", "https://play.example/x?id=1")).toBe(
+      "intent://esim/tok#Intent;scheme=velocity-esim;package=com.uplisoft.velocityesim;" +
+        "S.browser_fallback_url=https%3A%2F%2Fplay.example%2Fx%3Fid%3D1;end"
+    );
   });
 });
