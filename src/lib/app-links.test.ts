@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   androidAssetLinks,
+  androidIntentUrlForPackage,
   appSchemeUrlForPackage,
   appleAppSiteAssociation,
   jsonFileResponse,
@@ -8,10 +9,21 @@ import {
 } from "./app-links";
 
 describe("app links verification files", () => {
-  it("claims /checkout?package= for the iOS app", () => {
+  it("claims /pkg/* and /checkout?package= for the iOS app", () => {
     const [detail] = appleAppSiteAssociation().applinks.details;
     expect(detail.appIDs).toEqual(["R72R8C56GK.com.uplisoft.velocityesim"]);
-    expect(detail.components).toEqual([{ "/": "/checkout", "?": { package: "?*" } }]);
+    expect(detail.components).toEqual([
+      { "/": "/pkg/*" },
+      { "/": "/checkout", "?": { package: "?*" } }
+    ]);
+    expect(detail.paths).toEqual(["/pkg/*", "/checkout"]);
+  });
+
+  it("builds an Android intent that falls back to the store", () => {
+    expect(androidIntentUrlForPackage("a b", "https://play.example/x?id=1")).toBe(
+      "intent://pkg/a%20b#Intent;scheme=velocity-esim;package=com.uplisoft.velocityesim;" +
+        "S.browser_fallback_url=https%3A%2F%2Fplay.example%2Fx%3Fid%3D1;end"
+    );
   });
 
   it("lists the Android package with SHA-256 fingerprints", () => {

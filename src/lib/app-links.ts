@@ -1,8 +1,10 @@
 /**
- * Verification files that let the eSim2you mobile app open
- * `https://esim.uplisoft.com/checkout?package={id}` links directly (iOS
- * universal links, Android App Links). Without the app installed, the same URL
- * falls through to the web checkout for that package.
+ * Verification files that let the eSim2you mobile app open package links
+ * directly (iOS universal links, Android App Links):
+ * - `https://esim.uplisoft.com/pkg/{id}`: what the app shares. Without the app
+ *   installed it lands on a "get the app" page (`src/app/pkg/[id]`).
+ * - `https://esim.uplisoft.com/checkout?package={id}`: older shares. Without the
+ *   app it falls through to the web checkout for that package.
  *
  * Served from `/.well-known/*` by route handlers so they come back as JSON with
  * no redirect, which both platforms require.
@@ -13,6 +15,9 @@ const APP_ID = "com.uplisoft.velocityesim";
 
 /** Paths the app claims. Keep in sync with `parseShareUrl` in the mobile app. */
 export const APP_LINK_PATHS = ["/checkout"] as const;
+
+/** Prefix of the shared package link `/pkg/{id}`, also claimed by the app. */
+export const PACKAGE_LINK_PREFIX = "/pkg";
 
 /**
  * SHA-256 fingerprints of the certificates Android builds are signed with:
@@ -33,9 +38,12 @@ export function appleAppSiteAssociation() {
       details: [
         {
           appIDs: [appID],
-          components: APP_LINK_PATHS.map((path) => ({ "/": path, "?": { package: "?*" } })),
+          components: [
+            { "/": `${PACKAGE_LINK_PREFIX}/*` },
+            ...APP_LINK_PATHS.map((path) => ({ "/": path, "?": { package: "?*" } }))
+          ],
           appID,
-          paths: [...APP_LINK_PATHS]
+          paths: [`${PACKAGE_LINK_PREFIX}/*`, ...APP_LINK_PATHS]
         }
       ]
     }
@@ -67,6 +75,18 @@ export function jsonFileResponse(body: unknown) {
 /** The app's custom scheme link for a package; opens the app when installed. */
 export function appSchemeUrlForPackage(packageId: string) {
   return `velocity-esim://pkg/${encodeURIComponent(packageId)}`;
+}
+
+/**
+ * Android Chrome intent for a package: opens the app when installed, otherwise
+ * Chrome goes to `fallbackUrl` (the Play Store listing).
+ */
+export function androidIntentUrlForPackage(packageId: string, fallbackUrl: string) {
+  return (
+    `intent://pkg/${encodeURIComponent(packageId)}` +
+    `#Intent;scheme=velocity-esim;package=${APP_ID};` +
+    `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
+  );
 }
 
 function packageFromCheckoutUrl(url: URL): string | null {
