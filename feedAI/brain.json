@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-27",
-    "note_latest": "f188-f190: SEO audit week-1 fixes: regional /esim slug->backend region mapping + display entries for ireland/croatia; robots.txt stops publishing /x* admin paths and drops Host; storefront-neutral App Store link"
+    "note_latest": "f191: homepage testimonials no longer emitted as review schema; f188-f190: SEO audit week-1 fixes (regional /esim mapping, ireland/croatia H1s, robots.txt /x* removal, App Store link)"
   }
 }

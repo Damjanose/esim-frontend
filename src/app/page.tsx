@@ -17,7 +17,6 @@ import { Navbar } from './components/Navbar'
 import { LinkButton } from "./components/Button";
 import { createLandingJsonLd, createMetadata } from "@/lib/seo";
 import { loadPublicTestimonials } from "@/lib/loadPublicTestimonials";
-import { testimonialsToSiteReviews } from "@/lib/testimonials";
 import { Testimonials } from "./Testimonials";
 import { landingContent } from "@/content/landing";
 import { HeroPackageSearch } from "./HeroPackageSearch";
@@ -74,7 +73,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
-      <JsonLd data={createLandingJsonLd(testimonialsToSiteReviews(testimonials))} />
+      <JsonLd data={createLandingJsonLd()} />
 
       <Navbar theme="dark" />
       <Hero />

@@ -23,13 +23,13 @@ The 2026-09-26 claude-seo audit of esim.uplisoft.com scored the site 64/100. The
 - `robots.ts` now filters `/x*` out of `privateRoutePrefixes` and no longer emits `host`. All 10 `src/app/x*/layout.tsx` files already set `indexable:false`.
 - The App Store link is now `https://apps.apple.com/app/id6768258284`, which is storefront-neutral and redirects to the visitor's own store under the current name.
 
-## Not done (deliberately)
+## Follow-up in the same session: review markup
 
-The audit also flagged the homepage `SoftwareApplication.review` markup, which is built from approved testimonials (commit 91ff502), as self-serving. Google's self-serving review restriction covers LocalBusiness and Organization, not SoftwareApplication, and the testimonials are a deliberate feature. I left it for the owner to decide.
+After the owner decided, the homepage stopped turning approved testimonials into `SoftwareApplication.review` markup. `page.tsx` now calls `createLandingJsonLd()`, and the unused `testimonialsToSiteReviews` was deleted. The visible testimonials section is unchanged. Review schema now comes only from verified third-party numbers in `src/content/reviews.ts` (f191).
 
 ## Verification
 
-- `pnpm test`: 67 files, 537 tests passing.
+- `pnpm test`: 67 files, 538 tests passing.
 - `pnpm exec tsc --noEmit`: clean.
 
 ## Follow-ups

@@ -1,5 +1,3 @@
-import type { SiteReview } from "@/content/reviews";
-
 export type PublicTestimonial = {
   displayName: string;
   rating: number;
@@ -28,11 +26,3 @@ export function visibleTestimonials(rows: unknown): PublicTestimonial[] {
   });
 }
 
-export function testimonialsToSiteReviews(rows: PublicTestimonial[]): SiteReview[] {
-  return rows.map((row) => ({
-    author: row.displayName,
-    datePublished: row.createdAt.slice(0, 10),
-    reviewBody: row.body,
-    ratingValue: row.rating
-  }));
-}

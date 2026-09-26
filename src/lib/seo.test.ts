@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   createContentPageJsonLd,
@@ -163,6 +164,15 @@ describe("SEO route contract", () => {
       ]
     });
     expect(JSON.stringify(softwareApplication)).not.toContain("null");
+    // Only verified third-party ratings (src/content/reviews.ts) may become
+    // review markup; on-site testimonials stay visible-only.
+    expect(softwareApplication).not.toHaveProperty("review");
+    expect(softwareApplication).not.toHaveProperty("aggregateRating");
+  });
+
+  it("does not turn homepage testimonials into review schema", () => {
+    const home = readFileSync("src/app/page.tsx", "utf8");
+    expect(home).toContain("<JsonLd data={createLandingJsonLd()} />");
   });
 
   it("creates content page schema with breadcrumbs and visible FAQ answers", () => {
