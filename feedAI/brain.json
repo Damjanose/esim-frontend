@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-27",
-    "note_latest": "f192: mobile CWV — hero fetchPriority, chip placeholders (CLS 0.139->0), footer logo next/image; inlineCss rejected. f191: testimonials not review schema; f188-f190: audit week-1 fixes"
+    "note_latest": "f193: llms.txt links validated against sitemap; f192: mobile CWV — hero fetchPriority, chip placeholders (CLS 0.139->0), footer logo next/image; inlineCss rejected. f191: testimonials not review schema; f188-f190: audit week-1 fixes"
   }
 }

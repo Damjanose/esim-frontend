@@ -26,7 +26,7 @@ Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Po
 
 ## Use cases
 
-- Internet abroad: https://esim.uplisoft.com/use-cases/internet-abroad
+- Internet abroad: https://esim.uplisoft.com/travel/internet-abroad
 - Business travel: https://esim.uplisoft.com/use-cases/business-travel
 - Remote work: https://esim.uplisoft.com/use-cases/remote-work
 

@@ -234,6 +234,15 @@
         "f192"
       ],
       "source": "src/app/HeroDestinationChips.tsx"
+    },
+    {
+      "symptom": "A link in /llms.txt returns 404 (e.g. /use-cases/internet-abroad).",
+      "cause": "llms.txt is a static hand-maintained file in public/ and drifted from the real route (the guide is /travel/internet-abroad).",
+      "fix": "Correct the URL; the llms.txt test now fails if any linked URL is not in the sitemap.",
+      "facts": [
+        "f193"
+      ],
+      "source": "public/llms.txt"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

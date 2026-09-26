@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { publicSeoPages } from "@/content/seo-pages";
+import { allSitemapEntries } from "@/lib/sitemaps";
 
 const stopWords = new Set([
   "and",
@@ -81,5 +82,12 @@ describe("SEO external factors", () => {
     expect(llms).toContain("esim2you@uplisoft.com");
     expect(llms).not.toContain("/guides/");
     expect(llms).not.toContain("esim@uplisoft.com");
+
+    // Every page linked from llms.txt must be a real, indexable sitemap URL.
+    const sitemapUrls = new Set(allSitemapEntries().map((entry) => entry.url.replace(/\/$/, "")));
+    const linked = [...llms.matchAll(/https:\/\/esim\.uplisoft\.com\/[^\s)]+/g)]
+      .map((match) => match[0].replace(/\/$/, ""))
+      .filter((url) => !/\.(txt|xml)$/.test(url));
+    expect(linked.filter((url) => !sitemapUrls.has(url))).toEqual([]);
   });
 });
