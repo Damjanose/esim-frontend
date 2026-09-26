@@ -69,7 +69,7 @@
   "sync": {
     "commit": "working-tree",
     "branch": "main",
-    "date": "2026-09-26",
-    "note_latest": "f187: shared-eSIM deep link /esim/id/{token} — app claims /esim/id/* in AASA, new redacted landing page fetches GET /api/shared-esim/{token}; f186: OG share image generated (v5)"
+    "date": "2026-09-27",
+    "note_latest": "f188-f190: SEO audit week-1 fixes: regional /esim slug->backend region mapping + display entries for ireland/croatia; robots.txt stops publishing /x* admin paths and drops Host; storefront-neutral App Store link"
   }
 }

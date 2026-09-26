@@ -200,6 +200,31 @@
         "f178"
       ],
       "source": "src/app/bff/dev/local-session/route.ts"
+    },
+    {
+      "symptom": "/esim/balkans, /esim/middle-east or /esim/south-america shows 'Live plans for this destination are loading or temporarily unavailable' permanently, with no Offer in JSON-LD.",
+      "cause": "backendCountryCode(slug) fell back to the public slug, but the backend /packages countryCode for those regions is europe / middle-east-and-north-africa / latin-america, so the catalog lookup found nothing.",
+      "fix": "Add the slug->region mapping to BACKEND_COUNTRY_CODE_BY_SLUG in src/lib/esim-routes.ts. Check the live codes with curl https://esim.uplisoft.com/api/packages before adding any new regional /esim page.",
+      "facts": [
+        "f188"
+      ],
+      "source": "src/lib/esim-routes.ts"
+    },
+    {
+      "symptom": "A destination H1 reads 'eSIM for Ireland travel eSIM' and the page has no related-destinations block.",
+      "cause": "The slug exists in destinationPages (seo-pages.ts) but not in destinationDisplay, so destinationH1() returns null and the fallback builds the H1 from the page's own label.",
+      "fix": "Add the slug to destinationDisplay; esim-routes.test.ts now fails if any destination page is missing.",
+      "facts": [
+        "f188"
+      ],
+      "source": "src/lib/esim-routes.ts"
+    },
+    {
+      "symptom": "On mobile the /destinations H1 reads 'Choose international databefore your trip begins.'",
+      "cause": "The only separator between the two lines was a <br className='hidden sm:block'>, which is display:none below 640px, and JSX drops the newline whitespace.",
+      "fix": "Add {\" \"} before the responsive <br>. Apply the same pattern to any heading that uses a breakpoint-only <br>.",
+      "facts": [],
+      "source": "src/app/destinations/page.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

@@ -5,7 +5,12 @@
 export const BACKEND_COUNTRY_CODE_BY_SLUG: Record<string, string> = {
   usa: "united-states",
   uk: "united-kingdom",
-  uae: "united-arab-emirates"
+  uae: "united-arab-emirates",
+  // Regional pages whose backend region code differs from the public slug.
+  // Every backend `europe` plan covers all Balkan countries except Kosovo.
+  balkans: "europe",
+  "middle-east": "middle-east-and-north-africa",
+  "south-america": "latin-america"
 };
 
 const EXTRA_QUERY_ALIASES: Record<string, string> = {
@@ -87,6 +92,8 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
   "north-america": { countryName: "North America", relatedSlugs: ["usa", "canada", "mexico"] },
   netherlands: { countryName: "Netherlands", relatedSlugs: ["germany", "france", "europe"] },
   austria: { countryName: "Austria", relatedSlugs: ["germany", "switzerland", "europe"] },
+  ireland: { countryName: "Ireland", relatedSlugs: ["uk", "france", "europe"] },
+  croatia: { countryName: "Croatia", relatedSlugs: ["balkans", "italy", "europe"] },
   balkans: { countryName: "Balkans", relatedSlugs: ["albania", "greece", "italy", "europe"] },
   "middle-east": { countryName: "Middle East", relatedSlugs: ["uae", "asia", "europe"] },
   africa: { countryName: "Africa", relatedSlugs: ["europe", "asia"] },

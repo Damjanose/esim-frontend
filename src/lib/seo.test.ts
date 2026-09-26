@@ -156,9 +156,9 @@ describe("SEO route contract", () => {
     expect(softwareApplication).toMatchObject({
       "@type": "SoftwareApplication",
       operatingSystem: "iOS, Android",
-      downloadUrl: "https://apps.apple.com/am/app/velocityesim/id6768258284",
+      downloadUrl: "https://apps.apple.com/app/id6768258284",
       sameAs: [
-        "https://apps.apple.com/am/app/velocityesim/id6768258284",
+        "https://apps.apple.com/app/id6768258284",
         "https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
       ]
     });

@@ -10,20 +10,18 @@ describe("Next SEO routes", () => {
     const rules = robots();
 
     expect(rules).toMatchObject({
-      sitemap: "https://esim.uplisoft.com/sitemap.xml",
-      host: "https://esim.uplisoft.com"
+      sitemap: "https://esim.uplisoft.com/sitemap.xml"
     });
-    expect(rules.rules).toEqual({
-      userAgent: "*",
-      allow: "/",
-      disallow: [...privateRoutePrefixes]
-    });
+    // Yandex-only directive; it takes a bare hostname, not a URL, so omit it.
+    expect(rules).not.toHaveProperty("host");
     expect(privateRoutePrefixes).toEqual(
       expect.arrayContaining(["/checkout", "/signin", "/profile", "/xpricing", "/xversion", "/xactivityy", "/xpartnersy", "/xnotificationy"])
     );
     const disallow = (rules.rules as { disallow: string[] }).disallow;
-    expect(disallow).toEqual(expect.arrayContaining(["/checkout", "/signin", "/profile"]));
+    expect(disallow).toEqual(expect.arrayContaining(["/api", "/bff", "/checkout", "/signin", "/profile"]));
     expect(disallow.some((rule) => rule.endsWith("/"))).toBe(false);
+    // Obfuscated admin paths must not be published in robots.txt.
+    expect(disallow.some((rule) => rule.startsWith("/x"))).toBe(false);
   });
 
   it("splits the sitemap into named public segments with real lastModified dates", async () => {

@@ -518,7 +518,7 @@ function AppDownload() {
                 <a
                   aria-label="Download eSim2you on the App Store"
                   className="group flex h-[64px] min-w-[210px] items-center gap-3 rounded-[16px] border border-outline bg-surface px-5 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:border-brandBlue/50 hover:bg-brandBlue/5"
-                  href="https://apps.apple.com/am/app/velocityesim/id6768258284"
+                  href="https://apps.apple.com/app/id6768258284"
                 >
                   <svg
                     aria-hidden="true"

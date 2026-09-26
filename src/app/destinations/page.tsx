@@ -123,7 +123,7 @@ export default async function DestinationsPage({
                 </div>
 
                 <h1 className="mt-6 font-display text-4xl font-black leading-tight tracking-[-0.04em] text-brandInk sm:text-5xl md:text-6xl lg:text-[68px]">
-                  Choose international data
+                  Choose international data{" "}
                   <br className="hidden sm:block" />
                   before your trip begins.
                 </h1>
