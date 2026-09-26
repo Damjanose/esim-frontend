@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-26",
-    "note_latest": "f182: admin token persisted in a cookie until it expires (was sessionStorage)"
+    "note_latest": "f183: testimonials section adapts its layout to the quote count; f182: admin token persisted in a cookie"
   }
 }

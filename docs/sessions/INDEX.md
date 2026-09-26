@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-09-26 | [testimonials premium UI](./2026-09-26_testimonials-premium-ui.md) | Homepage testimonials adapt to the quote count (1 quote gets a featured dark card) and add a rating summary |
 | 2026-09-25 | [mobile app links](./2026-09-25_mobile-app-links.md) | `/.well-known` AASA + assetlinks so mobile package share links (`/checkout?package=`) open the app, or this site's checkout when it isn't installed |
 | 2026-09-23 | [trip-plan admin xtripplany](./2026-09-23_trip-plan-admin-xtripplany.md) | Hidden `/xtripplany` sets trip-plan provider, write-only key, quota, and USD download price; traveler UI is mobile-only |
 | 2026-09-23 | [indexing exclusions](./2026-09-23_indexing-exclusions.md) | robots.txt now blocks private paths without a trailing slash; legal sitemap dates follow legal.ts |
