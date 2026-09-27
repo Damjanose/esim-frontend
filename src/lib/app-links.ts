@@ -87,6 +87,30 @@ export function jsonFileResponse(body: unknown) {
   });
 }
 
+export type MobilePlatform = "ios" | "android" | "other";
+
+type NavigatorLike = {
+  userAgent: string;
+  maxTouchPoints?: number;
+  userAgentData?: { platform?: string; mobile?: boolean };
+};
+
+/**
+ * Which app store / open-in-app flow fits this browser. The user agent alone
+ * isn't enough: "Desktop site" mode (Samsung Internet, Chrome, iPadOS Safari by
+ * default) sends a Linux or Mac desktop UA with no "Android" / "iPhone", so a
+ * touch screen on a "desktop" OS is treated as the phone it really is.
+ */
+export function detectMobilePlatform(nav: NavigatorLike): MobilePlatform {
+  const ua = nav.userAgent;
+  const touch = (nav.maxTouchPoints ?? 0) > 1;
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Android/i.test(ua) || nav.userAgentData?.platform === "Android") return "android";
+  if (/Macintosh/i.test(ua) && touch) return "ios";
+  if (/Linux/i.test(ua) && !/CrOS/i.test(ua) && touch) return "android";
+  return "other";
+}
+
 /** The app's custom scheme link for a package; opens the app when installed. */
 export function appSchemeUrlForPackage(packageId: string) {
   return `velocity-esim://pkg/${encodeURIComponent(packageId)}`;

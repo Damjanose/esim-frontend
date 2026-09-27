@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { appSchemeUrlForPackage, sharedPackageIdFromLocation } from "@/lib/app-links";
+import { appSchemeUrlForPackage, detectMobilePlatform, sharedPackageIdFromLocation } from "@/lib/app-links";
 
 /**
  * "Open in the eSim2you app" for a shared package link that ended up on the web.
@@ -19,7 +19,7 @@ export function OpenInAppBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    setIsPhone(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    setIsPhone(detectMobilePlatform(navigator) !== "other");
   }, []);
 
   const search = searchParams.toString();

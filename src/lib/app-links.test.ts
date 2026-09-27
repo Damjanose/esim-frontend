@@ -6,6 +6,7 @@ import {
   appSchemeUrlForEsim,
   appSchemeUrlForPackage,
   appleAppSiteAssociation,
+  detectMobilePlatform,
   jsonFileResponse,
   sharedPackageIdFromLocation
 } from "./app-links";
@@ -75,5 +76,28 @@ describe("app links verification files", () => {
       "intent://esim/tok#Intent;scheme=velocity-esim;package=com.uplisoft.velocityesim;" +
         "S.browser_fallback_url=https%3A%2F%2Fplay.example%2Fx%3Fid%3D1;end"
     );
+  });
+
+  it("detects the phone platform, including in desktop-site mode", () => {
+    const androidUa =
+      "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36";
+    const linuxDesktopUa = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36";
+    const macUa = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15";
+    const iphoneUa = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148";
+
+    expect(detectMobilePlatform({ userAgent: androidUa, maxTouchPoints: 5 })).toBe("android");
+    expect(detectMobilePlatform({ userAgent: iphoneUa, maxTouchPoints: 5 })).toBe("ios");
+    // "Desktop site" on Android (Samsung Internet / Chrome) and iPadOS Safari.
+    expect(detectMobilePlatform({ userAgent: linuxDesktopUa, maxTouchPoints: 5 })).toBe("android");
+    expect(
+      detectMobilePlatform({ userAgent: linuxDesktopUa, userAgentData: { platform: "Android" } })
+    ).toBe("android");
+    expect(detectMobilePlatform({ userAgent: macUa, maxTouchPoints: 5 })).toBe("ios");
+    // Real desktops.
+    expect(detectMobilePlatform({ userAgent: macUa, maxTouchPoints: 0 })).toBe("other");
+    expect(detectMobilePlatform({ userAgent: linuxDesktopUa, maxTouchPoints: 0 })).toBe("other");
+    expect(
+      detectMobilePlatform({ userAgent: "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) Chrome/129.0", maxTouchPoints: 10 })
+    ).toBe("other");
   });
 });

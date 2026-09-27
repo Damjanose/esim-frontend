@@ -261,6 +261,15 @@
         "f198"
       ],
       "source": "src/lib/app-links.ts"
+    },
+    {
+      "symptom": "On an Android phone, the /pkg/{id} landing shows only 'Download on the App Store' and 'Get it on Google Play' with no 'Open in the app' button.",
+      "root_cause": "Platform was detected with /Android/i on navigator.userAgent. In 'Desktop site' mode the browser sends a desktop Linux UA, so the page fell into the 'other' (desktop) branch.",
+      "fix": "Use detectMobilePlatform() (UA + userAgentData.platform + touch on Linux/Mac) everywhere the landing pages choose a platform.",
+      "facts": [
+        "f199"
+      ],
+      "source": "src/lib/app-links.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

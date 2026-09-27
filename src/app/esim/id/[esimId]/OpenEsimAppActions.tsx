@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { androidIntentUrlForEsim, appSchemeUrlForEsim } from "@/lib/app-links";
-
-type Platform = "ios" | "android" | "other";
+import {
+  androidIntentUrlForEsim,
+  appSchemeUrlForEsim,
+  detectMobilePlatform,
+  type MobilePlatform
+} from "@/lib/app-links";
 
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
@@ -25,11 +28,10 @@ export function OpenEsimAppActions({
   playStoreUrl: string;
   marketplaceUrl: string;
 }) {
-  const [platform, setPlatform] = useState<Platform>("other");
+  const [platform, setPlatform] = useState<MobilePlatform>("other");
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    setPlatform(/iPhone|iPad|iPod/i.test(ua) ? "ios" : /Android/i.test(ua) ? "android" : "other");
+    setPlatform(detectMobilePlatform(navigator));
   }, []);
 
   const openAppIos = () => {

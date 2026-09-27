@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { androidIntentUrlForPackage, appSchemeUrlForPackage } from "@/lib/app-links";
-
-type Platform = "ios" | "android" | "other";
+import {
+  androidIntentUrlForPackage,
+  appSchemeUrlForPackage,
+  detectMobilePlatform,
+  type MobilePlatform
+} from "@/lib/app-links";
 
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
@@ -19,11 +22,10 @@ export function OpenAppActions({
   appStoreUrl: string;
   playStoreUrl: string;
 }) {
-  const [platform, setPlatform] = useState<Platform>("other");
+  const [platform, setPlatform] = useState<MobilePlatform>("other");
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    setPlatform(/iPhone|iPad|iPod/i.test(ua) ? "ios" : /Android/i.test(ua) ? "android" : "other");
+    setPlatform(detectMobilePlatform(navigator));
   }, []);
 
   const openAppIos = () => {
