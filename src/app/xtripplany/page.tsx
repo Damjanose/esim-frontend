@@ -10,6 +10,7 @@ import { useAdminSession } from "../useAdminSession";
 type Settings = {
   provider: string;
   apiKeySet: boolean;
+  model: string;
   generationLimit: number;
   windowDays: number;
   editLimit: number;
@@ -25,6 +26,16 @@ type Payload = {
 
 const PROVIDERS = ["openai", "anthropic", "gemini"] as const;
 
+// plan-trip always sends temperature, so only models that accept it are listed
+// (Claude Sonnet 5 / Opus 5.5 and OpenAI's reasoning models reject it).
+const MODEL_SUGGESTIONS: Record<string, readonly string[]> = {
+  openai: ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1"],
+  anthropic: ["claude-sonnet-4-6", "claude-haiku-4-5", "claude-opus-4-6"],
+  gemini: ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"]
+};
+
+const CUSTOM_MODEL = "__custom__";
+
 const fieldClass =
   "mt-1 h-10 w-full rounded-xl border border-line px-3 text-sm font-normal text-midnight outline-none focus:border-cyan";
 
@@ -35,6 +46,8 @@ export default function AdminTripPlanPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [provider, setProvider] = useState("openai");
   const [apiKey, setApiKey] = useState("");
+  const [model, setModel] = useState("");
+  const [isCustomModel, setIsCustomModel] = useState(false);
   const [generationLimit, setGenerationLimit] = useState("3");
   const [windowDays, setWindowDays] = useState("25");
   const [editLimit, setEditLimit] = useState("3");
@@ -48,6 +61,8 @@ export default function AdminTripPlanPage() {
   function applySettings(next: Settings) {
     setSettings(next);
     setProvider(next.provider);
+    setModel(next.model);
+    setIsCustomModel(next.model !== "" && !(MODEL_SUGGESTIONS[next.provider] ?? []).includes(next.model));
     setGenerationLimit(String(next.generationLimit));
     setWindowDays(String(next.windowDays));
     setEditLimit(String(next.editLimit));
@@ -117,6 +132,7 @@ export default function AdminTripPlanPage() {
         },
         body: JSON.stringify({
           provider,
+          model: model.trim(),
           generationLimit: limit,
           windowDays: days,
           editLimit: edits,
@@ -199,7 +215,12 @@ export default function AdminTripPlanPage() {
                 Provider
                 <select
                   className={fieldClass}
-                  onChange={(event) => setProvider(event.target.value)}
+                  onChange={(event) => {
+                    // A model id belongs to one provider, so switching resets to the default.
+                    setProvider(event.target.value);
+                    setModel("");
+                    setIsCustomModel(false);
+                  }}
                   value={provider}
                 >
                   {PROVIDERS.map((name) => (
@@ -208,6 +229,40 @@ export default function AdminTripPlanPage() {
                     </option>
                   ))}
                 </select>
+              </label>
+
+              <label className="mt-4 block text-xs font-bold text-muted">
+                Model
+                <select
+                  className={fieldClass}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    setIsCustomModel(next === CUSTOM_MODEL);
+                    setModel(next === CUSTOM_MODEL ? "" : next);
+                  }}
+                  value={isCustomModel ? CUSTOM_MODEL : model}
+                >
+                  <option value="">Server default</option>
+                  {(MODEL_SUGGESTIONS[provider] ?? []).map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                  <option value={CUSTOM_MODEL}>Custom…</option>
+                </select>
+                {isCustomModel ? (
+                  <input
+                    autoComplete="off"
+                    className={fieldClass}
+                    onChange={(event) => setModel(event.target.value)}
+                    placeholder="Exact model id from the provider"
+                    value={model}
+                  />
+                ) : null}
+                <span className="mt-1 block font-normal">
+                  Used for trip plans, plan edits and the in-app assistant. Server default uses PLAN_TRIP_MODEL, or
+                  the provider&apos;s built-in model.
+                </span>
               </label>
 
               <label className="mt-4 block text-xs font-bold text-muted">
