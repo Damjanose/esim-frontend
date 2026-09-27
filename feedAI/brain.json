@@ -70,6 +70,6 @@
     "commit": "working-tree",
     "branch": "main",
     "date": "2026-09-27",
-    "note_latest": "f196: Article schema on travel/compare, Product removed from compare; f197: homepage server-rendered top-destination links; f194: regional /esim coverage lists; f195: positioned scrollers for sr-only (mobile 479px overflow fix); f193: llms.txt links validated against sitemap; f192: mobile CWV — hero fetchPriority, chip placeholders (CLS 0.139->0), footer logo next/image; inlineCss rejected. f191: testimonials not review schema; f188-f190: audit week-1 fixes"
+    "note_latest": "f198: assetlinks.json now lists the Play App Signing key (Play Store installs opened share links in the browser); f196: Article schema on travel/compare, Product removed from compare; f197: homepage server-rendered top-destination links; f194: regional /esim coverage lists; f195: positioned scrollers for sr-only (mobile 479px overflow fix); f193: llms.txt links validated against sitemap; f192: mobile CWV — hero fetchPriority, chip placeholders (CLS 0.139->0), footer logo next/image; inlineCss rejected. f191: testimonials not review schema; f188-f190: audit week-1 fixes"
   }
 }

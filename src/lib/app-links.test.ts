@@ -37,6 +37,17 @@ describe("app links verification files", () => {
     }
   });
 
+  it("trusts both the upload key and the Play App Signing key", () => {
+    // Play Store installs are re-signed by Google; without its key, links open in the browser.
+    const [statement] = androidAssetLinks();
+    expect(statement.target.sha256_cert_fingerprints).toEqual(
+      expect.arrayContaining([
+        "88:0B:A6:63:F7:A1:E9:EE:BB:A2:E4:21:06:FC:95:E8:99:F1:64:06:7D:29:A7:E9:9C:D3:D7:A9:59:7C:93:B3",
+        "A3:98:03:1A:6D:9A:7D:04:30:D8:3D:AC:3C:53:5D:51:8A:57:A5:46:09:3D:C4:03:BF:20:31:9D:CF:CE:21:2E"
+      ])
+    );
+  });
+
   it("serves JSON", async () => {
     const res = jsonFileResponse({ ok: true });
     expect(res.headers.get("Content-Type")).toBe("application/json");

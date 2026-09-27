@@ -252,6 +252,15 @@
         "f195"
       ],
       "source": "src/app/EsimDestinationPage.tsx"
+    },
+    {
+      "symptom": "Tapping a shared package link (https://esim.uplisoft.com/pkg/{id}) in WhatsApp on an Android phone with eSim2you installed from Google Play opens the web 'get the app' page instead of the app. The app manifest, assetlinks.json and Google's Digital Asset Links API all look correct.",
+      "root_cause": "assetlinks.json listed only the upload-key SHA-256. Play App Signing re-signs Play Store installs with Google's app signing key, so the installed app's cert did not match and Android marked esim.uplisoft.com unverified.",
+      "fix": "Add the Play Console 'App signing key certificate' SHA-256 to ANDROID_SHA256_CERT_FINGERPRINTS next to the upload key. Deploy, purge Cloudflare cache for /.well-known/assetlinks.json, then on the device run `adb shell pm verify-app-links --re-verify com.uplisoft.velocityesim` (or reinstall), because Android caches the failed verification. Check with `adb shell pm get-app-links com.uplisoft.velocityesim`.",
+      "facts": [
+        "f198"
+      ],
+      "source": "src/lib/app-links.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

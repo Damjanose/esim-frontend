@@ -31,13 +31,16 @@ export const PACKAGE_LINK_PREFIX = "/pkg";
 export const ESIM_LINK_PREFIX = "/esim/id";
 
 /**
- * SHA-256 fingerprints of the certificates Android builds are signed with:
- * the repo's release keystore. If the app ships through Google Play with
- * Play App Signing, the Play "App signing key" fingerprint must be added here
- * too — Play re-signs installs with it.
+ * SHA-256 fingerprints of the certificates Android builds are signed with.
+ * Play App Signing re-signs Play Store installs with Google's key, so both
+ * are needed: without the Play one, App Links fail verification on Play
+ * installs and shared links open in the browser.
  */
 const ANDROID_SHA256_CERT_FINGERPRINTS = [
-  "88:0B:A6:63:F7:A1:E9:EE:BB:A2:E4:21:06:FC:95:E8:99:F1:64:06:7D:29:A7:E9:9C:D3:D7:A9:59:7C:93:B3"
+  // Upload key: the mobile repo's release keystore (sideloaded release APKs).
+  "88:0B:A6:63:F7:A1:E9:EE:BB:A2:E4:21:06:FC:95:E8:99:F1:64:06:7D:29:A7:E9:9C:D3:D7:A9:59:7C:93:B3",
+  // Play Console → App integrity → "App signing key certificate" (Play Store installs).
+  "A3:98:03:1A:6D:9A:7D:04:30:D8:3D:AC:3C:53:5D:51:8A:57:A5:46:09:3D:C4:03:BF:20:31:9D:CF:CE:21:2E"
 ];
 
 export function appleAppSiteAssociation() {
