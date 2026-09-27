@@ -270,6 +270,15 @@
         "f199"
       ],
       "source": "src/lib/app-links.ts"
+    },
+    {
+      "symptom": "A locally installed Android build (pnpm android / expo run:android) opens https://esim.uplisoft.com/pkg/... in the browser even though Play installs open the app. `adb shell pm get-app-links com.uplisoft.velocityesim` shows esim.uplisoft.com: 1024 and Signatures FA:C6:17:45:...",
+      "root_cause": "Debug builds are signed with android/app/debug.keystore (the public Android debug key), which is intentionally not listed in assetlinks.json, so App Link verification fails.",
+      "fix": "Not a bug for store users. To test on a dev phone: `adb shell pm set-app-links --package com.uplisoft.velocityesim 2 esim.uplisoft.com`, or install a release-signed build (pnpm android:release:apk:arm64). Do not add the debug fingerprint to assetlinks.json.",
+      "facts": [
+        "f200"
+      ],
+      "source": "src/lib/app-links.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

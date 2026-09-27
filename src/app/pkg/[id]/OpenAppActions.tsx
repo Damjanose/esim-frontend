@@ -11,14 +11,19 @@ import {
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
 
-const openAppClass = "block rounded-full bg-brandBlue px-5 py-3 text-sm font-bold text-white";
+const openAppClass = "block rounded-full bg-brandBlue px-5 py-3 text-center text-sm font-bold text-white";
+const secondaryClass =
+  "block rounded-full border border-brandBlue px-5 py-3 text-center text-sm font-bold text-brandBlue";
 
 export function OpenAppActions({
   packageId,
+  webCheckoutUrl,
   appStoreUrl,
   playStoreUrl
 }: {
   packageId: string;
+  /** Web checkout for this plan, or null when the plan isn't in the web catalog. */
+  webCheckoutUrl: string | null;
   appStoreUrl: string;
   playStoreUrl: string;
 }) {
@@ -41,18 +46,14 @@ export function OpenAppActions({
     window.location.href = appSchemeUrlForPackage(packageId);
   };
 
-  const storeButton = (href: string, label: string) => (
-    <a
-      key={label}
-      href={href}
-      className="block rounded-full border border-brandBlue px-5 py-3 text-sm font-bold text-brandBlue"
-    >
+  const storeLink = (href: string, label: string) => (
+    <a key={label} href={href} className="font-semibold text-brandBlue underline-offset-2 hover:underline">
       {label}
     </a>
   );
 
   return (
-    <div className="mt-7 flex flex-col gap-3">
+    <div className="mt-6 flex flex-col gap-3">
       {platform === "android" ? (
         // A real link, not script: Chrome blocks script-initiated intent:// navigation.
         // It opens the app if installed, otherwise the Play Store listing.
@@ -68,8 +69,16 @@ export function OpenAppActions({
           Open in the app
         </button>
       ) : null}
-      {platform !== "android" ? storeButton(appStoreUrl, "Download on the App Store") : null}
-      {platform !== "ios" ? storeButton(playStoreUrl, "Get it on Google Play") : null}
+      {webCheckoutUrl ? (
+        <a href={webCheckoutUrl} className={platform === "other" ? openAppClass : secondaryClass}>
+          Buy on the web
+        </a>
+      ) : null}
+      <p className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-onSurfaceVariant">
+        <span>Get the app:</span>
+        {platform !== "android" ? storeLink(appStoreUrl, "App Store") : null}
+        {platform !== "ios" ? storeLink(playStoreUrl, "Google Play") : null}
+      </p>
     </div>
   );
 }
