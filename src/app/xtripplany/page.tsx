@@ -18,6 +18,14 @@ type Settings = {
   priceCurrency: string;
 };
 
+type ConnectionResult = {
+  ok: boolean;
+  provider: string;
+  model: string;
+  latencyMs: number;
+  message: string;
+};
+
 type Payload = {
   status?: string;
   data?: Settings;
@@ -57,6 +65,8 @@ export default function AdminTripPlanPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<ConnectionResult | null>(null);
 
   function applySettings(next: Settings) {
     setSettings(next);
@@ -155,6 +165,34 @@ export default function AdminTripPlanPage() {
       setError(err instanceof Error ? err.message : "Could not save trip plan settings");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  // Tests what is saved on the server, not unsaved form edits.
+  async function testConnection() {
+    if (!token) return;
+    setIsTesting(true);
+    setTestResult(null);
+    setError("");
+    try {
+      const response = await fetch("/bff/admin/itinerary-settings/test", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store"
+      });
+      const payload = (await response.json()) as { status?: string; data?: ConnectionResult; message?: string };
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success" || !payload.data) {
+        throw new Error(payload.message ?? "Could not test the provider");
+      }
+      setTestResult(payload.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not test the provider");
+    } finally {
+      setIsTesting(false);
     }
   }
 
@@ -351,6 +389,33 @@ export default function AdminTripPlanPage() {
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
+
+              <button
+                className="mt-3 h-10 w-full rounded-xl border border-line bg-white text-xs font-black text-midnight transition hover:border-cyan disabled:opacity-50"
+                disabled={isTesting || isSaving || !settings?.apiKeySet}
+                onClick={() => void testConnection()}
+                type="button"
+              >
+                {isTesting ? "Testing..." : "Test connection"}
+              </button>
+              <p className="mt-1 text-xs font-normal text-muted">
+                Sends “Hello” with the saved provider, key and model and shows the reply. Save changes first.
+              </p>
+              {testResult ? (
+                <div
+                  className={`mt-3 rounded-xl border px-3 py-2 text-xs font-bold ${
+                    testResult.ok
+                      ? "border-green-200 bg-green-50 text-green-700"
+                      : "border-red-200 bg-red-50 text-red-700"
+                  }`}
+                >
+                  <p>
+                    {testResult.ok ? "Working" : "Not working"}: {testResult.provider} ·{" "}
+                    {testResult.model || "provider default model"} · {testResult.latencyMs} ms
+                  </p>
+                  <p className="mt-1 break-words font-normal">{testResult.message}</p>
+                </div>
+              ) : null}
             </section>
           </div>
         )}
