@@ -1,6 +1,6 @@
 # AGENTS.md — E-SIM-frontend
 
-This file provides guidance to AI coding agents (Claude Code, Codex) when working in this repository. `CLAUDE.md` is a one-line `@AGENTS.md` import, so edit this file, not that one.
+This file provides guidance to AI coding agents (Claude Code, Codex, Cline) when working in this repository. `CLAUDE.md` is a one-line `@AGENTS.md` import, and `.clinerules/AGENTS.md` is a symlink to it, so edit this file, not those.
 
 For full workspace context and cross-repo working practices, see the root `AGENTS.md`
 one level up (`../AGENTS.md`).
