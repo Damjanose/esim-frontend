@@ -31,7 +31,7 @@ const PROVIDERS = ["openai", "anthropic", "gemini"] as const;
 const MODEL_SUGGESTIONS: Record<string, readonly string[]> = {
   openai: ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4.1"],
   anthropic: ["claude-sonnet-4-6", "claude-haiku-4-5", "claude-opus-4-6"],
-  gemini: ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"]
+  gemini: ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"]
 };
 
 const CUSTOM_MODEL = "__custom__";
