@@ -11,6 +11,8 @@ type Settings = {
   provider: string;
   apiKeySet: boolean;
   model: string;
+  /** Empty means the server default (PLAN_TRIP_OPENAI_BASE_URL, then api.openai.com). */
+  openaiBaseUrl: string;
   generationLimit: number;
   windowDays: number;
   editLimit: number;
@@ -44,6 +46,9 @@ const MODEL_SUGGESTIONS: Record<string, readonly string[]> = {
 
 const CUSTOM_MODEL = "__custom__";
 
+// Any OpenAI-compatible endpoint works with provider "openai", e.g. Gemini with an AI Studio key.
+const GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
+
 const fieldClass =
   "mt-1 h-10 w-full rounded-xl border border-line px-3 text-sm font-normal text-midnight outline-none focus:border-cyan";
 
@@ -56,6 +61,7 @@ export default function AdminTripPlanPage() {
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
   const [isCustomModel, setIsCustomModel] = useState(false);
+  const [openaiBaseUrl, setOpenaiBaseUrl] = useState("");
   const [generationLimit, setGenerationLimit] = useState("3");
   const [windowDays, setWindowDays] = useState("25");
   const [editLimit, setEditLimit] = useState("3");
@@ -73,6 +79,7 @@ export default function AdminTripPlanPage() {
     setProvider(next.provider);
     setModel(next.model);
     setIsCustomModel(next.model !== "" && !(MODEL_SUGGESTIONS[next.provider] ?? []).includes(next.model));
+    setOpenaiBaseUrl(next.openaiBaseUrl ?? "");
     setGenerationLimit(String(next.generationLimit));
     setWindowDays(String(next.windowDays));
     setEditLimit(String(next.editLimit));
@@ -143,6 +150,8 @@ export default function AdminTripPlanPage() {
         body: JSON.stringify({
           provider,
           model: model.trim(),
+          // Only the openai provider uses a base URL; switching away clears it.
+          openaiBaseUrl: provider === "openai" ? openaiBaseUrl.trim() : "",
           generationLimit: limit,
           windowDays: days,
           editLimit: edits,
@@ -258,6 +267,7 @@ export default function AdminTripPlanPage() {
                     setProvider(event.target.value);
                     setModel("");
                     setIsCustomModel(false);
+                    setOpenaiBaseUrl("");
                   }}
                   value={provider}
                 >
@@ -268,6 +278,31 @@ export default function AdminTripPlanPage() {
                   ))}
                 </select>
               </label>
+
+              {provider === "openai" ? (
+                <label className="mt-4 block text-xs font-bold text-muted">
+                  Base URL
+                  <input
+                    autoComplete="off"
+                    className={fieldClass}
+                    onChange={(event) => setOpenaiBaseUrl(event.target.value)}
+                    placeholder="https://api.openai.com/v1"
+                    type="url"
+                    value={openaiBaseUrl}
+                  />
+                  <span className="mt-1 block font-normal">
+                    Leave empty for OpenAI. For another OpenAI-compatible API, enter its base URL (without
+                    /chat/completions) and pick its model under Custom.{" "}
+                    <button
+                      className="font-bold text-cyan underline"
+                      onClick={() => setOpenaiBaseUrl(GEMINI_OPENAI_BASE_URL)}
+                      type="button"
+                    >
+                      Use Gemini
+                    </button>
+                  </span>
+                </label>
+              ) : null}
 
               <label className="mt-4 block text-xs font-bold text-muted">
                 Model
@@ -399,7 +434,8 @@ export default function AdminTripPlanPage() {
                 {isTesting ? "Testing..." : "Test connection"}
               </button>
               <p className="mt-1 text-xs font-normal text-muted">
-                Sends “Hello” with the saved provider, key and model and shows the reply. Save changes first.
+                Sends “Hello” with the saved provider, base URL, key and model and shows the reply. Save changes
+                first.
               </p>
               {testResult ? (
                 <div
