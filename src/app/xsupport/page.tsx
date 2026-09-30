@@ -13,9 +13,10 @@ export default function AdminSupportPage() {
   const [reloadKey, setReloadKey] = useState(0);
 
   return (
-    <div className="flex min-h-screen bg-cloud">
+    <>
+      
       <AdminNav />
-      <div className="min-w-0 flex-1 px-6 py-7 md:px-9">
+      <div className="min-h-screen bg-cloud px-6 py-7 md:px-9">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-cyanDeep">
@@ -66,6 +67,6 @@ export default function AdminSupportPage() {
           <SupportInbox handleUnauthorized={handleUnauthorized} key={reloadKey} token={token} />
         )}
       </div>
-    </div>
+    </>
   );
 }

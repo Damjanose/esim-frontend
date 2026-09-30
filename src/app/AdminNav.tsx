@@ -38,29 +38,32 @@ export function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-20 shrink-0 flex-col items-center gap-1 bg-gradient-to-b from-midnight to-ink py-6">
-      <Link aria-label="Home" className="mb-6 block" href="/" title="Home">
+    <nav className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-6 border-b border-mist bg-gradient-to-r from-midnight to-ink px-6 py-0">
+      <Link aria-label="Home" className="shrink-0" href="/" title="Home">
         <img alt="eSim2you app logo" className="h-8 w-8 rounded-[10px] object-contain shadow-glow" src="/logo-icon.png" />
       </Link>
-      {adminLinks.map(({ href, label, full, Icon }) => {
-        const active = pathname === href;
-        return (
-          <Link
-            aria-label={full}
-            className={`flex h-12 w-12 flex-col items-center justify-center gap-1 rounded-xl transition ${
-              active
-                ? "bg-[rgba(0,217,245,0.12)] text-aqua shadow-[inset_0_0_0_1px_rgba(0,217,245,0.35)]"
-                : "text-[#7fd8e6] opacity-70 hover:bg-white/5 hover:opacity-100"
-            }`}
-            href={href}
-            key={href}
-            title={full}
-          >
-            <Icon aria-hidden="true" size={18} />
-            <span className="text-[8px] font-bold uppercase tracking-wide">{label}</span>
-          </Link>
-        );
-      })}
-    </aside>
+
+      <div className="flex flex-1 items-center gap-1 overflow-x-auto">
+        {adminLinks.map(({ href, label, full, Icon }) => {
+          const active = pathname === href;
+          return (
+            <Link
+              aria-label={full}
+              className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm transition ${
+                active
+                  ? "bg-[rgba(0,217,245,0.12)] text-aqua shadow-[inset_0_0_0_1px_rgba(0,217,245,0.35)]"
+                  : "text-[#7fd8e6] opacity-70 hover:bg-white/5 hover:opacity-100"
+              }`}
+              href={href}
+              key={href}
+              title={full}
+            >
+              <Icon aria-hidden="true" size={16} />
+              <span className="font-semibold">{label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

@@ -206,9 +206,9 @@ export default function AdminTripPlanPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <>
       <AdminNav />
-      <main className="min-w-0 flex-1 px-6 py-8">
+      <main className="min-h-screen bg-canvas px-6 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wide text-muted">Admin</p>
@@ -456,6 +456,6 @@ export default function AdminTripPlanPage() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }
