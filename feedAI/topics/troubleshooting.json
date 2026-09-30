@@ -279,6 +279,15 @@
         "f200"
       ],
       "source": "src/lib/app-links.ts"
+    },
+    {
+      "symptom": "/xtripplany Test connection shows 'OpenAI error (400): Bad Request' (or a working key suddenly fails after Save), and the API key field is pre-filled with dots and a blue autofill background.",
+      "root_cause": "Chrome autofilled a saved browser password into the type=password API key input (autoComplete='off' is ignored on password fields). A non-empty field makes Test send it and Save overwrite the stored provider key.",
+      "fix": "Input now uses autoComplete='new-password'. If it still appears filled, clear the field before Save/Test.",
+      "facts": [
+        "f205"
+      ],
+      "source": "src/app/xtripplany/page.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

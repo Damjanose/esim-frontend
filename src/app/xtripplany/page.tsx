@@ -371,7 +371,9 @@ export default function AdminTripPlanPage() {
               <label className="mt-4 block text-xs font-bold text-muted">
                 API key
                 <input
-                  autoComplete="off"
+                  // Chrome ignores "off" on password fields and autofills a saved login,
+                  // which Save/Test would then send as the provider key.
+                  autoComplete="new-password"
                   className={fieldClass}
                   onChange={(event) => setApiKey(event.target.value)}
                   placeholder={settings?.apiKeySet ? "Enter a new key to replace it" : "Paste the provider key"}
