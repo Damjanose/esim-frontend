@@ -8,6 +8,7 @@ import {
   Bell,
   Bug,
   LifeBuoy,
+  LogOut,
   Map,
   MessageSquareQuote,
   Percent,
@@ -15,6 +16,7 @@ import {
   Users,
   type LucideIcon
 } from "lucide-react";
+import { useAdminSession } from "./useAdminSession";
 
 const adminLinks: Array<{
   href: string;
@@ -36,6 +38,7 @@ const adminLinks: Array<{
 
 export function AdminNav() {
   const pathname = usePathname();
+  const { token, logout } = useAdminSession();
 
   return (
     <nav className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-6 border-b border-mist bg-gradient-to-r from-midnight to-ink px-6 py-0">
@@ -64,6 +67,19 @@ export function AdminNav() {
           );
         })}
       </div>
+
+      {token && (
+        <button
+          aria-label="Logout"
+          className="flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-[#7fd8e6] transition hover:bg-white/5 hover:text-aqua"
+          onClick={logout}
+          title="Logout"
+          type="button"
+        >
+          <LogOut aria-hidden="true" size={16} />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
+      )}
     </nav>
   );
 }
