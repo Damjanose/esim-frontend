@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { LogOut, Search, Send } from "lucide-react";
+import { LogOut, Search, Send, RotateCcw, Trash2 } from "lucide-react";
 import { MarketplaceOpenActionFields } from "./MarketplaceOpenActionFields";
 import {
   EMPTY_OPEN_ACTION_DRAFT,
@@ -54,10 +54,12 @@ export function IndividualNotificationsTab({
 
   const [history, setHistory] = useState<IndividualNotification[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [forceLogoutKind, setForceLogoutKind] = useState<"unlinked" | "all" | null>(null);
+  const [isClearingHistory, setIsClearingHistory] = useState(false);
 
   async function loadHistory() {
     if (!token) return;
@@ -242,6 +244,114 @@ export function IndividualNotificationsTab({
     }
   }
 
+  async function resendNotification(notification: IndividualNotification) {
+    if (!notification.userEmail) {
+      setError("Cannot resend to a deleted account.");
+      return;
+    }
+
+    setBusyId(notification.id);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch(`/bff/admin/users/${encodeURIComponent(notification.userEmail)}/notify`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: notification.title,
+          body: notification.body,
+        }),
+      });
+      const payload = (await response.json()) as SendPayload;
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not resend notification");
+      }
+
+      const sentCount = payload.data?.sentCount ?? 0;
+      const failureCount = payload.data?.failureCount ?? 0;
+      setNotice(
+        sentCount === 0
+          ? "Sent to 0 devices — this user has no linked device."
+          : failureCount > 0
+            ? `Resent to ${sentCount} device(s), ${failureCount} failed.`
+            : `Resent to ${sentCount} device(s).`
+      );
+      void loadHistory();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not resend notification");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function deleteHistoryItem(id: string) {
+    if (!window.confirm("Delete this notification from history?")) return;
+
+    setBusyId(id);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch(`/bff/admin/notifications/individual/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = (await response.json()) as { status?: string; message?: string };
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not delete notification");
+      }
+
+      setHistory((current) => current.filter((row) => row.id !== id));
+      setNotice("Notification deleted from history.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete notification");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function clearAllHistory() {
+    if (!window.confirm("Delete all notifications from history? This cannot be undone.")) return;
+
+    setIsClearingHistory(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/bff/admin/notifications/individual", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = (await response.json()) as { status?: string; message?: string };
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not clear history");
+      }
+
+      setHistory([]);
+      setNotice("All notifications cleared from history.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not clear history");
+    } finally {
+      setIsClearingHistory(false);
+    }
+  }
+
   return (
     <div>
       <div className="mb-6 rounded-2xl border border-line bg-white p-5 shadow-card">
@@ -376,7 +486,20 @@ export function IndividualNotificationsTab({
       {notice ? <p className="mb-4 text-sm font-bold text-emerald-700">{notice}</p> : null}
 
       <div className="rounded-2xl border border-line bg-white shadow-card">
-        <h2 className="border-b border-line p-5 text-sm font-black uppercase tracking-wide text-midnight">Send history</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-line p-5">
+          <h2 className="text-sm font-black uppercase tracking-wide text-midnight">Send history</h2>
+          {history.length > 0 ? (
+            <button
+              className="inline-flex h-9 items-center gap-2 rounded-xl border border-red-200 px-3 text-xs font-bold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isClearingHistory || busyId !== null}
+              onClick={() => void clearAllHistory()}
+              type="button"
+            >
+              <Trash2 aria-hidden="true" size={14} />
+              {isClearingHistory ? "Clearing..." : "Clear all"}
+            </button>
+          ) : null}
+        </div>
         {history.length === 0 && !isLoadingHistory ? (
           <p className="p-6 text-sm font-semibold text-muted">No individual notifications sent yet.</p>
         ) : (
@@ -384,7 +507,7 @@ export function IndividualNotificationsTab({
             {history.map((row) => (
               <li className="p-5" key={row.id}>
                 <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-black text-midnight">{row.userEmail ?? "(deleted account)"}</p>
                     {row.title ? <p className="mt-1 text-sm font-bold text-midnight">{row.title}</p> : null}
                     {row.body ? <p className="mt-1 text-sm text-muted">{row.body}</p> : null}
@@ -393,9 +516,33 @@ export function IndividualNotificationsTab({
                       {row.sentByAdminEmail ? ` · sent by ${row.sentByAdminEmail}` : ""}
                     </p>
                   </div>
-                  <p className="shrink-0 text-xs font-bold text-muted">
-                    {row.sentCount} sent{row.failureCount > 0 ? `, ${row.failureCount} failed` : ""}
-                  </p>
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <p className="text-xs font-bold text-muted">
+                      {row.sentCount} sent{row.failureCount > 0 ? `, ${row.failureCount} failed` : ""}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        className="inline-flex h-8 items-center gap-1 rounded-lg border border-line px-2.5 text-xs font-bold text-midnight transition hover:bg-cloud disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={busyId !== null}
+                        onClick={() => void resendNotification(row)}
+                        title="Resend this notification"
+                        type="button"
+                      >
+                        <RotateCcw aria-hidden="true" size={12} />
+                        {busyId === row.id ? "Resending..." : "Resend"}
+                      </button>
+                      <button
+                        className="inline-flex h-8 items-center gap-1 rounded-lg border border-red-200 px-2.5 text-xs font-bold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={busyId !== null}
+                        onClick={() => void deleteHistoryItem(row.id)}
+                        title="Delete from history"
+                        type="button"
+                      >
+                        <Trash2 aria-hidden="true" size={12} />
+                        {busyId === row.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </li>
             ))}
