@@ -177,16 +177,46 @@ export default function AdminTripPlanPage() {
     }
   }
 
-  // Tests what is saved on the server, not unsaved form edits.
+  // Tests with current form values (unsaved edits) or saved settings if no key is being tested.
   async function testConnection() {
     if (!token) return;
     setIsTesting(true);
     setTestResult(null);
     setError("");
     try {
+      const limit = Number(generationLimit);
+      const days = Number(windowDays);
+      const edits = Number(editLimit);
+      const price = Number(priceAmount);
+
+      // Validate form before sending to backend
+      if (!Number.isInteger(limit) || limit < 1 || !Number.isInteger(days) || days < 1) {
+        throw new Error("Limit and window must be whole numbers above zero.");
+      }
+      if (!Number.isInteger(edits) || edits < 0) {
+        throw new Error("Edits per plan must be a whole number, zero or more.");
+      }
+      if (!Number.isFinite(price) || price < 0) {
+        throw new Error("Price must be zero or more.");
+      }
+
+      // If an API key is being tested in the form, send the full payload; otherwise test saved settings
+      const body = apiKey.trim()
+        ? {
+            provider,
+            model: model.trim(),
+            openaiBaseUrl: provider === "openai" ? openaiBaseUrl.trim() : "",
+            apiKey: apiKey.trim()
+          }
+        : undefined;
+
       const response = await fetch("/bff/admin/itinerary-settings/test", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(body ? { "Content-Type": "application/json" } : {})
+        },
+        ...(body ? { body: JSON.stringify(body) } : {}),
         cache: "no-store"
       });
       const payload = (await response.json()) as { status?: string; data?: ConnectionResult; message?: string };
@@ -427,15 +457,14 @@ export default function AdminTripPlanPage() {
 
               <button
                 className="mt-3 h-10 w-full rounded-xl border border-line bg-white text-xs font-black text-midnight transition hover:border-cyan disabled:opacity-50"
-                disabled={isTesting || isSaving || !settings?.apiKeySet}
+                disabled={isTesting || isSaving || (!apiKey.trim() && !settings?.apiKeySet)}
                 onClick={() => void testConnection()}
                 type="button"
               >
                 {isTesting ? "Testing..." : "Test connection"}
               </button>
               <p className="mt-1 text-xs font-normal text-muted">
-                Sends “Hello” with the saved provider, base URL, key and model and shows the reply. Save changes
-                first.
+                Sends "Hello" with your current provider, base URL, key and model. Test unsaved changes without saving.
               </p>
               {testResult ? (
                 <div
