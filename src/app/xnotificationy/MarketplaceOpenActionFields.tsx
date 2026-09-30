@@ -9,8 +9,10 @@ import {
 } from "@/services/packages";
 import { MARKETPLACE_PASS_OPTIONS } from "./marketplacePassOptions";
 import {
+  OPEN_ACTION_TARGET_OPTIONS,
   SORT_OPTIONS,
   type OpenActionDraft,
+  type OpenActionTarget,
 } from "./marketplaceOpenAction";
 
 type DestinationOption = { id: string; label: string };
@@ -104,188 +106,216 @@ export function MarketplaceOpenActionFields({
       <div>
         <p className="text-sm font-black text-midnight">Open in app</p>
         <p className="mt-1 text-xs font-semibold text-muted">
-          Optional. Pass and filters combine: Marketplace applies the continental pass first, then these
-          advanced filters.
+          Optional. Choose which app screen a tap opens.
         </p>
       </div>
 
-      <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-pass`}>
-        Continental pass
+      <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-target`}>
+        Screen
       </label>
       <select
         className="mt-1.5 h-11 w-full rounded-xl border border-line bg-white px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-        id={`${idPrefix}-pass`}
-        onChange={(event) => patch({ passId: event.target.value })}
-        value={draft.passId}
+        id={`${idPrefix}-target`}
+        onChange={(event) => patch({ target: event.target.value as OpenActionTarget })}
+        value={draft.target}
       >
-        {MARKETPLACE_PASS_OPTIONS.map((option) => (
-          <option key={option.id || "none"} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-
-      <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-dest-search`}>
-        Destinations
-      </label>
-      {catalogError ? <p className="text-xs font-bold text-amber-700">{catalogError}</p> : null}
-      <div className="overflow-hidden rounded-xl border border-line bg-white">
-        <input
-          className="h-11 w-full border-b border-line px-3.5 text-sm outline-none focus:border-cyan"
-          id={`${idPrefix}-dest-search`}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search destinations"
-          type="search"
-          value={search}
-        />
-        <div className="max-h-40 overflow-auto p-1.5">
-          {filtered.length === 0 ? (
-            <p className="px-2 py-3 text-xs font-semibold text-muted">No matching destinations.</p>
-          ) : (
-            filtered.map((option) => (
-              <label
-                className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold hover:bg-[#f0f5f9]"
-                key={option.id}
-              >
-                <input
-                  checked={draft.destinations.includes(option.id)}
-                  onChange={() => toggleDestination(option.id)}
-                  type="checkbox"
-                />
-                <span>{option.label}</span>
-                <span className="ml-auto text-xs font-semibold text-muted">{option.id}</span>
-              </label>
-            ))
-          )}
-        </div>
-        <div className="flex gap-2 border-t border-line bg-[#fafcfd] p-2.5">
-          <input
-            className="h-10 min-w-0 flex-1 rounded-xl border border-line bg-white px-3 text-sm outline-none focus:border-cyan"
-            onChange={(event) => setCustomSlug(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                addCustom();
-              }
-            }}
-            placeholder="Custom slug (albania)"
-            type="text"
-            value={customSlug}
-          />
-          <button
-            className="h-10 shrink-0 rounded-xl border border-line bg-white px-3 text-xs font-bold text-midnight"
-            onClick={addCustom}
-            type="button"
-          >
-            Add slug
-          </button>
-        </div>
-      </div>
-      {draft.destinations.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {draft.destinations.map((id) => (
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#b8e8df] bg-[#e8f7f4] px-2.5 py-1 text-xs font-bold text-midnight"
-              key={id}
-            >
-              {labelFor(id)}
-              <button
-                aria-label={`Remove ${id}`}
-                className="text-muted"
-                onClick={() => toggleDestination(id)}
-                type="button"
-              >
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
-      ) : null}
-
-      <label className="block text-sm font-bold text-midnight">Price (EUR)</label>
-      <div className="grid grid-cols-2 gap-2">
-        <input
-          className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
-          inputMode="decimal"
-          onChange={(event) => patch({ priceFrom: event.target.value })}
-          placeholder="From"
-          type="number"
-          value={draft.priceFrom}
-        />
-        <input
-          className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
-          inputMode="decimal"
-          onChange={(event) => patch({ priceTo: event.target.value })}
-          placeholder="To"
-          type="number"
-          value={draft.priceTo}
-        />
-      </div>
-
-      <label className="block text-sm font-bold text-midnight">Duration (days)</label>
-      <div className="grid grid-cols-2 gap-2">
-        <input
-          className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
-          inputMode="numeric"
-          onChange={(event) => patch({ durationFrom: event.target.value })}
-          placeholder="From"
-          type="number"
-          value={draft.durationFrom}
-        />
-        <input
-          className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
-          inputMode="numeric"
-          onChange={(event) => patch({ durationTo: event.target.value })}
-          placeholder="To"
-          type="number"
-          value={draft.durationTo}
-        />
-      </div>
-
-      <label className="block text-sm font-bold text-midnight">Data (GB)</label>
-      <div className="grid grid-cols-2 gap-2">
-        <input
-          className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
-          inputMode="decimal"
-          onChange={(event) => patch({ dataFrom: event.target.value })}
-          placeholder="From"
-          type="number"
-          value={draft.dataFrom}
-        />
-        <input
-          className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
-          inputMode="decimal"
-          onChange={(event) => patch({ dataTo: event.target.value })}
-          placeholder="To"
-          type="number"
-          value={draft.dataTo}
-        />
-      </div>
-
-      <label className="flex items-center gap-2 text-sm font-semibold text-midnight">
-        <input
-          checked={draft.includeUnlimited}
-          onChange={(event) => patch({ includeUnlimited: event.target.checked })}
-          type="checkbox"
-        />
-        Include unlimited data plans
-      </label>
-
-      <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-sort`}>
-        Sort
-      </label>
-      <select
-        className="mt-1.5 h-11 w-full rounded-xl border border-line bg-white px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-        id={`${idPrefix}-sort`}
-        onChange={(event) => patch({ sort: event.target.value as OpenActionDraft["sort"] })}
-        value={draft.sort}
-      >
-        {SORT_OPTIONS.map((option) => (
+        {OPEN_ACTION_TARGET_OPTIONS.map((option) => (
           <option key={option.id} value={option.id}>
             {option.label}
           </option>
         ))}
       </select>
+
+      {draft.target === "trip_plan" ? (
+        <p className="text-xs font-semibold text-muted">
+          Opens the trip planner. Signed-out users sign in first, then land on it.
+        </p>
+      ) : (
+        <>
+          <p className="text-xs font-semibold text-muted">
+            Leave pass and filters empty for no action. Pass and filters combine: Marketplace applies the
+            continental pass first, then these advanced filters.
+          </p>
+
+          <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-pass`}>
+            Continental pass
+          </label>
+          <select
+            className="mt-1.5 h-11 w-full rounded-xl border border-line bg-white px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
+            id={`${idPrefix}-pass`}
+            onChange={(event) => patch({ passId: event.target.value })}
+            value={draft.passId}
+          >
+            {MARKETPLACE_PASS_OPTIONS.map((option) => (
+              <option key={option.id || "none"} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-dest-search`}>
+            Destinations
+          </label>
+          {catalogError ? <p className="text-xs font-bold text-amber-700">{catalogError}</p> : null}
+          <div className="overflow-hidden rounded-xl border border-line bg-white">
+            <input
+              className="h-11 w-full border-b border-line px-3.5 text-sm outline-none focus:border-cyan"
+              id={`${idPrefix}-dest-search`}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search destinations"
+              type="search"
+              value={search}
+            />
+            <div className="max-h-40 overflow-auto p-1.5">
+              {filtered.length === 0 ? (
+                <p className="px-2 py-3 text-xs font-semibold text-muted">No matching destinations.</p>
+              ) : (
+                filtered.map((option) => (
+                  <label
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold hover:bg-[#f0f5f9]"
+                    key={option.id}
+                  >
+                    <input
+                      checked={draft.destinations.includes(option.id)}
+                      onChange={() => toggleDestination(option.id)}
+                      type="checkbox"
+                    />
+                    <span>{option.label}</span>
+                    <span className="ml-auto text-xs font-semibold text-muted">{option.id}</span>
+                  </label>
+                ))
+              )}
+            </div>
+            <div className="flex gap-2 border-t border-line bg-[#fafcfd] p-2.5">
+              <input
+                className="h-10 min-w-0 flex-1 rounded-xl border border-line bg-white px-3 text-sm outline-none focus:border-cyan"
+                onChange={(event) => setCustomSlug(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addCustom();
+                  }
+                }}
+                placeholder="Custom slug (albania)"
+                type="text"
+                value={customSlug}
+              />
+              <button
+                className="h-10 shrink-0 rounded-xl border border-line bg-white px-3 text-xs font-bold text-midnight"
+                onClick={addCustom}
+                type="button"
+              >
+                Add slug
+              </button>
+            </div>
+          </div>
+          {draft.destinations.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {draft.destinations.map((id) => (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#b8e8df] bg-[#e8f7f4] px-2.5 py-1 text-xs font-bold text-midnight"
+                  key={id}
+                >
+                  {labelFor(id)}
+                  <button
+                    aria-label={`Remove ${id}`}
+                    className="text-muted"
+                    onClick={() => toggleDestination(id)}
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          <label className="block text-sm font-bold text-midnight">Price (EUR)</label>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
+              inputMode="decimal"
+              onChange={(event) => patch({ priceFrom: event.target.value })}
+              placeholder="From"
+              type="number"
+              value={draft.priceFrom}
+            />
+            <input
+              className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
+              inputMode="decimal"
+              onChange={(event) => patch({ priceTo: event.target.value })}
+              placeholder="To"
+              type="number"
+              value={draft.priceTo}
+            />
+          </div>
+
+          <label className="block text-sm font-bold text-midnight">Duration (days)</label>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
+              inputMode="numeric"
+              onChange={(event) => patch({ durationFrom: event.target.value })}
+              placeholder="From"
+              type="number"
+              value={draft.durationFrom}
+            />
+            <input
+              className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
+              inputMode="numeric"
+              onChange={(event) => patch({ durationTo: event.target.value })}
+              placeholder="To"
+              type="number"
+              value={draft.durationTo}
+            />
+          </div>
+
+          <label className="block text-sm font-bold text-midnight">Data (GB)</label>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
+              inputMode="decimal"
+              onChange={(event) => patch({ dataFrom: event.target.value })}
+              placeholder="From"
+              type="number"
+              value={draft.dataFrom}
+            />
+            <input
+              className="h-11 rounded-xl border border-line bg-white px-3.5 text-sm outline-none focus:border-cyan"
+              inputMode="decimal"
+              onChange={(event) => patch({ dataTo: event.target.value })}
+              placeholder="To"
+              type="number"
+              value={draft.dataTo}
+            />
+          </div>
+
+          <label className="flex items-center gap-2 text-sm font-semibold text-midnight">
+            <input
+              checked={draft.includeUnlimited}
+              onChange={(event) => patch({ includeUnlimited: event.target.checked })}
+              type="checkbox"
+            />
+            Include unlimited data plans
+          </label>
+
+          <label className="block text-sm font-bold text-midnight" htmlFor={`${idPrefix}-sort`}>
+            Sort
+          </label>
+          <select
+            className="mt-1.5 h-11 w-full rounded-xl border border-line bg-white px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
+            id={`${idPrefix}-sort`}
+            onChange={(event) => patch({ sort: event.target.value as OpenActionDraft["sort"] })}
+            value={draft.sort}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
     </div>
   );
 }

@@ -54,4 +54,14 @@ describe("marketplaceOpenAction helpers", () => {
       }),
     ).toContain("europe");
   });
+
+  it("builds, round-trips and summarizes a trip_plan action", () => {
+    const draft = { ...EMPTY_OPEN_ACTION_DRAFT, target: "trip_plan" as const, passId: "europe" };
+    expect(draftToOpenAction(draft)).toEqual({ type: "trip_plan" });
+    expect(openActionToDraft({ type: "trip_plan" })).toEqual({
+      ...EMPTY_OPEN_ACTION_DRAFT,
+      target: "trip_plan",
+    });
+    expect(summarizeOpenAction({ type: "trip_plan" })).toBe("Plan a trip");
+  });
 });

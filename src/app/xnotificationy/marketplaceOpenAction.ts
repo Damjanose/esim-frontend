@@ -21,13 +21,25 @@ export type MarketplaceOpenFilters = {
   sort?: MarketplaceSortMode;
 };
 
-export type NotificationOpenAction = {
-  type: "marketplace";
-  passId?: string;
-  filters?: MarketplaceOpenFilters;
-} | null;
+export type NotificationOpenAction =
+  | {
+      type: "marketplace";
+      passId?: string;
+      filters?: MarketplaceOpenFilters;
+    }
+  | { type: "trip_plan" }
+  | null;
+
+/** Screen the push opens on tap. `marketplace` with no pass/filters means None. */
+export type OpenActionTarget = "marketplace" | "trip_plan";
+
+export const OPEN_ACTION_TARGET_OPTIONS: { id: OpenActionTarget; label: string }[] = [
+  { id: "marketplace", label: "Marketplace (or none)" },
+  { id: "trip_plan", label: "Plan a trip" },
+];
 
 export type OpenActionDraft = {
+  target: OpenActionTarget;
   passId: string;
   destinations: string[];
   priceFrom: string;
@@ -41,6 +53,7 @@ export type OpenActionDraft = {
 };
 
 export const EMPTY_OPEN_ACTION_DRAFT: OpenActionDraft = {
+  target: "marketplace",
   passId: "",
   destinations: [],
   priceFrom: "",
@@ -71,6 +84,7 @@ function parseOptionalNumber(value: string): number | null {
 }
 
 export function draftToOpenAction(draft: OpenActionDraft): NotificationOpenAction {
+  if (draft.target === "trip_plan") return { type: "trip_plan" };
   const filters: MarketplaceOpenFilters = {};
   if (draft.destinations.length > 0) filters.destination = [...draft.destinations];
   const priceFrom = parseOptionalNumber(draft.priceFrom);
@@ -91,7 +105,7 @@ export function draftToOpenAction(draft: OpenActionDraft): NotificationOpenActio
   const hasFilters = Object.keys(filters).length > 0;
   if (!draft.passId && !hasFilters) return null;
 
-  const action: Exclude<NotificationOpenAction, null> = { type: "marketplace" };
+  const action: Extract<NotificationOpenAction, { type: "marketplace" }> = { type: "marketplace" };
   if (draft.passId) action.passId = draft.passId;
   if (hasFilters) action.filters = filters;
   return action;
@@ -99,6 +113,7 @@ export function draftToOpenAction(draft: OpenActionDraft): NotificationOpenActio
 
 export function openActionToDraft(action: NotificationOpenAction | undefined): OpenActionDraft {
   if (!action) return { ...EMPTY_OPEN_ACTION_DRAFT };
+  if (action.type === "trip_plan") return { ...EMPTY_OPEN_ACTION_DRAFT, target: "trip_plan" };
   const filters = action.filters ?? {};
   let destinations: string[] = [];
   if (Array.isArray(filters.destination)) destinations = [...filters.destination];
@@ -106,6 +121,7 @@ export function openActionToDraft(action: NotificationOpenAction | undefined): O
     destinations = [filters.destination];
   }
   return {
+    target: "marketplace",
     passId: action.passId ?? "",
     destinations,
     priceFrom: filters.priceFrom != null ? String(filters.priceFrom) : "",
@@ -121,6 +137,7 @@ export function openActionToDraft(action: NotificationOpenAction | undefined): O
 
 export function summarizeOpenAction(action: NotificationOpenAction | undefined): string {
   if (!action) return "None";
+  if (action.type === "trip_plan") return "Plan a trip";
   const parts: string[] = [];
   if (action.passId) parts.push(`Pass: ${action.passId}`);
   const f = action.filters;
