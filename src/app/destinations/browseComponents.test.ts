@@ -44,3 +44,25 @@ describe("PhotoTile", () => {
     expect(source).not.toContain("fetch(");
   });
 });
+
+describe("TileCarousel", () => {
+  it("is a snap-scrolling list that can't widen the page, with lg+ arrow buttons", () => {
+    const source = read("TileCarousel.tsx");
+
+    expect(source).toContain('"use client"');
+    // f209: contain:inline-size so the unwrapped track can't widen its parent.
+    expect(source).toContain('className="mt-8 min-w-0 [contain:inline-size]"');
+    // f195: the scroller is positioned, so absolute children can't escape it.
+    expect(source).toContain("`relative mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto");
+    // Smooth only without prefers-reduced-motion; scrollBy never forces smooth.
+    expect(source).toContain("motion-safe:scroll-smooth");
+    expect(source).not.toContain('behavior: "smooth"');
+    expect(source).toContain("aria-label={label}");
+    expect(source).toContain("aria-label={`Scroll ${label} back`}");
+    expect(source).toContain("aria-label={`Scroll ${label} forward`}");
+    expect(source).toContain("disabled={edges.atStart}");
+    expect(source).toContain("disabled={edges.atEnd}");
+    expect(source).toContain("hidden items-center gap-2 lg:flex");
+    expect(source).toContain("carouselStep(track.clientWidth)");
+  });
+});
