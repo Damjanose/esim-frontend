@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { FIELD_CONTROL_CLASSES, FIELD_LABEL_CLASSES, FIELD_TEXT_CLASSES } from "@/app/components/fieldClasses";
 
 export const PROMO_STORAGE_KEY = "esim2you.checkout.promo";
 const STORAGE_KEY = PROMO_STORAGE_KEY;
@@ -168,8 +169,8 @@ export function PromoCodeField({
 
   if (checkingStoredCode) {
     return (
-      <div className="mt-4 flex items-center gap-2 rounded-[12px] border border-outline bg-mist px-4 py-3 text-sm font-medium text-onSurfaceVariant">
-        <Loader2 className="animate-spin" size={16} />
+      <div className="flex min-h-12 items-center gap-2 rounded-[12px] border border-outline/70 bg-surface px-4 text-sm font-medium text-onSurfaceVariant">
+        <Loader2 aria-hidden="true" className="animate-spin" size={16} />
         Checking your saved code…
       </div>
     );
@@ -177,13 +178,13 @@ export function PromoCodeField({
 
   if (applied) {
     return (
-      <div className="mt-4 flex items-center justify-between gap-3 rounded-[12px] border border-outline bg-mist px-4 py-3">
-        <span className="inline-flex items-center gap-2 text-sm font-bold text-brandInk">
-          <Check className="text-brandTeal" size={16} />
+      <div className="flex min-h-12 items-center justify-between gap-3 rounded-[12px] border border-outline/70 bg-surface pl-4 pr-1">
+        <span className="inline-flex min-w-0 items-center gap-2 text-sm font-bold text-brandInk">
+          <Check aria-hidden="true" className="shrink-0 text-brandTeal" size={16} />
           Partner Code: {applied.promoCode.toUpperCase()} ✓
         </span>
         <button
-          className="text-xs font-bold text-brandBlue hover:text-brandInk"
+          className="inline-flex min-h-11 shrink-0 items-center px-3 text-xs font-bold text-brandBlue hover:text-brandInk"
           onClick={change}
           type="button"
         >
@@ -194,16 +195,13 @@ export function PromoCodeField({
   }
 
   return (
-    <form className="mt-4" onSubmit={submit}>
-      <label
-        className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant"
-        htmlFor="promo-code"
-      >
+    <form onSubmit={submit}>
+      <label className={FIELD_LABEL_CLASSES} htmlFor="promo-code">
         Partner code
       </label>
       <div className="mt-2 flex items-center gap-2">
         <input
-          className="h-11 flex-1 rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium uppercase text-brandInk outline-none transition focus:border-brandBlue"
+          className={`${FIELD_CONTROL_CLASSES} ${FIELD_TEXT_CLASSES} min-w-0 flex-1 uppercase`}
           disabled={busy}
           id="promo-code"
           onChange={(event) => {
@@ -213,7 +211,8 @@ export function PromoCodeField({
           placeholder="Enter code"
           value={code}
         />
-        <Button aria-busy={busy} disabled={busy || !code.trim()} size="sm" type="submit">
+        {/* Flat: Pay is the page's one gradient primary. */}
+        <Button aria-busy={busy} className="shrink-0" disabled={busy || !code.trim()} size="md" type="submit" variant="flat">
           {busy ? <Loader2 className="animate-spin" size={16} /> : null}
           {busy ? "Applying…" : "Apply"}
         </Button>

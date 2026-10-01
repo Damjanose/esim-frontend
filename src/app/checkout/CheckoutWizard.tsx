@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
+import { PAYMENT_TRUST_NOTE } from "@/lib/checkoutSummary";
 import { BillingStep } from "./steps/BillingStep";
 import { CardStep } from "./steps/CardStep";
 
@@ -28,6 +29,11 @@ export function CheckoutWizard({
   const [cardError, setCardError] = useState<string | null>(null);
   const [intentError, setIntentError] = useState<string | null>(null);
   const [creatingIntent, setCreatingIntent] = useState(false);
+  // Step 02 stays invisible (still laid out, so nothing pops in) until the billing
+  // step has its real height: the saved address or the form replaces a one-line
+  // loading note, and a visible step 02 below it would jump (CLS).
+  const [billingLoaded, setBillingLoaded] = useState(false);
+  const markBillingLoaded = useCallback(() => setBillingLoaded(true), []);
 
   // Creates (or re-creates) the payment intent as soon as the package/promo
   // are settled — there is no "Continue to payment" click anymore, so this
@@ -116,45 +122,41 @@ export function CheckoutWizard({
 
   return (
     <div>
-      <section className="border-b border-outline/70 pb-7">
-        <div className="mb-4 flex items-baseline gap-2.5">
-          <span className="font-display text-[13px] font-black text-onSurfaceVariant">01</span>
-          <div>
-            <h2 className="text-[15px] font-bold text-brandInk">Billing address</h2>
-            <p className="mt-0.5 text-xs text-onSurfaceVariant">
-              Used for your receipt and card verification.
-            </p>
-          </div>
-        </div>
-        <BillingStep accountEmail={accountEmail} countries={countries} onAddressReady={setBillingAddress} />
+      <section aria-labelledby="checkout-step-billing" className="border-b border-outline/70 pb-8">
+        <StepHeading id="checkout-step-billing" number="01" title="Billing address">
+          Used for your receipt and card verification.
+        </StepHeading>
+        <BillingStep
+          accountEmail={accountEmail}
+          countries={countries}
+          onAddressReady={setBillingAddress}
+          onLoaded={markBillingLoaded}
+        />
       </section>
 
-      <section className="pt-7">
-        <div className="mb-4 flex items-baseline gap-2.5">
-          <span className="font-display text-[13px] font-black text-onSurfaceVariant">02</span>
-          <div>
-            <h2 className="text-[15px] font-bold text-brandInk">Card details</h2>
-            <p className="mt-0.5 text-xs text-onSurfaceVariant">
-              Payments are handled by Pokpay — eSim2you never sees your card details.
+      <section aria-labelledby="checkout-step-card" className={`pt-8 ${billingLoaded ? "" : "invisible"}`}>
+        {/* At lg the order summary carries the Pokpay note, so it shows once per screen. */}
+        <StepHeading id="checkout-step-card" number="02" noteClassName="lg:hidden" title="Card details">
+          {PAYMENT_TRUST_NOTE}
+        </StepHeading>
+
+        <div className="mb-4 space-y-2 empty:hidden">
+          {disabled ? (
+            <p className="text-sm text-onSurfaceVariant">Finish applying your partner code first.</p>
+          ) : null}
+          {creatingIntent && !paymentId ? (
+            <p className="text-sm text-onSurfaceVariant">Preparing secure payment…</p>
+          ) : null}
+          {intentError ? <p className="text-sm font-semibold text-error">{intentError}</p> : null}
+
+          {cardError ? (
+            <p className="text-sm font-semibold text-error">
+              {cardError}
+              <br />
+              Payment reference: <span className="font-mono font-bold">{paymentId}</span>
             </p>
-          </div>
+          ) : null}
         </div>
-
-        {disabled ? (
-          <p className="text-sm text-onSurfaceVariant">Finish applying your partner code first.</p>
-        ) : null}
-        {creatingIntent && !paymentId ? (
-          <p className="text-sm text-onSurfaceVariant">Preparing secure payment…</p>
-        ) : null}
-        {intentError ? <p className="text-sm font-semibold text-error">{intentError}</p> : null}
-
-        {cardError ? (
-          <p className="text-sm font-semibold text-error">
-            {cardError}
-            <br />
-            Payment reference: <span className="font-mono font-bold">{paymentId}</span>
-          </p>
-        ) : null}
 
         {paymentId && billingAddress ? (
           <CardStep
@@ -165,6 +167,35 @@ export function CheckoutWizard({
           />
         ) : null}
       </section>
+    </div>
+  );
+}
+
+/** "01 Billing address": a numbered step heading, as in the app's checkout. */
+function StepHeading({
+  id,
+  number,
+  title,
+  noteClassName = "",
+  children
+}: {
+  id: string;
+  number: string;
+  title: string;
+  noteClassName?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mb-5 flex items-start gap-3">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brandBlue/10 font-display text-[13px] font-black text-brandBlue">
+        {number}
+      </span>
+      <div className="min-w-0 pt-1">
+        <h2 className="font-display text-title-sm font-black text-brandInk" id={id}>
+          {title}
+        </h2>
+        <p className={`mt-0.5 text-body-sm text-onSurfaceVariant ${noteClassName}`}>{children}</p>
+      </div>
     </div>
   );
 }
