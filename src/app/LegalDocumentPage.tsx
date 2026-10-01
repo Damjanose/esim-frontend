@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { LegalDocument } from "@/content/legal";
 import { landingContent } from "@/content/landing";
+import { CONTENT_EYEBROW, CONTENT_GUTTER, CONTENT_TEXT_LINK } from "./components/contentClasses";
 import { SiteFooter } from "./SiteFooter";
 
 type LegalDocumentPageProps = {
@@ -9,37 +10,37 @@ type LegalDocumentPageProps = {
 
 export function LegalDocumentPage({ document }: LegalDocumentPageProps) {
   return (
-    <main className="min-h-screen bg-cloud text-ink">
-      <header className="border-b border-line bg-white">
-        <nav className="mx-auto flex h-20 max-w-4xl items-center justify-between px-5 md:px-8">
-          <Link className="flex items-center gap-3 font-display text-lg font-bold" href="/">
+    <main className="min-h-screen bg-surfaceBright text-onSurface">
+      <header className="border-b border-outline/70 bg-surface">
+        <nav className={`mx-auto flex h-16 max-w-3xl items-center justify-between lg:h-20 ${CONTENT_GUTTER}`}>
+          <Link className="flex min-h-11 items-center gap-3 font-display text-lg font-bold text-brandInk" href="/">
             <img
               alt="eSim2you app logo"
-              className="h-9 w-9 rounded-lg shadow-glow"
+              className="h-9 w-9 rounded-lg"
               src="/app-logo.png"
             />
             {landingContent.brand}
           </Link>
-          <Link className="text-sm font-bold text-midnight transition hover:text-cyan" href="/">
+          <Link className={`${CONTENT_TEXT_LINK} text-sm`} href="/">
             Home
           </Link>
         </nav>
       </header>
 
-      <article className="mx-auto max-w-4xl px-5 py-14 md:px-8 md:py-20">
-        <p className="text-sm font-black uppercase text-cyan">{landingContent.brand}</p>
-        <h1 className="mt-3 font-display text-4xl font-black leading-tight text-midnight md:text-5xl">
+      <article className={`mx-auto max-w-3xl py-10 md:py-16 ${CONTENT_GUTTER}`}>
+        <p className={CONTENT_EYEBROW}>{landingContent.brand}</p>
+        <h1 className="mt-3 font-display text-[34px] font-black leading-[1.08] tracking-[-0.03em] text-brandInk md:text-5xl">
           {document.title}
         </h1>
-        <p className="mt-3 text-sm font-semibold text-slate-500">
+        <p className="mt-3 text-sm font-semibold text-onSurfaceVariant">
           Last updated: {document.lastUpdated}
         </p>
 
-        <div className="mt-10 space-y-9">
+        <div className="mt-8 rounded-[20px] border border-outline/70 bg-surface px-5 shadow-brandCard sm:px-8">
           {document.sections.map((section) => (
-            <section className="border-t border-line pt-7" key={section.title}>
-              <h2 className="font-display text-2xl font-black text-midnight">{section.title}</h2>
-              <div className="mt-4 space-y-4 text-base leading-8 text-slate-600">
+            <section className="border-t border-outline/70 py-7 first:border-t-0" key={section.title}>
+              <h2 className="font-display text-headline-md font-black text-brandInk">{section.title}</h2>
+              <div className="mt-3 space-y-4 text-base leading-8 text-onSurfaceVariant">
                 {section.paragraphs.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
