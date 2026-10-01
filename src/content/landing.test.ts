@@ -58,13 +58,13 @@ describe("landingContent", () => {
 
   it("uses descriptive alt text for homepage destination and flag images", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
-    const browseSource = readFileSync("src/app/destinations/DestinationBrowse.tsx", "utf8");
     const photoTileSource = readFileSync("src/app/destinations/PhotoTile.tsx", "utf8");
+    const countryRowSource = readFileSync("src/app/destinations/CountryRow.tsx", "utf8");
 
     expect(pageSource).toContain('alt={`${row.country} flag`}');
-    // Trending and rail flags now render inside PhotoTile.
+    // Browse flags render inside PhotoTile (Trending, rails) and CountryRow (All destinations).
     expect(photoTileSource).toContain('alt={`${country} flag`}');
-    expect(browseSource).toContain('alt={`${country.country} flag`}');
+    expect(countryRowSource).toContain('alt={`${country} flag`}');
   });
 
   it("renders premium store buttons with platform icons", () => {

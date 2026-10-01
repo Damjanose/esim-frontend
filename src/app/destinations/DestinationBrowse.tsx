@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowDownUp, ChevronDown, ChevronUp, Flame, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
-import Link from "next/link";
+import { ArrowDownUp, ChevronDown, ChevronUp, Flame, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,9 +18,11 @@ import {
   type DestinationBrowseFilters,
 } from "@/services/destinationFilters";
 import { destinationBrowseHref } from "@/lib/esim-routes";
+import { Button } from "../components/Button";
 import { useConsent } from "../ConsentManager";
 import { BrowseSkeleton } from "./BrowseSkeleton";
 import { toCountryOptions } from "./browseCountries";
+import { CountryRow } from "./CountryRow";
 import type { WizardResult } from "./HelpMeChooseWizard";
 import { PhotoTile } from "./PhotoTile";
 import { onPlanWizardRequest } from "./planWizardOpener";
@@ -250,34 +251,31 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   return (
     <section className="relative px-5 pb-20 pt-4 md:px-8" id="plans">
       <div className="relative mx-auto max-w-[1180px]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">
-              Browse destinations
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-black tracking-[-0.03em] text-brandInk">
+            <p className="text-label-caps uppercase text-brandBlue">Browse destinations</p>
+            <h2 className="mt-1.5 font-display text-display-lg font-black text-brandInk md:text-[32px] md:leading-[38px]">
               Find your eSIM plan
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-5 py-3 text-xs font-black uppercase tracking-wide text-white shadow-brandCard transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={loading}
-              onClick={() => setWizardOpen(true)}
-              type="button"
-            >
-              <Sparkles aria-hidden="true" size={15} />
-              Help me choose
-            </button>
-          </div>
+          {/* This section's one gradient primary (spec §3). Arrows, Show all and Try again are flat. */}
+          <Button
+            className="self-start sm:self-auto"
+            disabled={loading}
+            onClick={() => setWizardOpen(true)}
+            type="button"
+          >
+            <Sparkles aria-hidden="true" size={16} />
+            Help me choose
+          </Button>
         </div>
 
         {loading ? (
           <BrowseSkeleton />
         ) : loadError ? (
-          <div className="mt-8 flex flex-col items-center gap-3 rounded-[18px] border border-outline bg-mist px-6 py-10 text-center">
-            <span className="grid h-11 w-11 place-items-center rounded-full border border-outline bg-white text-onSurfaceVariant">
+          <div className="mt-8 flex flex-col items-center gap-3 rounded-[20px] border border-outline/70 bg-surfaceBright px-6 py-10 text-center">
+            <span className="grid h-11 w-11 place-items-center rounded-full border border-outline bg-surface text-onSurfaceVariant">
               <WifiOff aria-hidden="true" size={20} />
             </span>
             <p className="text-sm font-black text-brandInk">
@@ -287,14 +285,10 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
               We couldn&apos;t reach the eSIM service just now. Check your connection and try
               again.
             </p>
-            <button
-              className="mt-1 inline-flex items-center gap-2 rounded-full border border-outline bg-white px-4 py-2 text-xs font-black text-brandInk transition hover:border-brandBlue/50"
-              onClick={handleRetry}
-              type="button"
-            >
+            <Button className="mt-1" onClick={handleRetry} type="button" variant="flat">
               <RefreshCw aria-hidden="true" size={14} />
               Try again
-            </button>
+            </Button>
           </div>
         ) : (
           <>
@@ -363,11 +357,12 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
 
             <div className="mt-10">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
+                <h3 className="font-display text-title-sm text-brandInk">
                   All destinations ({filteredCountries.length})
-                </p>
+                </h3>
                 <input
-                  className="w-full max-w-[260px] rounded-full border border-outline bg-white px-4 py-2 text-sm font-semibold text-onSurface outline-none focus:border-brandBlue"
+                  aria-label="Search all destinations"
+                  className="h-11 w-full rounded-full border border-outline bg-surface px-4 text-sm font-semibold text-onSurface outline-none transition placeholder:text-onSurfaceVariant/70 focus:border-brandBlue sm:max-w-[280px]"
                   onChange={(e) => setGridSearch(e.target.value)}
                   placeholder="Search all destinations..."
                   type="text"
@@ -381,40 +376,26 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                 </p>
               ) : (
                 <>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                     {visibleCountries.map((country) => (
-                      <Link
-                        className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
-                        href={destinationBrowseHref(country.countryCode)}
-                        key={country.countryCode}
-                      >
-                        {country.flagUri ? (
-                          <img
-                            alt={`${country.country} flag`}
-                            className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-                            src={country.flagUri}
-                          />
-                        ) : (
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                            <Globe2 aria-hidden="true" size={16} />
-                          </span>
-                        )}
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-brandInk">{country.country}</p>
-                          <p className="text-xs font-bold text-onSurfaceVariant">
-                            {country.planCount} {country.planCount === 1 ? "plan" : "plans"}
-                          </p>
-                        </div>
-                      </Link>
+                      <li className="min-w-0" key={country.countryCode}>
+                        <CountryRow
+                          country={country.country}
+                          flagUri={country.flagUri}
+                          fromPrice={country.fromPrice}
+                          href={destinationBrowseHref(country.countryCode)}
+                          planCount={country.planCount}
+                        />
+                      </li>
                     ))}
-                  </div>
+                  </ul>
 
                   {hasMoreDestinations || showAllDestinations ? (
                     <div className="mt-5 flex justify-center">
-                      <button
-                        className="flex items-center gap-1.5 rounded-full border border-outline bg-white px-5 py-2 text-sm font-bold text-brandBlue transition hover:border-brandBlue/50"
+                      <Button
                         onClick={() => setShowAllDestinations((prev) => !prev)}
                         type="button"
+                        variant="flat"
                       >
                         {showAllDestinations ? (
                           <>
@@ -427,7 +408,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                             <ChevronDown aria-hidden="true" size={16} />
                           </>
                         )}
-                      </button>
+                      </Button>
                     </div>
                   ) : null}
                 </>

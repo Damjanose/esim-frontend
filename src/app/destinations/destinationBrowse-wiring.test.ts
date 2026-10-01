@@ -104,6 +104,28 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(skeleton).toContain('<div aria-hidden="true" inert>');
   });
 
+  it("lists All destinations as CountryRow cards (1/2/3 columns) and keeps search + Show all/Show less", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/destinations/DestinationBrowse.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('import { CountryRow } from "./CountryRow";');
+    expect(source).toContain('<ul className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">');
+    expect(source).toContain("fromPrice={country.fromPrice}");
+    expect(source).toContain('placeholder="Search all destinations..."');
+    expect(source).toContain("DESTINATIONS_COLLAPSED_COUNT = 20");
+    expect(source).toContain("Show less");
+    expect(source).toContain("Show all {filteredCountries.length} destinations");
+    // One gradient primary (Help me choose); Show all and Try again are flat.
+    expect(source.match(/variant="flat"/g)).toHaveLength(2);
+    expect(source).toContain('import { Button } from "../components/Button";');
+    // Tokens only: no retired mist panels or raw white.
+    expect(source).not.toContain("bg-mist");
+    expect(source).not.toContain("bg-white");
+    expect(source).not.toContain("text-white");
+  });
+
   it("the wizard closes from Escape as well as its close button and backdrop", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/destinations/HelpMeChooseWizard.tsx"),
