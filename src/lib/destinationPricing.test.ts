@@ -7,6 +7,7 @@ vi.mock("next/cache", () => ({
 
 import {
   getDestinationCoverage,
+  getDestinationFlag,
   getDestinationOffer,
   getDestinationPlanRows
 } from "./destinationPricing";
@@ -115,6 +116,85 @@ describe("getDestinationPlanRows", () => {
         network: "4G/5G"
       })
     ]);
+  });
+});
+
+describe("plan row fields", () => {
+  it("carries what the plan rows show: data, days, minutes/texts and an active discount", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        packagesResponse([
+          {
+            id: "us-plus",
+            countryCode: "united-states",
+            title: "1 GB - 10 SMS - 10 Mins - 7 days",
+            dataLabel: "1GB",
+            durationLabel: "7 Days Duration",
+            price: "€4.00",
+            priceNumeric: 4,
+            dataNumericGb: 1,
+            durationDays: 7,
+            voiceMinutes: 10,
+            smsCount: 10,
+            hasDiscount: true,
+            retailPrice: 5
+          },
+          {
+            id: "us-data",
+            countryCode: "united-states",
+            price: "€6.00",
+            priceNumeric: 6,
+            voiceMinutes: 0,
+            hasDiscount: false,
+            retailPrice: 5.5
+          }
+        ])
+      )
+    );
+
+    const [withExtras, dataOnly] = await getDestinationPlanRows("usa");
+
+    expect(withExtras).toEqual(
+      expect.objectContaining({
+        dataNumericGb: 1,
+        durationDays: 7,
+        voiceMinutes: 10,
+        smsCount: 10,
+        hasDiscount: true,
+        retailPrice: 5
+      })
+    );
+    // Data-only, undiscounted rows stay slim: no zero minutes, no retailPrice without a discount.
+    expect(dataOnly).toEqual({
+      id: "us-data",
+      title: "Data · plan",
+      dataLabel: "Data plan",
+      durationLabel: "Flexible validity",
+      network: "4G/5G",
+      price: "€6.00",
+      priceNumeric: 6,
+      dataNumericGb: 0,
+      durationDays: 0
+    });
+  });
+});
+
+describe("getDestinationFlag", () => {
+  it("returns the first flag the destination's packages carry, or null", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        packagesResponse([
+          { countryCode: "japan", priceNumeric: 4, flagUri: "" },
+          { countryCode: "japan", priceNumeric: 9, flagUri: "https://cdn.example/jp.png" },
+          { countryCode: "japan", priceNumeric: 12, flagUri: "https://cdn.example/other.png" }
+        ])
+      )
+    );
+
+    await expect(getDestinationFlag("japan")).resolves.toBe("https://cdn.example/jp.png");
+    await expect(getDestinationFlag("france")).resolves.toBeNull();
   });
 });
 
