@@ -76,7 +76,7 @@ export default async function Home() {
     <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
       <JsonLd data={createLandingJsonLd()} />
 
-      <Navbar theme="dark" />
+      <Navbar />
       <Hero />
       <DestinationBrowse urlFilters={{}} />
       <TopDestinationLinks />

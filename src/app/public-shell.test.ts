@@ -82,9 +82,23 @@ describe("public navigation shell", () => {
     const mobileMenu = readFileSync("src/app/components/MobileNavbarMenu.tsx", "utf8");
 
     expect(navbar).toContain("MobileNavbarMenu");
+    expect(navbar).toContain("<BottomDock />");
     expect(mobileMenu).toContain('aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}');
     expect(mobileMenu).toContain("lg:hidden");
     expect(mobileMenu).toContain("Browse eSIM plans");
+  });
+
+  it("uses one capsule navbar style on every page instead of a dark/light theme switch", () => {
+    const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
+    const home = readFileSync("src/app/page.tsx", "utf8");
+
+    expect(navbar).toContain("rounded-full");
+    expect(navbar).toContain("backdrop-blur-md");
+    expect(navbar).not.toContain('theme?: "light" | "dark"');
+    expect(home).not.toContain('<Navbar theme="dark" />');
+    // The dock must sit outside the blurred capsule: backdrop-filter creates a
+    // containing block that would pin a position:fixed child to the header.
+    expect(navbar.indexOf("<BottomDock />")).toBeGreaterThan(navbar.indexOf("</header>"));
   });
 
   it("renders the app-style bottom dock on phones and tablets only", () => {
