@@ -4,6 +4,9 @@ import Image from "next/image";
 import { JsonLd } from "./JsonLd";
 import { Navbar } from "./components/Navbar";
 import { LinkButton } from "./components/Button";
+import { CountryBanner } from "./components/CountryBanner";
+import { CollapsedCountryBar } from "./components/CollapsedCountryBar";
+import { PlanBuyLink, PlanDataDisc, PlanPrice, PlanTags } from "./components/PlanRow";
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import {
@@ -18,6 +21,7 @@ import {
 } from "@/lib/seo";
 import type { DestinationPlanRow } from "@/lib/destinationPricing";
 import { convertEurToGbp, formatGbp } from "@/lib/exchangeRate";
+import { hasBestValueTag, planDurationText, planRowTags } from "@/lib/planRow";
 
 function relatedDestinationLinks(slug: string) {
   const related = destinationDisplay[slug]?.relatedSlugs ?? [];
@@ -31,12 +35,31 @@ function relatedDestinationLinks(slug: string) {
     .filter((link): link is { href: string; label: string } => link !== null);
 }
 
+function trustPoints(offer?: DestinationOfferInput) {
+  return [
+    ["Live plan pricing", offer ? `${offer.offerCount} options available` : "Compare current options"],
+    ["Ready before you land", "Install on stable Wi-Fi"],
+    ["Data-first travel", "Keep your usual number"]
+  ];
+}
+
+/*
+ * Plan table cells. Phones: each row is a PlanRow-style card (display:grid), so
+ * the table, its rows and cells carry explicit ARIA roles: changing a table's
+ * display drops its semantics in some browsers (Safari) otherwise. sm+: a real
+ * table with border-separate card rows.
+ */
+const CELL = "p-0 sm:border-y sm:bg-surface sm:px-4 sm:py-3 sm:align-middle";
+const FIRST_CELL = "sm:rounded-l-[18px] sm:border-l";
+const LAST_CELL = "sm:rounded-r-[18px] sm:border-r";
+
 export function EsimDestinationPageView({
   page,
   offer,
   plans,
   coverage = [],
-  gbpRate
+  gbpRate,
+  flagUri
 }: {
   page: SeoContentPage;
   offer?: DestinationOfferInput;
@@ -44,9 +67,15 @@ export function EsimDestinationPageView({
   /** Countries every plan covers; only set for regional destinations. */
   coverage?: string[];
   gbpRate?: number;
+  /** The destination's flag image, when the catalog has one. */
+  flagUri?: string;
 }) {
   const countryName = destinationDisplay[page.slug]?.countryName ?? page.eyebrow;
   const h1 = destinationH1(page.slug) ?? `eSIM for ${countryName}`;
+  // "eSIM for <country>": the country name is the H1's teal accent.
+  const accentStart = h1.lastIndexOf(countryName);
+  const h1Lead = accentStart > 0 ? h1.slice(0, accentStart) : h1;
+  const h1Accent = accentStart > 0 ? h1.slice(accentStart) : "";
   const neighborLinks = relatedDestinationLinks(page.slug);
   const lowestPriced = plans[0];
   const coverageNote = destinationDisplay[page.slug]?.coverageNote;
@@ -56,7 +85,7 @@ export function EsimDestinationPageView({
   ];
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
+    <main className="min-h-screen overflow-x-clip bg-surface text-onSurface">
       <JsonLd
         data={createContentPageJsonLd({
           path: page.path,
@@ -71,206 +100,257 @@ export function EsimDestinationPageView({
       <Navbar />
 
       <article>
-        <section className="relative isolate overflow-hidden bg-surface px-5 pb-14 pt-24 md:px-8 md:pb-20">
-          <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[26px] bg-brandInk px-6 py-8 text-white shadow-[0_24px_70px_rgba(6,17,49,0.18)] sm:px-10 sm:py-12 lg:px-16 lg:py-14">
+        <CountryBanner
+          crumb={countryName}
+          photo={
             <Image
               alt=""
-              className="pointer-events-none absolute inset-0 -z-0 h-full w-full object-cover opacity-30"
+              className="object-cover"
+              fetchPriority="high"
               fill
               priority
-              sizes="(max-width: 768px) 100vw, 1152px"
+              sizes="100vw"
               src="/images/mountain.webp"
             />
-            <div className="pointer-events-none absolute inset-0 -z-0 bg-[linear-gradient(110deg,rgba(6,17,49,0.98)_0%,rgba(6,17,49,0.88)_48%,rgba(11,73,183,0.52)_100%)]" />
-            <div className="pointer-events-none absolute -right-24 -top-28 -z-0 h-72 w-72 rounded-full bg-brandTeal/25 blur-3xl" />
-            <div className="relative z-10">
-              <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm font-bold text-white/65">
-              <Link className="transition hover:text-white" href="/">
-                Home
-              </Link>
-              <span aria-hidden="true">/</span>
-              <Link className="transition hover:text-white" href="/destinations">
-                Destinations
-              </Link>
-              <span aria-hidden="true">/</span>
-              <span className="text-white">{countryName}</span>
-              </nav>
-              <p className="mt-10 text-sm font-black uppercase tracking-[0.18em] text-brandTeal">{page.eyebrow}</p>
-            <h1 className="mt-4 max-w-4xl font-display text-5xl font-black leading-[1.02] tracking-[-0.04em] text-white md:text-7xl">
-              {h1}
-            </h1>
-            <p className="mt-4 max-w-3xl text-xl font-semibold text-white/90">{page.heading}</p>
-            {offer ? (
-              <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black text-white backdrop-blur">
-                Plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)}
-                {gbpRate
-                  ? ` (~${formatGbp(convertEurToGbp(offer.lowPrice, gbpRate))}–${formatGbp(
-                      convertEurToGbp(offer.highPrice, gbpRate)
-                    )})`
-                  : ""}
-                {offer.offerCount > 0 ? ` · ${offer.offerCount} plans` : ""}
-              </p>
+          }
+        >
+          <div className="mt-6 flex items-center gap-3">
+            {flagUri ? (
+              <img
+                alt={`${countryName} flag`}
+                className="h-8 w-8 shrink-0 rounded-full border border-surface/30 object-cover"
+                src={flagUri}
+              />
             ) : null}
-            {offer && gbpRate ? (
-              <p className="mt-2 text-xs font-semibold text-white/60">
-                Approximate GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
-              </p>
-            ) : null}
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-white/75">{page.intro}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <LinkButton href="#plans" size="lg" tone="brand">
-                {offer ? `Buy from €${offer.lowPrice.toFixed(2)}` : "View plans"}
-                <ArrowRight aria-hidden="true" size={18} />
-              </LinkButton>
-              <LinkButton className="border-white/25 bg-white/10 text-white hover:bg-white/20" href={landingContent.appLinks.ios.href} size="lg">
-                {landingContent.appLinks.ios.label}
-                <ArrowRight aria-hidden="true" size={18} />
-              </LinkButton>
-            </div>
-            <div className="mt-10 grid max-w-3xl gap-3 sm:grid-cols-3">
-              {[
-                ["Live plan pricing", offer ? `${offer.offerCount} options available` : "Compare current options"],
-                ["Ready before you land", "Install on stable Wi-Fi"],
-                ["Data-first travel", "Keep your usual number"]
-              ].map(([label, value]) => (
-                <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur" key={label}>
-                  <p className="text-xs font-black text-white">{label}</p>
-                  <p className="mt-1 text-xs font-semibold text-white/60">{value}</p>
-                </div>
-              ))}
-            </div>
-            </div>
+            <p className="text-label-caps uppercase text-brandTeal">{page.eyebrow}</p>
           </div>
-        </section>
-
-        <section className="bg-surface px-5 py-12 md:px-8 md:py-20" id="plans">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">Plan comparison</p>
-                <h2 className="mt-3 font-display text-4xl font-black tracking-[-0.03em] text-brandInk">
-                  Live {countryName} eSIM plans
-                </h2>
-              </div>
-              <span className="w-fit rounded-full border border-brandBlue/20 bg-brandBlue/5 px-4 py-2 text-xs font-black text-brandBlue">
-                Current availability
-              </span>
-            </div>
-            <p className="max-w-3xl leading-7 text-onSurfaceVariant">
-              Prices are what eSIM2you currently sells for this destination. We do not claim these
-              are the cheapest on the market. Prefer the lowest-priced row for a short trip, or a
-              higher-data / longer-validity row when that matches your itinerary.
+          <h1 className="mt-3 max-w-4xl font-display text-[34px] font-black leading-[1.08] tracking-[-0.03em] text-surface sm:text-5xl lg:text-[56px]">
+            {h1Lead}
+            {h1Accent ? <span className="text-brandTeal">{h1Accent}</span> : null}
+          </h1>
+          <p className="mt-3 max-w-3xl text-lg font-semibold text-surface/90">{page.heading}</p>
+          {offer ? (
+            <p className="mt-5 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-surface/20 bg-surface/10 px-4 py-2 text-sm font-black text-surface backdrop-blur">
+              Plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)}
+              {gbpRate
+                ? ` (~${formatGbp(convertEurToGbp(offer.lowPrice, gbpRate))}–${formatGbp(
+                    convertEurToGbp(offer.highPrice, gbpRate)
+                  )})`
+                : ""}
+              {offer.offerCount > 0 ? ` · ${offer.offerCount} plans` : ""}
             </p>
-            {lowestPriced ? (
-              <p className="mt-4 text-sm font-bold text-brandInk">
-                Best value starting point: {lowestPriced.dataLabel} for {lowestPriced.durationLabel} at{" "}
-                {lowestPriced.price}.
-              </p>
-            ) : null}
+          ) : null}
+          {offer && gbpRate ? (
+            <p className="mt-2 text-xs font-semibold text-surface/60">
+              Approximate GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
+            </p>
+          ) : null}
+          <p className="mt-5 max-w-3xl text-base leading-7 text-surface/75 sm:text-lg sm:leading-8">{page.intro}</p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            {/* Flat: the best-value row's Buy now is this page's one gradient CTA. */}
+            <LinkButton href="#plans" size="lg" variant="flat">
+              {offer ? `Buy from €${offer.lowPrice.toFixed(2)}` : "View plans"}
+              <ArrowRight aria-hidden="true" size={18} />
+            </LinkButton>
+            <LinkButton href={landingContent.appLinks.ios.href} size="lg" variant="flat">
+              {landingContent.appLinks.ios.label}
+              <ArrowRight aria-hidden="true" size={18} />
+            </LinkButton>
+          </div>
+        </CountryBanner>
 
-            {/* `relative` keeps the sr-only (absolute) caption and "Buy" header inside this
-                scroller; without it they escape to the page and widen the mobile layout
-                viewport (375px phones rendered /esim/* at 479px). */}
-            {plans.length > 0 ? (
-              <div className="relative mt-8 overflow-x-auto rounded-[26px] border border-outline bg-white shadow-brandCard">
-                <table className="min-w-full text-left text-sm">
-                  <caption className="sr-only">
-                    {countryName} eSIM plans with data, validity, network, and price
-                  </caption>
-                  <thead className="bg-gradient-to-r from-brandBlue/10 to-brandTeal/10 font-black text-brandInk">
-                    <tr>
-                      <th className="px-4 py-3" scope="col">
-                        Plan
-                      </th>
-                      <th className="px-4 py-3" scope="col">
-                        Data
-                      </th>
-                      <th className="px-4 py-3" scope="col">
-                        Validity
-                      </th>
-                      <th className="px-4 py-3" scope="col">
-                        Network
-                      </th>
-                      <th className="px-4 py-3 text-right" scope="col">
-                        Price
-                      </th>
-                      <th className="px-4 py-3" scope="col">
-                        <span className="sr-only">Buy</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {plans.map((plan) => (
-                      <tr className="border-t border-outline" key={plan.id}>
-                        <th className="px-4 py-3 font-bold text-brandInk" scope="row">
-                          {plan.title}
-                        </th>
-                        <td className="px-4 py-3 text-onSurfaceVariant">{plan.dataLabel}</td>
-                        <td className="px-4 py-3 text-onSurfaceVariant">{plan.durationLabel}</td>
-                        <td className="px-4 py-3 text-onSurfaceVariant">{plan.network}</td>
-                        <td className="px-4 py-3 text-right font-black text-brandInk">{plan.price}</td>
-                        <td className="px-4 py-3">
-                          <Link
-                            className="font-black text-brandBlue hover:text-brandTeal"
-                            href={`/checkout?package=${encodeURIComponent(plan.id)}`}
-                          >
-                            Buy
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        <CollapsedCountryBar
+          country={countryName}
+          flagUri={flagUri}
+          fromPrice={offer ? `€${offer.lowPrice.toFixed(2)}` : undefined}
+        />
+
+        <section className="px-5 py-10 md:px-8 md:py-16" id="plans">
+          <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-8">
+            <div className="min-w-0">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-label-caps uppercase text-brandBlue">Plan comparison</p>
+                  <h2 className="mt-2 font-display text-display-lg font-black text-brandInk md:text-[32px] md:leading-[38px]">
+                    Live {countryName} eSIM plans
+                  </h2>
+                </div>
+                <span className="w-fit rounded-full border border-brandBlue/20 bg-brandBlue/5 px-4 py-2 text-xs font-black text-brandBlue">
+                  Current availability
+                </span>
               </div>
-            ) : (
-              <p className="mt-8 rounded-xl border border-outline bg-mist p-6 text-onSurfaceVariant">
-                Live plans for this destination are loading or temporarily unavailable. Browse all
-                destinations or check back shortly.
+              <p className="mt-4 max-w-3xl leading-7 text-onSurfaceVariant">
+                Prices are what eSIM2you currently sells for this destination. We do not claim these
+                are the cheapest on the market. Prefer the lowest-priced row for a short trip, or a
+                higher-data / longer-validity row when that matches your itinerary.
               </p>
-            )}
+              {lowestPriced ? (
+                <p className="mt-3 text-sm font-bold text-brandInk">
+                  Best value starting point: {lowestPriced.dataLabel} for {lowestPriced.durationLabel} at{" "}
+                  {lowestPriced.price}.
+                </p>
+              ) : null}
 
-            {coverage.length > 0 ? (
-              <div className="mt-8 rounded-[26px] border border-outline bg-mist p-6 md:p-8" id="coverage">
-                <h3 className="font-display text-2xl font-black text-brandInk">
-                  {coverage.length} countries covered by every {countryName} plan
-                </h3>
-                {coverageNote ? (
-                  <p className="mt-3 max-w-3xl leading-7 text-onSurfaceVariant">{coverageNote}</p>
-                ) : null}
-                <ul className="mt-5 flex flex-wrap gap-2">
-                  {coverage.map((country) => (
-                    <li
-                      className="rounded-full border border-outline bg-white px-3 py-1.5 text-sm font-bold text-brandInk"
-                      key={country}
+              {/* `relative` keeps the sr-only (absolute) caption, "Buy" header and phone thead
+                  inside this scroller; without it they escape to the page and widen the mobile
+                  layout viewport (375px phones rendered /esim/* at 479px, f195). */}
+              {plans.length > 0 ? (
+                <div className="relative mt-8 overflow-x-auto">
+                  <table className="block w-full text-left text-sm sm:table sm:border-separate sm:border-spacing-y-2" role="table">
+                    <caption className="sr-only">
+                      {countryName} eSIM plans with data, validity, network, and price
+                    </caption>
+                    <thead
+                      className="sr-only sm:not-sr-only sm:table-header-group"
+                      role="rowgroup"
                     >
-                      {country}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
+                      <tr className="text-label-caps uppercase text-onSurfaceVariant" role="row">
+                        <th className="px-4 pb-1" role="columnheader" scope="col">
+                          Data
+                        </th>
+                        <th className="px-4 pb-1" role="columnheader" scope="col">
+                          Plan
+                        </th>
+                        <th className="px-4 pb-1" role="columnheader" scope="col">
+                          Validity
+                        </th>
+                        <th className="px-4 pb-1" role="columnheader" scope="col">
+                          Network
+                        </th>
+                        <th className="px-4 pb-1 text-right" role="columnheader" scope="col">
+                          Price
+                        </th>
+                        <th className="px-4 pb-1" role="columnheader" scope="col">
+                          <span className="sr-only">Buy</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="grid gap-2 sm:table-row-group" role="rowgroup">
+                      {plans.map((plan, index) => {
+                        const tags = planRowTags(plan, { position: index });
+                        const bestValue = hasBestValueTag(tags);
+                        const border = bestValue ? "border-brandBlue/40" : "border-outline/70";
+
+                        return (
+                          <tr
+                            className={`grid grid-cols-[48px_minmax(0,1fr)_auto] gap-x-3 gap-y-1 rounded-[18px] border bg-surface p-3 sm:table-row sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 ${border}`}
+                            key={plan.id}
+                            role="row"
+                          >
+                            <td
+                              className={`${CELL} ${FIRST_CELL} ${border} col-start-1 row-span-3 row-start-1 self-center`}
+                              role="cell"
+                            >
+                              <PlanDataDisc plan={plan} />
+                            </td>
+                            <th
+                              className={`${CELL} ${border} col-span-2 col-start-2 row-start-1 font-bold text-brandInk`}
+                              role="rowheader"
+                              scope="row"
+                            >
+                              {plan.title}
+                              <PlanTags className="mt-1" tags={tags} />
+                            </th>
+                            <td
+                              className={`${CELL} ${border} col-start-2 row-start-2 self-center text-xs text-onSurfaceVariant sm:text-sm`}
+                              role="cell"
+                            >
+                              {planDurationText(plan)}
+                            </td>
+                            <td
+                              className={`${CELL} ${border} col-start-2 row-start-3 self-center text-xs text-onSurfaceVariant sm:text-sm`}
+                              role="cell"
+                            >
+                              {plan.network}
+                            </td>
+                            <td
+                              className={`${CELL} ${border} col-start-3 row-start-2 self-center text-right`}
+                              role="cell"
+                            >
+                              <PlanPrice plan={plan} />
+                            </td>
+                            <td
+                              className={`${CELL} ${LAST_CELL} ${border} col-start-3 row-start-3 text-right`}
+                              role="cell"
+                            >
+                              <PlanBuyLink
+                                href={`/checkout?package=${encodeURIComponent(plan.id)}`}
+                                planTitle={plan.title}
+                                primary={bestValue}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="mt-8 rounded-[20px] border border-outline/70 bg-surfaceBright p-6 text-onSurfaceVariant">
+                  Live plans for this destination are loading or temporarily unavailable. Browse all
+                  destinations or check back shortly.
+                </p>
+              )}
+
+              {coverage.length > 0 ? (
+                <div className="mt-8 rounded-[26px] border border-outline/70 bg-surfaceBright p-5 md:p-8" id="coverage">
+                  <h3 className="font-display text-headline-md font-black text-brandInk">
+                    {coverage.length} countries covered by every {countryName} plan
+                  </h3>
+                  {coverageNote ? (
+                    <p className="mt-3 max-w-3xl leading-7 text-onSurfaceVariant">{coverageNote}</p>
+                  ) : null}
+                  <ul className="mt-5 flex flex-wrap gap-2">
+                    {coverage.map((country) => (
+                      <li
+                        className="rounded-full border border-outline/70 bg-surface px-3 py-1.5 text-sm font-bold text-brandInk"
+                        key={country}
+                      >
+                        {country}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+
+            <aside className="mt-8 lg:sticky lg:top-6 lg:mt-0">
+              <ul className="grid gap-4 rounded-[20px] border border-outline/70 bg-surface p-5 shadow-brandCard sm:grid-cols-3 lg:grid-cols-1">
+                {trustPoints(offer).map(([label, value]) => (
+                  <li className="flex items-start gap-3" key={label}>
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-brandBlue/10 text-brandBlue">
+                      <CheckCircle2 aria-hidden="true" size={18} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-black text-brandInk">{label}</span>
+                      <span className="mt-0.5 block text-xs font-semibold text-onSurfaceVariant">{value}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
         </section>
 
         <section className="px-5 pb-16 md:px-8 md:pb-24">
-          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_320px]">
-            <div className="space-y-5">
+          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="min-w-0 space-y-4">
               {sections.map((section) => (
-                <section className="rounded-xl border border-outline bg-white p-7 shadow-sm" key={section.title}>
+                <section className="rounded-[20px] border border-outline/70 bg-surface p-5 sm:p-7" key={section.title}>
                   <div className="flex gap-4">
-                    <span className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brandBlue/10 text-brandInk">
+                    <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-brandBlue/10 text-brandBlue">
                       <CheckCircle2 aria-hidden="true" size={20} />
                     </span>
-                    <div>
-                      <h2 className="font-display text-2xl font-black text-brandInk">{section.title}</h2>
-                      <p className="mt-3 leading-7 text-onSurfaceVariant">{section.body}</p>
+                    <div className="min-w-0">
+                      <h2 className="font-display text-headline-md font-black text-brandInk">{section.title}</h2>
+                      <p className="mt-2 leading-7 text-onSurfaceVariant">{section.body}</p>
                     </div>
                   </div>
                 </section>
               ))}
-              <section className="rounded-xl border border-outline bg-white p-7 shadow-sm">
-                <h2 className="font-display text-2xl font-black text-brandInk">How to install</h2>
-                <p className="mt-3 leading-7 text-onSurfaceVariant">
+              <section className="rounded-[20px] border border-outline/70 bg-surface p-5 sm:p-7">
+                <h2 className="font-display text-headline-md font-black text-brandInk">How to install</h2>
+                <p className="mt-2 leading-7 text-onSurfaceVariant">
                   Check that your phone supports eSIM, install the profile on Wi-Fi before you travel,
                   then enable the travel data line when you arrive. See the{" "}
                   <Link className="font-bold text-brandBlue" href="/travel/how-to-install-esim">
@@ -281,14 +361,14 @@ export function EsimDestinationPageView({
               </section>
             </div>
 
-            <aside className="h-fit space-y-5">
+            <aside className="h-fit space-y-4">
               {neighborLinks.length > 0 ? (
-                <div className="rounded-xl border border-outline bg-mist p-6">
-                  <h2 className="font-display text-xl font-black text-brandInk">Related destinations</h2>
-                  <div className="mt-5 grid gap-3">
+                <div className="rounded-[20px] border border-outline/70 bg-surfaceBright p-5 sm:p-6">
+                  <h2 className="font-display text-title-sm font-black text-brandInk sm:text-xl">Related destinations</h2>
+                  <div className="mt-4 grid gap-2">
                     {neighborLinks.map((link) => (
                       <Link
-                        className="flex items-center justify-between gap-3 rounded-lg border border-outline bg-white px-4 py-3 text-sm font-bold text-brandInk transition hover:border-brandBlue/50"
+                        className="flex min-h-11 items-center justify-between gap-3 rounded-[14px] border border-outline/70 bg-surface px-4 py-2.5 text-sm font-bold text-brandInk transition hover:border-brandBlue/50"
                         href={link.href}
                         key={link.href}
                       >
@@ -299,12 +379,12 @@ export function EsimDestinationPageView({
                   </div>
                 </div>
               ) : null}
-              <div className="rounded-xl border border-outline bg-mist p-6">
-                <h2 className="font-display text-xl font-black text-brandInk">Guides</h2>
-                <div className="mt-5 grid gap-3">
+              <div className="rounded-[20px] border border-outline/70 bg-surfaceBright p-5 sm:p-6">
+                <h2 className="font-display text-title-sm font-black text-brandInk sm:text-xl">Guides</h2>
+                <div className="mt-4 grid gap-2">
                   {page.relatedLinks.map((link) => (
                     <Link
-                      className="flex items-center justify-between gap-3 rounded-lg border border-outline bg-white px-4 py-3 text-sm font-bold text-brandInk transition hover:border-brandBlue/50"
+                      className="flex min-h-11 items-center justify-between gap-3 rounded-[14px] border border-outline/70 bg-surface px-4 py-2.5 text-sm font-bold text-brandInk transition hover:border-brandBlue/50"
                       href={link.href}
                       key={link.href}
                     >
@@ -318,24 +398,24 @@ export function EsimDestinationPageView({
           </div>
         </section>
 
-        <section className="bg-mist px-5 py-16 md:px-8 md:py-24">
+        <section className="bg-surfaceBright px-5 py-16 md:px-8 md:py-24">
           <div className="mx-auto max-w-3xl">
-            <p className="text-center text-sm font-black uppercase text-brandBlue">FAQ</p>
-            <h2 className="mt-3 text-center font-display text-4xl font-black text-brandInk">
+            <p className="text-center text-label-caps uppercase text-brandBlue">FAQ</p>
+            <h2 className="mt-2 text-center font-display text-display-lg font-black text-brandInk md:text-[32px] md:leading-[38px]">
               Quick answers before you travel.
             </h2>
-            <div className="mt-10 space-y-4">
+            <div className="mt-8 space-y-3">
               {page.faqs.map((faq) => (
-                <details className="group rounded-xl border border-outline bg-white p-5 shadow-sm" key={faq.question}>
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-black text-brandInk">
+                <details className="group rounded-[16px] border border-outline/70 bg-surface px-5 py-2" key={faq.question}>
+                  <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-2 font-display font-black text-brandInk">
                     {faq.question}
                     <CircleHelp
                       aria-hidden="true"
-                      className="shrink-0 text-brandBlue transition group-open:rotate-45"
+                      className="shrink-0 text-brandBlue motion-safe:transition group-open:rotate-45"
                       size={20}
                     />
                   </summary>
-                  <p className="mt-4 leading-7 text-onSurfaceVariant">{faq.answer}</p>
+                  <p className="pb-3 pt-1 leading-7 text-onSurfaceVariant">{faq.answer}</p>
                 </details>
               ))}
             </div>
