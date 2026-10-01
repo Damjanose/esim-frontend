@@ -1006,7 +1006,7 @@ const TAG_CLASSES: Record<PlanRowTag["kind"], string> = {
   "calls-sms": "bg-brandTeal/15 text-brandInk",
 };
 
-/** GB number in brandBlue, unit in brandTeal, ∞ + UNL for unlimited. Screen readers get the data label. */
+/** GB number in brandBlue, unit in onSurfaceVariant (teal fails contrast on the light disc), ∞ + UNL for unlimited. Screen readers get the data label. */
 export function PlanDataDisc({ plan }: { plan: PlanRowPlan }) {
   const disc = planDataDisc(plan);
 
@@ -3137,7 +3137,7 @@ git commit -m "docs: feedAI + session log for web UI polish country plans"
 
 ## Risks and open questions
 
-1. **The disc unit in `brandTeal` fails contrast.** #09C3BE on the near-white disc is about 2.1:1. Lighthouse flags `color-contrast` on it even though the visual is `aria-hidden` and the sr-only `dataLabel` carries the meaning. The accessibility score is 0.97, with nothing else failing. The spec asks for teal. A one-line alternative is `text-onSurfaceVariant` for the unit in `PlanDataDisc`. **Ask the user.**
+1. **RESOLVED (controller, 2026-10-01): the disc unit uses `text-onSurfaceVariant`.** `brandTeal` (#09C3BE) on the near-white disc is about 2.1:1 and failed `color-contrast` (a11y 0.97). The code and test in Task 4 already use `onSurfaceVariant`; expect a11y 1.0 in Task 10.
 2. **Safari table semantics.** The explicit roles are the documented fix, and Chromium was verified. The scratch machine has no WebKit, so check VoiceOver on an iPhone once.
 3. **Hero CTAs on `/esim` became flat** to keep one gradient per view. That's a conversion trade-off; confirm.
 4. **`mountain.webp` uses `sizes="100vw"`** on a banner that's taller than wide on phones (815px at 320). The bitmap is upscaled under a 40–95% scrim. That's acceptable visually, and LCP improved.
