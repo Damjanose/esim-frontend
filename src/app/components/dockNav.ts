@@ -21,7 +21,8 @@ export const DOCK_ITEMS: readonly DockItem[] = [
   { id: "profile", label: "Profile", href: "/profile" }
 ];
 
-/** Routes whose own primary action (Pay, Send code) must not share the screen bottom. */
+/** Routes whose own primary action (Pay, Send code) must not share the screen bottom.
+ * Admin x* pages never render Navbar (so never mount the dock); keep their paths out of this client-bundled list. */
 const HIDDEN_ON: readonly string[] = ["/checkout", "/signin", "/profile/deleted"];
 
 const ACTIVE_ON: ReadonlyArray<readonly [DockItemId, readonly string[]]> = [
