@@ -132,7 +132,7 @@ function ConsentDialog({ hasExistingChoice }: { hasExistingChoice: boolean }) {
                 <span className={`grid h-6 w-6 place-items-center rounded-md ${firstVisit ? "bg-brandBlue/20 text-brandBlue" : "bg-brandBlue/10 text-brandBlue"}`} aria-hidden="true">
                   <ShieldCheck size={13} />
                 </span>
-                <p className="text-[9px] font-black uppercase tracking-[0.14em] text-brandBlue">
+                <p className="text-[9px] font-black uppercase tracking-[0.14em] text-brandTeal">
                   {firstVisit ? "Privacy" : "Privacy choices"}
                 </p>
                 {hasExistingChoice ? (

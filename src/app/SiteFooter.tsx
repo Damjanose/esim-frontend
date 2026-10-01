@@ -61,7 +61,7 @@ export function SiteFooter() {
             <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant">
               eSim2you helps travelers choose reliable mobile data for international trips without roaming surprises.
             </p>
-            <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant/70">
+            <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant">
               eSim2you travel data guides and destination pages are built for quick planning before you fly.
             </p>
             <div className="mt-5 flex items-center gap-3">
@@ -91,7 +91,7 @@ export function SiteFooter() {
             <FooterLinkColumn title="Resources" links={footerResourceLinks} />
           </div>
         </div>
-        <div className="mt-10 flex flex-col gap-3 border-t border-outline pt-6 text-xs font-semibold text-onSurfaceVariant/70 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-3 border-t border-outline pt-6 text-xs font-semibold text-onSurfaceVariant sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 eSim2you. All rights reserved.</p>
           <p>eSim2you destination coverage for 200+ destinations.</p>
           <a
