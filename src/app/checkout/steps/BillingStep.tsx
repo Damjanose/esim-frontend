@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/app/components/Button";
+import { FIELD_ERROR_CLASSES, FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import {
   BILLING_FIELDS,
@@ -17,8 +18,9 @@ type CountryOption = { code: string; name: string };
 
 const FIELD_BY_KEY = Object.fromEntries(BILLING_FIELDS.map((field) => [field.key, field]));
 
-const INPUT_CLASSNAME =
-  "mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue";
+/** "Change address" toggles: text-style, but a 44px tap target. */
+const TOGGLE_CLASSNAME =
+  "inline-flex min-h-11 items-center gap-1 text-xs font-bold uppercase tracking-[0.14em] text-brandBlue transition hover:text-brandInk";
 
 function fieldErrorMessage(error: BillingFieldError | undefined): string | null {
   if (!error) return null;
@@ -30,12 +32,15 @@ function fieldErrorMessage(error: BillingFieldError | undefined): string | null 
 export function BillingStep({
   accountEmail,
   countries,
-  onAddressReady
+  onAddressReady,
+  onLoaded
 }: {
   accountEmail: string | null;
   countries: CountryOption[];
   /** Fires once a complete address is on file — right after load if one was already saved, or after a manual save. */
   onAddressReady: (address: BillingAddress) => void;
+  /** Fires once the saved-address lookup settles (found, empty or failed), i.e. when this step reaches its real height. */
+  onLoaded?: () => void;
 }) {
   const [address, setAddress] = useState<BillingAddress>({
     ...EMPTY_BILLING_ADDRESS,
@@ -80,13 +85,16 @@ export function BillingStep({
       } catch {
         if (!cancelled) setLoadError("We could not load your saved billing details.");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          onLoaded?.();
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
-    // onAddressReady is a setState identity from the parent, stable across renders.
+    // onAddressReady/onLoaded are setState-backed callbacks from the parent, stable across renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountEmail]);
 
@@ -147,12 +155,12 @@ export function BillingStep({
   function renderField(key: keyof BillingAddress) {
     const field = FIELD_BY_KEY[key];
     return (
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         {field.label}
         {key === "countryCode" ? (
           <select
             autoComplete={field.autoComplete}
-            className={INPUT_CLASSNAME}
+            className={FIELD_INPUT_CLASSES}
             onChange={(event) => update("countryCode")(event.target.value)}
             value={address.countryCode}
           >
@@ -168,13 +176,13 @@ export function BillingStep({
         ) : (
           <input
             autoComplete={field.autoComplete}
-            className={INPUT_CLASSNAME}
+            className={FIELD_INPUT_CLASSES}
             onChange={(event) => update(key)(event.target.value)}
             value={address[key]}
           />
         )}
         {errors[key] ? (
-          <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
+          <span className={FIELD_ERROR_CLASSES}>
             {fieldErrorMessage(errors[key])}
           </span>
         ) : null}
@@ -192,7 +200,7 @@ export function BillingStep({
         <>
           {savedAddress ? (
             <button
-              className="flex items-center gap-1 text-xs font-bold uppercase tracking-[0.14em] text-brandBlue transition hover:text-brandInk"
+              className={TOGGLE_CLASSNAME}
               onClick={collapse}
               type="button"
             >
@@ -223,12 +231,13 @@ export function BillingStep({
           </div>
 
           {saveError ? <p className="text-sm font-semibold text-error">{saveError}</p> : null}
-          <Button className="w-full" disabled={saving} onClick={() => void save()} size="lg" type="button">
+          {/* Flat: Pay is the page's one gradient primary, and it can show at the same time. */}
+          <Button className="w-full" disabled={saving} onClick={() => void save()} size="lg" type="button" variant="flat">
             {saving ? "Saving…" : "Save address"}
           </Button>
         </>
       ) : (
-        <div className="rounded-[12px] border border-outline bg-mist p-4">
+        <div className="rounded-[16px] border border-outline/70 bg-surfaceBright p-4">
           <p className="text-sm font-bold text-brandInk">{address.holdersName}</p>
           <p className="mt-1 text-sm text-onSurfaceVariant">{address.address1}</p>
           <p className="text-sm text-onSurfaceVariant">
@@ -237,7 +246,7 @@ export function BillingStep({
           <p className="text-sm text-onSurfaceVariant">{countryName}</p>
           <p className="mt-1 text-sm text-onSurfaceVariant">{address.phoneNumber}</p>
           <button
-            className="mt-3 flex items-center gap-1 text-xs font-bold uppercase tracking-[0.14em] text-brandBlue transition hover:text-brandInk"
+            className={`mt-1 ${TOGGLE_CLASSNAME}`}
             onClick={() => setEditing(true)}
             type="button"
           >
