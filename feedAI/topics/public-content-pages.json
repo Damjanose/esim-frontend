@@ -42,12 +42,13 @@
     "f148",
     "f158",
     "f159",
-    "f175"
+    "f175",
+    "f224"
   ],
-  "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim — it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
+  "note_on_scope": "Marketing copy itself (headlines, FAQ text, per-destination prose) is NOT duplicated here verbatim \u2014 it already lives in src/content/*.ts as clean typed data and re-reading feedAI would just be a stale copy of it. This topic describes the STRUCTURE: what data feeds what page, how many of each exist, and the actual code-level behavior/gotchas.",
   "landing_page": {
-    "content_source": "src/content/landing.ts — landingContent object: nav items, hero (title/body/popular countries), a curated `destinations` array of 5 countries (USA/Japan/UK/France/Turkey) shown as the homepage grid, 3 `steps`, 3 `benefits`, 4 `faqs`, support links, app store links (Android package com.uplisoft.velocityesim, iOS id6768258284).",
-    "gotcha": "landing.ts's 5-country `destinations` array is a SEPARATE, smaller dataset from seo-pages.ts's destinationPages array (f039, f125) — the homepage grid and /esim/[slug] pages are not generated from the same source."
+    "content_source": "src/content/landing.ts \u2014 landingContent object: nav items, hero (title/body/popular countries), a curated `destinations` array of 5 countries (USA/Japan/UK/France/Turkey) shown as the homepage grid, 3 `steps`, 3 `benefits`, 4 `faqs`, support links, app store links (Android package com.uplisoft.velocityesim, iOS id6768258284).",
+    "gotcha": "landing.ts's 5-country `destinations` array is a SEPARATE, smaller dataset from seo-pages.ts's destinationPages array (f039, f125) \u2014 the homepage grid and /esim/[slug] pages are not generated from the same source."
   },
   "seo_content_pages": {
     "file": "src/content/seo-pages.ts",
@@ -63,23 +64,23 @@
   "guides_and_use_cases": {
     "note": "Guides live at /travel and /travel/[slug] with a hub index. Use-cases have /use-cases hub + [slug]. Compare pages live in src/content/compare-pages.ts and now emit FAQPage + Product/AggregateOffer JSON-LD, not just BreadcrumbList/WebPage (f134). /cheapest-esim is intentionally unpublished (f125)."
   },
-  "site_footer_anchors": "SiteFooter Explore/Resources labels are slug maps (footerUseCaseLabels / footerGuideLabels), not catch-all ternaries — duplicate Remote work / installation labels were a regression when cruises/study-abroad and prepended base guides landed (f175).",
+  "site_footer_anchors": "SiteFooter Explore/Resources labels are slug maps (footerUseCaseLabels / footerGuideLabels), not catch-all ternaries \u2014 duplicate Remote work / installation labels were a regression when cruises/study-abroad and prepended base guides landed (f175).",
   "support_page": {
     "file": "src/app/support/SupportPageClient.tsx (client component, rendered by src/app/support/page.tsx)",
-    "content_source": "Own hardcoded arrays (supportCategories: 6 categories — Getting started/Installation/Connection issues/Plans & top-ups/Payments & refunds/Account & security; faqs: 10 Q&A items) defined INSIDE this component file, not in src/content/ — a separate dataset from landing.ts's 4 FAQs, with no shared source (f041).",
+    "content_source": "Own hardcoded arrays (supportCategories: 6 categories \u2014 Getting started/Installation/Connection issues/Plans & top-ups/Payments & refunds/Account & security; faqs: 10 Q&A items) defined INSIDE this component file, not in src/content/ \u2014 a separate dataset from landing.ts's 4 FAQs, with no shared source (f041).",
     "search": "Client-side substring filter (normalizeSearch) over both categories and FAQs simultaneously as the user types; no server round-trip.",
     "contact": "mailto: link to esim@uplisoft.com (SUPPORT_EMAIL constant, shared with legal.ts)."
   },
   "legal_pages": {
-    "content_source": "src/content/legal.ts — termsDocument and policyDocument, both typed as LegalDocument {title, lastUpdated, sections:[{title,paragraphs[]}]}. Terms and Privacy Policy lastUpdated 'September 25, 2026' (f172: website plan checkout in-app Pokpay card fields).",
+    "content_source": "src/content/legal.ts \u2014 termsDocument and policyDocument, both typed as LegalDocument {title, lastUpdated, sections:[{title,paragraphs[]}]}. Terms and Privacy Policy lastUpdated 'September 25, 2026' (f172: website plan checkout in-app Pokpay card fields).",
     "rendering": "src/app/terms/page.tsx and src/app/policy/page.tsx are thin wrappers around one shared LegalDocumentPage component (src/app/LegalDocumentPage.tsx), passing termsDocument/policyDocument respectively.",
     "content_summary_terms": "Agreement, the service (third-party operator dependency), eligibility/accounts (18+, OTP), acceptable use, fees & purchases (in-page Pokpay-encrypted card entry for plan checkout; some other payments may still use hosted Pokpay; non-refundable once activated), connectivity disclaimer, IP, limitation of liability, contact.",
-    "content_summary_policy": "Overview, information collected (account/verification, profile/usage, billing address, transaction data — plan checkout card PAN/CVV encrypted in-browser by Pokpay, support comms, optional biometrics — kept on-device only), how used, sharing (operators/Pokpay/infra, never sold), retention, security (in-browser Pokpay encryption for plan checkout), user rights, international transfers, children (under-13 not targeted), changes, contact."
+    "content_summary_policy": "Overview, information collected (account/verification, profile/usage, billing address, transaction data \u2014 plan checkout card PAN/CVV encrypted in-browser by Pokpay, support comms, optional biometrics \u2014 kept on-device only), how used, sharing (operators/Pokpay/infra, never sold), retention, security (in-browser Pokpay encryption for plan checkout), user rights, international transfers, children (under-13 not targeted), changes, contact."
   },
   "branding": {
-    "navbar_logo": "Navbar.tsx uses public/logo-icon.png (transparent AND colored, cropped from logo-full.png) as of 2026-08-24 (f062) — the earlier public/logo-no-bg.png rendered white-on-white/invisible once content pages went light-themed (f056). SiteFooter.tsx still uses the solid-background public/app-logo.png on its plain white background; the two marks are intentionally different assets, not an inconsistency to 'fix'. public/logo-no-bg.png (the pre-f062 asset) was deleted from the repo on 2026-08-31 (f070) since nothing referenced it anymore. Those two unversioned logo URLs use a one-hour revalidating cache, not the immutable year-long cache used for hashed /images/* assets (f144).",
+    "navbar_logo": "Navbar.tsx uses public/logo-icon.png (transparent AND colored, cropped from logo-full.png) as of 2026-08-24 (f062) \u2014 the earlier public/logo-no-bg.png rendered white-on-white/invisible once content pages went light-themed (f056). SiteFooter.tsx still uses the solid-background public/app-logo.png on its plain white background; the two marks are intentionally different assets, not an inconsistency to 'fix'. public/logo-no-bg.png (the pre-f062 asset) was deleted from the repo on 2026-08-31 (f070) since nothing referenced it anymore. Those two unversioned logo URLs use a one-hour revalidating cache, not the immutable year-long cache used for hashed /images/* assets (f144).",
     "og_image_cache_busting": "src/lib/seo.ts's ogImage.url appends a manual ?v=<ogImageVersion> query string (currently '3'). Bump ogImageVersion whenever public/og/esim2you-og.png's bytes change, or link-preview crawlers keep serving a cached copy of the old image since the URL is otherwise static (f063).",
-    "producthunt_section": "No standalone Product Hunt UI anywhere on the page (two earlier attempts — a full-width banner, then an AppDownload pill — were both rejected in review). Final: a plain text link 'Featured on Product Hunt' in SiteFooter.tsx's bottom bar, styled like the copyright/coverage lines next to it (f069)."
+    "producthunt_section": "No standalone Product Hunt UI anywhere on the page (two earlier attempts \u2014 a full-width banner, then an AppDownload pill \u2014 were both rejected in review). Final: a plain text link 'Featured on Product Hunt' in SiteFooter.tsx's bottom bar, styled like the copyright/coverage lines next to it (f069)."
   },
   "how_it_works_section": "Homepage HowItWorks (page.tsx, was JourneyAndCoverage) is 3 fanned real-device phone mockups, not icon cards -- ChoosePlanScreen uses a real user screenshot as its hero photo + real flagcdn.com flags/pricing, ScanInstallScreen has a real static QR (public/images/qr-esim-uplisoft.svg -> esim.uplisoft.com), ConnectedScreen mirrors mobile MyEsimsScreen copy. The old \"Where Will You Go Next?\" coverage column and CoverageFlagMosaic.tsx are deleted, not restyled (f083, supersedes f075's coverage-mosaic description).",
   "destinations_grid_collapse": "DestinationBrowse.tsx's flat \"All destinations\" grid (215 countries) collapses to the first 20 by default, with a \"Show all N / Show less\" toggle (showAllDestinations state, DESTINATIONS_COLLAPSED_COUNT=20). The cap is skipped while the grid search box has text, so searching always shows every match (f084).",

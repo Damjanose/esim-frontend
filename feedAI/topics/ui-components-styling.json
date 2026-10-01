@@ -20,7 +20,9 @@
     "f212",
     "f213",
     "f214",
-    "f215"
+    "f215",
+    "f225",
+    "f226"
   ],
   "notable_components": {
     "src/app/components/Button.tsx + buttonClasses.ts": "canonical CTA component as of 2026-08-18 \u2014 resolveButtonClasses({variant: primary|flat, tone: brand|danger, size: sm|md|lg}) mirrors mobile's resolveButtonVisual; used by PayButton, SignOutButton, Navbar CTA, DeleteAccountCard (f032)",
