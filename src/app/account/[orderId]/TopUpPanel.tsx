@@ -2,24 +2,18 @@
 
 import { useState } from "react";
 import { CreditCard, Loader2, Plus } from "lucide-react";
+import { topupPlanRowPlan, type TopupOffer } from "@/lib/accountEsims";
+import { planDurationText, planRowTags } from "@/lib/planRow";
+import { Button } from "../../components/Button";
+import { PlanDataDisc, PlanPrice, PlanTags } from "../../components/PlanRow";
 
-export type TopupPackage = {
-  id: string;
-  title?: string;
-  priceDisplay?: string;
-  /** Data allowance in MB. */
-  amount?: number;
-  /** Validity in days. */
-  day?: number;
-  is_unlimited?: boolean;
-};
+export type TopupPackage = TopupOffer;
 
-function describeAllowance(pkg: TopupPackage): string {
-  if (pkg.is_unlimited) return "Unlimited data";
-  if (typeof pkg.amount !== "number") return "Data top-up";
-  return pkg.amount >= 1024 ? `${(pkg.amount / 1024).toFixed(0)} GB` : `${pkg.amount} MB`;
-}
-
+/**
+ * "Add more data": the backend's top-up offers as PlanRow-style rows (data disc,
+ * days, tags, price). Payment is unchanged: a hosted Pokpay redirect (f019).
+ * Every Top up is flat; the page's gradient, if any, is the usage card's Top up.
+ */
 export function TopUpPanel({
   orderId,
   packages
@@ -66,7 +60,10 @@ export function TopUpPanel({
   }
 
   return (
-    <div className="mt-5 rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+    <section
+      className="mt-4 scroll-mt-6 rounded-[20px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6"
+      id="top-up"
+    >
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <Plus aria-hidden="true" className="text-brandBlue" size={20} />
         Add more data
@@ -75,37 +72,45 @@ export function TopUpPanel({
         Top up this eSIM without installing a new one.
       </p>
 
-      <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+      <ul className="mt-5 space-y-3">
         {packages.map((pkg) => {
+          const plan = topupPlanRowPlan(pkg);
           const busy = pendingId === pkg.id;
 
           return (
-            <li key={pkg.id}>
-              <button
-                className="flex w-full items-center justify-between gap-4 rounded-[14px] border border-outline bg-mist px-5 py-4 text-left transition hover:border-brandBlue/75 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={pendingId !== null}
-                onClick={() => void startTopup(pkg.id)}
-                type="button"
-              >
-                <span className="min-w-0">
-                  <span className="block font-display text-base font-black text-brandInk">
-                    {describeAllowance(pkg)}
-                  </span>
-                  <span className="mt-0.5 block text-xs text-onSurfaceVariant">
-                    {pkg.title ?? pkg.id}
-                    {typeof pkg.day === "number" ? ` · ${pkg.day} days` : ""}
-                  </span>
-                </span>
+            <li
+              className="flex flex-wrap items-center gap-3 rounded-[18px] border border-outline/70 bg-surface p-3 sm:flex-nowrap sm:gap-4 sm:p-4"
+              key={pkg.id}
+            >
+              <PlanDataDisc plan={plan} />
 
-                <span className="flex shrink-0 items-center gap-2 text-sm font-black text-brandBlue">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-display text-title-sm font-black text-brandInk sm:text-lg">
+                  {planDurationText(plan)}
+                </h3>
+                <p className="mt-0.5 truncate text-body-sm font-semibold text-onSurface">{plan.title}</p>
+                <PlanTags className="mt-1" tags={planRowTags(plan, { position: null })} />
+              </div>
+
+              {/* Phones: price and Top up drop to their own line, like PlanRow. */}
+              <div className="flex w-full items-center justify-between gap-2 border-t border-outline/50 pt-3 sm:w-auto sm:shrink-0 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
+                <PlanPrice plan={plan} />
+                <Button
+                  aria-label={`Top up: ${plan.title}`}
+                  className="whitespace-nowrap"
+                  disabled={pendingId !== null}
+                  onClick={() => void startTopup(pkg.id)}
+                  type="button"
+                  variant="flat"
+                >
                   {busy ? (
                     <Loader2 aria-hidden="true" className="animate-spin" size={16} />
                   ) : (
                     <CreditCard aria-hidden="true" size={16} />
                   )}
-                  {pkg.priceDisplay ?? "Top up"}
-                </span>
-              </button>
+                  Top up
+                </Button>
+              </div>
             </li>
           );
         })}
@@ -116,6 +121,6 @@ export function TopUpPanel({
       <p className="mt-4 text-xs text-onSurfaceVariant">
         You will be redirected to Pokpay to complete your payment securely.
       </p>
-    </div>
+    </section>
   );
 }
