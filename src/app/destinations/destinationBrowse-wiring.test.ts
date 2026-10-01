@@ -52,6 +52,20 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(source).not.toContain("<DestinationBrowse autoOpenWizard");
   });
 
+  it("opens its single wizard on an outside request (hero tune button), only once data has loaded", () => {
+    const source = readFileSync(
+      join(process.cwd(), "src/app/destinations/DestinationBrowse.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain('import { onPlanWizardRequest } from "./planWizardOpener";');
+    expect(source).toContain("useEffect(() => onPlanWizardRequest(() => setWizardRequested(true)), []);");
+    // Held until the fetch settles, like the button's disabled={loading}.
+    expect(source).toContain("if (!wizardRequested || loading) return;");
+    // There is exactly one wizard per page; outside callers never mount another.
+    expect(source.match(/<HelpMeChooseWizard\b/g)).toHaveLength(1);
+  });
+
   it("the wizard closes from Escape as well as its close button and backdrop", () => {
     const source = readFileSync(
       join(process.cwd(), "src/app/destinations/HelpMeChooseWizard.tsx"),

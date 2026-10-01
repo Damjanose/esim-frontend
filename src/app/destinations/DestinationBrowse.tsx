@@ -22,6 +22,7 @@ import {
 import { destinationBrowseHref } from "@/lib/esim-routes";
 import { useConsent } from "../ConsentManager";
 import type { WizardResult } from "./HelpMeChooseWizard";
+import { onPlanWizardRequest } from "./planWizardOpener";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
 
 const HelpMeChooseWizard = dynamic(
@@ -148,6 +149,12 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   const [loadError, setLoadError] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
   /**
+   * Set by an outside "open the wizard" request (the homepage hero's tune
+   * button, via planWizardOpener). Held until the fetch settles, for the same
+   * reason the Help me choose button is disabled while loading.
+   */
+  const [wizardRequested, setWizardRequested] = useState(false);
+  /**
    * Shown instead of the wizard for the first `WELCOME_MIN_DELAY_MS` on an
    * auto-opened wizard, so it doesn't just snap open the instant the page
    * loads. Also gates the actual wizard open on data having finished
@@ -215,6 +222,17 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
     setShowWelcome(false);
     if (!loadError) setWizardOpen(true);
   }, [showWelcome, welcomeMinDelayDone, loading, loadError]);
+
+  useEffect(() => onPlanWizardRequest(() => setWizardRequested(true)), []);
+
+  // Same rule as the manual button (enabled once loading is false), so an
+  // early click on the hero tune button opens the wizard as soon as the
+  // destinations have arrived instead of showing "No destination found".
+  useEffect(() => {
+    if (!wizardRequested || loading) return;
+    setWizardRequested(false);
+    setWizardOpen(true);
+  }, [wizardRequested, loading]);
 
   const filters: DestinationBrowseFilters = useMemo(
     () => parseDestinationFiltersFromParams(urlFilters),
