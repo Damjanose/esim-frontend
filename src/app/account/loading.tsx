@@ -1,10 +1,15 @@
+/** Shaped like the loaded page: title + count, the active card, a row card (lg: sidebar + ring card). */
 export default function AccountLoading() {
   return (
-    <main className="min-h-screen animate-pulse bg-surface px-5 pb-16 pt-28 lg:px-10">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <div className="h-10 w-1/2 rounded-2xl bg-mist" />
-        <div className="h-44 rounded-3xl bg-mist" />
-        <div className="h-56 rounded-3xl bg-mist" />
+    <main aria-busy="true" className="min-h-screen bg-surfaceBright">
+      <div className="mx-auto w-full max-w-[1200px] px-4 pb-16 pt-[92px] motion-safe:animate-pulse sm:px-6 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 lg:px-10 lg:pt-[108px]">
+        <div className="hidden h-[340px] rounded-[20px] bg-surface lg:block" />
+        <div>
+          <div className="h-9 w-40 rounded-[10px] bg-outline/40" />
+          <div className="mt-2 h-4 w-32 rounded-full bg-outline/30" />
+          <div className="mt-10 h-[232px] rounded-[18px] bg-brandBlue/15 lg:h-[212px] lg:rounded-[20px] lg:bg-surface" />
+          <div className="mt-10 h-[160px] rounded-[18px] bg-surface" />
+        </div>
       </div>
     </main>
   );
