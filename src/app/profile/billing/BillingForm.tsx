@@ -5,6 +5,7 @@ import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import { BILLING_FIELDS } from "@/lib/billingValidation";
+import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 
 const EMPTY: BillingAddress = {
   holdersName: "",
@@ -20,9 +21,6 @@ const EMPTY: BillingAddress = {
 type CountryOption = { code: string; name: string };
 
 const FIELD_BY_KEY = Object.fromEntries(BILLING_FIELDS.map((field) => [field.key, field]));
-
-const INPUT_CLASSNAME =
-  "mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue";
 
 export function BillingForm({
   countries,
@@ -73,12 +71,12 @@ export function BillingForm({
   function renderField(key: keyof BillingAddress) {
     const field = FIELD_BY_KEY[key];
     return (
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         {field.label}
         {key === "countryCode" ? (
           <select
             autoComplete={field.autoComplete}
-            className={INPUT_CLASSNAME}
+            className={FIELD_INPUT_CLASSES}
             onChange={(event) => {
               setSaved(false);
               setAddress((current) => ({ ...current, countryCode: event.target.value }));
@@ -98,7 +96,7 @@ export function BillingForm({
         ) : (
           <input
             autoComplete={field.autoComplete}
-            className={INPUT_CLASSNAME}
+            className={FIELD_INPUT_CLASSES}
             onChange={(event) => {
               setSaved(false);
               setAddress((current) => ({ ...current, [key]: event.target.value }));
