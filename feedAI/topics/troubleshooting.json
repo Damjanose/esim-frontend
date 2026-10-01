@@ -315,6 +315,15 @@
         "f218"
       ],
       "source": "src/app/signin/SocialSignInButtons.tsx"
+    },
+    {
+      "symptom": "/account and /account/[id] show '0 MB of 0 MB remaining' for every active plan (and unlimited plans too).",
+      "root_cause": "summariseUsage only read total/remaining, but the backend's usage route sends data_total_mb / data_remaining_mb / is_unlimited.",
+      "fix": "summariseUsage reads both shapes and handles is_unlimited (commit 379607c, 2026-10-01).",
+      "facts": [
+        "f220"
+      ],
+      "source": "src/lib/esim-install.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

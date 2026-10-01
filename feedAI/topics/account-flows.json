@@ -17,7 +17,9 @@
     "f173",
     "f216",
     "f217",
-    "f219"
+    "f219",
+    "f220",
+    "f223"
   ],
   "checkout": {
     "component": "src/app/checkout/CheckoutWizard.tsx (Billing -> in-page CardStep via usePOK)",
