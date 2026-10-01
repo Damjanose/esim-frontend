@@ -60,3 +60,32 @@ describe("live plans view pieces", () => {
     expect(source).not.toContain("bg-white");
   });
 });
+
+describe("DestinationPlans", () => {
+  it("lays out banner, filters, plan rows and a sticky lg sidebar", () => {
+    const source = read("DestinationPlans.tsx");
+
+    expect(source).toContain("<CountryBanner");
+    expect(source).toContain('<span className="block text-brandTeal">{countryName}</span>');
+    expect(source).toContain("Plans from €{selectedCountryOffer.lowPrice.toFixed(2)} to €");
+    expect(source).toContain("<CollapsedCountryBar");
+    expect(source).toContain("<PlanFilterBar");
+    expect(source).toContain("visiblePlans(selectedCountryPlans, filter, sort)");
+    expect(source).toContain("tags={planRowTags(plan, { position: index })}");
+    expect(source).toContain("buyHref={`/checkout?package=${encodeURIComponent(plan.id)}`}");
+    expect(source).toContain('className="mt-8 lg:sticky lg:top-6 lg:mt-0"');
+    expect(source).toContain("<PlansSidebar plansCount={selectedCountryPlans.length} />");
+    // Sticky needs a main that isn't a scroll container: clip, not hidden (here and in page.tsx).
+    expect(source).toContain('<main className="min-h-screen overflow-x-clip');
+    expect(read("page.tsx")).toContain('<main className="min-h-screen overflow-x-clip');
+    expect(source).not.toContain("overflow-x-hidden");
+    // Loaded-later bits sit in fixed-height slots or out of flow (CLS).
+    expect(source).toContain('<div className="mt-6 flex h-9 items-center">');
+    expect(source).toContain('<div className="mt-5 h-9">');
+    // Wizard hand-off filters still hide the chips; Product JSON-LD unchanged.
+    expect(source).toContain("{!wizardFiltersActive ? (");
+    expect(source).toContain("createOfferProductJsonLd({");
+    expect(source).not.toMatch(/#(?!0E86C0)[0-9a-fA-F]{3,6}\b/);
+    expect(source).not.toContain("text-white");
+  });
+});

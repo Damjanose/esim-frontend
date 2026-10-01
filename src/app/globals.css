@@ -40,17 +40,6 @@ input {
   color: #061131;
 }
 
-@keyframes destination-loader-scan {
-  0% {
-    transform: translateX(-120%);
-  }
-
-  55%,
-  100% {
-    transform: translateX(120%);
-  }
-}
-
 @keyframes welcome-fade-scale {
   0% {
     opacity: 0;

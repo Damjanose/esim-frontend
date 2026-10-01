@@ -17,14 +17,20 @@ describe("discount price display wiring", () => {
     expect(source).toContain("discountPercentOff(plan)");
   });
 
-  it("destination plan cards (featured + compact) show the same discount treatment", () => {
-    const source = readFileSync(
+  it("destination plan rows (live view, /esim table, /pkg) show the same discount treatment", () => {
+    const planRow = readFileSync(join(process.cwd(), "src/app/components/PlanRow.tsx"), "utf8");
+    const tags = readFileSync(join(process.cwd(), "src/lib/planRow.ts"), "utf8");
+    const destinationPlans = readFileSync(
       join(process.cwd(), "src/app/destinations/DestinationPlans.tsx"),
       "utf8",
     );
 
-    const occurrences = (source.match(/hasActiveDiscount\(plan\)/g) ?? []).length;
-    expect(occurrences).toBe(2);
+    // One implementation: PlanPrice strikes through the original price, planRowTags adds -N%.
+    expect(planRow).toContain("hasActiveDiscount(plan)");
+    expect(planRow).toContain("formatOriginalPrice(plan)");
+    expect(tags).toContain("discountPercentOff(plan)");
+    expect(destinationPlans).toContain("<PlanRow");
+    expect(destinationPlans).not.toContain("hasActiveDiscount(plan)");
   });
 
   it("HeroPackageOption carries the discount fields the backend already computes", () => {

@@ -91,7 +91,7 @@ export default async function DestinationsPage({
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-surface text-onSurface">
+    <main className="min-h-screen overflow-x-clip bg-surface text-onSurface">
       <JsonLd
         data={createContentPageJsonLd({
           path: "/destinations",

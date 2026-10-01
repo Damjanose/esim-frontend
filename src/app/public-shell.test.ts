@@ -37,16 +37,19 @@ describe("public navigation shell", () => {
     expect(destinationPlans).toContain("<SiteFooter />");
   });
 
-  it("uses a branded loader while destination hero images load", () => {
+  it("shows the brand gradient banner while the destination photo loads", () => {
     const destinationPlans = readFileSync(
       "src/app/destinations/DestinationPlans.tsx",
       "utf8",
     );
+    const banner = readFileSync("src/app/components/CountryBanner.tsx", "utf8");
 
-    expect(destinationPlans).toContain("function DestinationHeroImageLoader");
+    // The hex-coloured scanning loader is gone: CountryBanner's token gradient is the placeholder.
+    expect(destinationPlans).toContain("<CountryBanner");
     expect(destinationPlans).toContain("Loading destination image");
-    expect(destinationPlans).toContain("animate-[destination-loader-scan_2.8s_ease-in-out_infinite]");
-    expect(destinationPlans).not.toContain("h-full w-full animate-pulse bg-[linear-gradient(135deg,#09213d,#031024)]");
+    expect(destinationPlans).not.toContain("DestinationHeroImageLoader");
+    expect(destinationPlans).not.toContain("destination-loader-scan");
+    expect(banner).toContain("bg-gradient-to-br from-brandBlue via-[#0E86C0] to-brandTeal");
   });
 
   it("renders the shared navbar and footer on support and SEO content pages", () => {
