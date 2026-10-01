@@ -14,6 +14,9 @@ export type PlanRowPlan = DiscountPricedPlan & {
   durationDays?: number;
   voiceMinutes?: number;
   smsCount?: number;
+  /** Live catalog only: "local" / "regional" / "global" geography filters and the plan's own destination name. */
+  filters?: readonly string[];
+  country?: string;
 };
 
 export type PlanRowTag =
@@ -95,4 +98,16 @@ export function planSubtitle(plan: PlanRowPlan): string {
   if (voiceSms) return voiceSms;
   if (isUnlimitedPlan(plan)) return "High-speed data without limits.";
   return (plan.durationDays ?? 0) <= 15 ? "Perfect for short trips." : "More data for longer adventures.";
+}
+
+/**
+ * For a regional or global bundle listed under a country, the bundle's own
+ * coverage name ("European Union and United Kingdom"). Without it, a bundle and
+ * a local plan with the same data and days look identical. Null for local plans
+ * and when the catalog didn't say (static /esim rows carry no filters).
+ */
+export function planCoverageNote(plan: Pick<PlanRowPlan, "filters" | "country">): string | null {
+  if (!plan.filters || plan.filters.length === 0 || plan.filters.includes("local")) return null;
+  const country = plan.country?.trim();
+  return country ? country : null;
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   hasBestValueTag,
+  planCoverageNote,
   isUnlimitedPlan,
   planDataDisc,
   planDurationText,
@@ -126,5 +127,20 @@ describe("plan row text", () => {
     expect(isUnlimitedPlan(plan({ dataNumericGb: 999 }))).toBe(true);
     expect(isUnlimitedPlan(plan({ dataLabel: "UNLIMITED" }))).toBe(true);
     expect(isUnlimitedPlan(plan())).toBe(false);
+  });
+});
+
+describe("planCoverageNote", () => {
+  it("names the bundle's coverage for regional or global plans", () => {
+    expect(planCoverageNote({ filters: ["global", "regional"], country: "European Union and United Kingdom" })).toBe(
+      "European Union and United Kingdom",
+    );
+  });
+
+  it("is null for local plans, plans without filters, and blank names", () => {
+    expect(planCoverageNote({ filters: ["local"], country: "Hungary" })).toBeNull();
+    expect(planCoverageNote({ country: "Hungary" })).toBeNull();
+    expect(planCoverageNote({ filters: [], country: "Europe" })).toBeNull();
+    expect(planCoverageNote({ filters: ["regional"], country: "  " })).toBeNull();
   });
 });

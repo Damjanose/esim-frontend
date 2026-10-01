@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import {
   hasBestValueTag,
+  planCoverageNote,
   planDataDisc,
   planDurationText,
   planSubtitle,
@@ -67,7 +68,7 @@ export function PlanTags({ tags, className = "" }: { tags: readonly PlanRowTag[]
 /** Strike-through original price while a discount is active (f078), then the charged price. */
 export function PlanPrice({ plan }: { plan: PlanRowPlan }) {
   return (
-    <span className="flex flex-col items-end">
+    <span className="flex flex-col items-start sm:items-end">
       {hasActiveDiscount(plan) ? (
         <span className="text-xs font-semibold text-onSurfaceVariant line-through">{formatOriginalPrice(plan)}</span>
       ) : null}
@@ -100,14 +101,21 @@ type PlanRowProps = {
   tags: readonly PlanRowTag[];
   /** Buy now target. Omit it to show the plan without a CTA (/pkg keeps its own actions). */
   buyHref?: string;
+  /**
+   * Show the plan's own title (e.g. "Europe 10GB 30 Days"). On by default: it's
+   * what tells a local plan from a regional bundle with the same data and days.
+   * Off where the title is already the page heading (/pkg).
+   */
+  showTitle?: boolean;
 };
 
-export function PlanRow({ plan, tags, buyHref }: PlanRowProps) {
+export function PlanRow({ plan, tags, buyHref, showTitle = true }: PlanRowProps) {
   const bestValue = hasBestValueTag(tags);
+  const coverage = planCoverageNote(plan);
 
   return (
     <article
-      className={`relative flex items-center gap-3 rounded-[18px] border bg-surface p-3 sm:gap-4 sm:p-4 ${
+      className={`relative flex flex-wrap items-center gap-3 rounded-[18px] border bg-surface p-3 sm:flex-nowrap sm:gap-4 sm:p-4 ${
         bestValue ? "border-brandBlue/40 shadow-brandGlow" : "border-outline/70"
       }`}
     >
@@ -115,11 +123,18 @@ export function PlanRow({ plan, tags, buyHref }: PlanRowProps) {
 
       <div className="min-w-0 flex-1">
         <h2 className="font-display text-title-sm font-black text-brandInk sm:text-lg">{planDurationText(plan)}</h2>
+        {showTitle ? (
+          <p className="mt-0.5 truncate text-body-sm font-semibold text-onSurface">{plan.title}</p>
+        ) : null}
+        {coverage ? (
+          <p className="mt-0.5 line-clamp-2 text-body-sm font-semibold text-brandBlue sm:truncate">Regional bundle · {coverage}</p>
+        ) : null}
         <PlanTags className="mt-1" tags={tags} />
         <p className="mt-1 truncate text-body-sm text-onSurfaceVariant">{planSubtitle(plan)}</p>
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-2">
+      {/* Phones: price and Buy drop to their own line, so the plan text gets the full width. */}
+      <div className="flex w-full items-center justify-between gap-2 border-t border-outline/50 pt-3 sm:w-auto sm:shrink-0 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
         <PlanPrice plan={plan} />
         {buyHref ? <PlanBuyLink href={buyHref} planTitle={plan.title} primary={bestValue} /> : null}
       </div>

@@ -17,6 +17,10 @@ describe("PlanRow", () => {
     expect(source).toContain("planDataDisc(plan)");
     expect(source).toContain("planDurationText(plan)");
     expect(source).toContain("planSubtitle(plan)");
+    // The plan title stays visible: it is what tells a local plan from a regional
+    // bundle with the same data and days (the old CompactPlanCard showed it).
+    expect(source).toContain("{showTitle ? (");
+    expect(source).toContain("{plan.title}</p>");
     // Disc: number in brandBlue, unit in onSurfaceVariant (brandTeal on the light disc is
     // ~2.1:1, failing WCAG AA); the data label for screen readers,
     // inside a positioned disc so the sr-only text can't escape a scroller (f195).
