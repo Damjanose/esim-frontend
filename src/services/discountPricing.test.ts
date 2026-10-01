@@ -77,3 +77,13 @@ describe("discountPercentOff", () => {
     expect(discountPercentOff(p)).toBeNull();
   });
 });
+
+describe("plan shapes", () => {
+  it("accepts any plan carrying the discount fields, like the static /esim plan rows", () => {
+    const row = { price: "€8.00", priceNumeric: 8, hasDiscount: true, retailPrice: 10 };
+
+    expect(hasActiveDiscount(row)).toBe(true);
+    expect(formatOriginalPrice(row)).toBe("€10.00");
+    expect(discountPercentOff(row)).toBe(20);
+  });
+});

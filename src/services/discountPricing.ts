@@ -1,7 +1,14 @@
 import type { HeroPackageOption } from "./packages";
 
+/**
+ * The fields the discount helpers read. Any plan shape that carries them works:
+ * HeroPackageOption (live catalog) and the static /esim plan rows
+ * (DestinationPlanRow) both do.
+ */
+export type DiscountPricedPlan = Pick<HeroPackageOption, "price" | "priceNumeric" | "hasDiscount" | "retailPrice">;
+
 /** The currency prefix `plan.price` carries (e.g. "€"), for formatting other amounts to match. */
-function pricePrefix(plan: HeroPackageOption): string {
+function pricePrefix(plan: DiscountPricedPlan): string {
   return plan.price.match(/^[^\d]*/)?.[0] ?? "";
 }
 
@@ -10,7 +17,7 @@ function pricePrefix(plan: HeroPackageOption): string {
  * carries (e.g. "€") — the backend only sends the final price pre-formatted,
  * so the pre-discount amount is formatted client-side to match it exactly.
  */
-export function formatOriginalPrice(plan: HeroPackageOption): string {
+export function formatOriginalPrice(plan: DiscountPricedPlan): string {
   return `${pricePrefix(plan)}${plan.retailPrice!.toFixed(2)}`;
 }
 
@@ -18,7 +25,7 @@ export function formatOriginalPrice(plan: HeroPackageOption): string {
  * Renders a cents amount (e.g. `finalCustomerPriceCents` from the partner
  * promo-code endpoint) with the same currency prefix `plan.price` carries.
  */
-export function formatPriceFromCents(plan: HeroPackageOption, cents: number): string {
+export function formatPriceFromCents(plan: DiscountPricedPlan, cents: number): string {
   return `${pricePrefix(plan)}${(cents / 100).toFixed(2)}`;
 }
 
@@ -31,14 +38,14 @@ export function formatPriceFromCents(plan: HeroPackageOption, cents: number): st
  * shows via `hasActiveDiscount`/`formatOriginalPrice` regardless — only the
  * percent badge is conditional on the discount actually being a discount.
  */
-export function discountPercentOff(plan: HeroPackageOption): number | null {
+export function discountPercentOff(plan: DiscountPricedPlan): number | null {
   if (!hasActiveDiscount(plan) || plan.retailPrice <= 0) return null;
   const pctOff = Math.round((1 - plan.priceNumeric / plan.retailPrice) * 100);
   return pctOff > 0 ? pctOff : null;
 }
 
-export function hasActiveDiscount(
-  plan: HeroPackageOption,
-): plan is HeroPackageOption & { hasDiscount: true; retailPrice: number } {
+export function hasActiveDiscount<T extends DiscountPricedPlan>(
+  plan: T,
+): plan is T & { hasDiscount: true; retailPrice: number } {
   return Boolean(plan.hasDiscount && plan.retailPrice != null);
 }
