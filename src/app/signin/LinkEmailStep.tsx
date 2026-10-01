@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Loader2, MailCheck } from "lucide-react";
 import { Button } from "../components/Button";
+import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "../components/fieldClasses";
+import { CODE_INPUT_CLASSES, SIGN_IN_TEXT_ACTION_CLASSES } from "./signInClasses";
 import type { LinkChallenge } from "./SocialSignInButtons";
 
 type Step = "email" | "code";
@@ -92,27 +94,27 @@ export function LinkEmailStep({
 
   return (
     <>
-      <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-outline bg-mist text-brandBlue">
-        <MailCheck size={22} />
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
+        <MailCheck aria-hidden="true" size={26} />
       </span>
 
-      <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
+      <h1 className="mt-4 text-center font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
         {step === "email" ? "Confirm your email" : "Enter your code"}
       </h1>
 
-      <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">
+      <p className="mt-2 text-center text-sm leading-6 text-onSurfaceVariant">
         {step === "email"
           ? "Almost there. Tell us the email address for your eSim2you account and we'll send a 6-digit code to confirm it."
           : `We sent a 6-digit code to ${email}.`}
       </p>
 
       {step === "email" ? (
-        <form className="mt-7 space-y-4" onSubmit={requestCode}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        <form className="mt-6 space-y-4" onSubmit={requestCode}>
+          <label className={FIELD_LABEL_CLASSES}>
             Email address
             <input
               autoComplete="email"
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition placeholder:text-onSurfaceVariant/60 focus:border-brandBlue"
+              className={FIELD_INPUT_CLASSES}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               required
@@ -129,12 +131,12 @@ export function LinkEmailStep({
           </Button>
         </form>
       ) : (
-        <form className="mt-7 space-y-4" onSubmit={verifyCode}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        <form className="mt-6 space-y-4" onSubmit={verifyCode}>
+          <label className={FIELD_LABEL_CLASSES}>
             6-digit code
             <input
               autoComplete="one-time-code"
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-center font-display text-xl font-black tracking-[0.4em] text-brandInk outline-none transition focus:border-brandBlue"
+              className={CODE_INPUT_CLASSES}
               inputMode="numeric"
               maxLength={6}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
@@ -151,9 +153,9 @@ export function LinkEmailStep({
             Confirm and continue
           </Button>
 
-          <div className="flex items-center justify-between pt-1 text-xs font-semibold">
+          <div className="flex items-center justify-between gap-3">
             <button
-              className="text-onSurfaceVariant transition hover:text-brandInk"
+              className={`${SIGN_IN_TEXT_ACTION_CLASSES} text-onSurfaceVariant hover:text-brandInk`}
               onClick={() => {
                 setStep("email");
                 setCode("");
@@ -165,7 +167,7 @@ export function LinkEmailStep({
             </button>
 
             <button
-              className="text-brandBlue transition hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-50"
+              className={`${SIGN_IN_TEXT_ACTION_CLASSES} text-brandBlue hover:text-brandInk`}
               disabled={busy || cooldown > 0}
               onClick={() => void requestCode()}
               type="button"
@@ -177,7 +179,7 @@ export function LinkEmailStep({
       )}
 
       <button
-        className="mt-6 text-xs font-bold text-onSurfaceVariant transition hover:text-brandInk"
+        className="mx-auto mt-4 flex min-h-11 items-center px-2 text-xs font-bold text-onSurfaceVariant transition hover:text-brandInk"
         onClick={onRestart}
         type="button"
       >
