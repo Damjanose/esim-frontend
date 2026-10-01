@@ -41,3 +41,19 @@ describe("HeroPackageSearch", () => {
     expect(pageSource).toContain("<DestinationBrowse");
   });
 });
+
+describe("HeroTuneButton", () => {
+  it("asks DestinationBrowse's wizard to open instead of mounting its own", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/HeroTuneButton.tsx"), "utf8");
+
+    expect(source).toContain('"use client"');
+    expect(source).toContain("SlidersHorizontal");
+    expect(source).toContain('aria-label="Help me choose a plan"');
+    expect(source).toContain('import { requestPlanWizard } from "./destinations/planWizardOpener";');
+    // Wrapped in an arrow, so the click event is never passed in as the dispatch target.
+    expect(source).toContain("onClick={() => requestPlanWizard()}");
+    expect(source).not.toContain("HelpMeChooseWizard");
+    // Matches the 78px search pill next to it.
+    expect(source).toContain("h-[78px]");
+  });
+});
