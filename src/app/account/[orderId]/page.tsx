@@ -257,7 +257,7 @@ export default async function OrderDetailPage({
                 <p className="mt-5 font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
                   {usage.remainingLabel}
                 </p>
-                <p className="mt-1 text-xs text-onSurfaceVariant">of {usage.totalLabel} remaining</p>
+                <p className="mt-1 text-xs text-onSurfaceVariant">{usage.unlimited ? "No data cap" : `of ${usage.totalLabel} remaining`}</p>
 
                 <div
                   aria-label={`${usage.usedPercent}% of data used`}

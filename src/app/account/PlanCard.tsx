@@ -72,7 +72,7 @@ export function UsageBar({ usage }: { usage: UsageSummary }) {
         <p className="font-display text-3xl font-black tracking-[-0.04em] text-brandInk">
           {usage.remainingLabel}
         </p>
-        <p className="text-xs text-onSurfaceVariant">of {usage.totalLabel} remaining</p>
+        <p className="text-xs text-onSurfaceVariant">{usage.unlimited ? "No data cap" : `of ${usage.totalLabel} remaining`}</p>
       </div>
 
       <div

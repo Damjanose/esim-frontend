@@ -75,6 +75,42 @@ describe("summariseUsage", () => {
     expect(summary.message.length).toBeGreaterThan(0);
   });
 
+  it("reads the backend's usage shape (data_total_mb / data_remaining_mb)", () => {
+    const summary = summariseUsage({
+      available: true,
+      data_total_mb: 10240,
+      data_remaining_mb: 4096,
+      is_unlimited: false
+    });
+
+    expect(summary).toEqual({
+      available: true,
+      unlimited: false,
+      usedPercent: 60,
+      remainingLabel: "4 GB",
+      totalLabel: "10 GB",
+      expiresAt: undefined
+    });
+  });
+
+  it("reports an unlimited plan as unlimited, not as 0 MB of 0 MB", () => {
+    // normalizeSimUsage zeroes both totals for an unlimited plan.
+    const summary = summariseUsage({
+      available: true,
+      data_total_mb: 0,
+      data_remaining_mb: 0,
+      is_unlimited: true
+    });
+
+    expect(summary).toMatchObject({ available: true, unlimited: true, usedPercent: 0, remainingLabel: "Unlimited" });
+  });
+
+  it("keeps the used share between 0 and 100 when the provider over-reports what is left", () => {
+    expect(summariseUsage({ available: true, data_total_mb: 1024, data_remaining_mb: 2048 })).toMatchObject({
+      usedPercent: 0
+    });
+  });
+
   it("handles a fully used plan without dividing by zero", () => {
     const summary = summariseUsage({ available: true, remaining: 0, total: 0 });
 
