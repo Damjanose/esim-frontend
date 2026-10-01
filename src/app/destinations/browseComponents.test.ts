@@ -66,3 +66,17 @@ describe("TileCarousel", () => {
     expect(source).toContain("carouselStep(track.clientWidth)");
   });
 });
+
+describe("CountryRow", () => {
+  it("is a compact flag + name + from-price card with a chevron", () => {
+    const source = read("CountryRow.tsx");
+
+    expect(source).toContain("alt={`${country} flag`}");
+    expect(source).toContain("<Globe2");
+    expect(source).toContain("from {fromPrice}");
+    expect(source).toContain('{planCount === 1 ? "plan" : "plans"}');
+    expect(source).toContain("<ChevronRight");
+    expect(source).toContain("min-h-[60px]");
+    expect(source).not.toContain("fetch(");
+  });
+});
