@@ -46,3 +46,46 @@ describe("PlanRow", () => {
     expect(source).not.toContain("bg-white");
   });
 });
+
+describe("CountryBanner", () => {
+  it("is the rounded photo banner with a breadcrumb, clearing the navbar capsule", () => {
+    const source = read("CountryBanner.tsx");
+
+    expect(source).not.toContain('"use client"');
+    expect(source).toContain('export const COUNTRY_BANNER_ID = "country-banner";');
+    expect(source).toContain("rounded-b-[24px]");
+    expect(source).toContain("bg-gradient-to-br from-brandBlue via-[#0E86C0] to-brandTeal");
+    expect(source).toContain('aria-label="Breadcrumb"');
+    expect(source).toContain('href="/destinations"');
+    expect(source).toContain('aria-current="page"');
+    // Capsule bottom: 68px below lg, 76px at lg. Content starts 24px under it.
+    expect(source).toContain("pt-[92px]");
+    expect(source).toContain("lg:pt-[100px]");
+    // The photo credit is out of flow, so it can't shift anything when it appears.
+    expect(source).toContain('className="absolute bottom-2 right-4');
+    expect(source).not.toMatch(/#(?!0E86C0)[0-9a-fA-F]{3,6}\b/);
+    expect(source).not.toContain("text-white");
+  });
+});
+
+describe("CollapsedCountryBar", () => {
+  it("pins back, flag, name and from-price once the banner scrolls away (phones/tablets only)", () => {
+    const source = read("CollapsedCountryBar.tsx");
+
+    expect(source).toContain('"use client"');
+    expect(source).toContain("document.getElementById(COUNTRY_BANNER_ID)");
+    expect(source).toContain("new IntersectionObserver(");
+    expect(source).toContain("setShown(!entry.isIntersecting && entry.boundingClientRect.top < 0)");
+    expect(source).toContain("observer.disconnect()");
+    // Fixed (no layout shift), phone/tablet only, motion-safe, and inert while hidden.
+    expect(source).toContain("fixed inset-x-0 top-0 z-40");
+    expect(source).toContain("lg:hidden");
+    expect(source).toContain("motion-safe:transition");
+    expect(source).toContain("inert={!shown}");
+    expect(source).toContain('aria-label="Back to destinations"');
+    expect(source).toContain("grid h-11 w-11");
+    expect(source).toContain("alt={`${country} flag`}");
+    expect(source).toContain("from {fromPrice}");
+    expect(source).not.toMatch(/#[0-9a-fA-F]{3,6}\b/);
+  });
+});
