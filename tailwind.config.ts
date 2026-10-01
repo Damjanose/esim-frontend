@@ -21,7 +21,9 @@ const config: Config = {
         onSurface: "#1A1F36",
         onSurfaceVariant: "#44495E",
         outline: "#C4C7D4",
-        brandInk: "#061131"
+        brandInk: "#061131",
+        // velocity-eSim lightPalette.surfaceBright: soft page/section tint
+        surfaceBright: "#F5F7FA"
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
@@ -41,7 +43,10 @@ const config: Config = {
         glow: "0 24px 80px rgba(0, 217, 245, 0.24)",
         card: "0 20px 60px rgba(0, 31, 38, 0.12)",
         brandGlow: "0 24px 80px rgba(11, 73, 183, 0.16)",
-        brandCard: "0 20px 60px rgba(6, 17, 49, 0.08)"
+        brandCard: "0 20px 60px rgba(6, 17, 49, 0.08)",
+        // velocity-eSim BottomTabBar capsule + center ring glow
+        dock: "0 8px 24px rgba(6, 17, 49, 0.18)",
+        dockCenter: "0 8px 22px rgba(9, 195, 190, 0.35)"
       }
     }
   },
