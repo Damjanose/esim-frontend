@@ -19,13 +19,14 @@ describe("HeroPackageSearch", () => {
     expect(backendSource).not.toContain('"http://localhost:4000/api"');
   });
 
-  it("keeps the search results dropdown layered above the hero's background photo", () => {
+  it("keeps the search results dropdown stacked inside the hero section", () => {
     const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
     const componentSource = readFileSync(join(process.cwd(), "src/app/HeroPackageSearch.tsx"), "utf8");
 
-    // The hero photo sits behind the content at -z-20/-z-10; the search pill and its
-    // results dropdown (z-[100]/z-[70]) must stack above both the photo and the section.
-    expect(pageSource).toContain('className="relative isolate z-20 overflow-hidden bg-brandInk text-white"');
+    // The light hero keeps its own stacking context (isolate z-20), so the search
+    // pill and its in-flow results dropdown (z-[100]/z-[70]) stay above the photo
+    // card and never escape over the navbar or the sections below.
+    expect(pageSource).toContain('className="relative isolate z-20 bg-surface text-onSurface"');
     expect(pageSource).toContain('src="/images/mountain.webp"');
     expect(componentSource).toContain('className="relative z-[100] w-full max-w-[620px]"');
   });
@@ -39,6 +40,33 @@ describe("HeroPackageSearch", () => {
     expect(pageSource).not.toContain("function Plans");
     expect(pageSource).toContain("import { DestinationBrowse }");
     expect(pageSource).toContain("<DestinationBrowse");
+  });
+
+  it("renders the light split hero with every trust signal and the tune button", () => {
+    const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
+    const hero = pageSource.slice(
+      pageSource.indexOf("function Hero()"),
+      pageSource.indexOf("function Benefits()"),
+    );
+
+    expect(hero).not.toContain("bg-brandInk text-white");
+    // Eyebrow pill + H1 with the gradient on its second line.
+    expect(hero).toContain("200+ destinations");
+    expect(hero).toContain("A better way to stay");
+    expect(hero).toContain("from-brandBlue via-[#0E86C0] to-brandTeal bg-clip-text text-transparent");
+    expect(hero).toContain("connected while you travel");
+    // Photo card (on top below lg) carrying the remaining trust signals.
+    expect(hero).toContain("rounded-[24px]");
+    expect(hero).toContain("order-first");
+    expect(hero).toContain("Live plan prices");
+    expect(hero).toContain("Install in minutes · 24/7 support");
+    // Search + tune + chips.
+    expect(hero).toContain("<HeroPackageSearch />");
+    expect(hero).toContain("<HeroTuneButton />");
+    expect(hero).toContain("<HeroDestinationChips />");
+    expect(pageSource).toContain('import { HeroTuneButton } from "./HeroTuneButton";');
+    // The wizard is only ever DestinationBrowse's.
+    expect(pageSource).not.toContain("HelpMeChooseWizard");
   });
 });
 

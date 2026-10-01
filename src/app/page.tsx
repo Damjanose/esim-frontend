@@ -20,6 +20,7 @@ import { loadPublicTestimonials } from "@/lib/loadPublicTestimonials";
 import { Testimonials } from "./Testimonials";
 import { landingContent } from "@/content/landing";
 import { HeroPackageSearch } from "./HeroPackageSearch";
+import { HeroTuneButton } from "./HeroTuneButton";
 import { TopDestinationLinks } from "./TopDestinationLinks";
 import { HeroDestinationChips } from "./HeroDestinationChips";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
@@ -94,43 +95,62 @@ export default async function Home() {
 
 function Hero() {
   return (
-    <section className="relative isolate z-20 overflow-hidden bg-brandInk text-white" id="home">
-      <Image
-        alt="Mountain traveler destination at dusk"
-        className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover"
-        fill
-        priority
-        fetchPriority="high"
-        sizes="100vw"
-        src="/images/mountain.webp"
-      />
+    <section className="relative isolate z-20 bg-surface text-onSurface" id="home">
+      {/* Top padding clears the absolute capsule navbar: 68px below lg, 76px at lg+.
+          Phone sizes are tightened so search stays above the bottom dock on
+          640–667px-tall screens. */}
+      <div className="mx-auto grid max-w-[1180px] gap-5 px-5 pb-10 pt-[80px] md:px-8 md:pt-[88px] sm:gap-6 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start lg:gap-12 lg:pb-16 lg:pt-[112px]">
+        {/* items-start: the search dropdown is in normal flow, so a centered
+            column would jump when it opens. */}
+        <div className="min-w-0 lg:pt-6">
+          <span className="inline-flex items-center gap-2 rounded-full bg-brandBlue/[0.08] px-3 py-1.5 text-xs font-bold text-brandBlue">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brandTeal" />
+            200+ destinations
+          </span>
 
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(6,17,49,0.55)_0%,rgba(6,17,49,0.72)_55%,rgba(6,17,49,0.92)_100%)]" />
+          <h1 className="mt-3 font-display text-[28px] font-black leading-[1.08] tracking-[-0.04em] text-brandInk text-balance sm:mt-4 sm:text-[44px] lg:text-[48px] xl:text-[52px]">
+            A better way to stay
+            <br />
+            <span className="bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal bg-clip-text text-transparent">
+              connected while you travel
+            </span>
+          </h1>
 
-      <div className="mx-auto flex min-h-[640px] max-w-[1180px] flex-col items-center justify-center px-5 pb-16 pt-28 text-center md:px-8">
-        <h1 className="max-w-[720px] font-display text-[38px] font-black leading-[1.08] tracking-[-0.04em] sm:text-[52px] lg:text-[62px]">
-          A better way to stay
-          <br />
-          connected while you travel
-        </h1>
+          <p className="mt-3 max-w-[540px] text-sm leading-6 text-onSurfaceVariant sm:mt-4 sm:text-base sm:leading-7">
+            Premium eSIMs with high-speed data in 200+ countries and regions.
+            Instant activation. No SIM card. No roaming fees.
+          </p>
 
-        <p className="mt-5 max-w-[540px] text-[15px] leading-7 text-white/80 sm:text-base">
-          Premium eSIMs with high-speed data in 200+ countries and regions.
-          Instant activation. No SIM card. No roaming fees.
-        </p>
+          <div className="mt-5 flex w-full max-w-[620px] items-start gap-2.5 sm:mt-6 lg:mt-8">
+            <div className="min-w-0 flex-1">
+              <HeroPackageSearch />
+            </div>
 
-        <div className="mt-8 w-full max-w-[620px]">
-          <HeroPackageSearch />
+            <HeroTuneButton />
+          </div>
+
+          <HeroDestinationChips />
         </div>
 
-        <HeroDestinationChips />
+        {/* Fixed box at every width (aspect ratio below lg, fixed height at lg+),
+            so the LCP image never shifts layout. bg-brandInk shows while it decodes. */}
+        <div className="relative order-first aspect-[21/9] overflow-hidden rounded-[24px] bg-brandInk shadow-brandCard lg:order-none lg:aspect-auto lg:h-[520px]">
+          <Image
+            alt="Mountain traveler destination at dusk"
+            className="object-cover lg:object-[62%_center]"
+            fill
+            priority
+            fetchPriority="high"
+            sizes="(min-width: 1024px) 1214px, (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"
+            src="/images/mountain.webp"
+          />
 
-        <div className="mt-9 flex flex-wrap justify-center gap-3 text-xs font-semibold text-white/85">
-          {["200+ destinations", "Live plan prices", "Install in minutes", "24/7 support"].map((signal) => (
-            <span className="rounded-full border border-white/20 bg-white/10 px-4 py-2" key={signal}>
-              {signal}
-            </span>
-          ))}
+          <div className="absolute bottom-2 left-2 max-w-[calc(100%-16px)] rounded-2xl bg-surface/95 px-3 py-2 sm:bottom-3 sm:left-3 sm:max-w-[calc(100%-24px)] sm:px-4 sm:py-3 shadow-brandCard backdrop-blur-sm lg:bottom-5 lg:left-5">
+            <p className="font-display text-sm font-black text-brandInk">Live plan prices</p>
+            <p className="mt-0.5 text-xs font-semibold text-onSurfaceVariant">
+              Install in minutes · 24/7 support
+            </p>
+          </div>
         </div>
       </div>
     </section>

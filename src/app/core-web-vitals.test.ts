@@ -13,7 +13,15 @@ describe("Core Web Vitals performance contract", () => {
     expect(pageSource).toContain("priority");
     // `priority` alone preloads without a priority hint; LCP needs it high.
     expect(pageSource).toContain('fetchPriority="high"');
-    expect(pageSource).toContain('sizes="100vw"');
+    // The photo is a card now, not full-bleed. sizes is the cover-scaled bitmap
+    // width: below lg the card is aspect-[21/9] (= the 1916x821 file), so the
+    // bitmap equals the card width; at lg+ the card is 520px tall, so 520 * 1916/821 ≈ 1214px.
+    expect(pageSource).toContain(
+      'sizes="(min-width: 1024px) 1214px, (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"',
+    );
+    expect(pageSource).not.toContain('sizes="100vw"');
+    expect(pageSource).toContain("aspect-[21/9]");
+    expect(pageSource).toContain("lg:h-[520px]");
     expect(existsSync(heroWebpPath)).toBe(true);
     expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
   });
