@@ -115,4 +115,14 @@ describe("public navigation shell", () => {
     expect(dock).not.toContain("cookies");
     expect(dock).not.toContain("esim_at");
   });
+
+  it("uses the quiet light footer and clears the phone dock", () => {
+    const footer = readFileSync("src/app/SiteFooter.tsx", "utf8");
+    const css = readFileSync("src/app/globals.css", "utf8");
+
+    expect(footer).toContain("bg-surfaceBright");
+    expect(footer).toContain("grid-cols-2");
+    expect(footer).toContain("sm:grid-cols-3");
+    expect(css).toContain("body:has([data-bottom-dock]) footer[aria-label=\"Footer\"]");
+  });
 });

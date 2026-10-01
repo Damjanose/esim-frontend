@@ -82,3 +82,12 @@ input {
     animation: none;
   }
 }
+
+/* The phone/tablet dock (BottomDock.tsx) floats over the page bottom: give the
+   footer's last row room to scroll clear of it. Only while the dock is mounted,
+   so checkout/sign-in (no dock) keep their normal footer padding. */
+@media (max-width: 1023.98px) {
+  body:has([data-bottom-dock]) footer[aria-label="Footer"] {
+    padding-bottom: 8rem;
+  }
+}

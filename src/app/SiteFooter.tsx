@@ -44,7 +44,7 @@ const footerCompanyLinks = [
 
 export function SiteFooter() {
   return (
-    <footer aria-label="Footer" className="border-t border-outline bg-surface text-onSurface">
+    <footer aria-label="Footer" className="border-t border-outline/60 bg-surfaceBright text-onSurface">
       <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_1.4fr]">
           <div>
@@ -85,7 +85,7 @@ export function SiteFooter() {
               </a>
             </div>
           </div>
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
             <FooterLinkColumn title="Company" links={footerCompanyLinks} />
             <FooterLinkColumn title="Explore" links={footerExploreLinks} />
             <FooterLinkColumn title="Resources" links={footerResourceLinks} />
