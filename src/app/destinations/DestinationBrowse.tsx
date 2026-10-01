@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchPackageGroups,
   fetchPackageOptions,
-  coveredDestinationsForOption,
   normalizeDestinationValue,
   type HeroPackageOption,
   type PackageGroupOptions,
@@ -21,6 +20,7 @@ import {
 } from "@/services/destinationFilters";
 import { destinationBrowseHref } from "@/lib/esim-routes";
 import { useConsent } from "../ConsentManager";
+import { toCountryOptions } from "./browseCountries";
 import type { WizardResult } from "./HelpMeChooseWizard";
 import { onPlanWizardRequest } from "./planWizardOpener";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
@@ -33,14 +33,6 @@ const HelpMeChooseWizard = dynamic(
 /** Minimum time the welcome intro stays on screen before the wizard opens. */
 const WELCOME_MIN_DELAY_MS = 2000;
 const DESTINATIONS_COLLAPSED_COUNT = 20;
-
-type CountryOption = {
-  country: string;
-  countryCode: string;
-  flagUri: string;
-  planCount: number;
-  fromPrice: string;
-};
 
 type RailDef = {
   id: keyof PackageGroupOptions;
@@ -65,10 +57,6 @@ const EMPTY_GROUPS: PackageGroupOptions = {
   regional: [],
 };
 
-function normalizeCountryCode(value: string) {
-  return value.trim().toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
-}
-
 function isUnlimitedPlan(plan: HeroPackageOption) {
   return (
     plan.dataNumericGb >= 999 ||
@@ -83,49 +71,6 @@ function getPlanValueScore(plan: HeroPackageOption) {
     return Math.max(plan.durationDays, 1) / plan.priceNumeric;
   }
   return Math.max(plan.dataNumericGb, 0.1) / plan.priceNumeric;
-}
-
-function toCountryOptions(packages: readonly HeroPackageOption[]): CountryOption[] {
-  const byCode = new Map<string, CountryOption>();
-
-  for (const pkg of packages) {
-    const destinations = [
-      {
-        country: pkg.country,
-        countryCode: pkg.countryCode,
-        flagUri: pkg.flagUri,
-      },
-      ...(!pkg.filters.includes("local")
-        ? coveredDestinationsForOption(pkg).map((destination) => ({
-            country: destination.title,
-            countryCode: destination.slug,
-            flagUri: "",
-          }))
-        : []),
-    ];
-
-    for (const destination of destinations) {
-      const code = normalizeCountryCode(destination.countryCode);
-      if (!code || !destination.country.trim()) continue;
-
-      const existing = byCode.get(code);
-      if (existing) {
-        existing.planCount += 1;
-        if (!existing.flagUri && destination.flagUri) existing.flagUri = destination.flagUri;
-        continue;
-      }
-
-      byCode.set(code, {
-        country: destination.country,
-        countryCode: destination.countryCode,
-        flagUri: destination.flagUri,
-        planCount: 1,
-        fromPrice: pkg.price,
-      });
-    }
-  }
-
-  return Array.from(byCode.values()).sort((a, b) => a.country.localeCompare(b.country));
 }
 
 type DestinationBrowseProps = {
