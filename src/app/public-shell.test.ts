@@ -86,4 +86,19 @@ describe("public navigation shell", () => {
     expect(mobileMenu).toContain("lg:hidden");
     expect(mobileMenu).toContain("Browse eSIM plans");
   });
+
+  it("renders the app-style bottom dock on phones and tablets only", () => {
+    const dock = readFileSync("src/app/components/BottomDock.tsx", "utf8");
+
+    expect(dock).toContain('"use client"');
+    expect(dock).toContain("isDockVisible(pathname)");
+    expect(dock).toContain("activeDockItem(pathname)");
+    expect(dock).toContain("lg:hidden");
+    expect(dock).toContain("data-bottom-dock");
+    expect(dock).toContain("whitespace-nowrap");
+    expect(dock).toContain('aria-current={isActive ? "page" : undefined}');
+    // Static links only: the dock renders on statically generated pages (f022).
+    expect(dock).not.toContain("cookies");
+    expect(dock).not.toContain("esim_at");
+  });
 });
