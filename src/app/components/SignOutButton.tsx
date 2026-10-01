@@ -3,24 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
-import { Button } from "./Button";
 import { SETTINGS_ICON_TILE_CLASSES } from "./SettingsGroup";
 
 /**
- * - "button": the old full-width CTA (until /profile moves to the grouped list).
+ * - "row": a settings row inside a SettingsGroup card (/profile, phones/tablets).
  * - "nav": a sidebar entry, the footer of AccountShell at lg+.
- * - "row": a settings row inside a SettingsGroup card (phones/tablets).
+ * Never a gradient: signing out is not the page's primary action.
  */
-type Appearance = "button" | "nav" | "row";
+type Appearance = "nav" | "row";
 
-const CLASSES: Record<Exclude<Appearance, "button">, string> = {
+const CLASSES: Record<Appearance, string> = {
   nav:
     "flex min-h-11 w-full items-center gap-3 rounded-[12px] px-3 text-left text-sm font-semibold text-onSurfaceVariant transition hover:bg-surfaceBright hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-60",
   row:
     "flex min-h-14 w-full items-center gap-4 px-4 py-3 text-left text-sm font-semibold text-brandInk transition hover:bg-surfaceBright disabled:cursor-not-allowed disabled:opacity-60"
 };
 
-export function SignOutButton({ appearance = "button" }: { appearance?: Appearance }) {
+export function SignOutButton({ appearance = "row" }: { appearance?: Appearance }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
@@ -29,15 +28,6 @@ export function SignOutButton({ appearance = "button" }: { appearance?: Appearan
     await fetch("/bff/auth/signout", { method: "POST" }).catch(() => undefined);
     router.replace("/");
     router.refresh();
-  }
-
-  if (appearance === "button") {
-    return (
-      <Button className="w-full" disabled={busy} onClick={() => void signOut()} type="button">
-        <LogOut size={17} />
-        Sign out
-      </Button>
-    );
   }
 
   return (
