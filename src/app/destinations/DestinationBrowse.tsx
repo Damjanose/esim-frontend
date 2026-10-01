@@ -20,9 +20,12 @@ import {
 } from "@/services/destinationFilters";
 import { destinationBrowseHref } from "@/lib/esim-routes";
 import { useConsent } from "../ConsentManager";
+import { BrowseSkeleton } from "./BrowseSkeleton";
 import { toCountryOptions } from "./browseCountries";
 import type { WizardResult } from "./HelpMeChooseWizard";
+import { PhotoTile } from "./PhotoTile";
 import { onPlanWizardRequest } from "./planWizardOpener";
+import { TileCarousel } from "./TileCarousel";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
 
 const HelpMeChooseWizard = dynamic(
@@ -271,11 +274,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
         </div>
 
         {loading ? (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div className="h-24 animate-pulse rounded-[18px] border border-outline bg-mist" key={i} />
-            ))}
-          </div>
+          <BrowseSkeleton />
         ) : loadError ? (
           <div className="mt-8 flex flex-col items-center gap-3 rounded-[18px] border border-outline bg-mist px-6 py-10 text-center">
             <span className="grid h-11 w-11 place-items-center rounded-full border border-outline bg-white text-onSurfaceVariant">
@@ -300,27 +299,13 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
         ) : (
           <>
             {trendingPackages.length > 0 ? (
-              <div className="mt-8 rounded-[18px] border border-outline bg-mist/55 p-4 sm:p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-error/10 text-error">
-                      <Flame aria-hidden="true" size={16} />
-                    </span>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
-                        Trending now
-                      </p>
-                      <p className="text-sm font-black text-brandInk">
-                        {trendingPackages.length} plan{trendingPackages.length === 1 ? "" : "s"} selected by the team
-                      </p>
-                    </div>
-                  </div>
-
-                  <label className="flex h-10 w-fit items-center gap-2 rounded-full border border-outline bg-white px-3.5">
+              <TileCarousel
+                controls={
+                  <label className="flex h-11 w-fit items-center gap-2 rounded-full border border-outline bg-surface px-4">
                     <ArrowDownUp aria-hidden="true" className="text-brandBlue" size={14} />
-                    <span className="text-[11px] font-bold text-onSurfaceVariant">Sort</span>
+                    <span className="text-xs font-bold text-onSurfaceVariant">Sort</span>
                     <select
-                      className="bg-white text-xs font-black text-brandInk outline-none"
+                      className="bg-surface text-xs font-black text-brandInk outline-none"
                       onChange={(event) => setTrendingSort(event.target.value as TrendingSortOption)}
                       value={trendingSort}
                     >
@@ -330,38 +315,24 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                       <option value="duration">Longest validity</option>
                     </select>
                   </label>
-                </div>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {trendingPackages.map((pkg) => (
-                    <Link
-                      className="group flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 shadow-brandCard transition hover:border-brandBlue/50"
+                }
+                heading={<TrendingHeading count={trendingPackages.length} />}
+                label="Trending now"
+                resetKey={trendingSort}
+              >
+                {trendingPackages.map((pkg) => (
+                  <li className="shrink-0 snap-start" key={pkg.id}>
+                    <PhotoTile
+                      country={pkg.country}
+                      countryCode={pkg.countryCode}
+                      detail={`${pkg.dataLabel} · ${pkg.durationLabel} · from ${pkg.price}`}
+                      flagUri={pkg.flagUri}
                       href={destinationBrowseHref(pkg.countryCode)}
-                      key={pkg.id}
-                    >
-                      {pkg.flagUri ? (
-                        <img
-                          alt={`${pkg.country} flag`}
-                          className="h-10 w-10 shrink-0 rounded-full border border-outline object-cover"
-                          src={pkg.flagUri}
-                        />
-                      ) : (
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                          <Globe2 aria-hidden="true" size={16} />
-                        </span>
-                      )}
-
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-brandInk">{pkg.country}</p>
-                        <p className="truncate text-xs font-semibold text-onSurfaceVariant">
-                          {pkg.dataLabel} · {pkg.durationLabel}
-                        </p>
-                        <p className="text-xs font-black text-brandBlue">from {pkg.price}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                      size="trending"
+                    />
+                  </li>
+                ))}
+              </TileCarousel>
             ) : null}
 
             {RAILS.map((rail) => {
@@ -369,36 +340,24 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
               if (items.length === 0) return null;
 
               return (
-                <div className="mt-8" key={rail.id}>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
-                    {rail.label}
-                  </p>
-                  <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-                    {items.map((pkg) => (
-                      <Link
-                        className="group flex min-w-[160px] shrink-0 items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 shadow-brandCard transition hover:border-brandBlue/50"
+                <TileCarousel
+                  heading={<h3 className="font-display text-title-sm text-brandInk">{rail.label}</h3>}
+                  key={rail.id}
+                  label={rail.label}
+                >
+                  {items.map((pkg) => (
+                    <li className="shrink-0 snap-start" key={pkg.id}>
+                      <PhotoTile
+                        country={pkg.country}
+                        countryCode={pkg.countryCode}
+                        detail={`from ${pkg.price}`}
+                        flagUri={pkg.flagUri}
                         href={destinationBrowseHref(pkg.countryCode)}
-                        key={pkg.id}
-                      >
-                        {pkg.flagUri ? (
-                          <img
-                            alt={`${pkg.country} flag`}
-                            className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-                            src={pkg.flagUri}
-                          />
-                        ) : (
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                            <Globe2 aria-hidden="true" size={16} />
-                          </span>
-                        )}
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-brandInk">{pkg.country}</p>
-                          <p className="text-xs font-bold text-onSurfaceVariant">from {pkg.price}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+                        size="rail"
+                      />
+                    </li>
+                  ))}
+                </TileCarousel>
               );
             })}
 
@@ -490,5 +449,23 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
         />
       ) : null}
     </section>
+  );
+}
+
+
+/** Trending's carousel heading. Exactly h-9 tall, matching BrowseSkeleton's placeholder (no CLS). */
+function TrendingHeading({ count }: { count: number }) {
+  return (
+    <div className="flex h-9 items-center gap-2.5">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-error/10 text-error">
+        <Flame aria-hidden="true" size={16} />
+      </span>
+      <div className="min-w-0">
+        <h3 className="text-label-caps uppercase text-onSurfaceVariant">Trending now</h3>
+        <p className="truncate text-sm font-black leading-5 text-brandInk">
+          {count} plan{count === 1 ? "" : "s"} selected by the team
+        </p>
+      </div>
+    </div>
   );
 }

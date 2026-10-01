@@ -59,9 +59,11 @@ describe("landingContent", () => {
   it("uses descriptive alt text for homepage destination and flag images", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
     const browseSource = readFileSync("src/app/destinations/DestinationBrowse.tsx", "utf8");
+    const photoTileSource = readFileSync("src/app/destinations/PhotoTile.tsx", "utf8");
 
     expect(pageSource).toContain('alt={`${row.country} flag`}');
-    expect(browseSource).toContain('alt={`${pkg.country} flag`}');
+    // Trending and rail flags now render inside PhotoTile.
+    expect(photoTileSource).toContain('alt={`${country} flag`}');
     expect(browseSource).toContain('alt={`${country.country} flag`}');
   });
 
