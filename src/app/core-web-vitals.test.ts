@@ -46,6 +46,20 @@ describe("Core Web Vitals performance contract", () => {
     expect(source).toContain("if (popular === null)");
   });
 
+  it("keeps chip placeholders the same height as the real chips, styled for the light hero", async () => {
+    const source = await readFile(join(process.cwd(), "src/app/HeroDestinationChips.tsx"), "utf8");
+
+    // Placeholder and chip are both h-11 (44px tap target), so swapping one for the other never shifts layout.
+    expect(source).toContain('className="h-11 shrink-0 rounded-full border border-outline/60 bg-surfaceBright"');
+    // Phones: one sideways-scrolling chip row; contain:inline-size stops the
+    // unwrapped row from widening the hero column (horizontal page scroll).
+    expect(source.match(/\[contain:inline-size\] \[scrollbar-width:none\]/g)).toHaveLength(2);
+    expect(source).toMatch(/<Link\s+className="[^"]*\bh-11\b/);
+    // The hero is white now: no white-on-white chips.
+    expect(source).not.toContain("text-white");
+    expect(source).not.toContain("border-white");
+  });
+
   it("serves the footer logo through next/image at its display size", async () => {
     const source = await readFile(join(process.cwd(), "src/app/SiteFooter.tsx"), "utf8");
 

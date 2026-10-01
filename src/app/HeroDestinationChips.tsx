@@ -60,7 +60,7 @@ export function HeroDestinationChips() {
   if (loadError) {
     return (
       <button
-        className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-bold text-white/85 backdrop-blur-md transition hover:border-white/50 hover:bg-white/20"
+        className="mt-6 inline-flex h-11 items-center gap-2 rounded-full border border-outline bg-surface px-4 text-xs font-bold text-onSurfaceVariant transition hover:border-brandBlue/40 hover:text-brandBlue"
         onClick={handleRetry}
         type="button"
       >
@@ -71,13 +71,16 @@ export function HeroDestinationChips() {
   }
 
   if (popular === null) {
-    // Reserve the chips' space while they load: the hero centers its content
-    // vertically, so appearing chips used to push the search box up (CLS).
+    // Reserve the chips' space while they load, so chips arriving after the
+    // client fetch never shift the hero (f192: CLS 0.139 -> 0). The height
+    // must match the real chip (h-11). Below sm the row is one sideways-
+    // scrolling line (the app's chip rail); [contain:inline-size] keeps its
+    // unwrapped width from stretching the hero column.
     return (
-      <div aria-hidden="true" className="mt-6 flex flex-wrap justify-center gap-2.5 lg:justify-start">
+      <div aria-hidden="true" className="-mx-5 mt-6 flex w-[calc(100%+2.5rem)] gap-2.5 overflow-x-auto px-5 pb-1 [contain:inline-size] [scrollbar-width:none] sm:mx-0 sm:w-full sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
         {CHIP_PLACEHOLDER_WIDTHS.map((width, index) => (
           <span
-            className="h-[38px] rounded-full border border-white/15 bg-white/5"
+            className="h-11 shrink-0 rounded-full border border-outline/60 bg-surfaceBright"
             key={index}
             style={{ width }}
           />
@@ -89,21 +92,21 @@ export function HeroDestinationChips() {
   if (popular.length === 0) return null;
 
   return (
-    <div className="mt-6 flex flex-wrap justify-center gap-2.5 lg:justify-start">
+    <div className="-mx-5 mt-6 flex w-[calc(100%+2.5rem)] gap-2.5 overflow-x-auto px-5 pb-1 [contain:inline-size] [scrollbar-width:none] sm:mx-0 sm:w-full sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
       {popular.map((pkg) => (
         <Link
-          className="group flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-bold text-white backdrop-blur-md transition hover:border-white/50 hover:bg-white/20"
+          className="group flex h-11 shrink-0 items-center gap-2 rounded-full border border-outline bg-surface px-3.5 text-xs font-bold text-onSurface transition hover:border-brandBlue/40 hover:text-brandBlue"
           href={destinationBrowseHref(pkg.countryCode)}
           key={pkg.countryCode}
         >
           {pkg.flagUri ? (
             <img
               alt=""
-              className="h-5 w-5 shrink-0 rounded-full border border-white/30 object-cover"
+              className="h-5 w-5 shrink-0 rounded-full border border-outline object-cover"
               src={pkg.flagUri}
             />
           ) : (
-            <Globe2 aria-hidden="true" size={14} />
+            <Globe2 aria-hidden="true" className="text-brandBlue" size={14} />
           )}
           {pkg.country}
         </Link>
