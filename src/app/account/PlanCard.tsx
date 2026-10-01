@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Globe2 } from "lucide-react";
+import { describePackage, formatDate } from "@/lib/accountEsims";
 import type { UsageSummary } from "@/lib/esim-install";
 import type { OrderSummary } from "@/lib/order-groups";
 import type { HeroPackageOption } from "@/services/packages";
@@ -10,39 +11,6 @@ const STATUS_STYLES: Record<string, string> = {
   expired: "border-outline bg-mist text-onSurfaceVariant"
 };
 
-/**
- * Provider package ids (e.g. "szia-in-7days-1gb") name an operator SKU, not the
- * destination — never fit for display. When the catalog lookup misses (a
- * discontinued or rotated package), fall back to whatever duration/data figures
- * can be read out of the id rather than showing the raw slug.
- */
-function detailsFromPackageId(packageId: string): string {
-  const data = packageId.match(/(\d+(?:\.\d+)?)\s*(gb|mb)/i);
-  const days = packageId.match(/(\d+)\s*days?/i);
-  const parts = [
-    data ? `${data[1]}${data[2]!.toUpperCase()}` : null,
-    days ? `${days[1]} ${days[1] === "1" ? "day" : "days"}` : null
-  ].filter(Boolean);
-  return parts.length > 0 ? parts.join(" / ") : "Data plan";
-}
-
-export type PackageDescription = { title: string; details: string; flagUri: string | null };
-
-export function describePackage(
-  packageId: string,
-  catalog: ReadonlyMap<string, HeroPackageOption>
-): PackageDescription {
-  const option = catalog.get(packageId);
-  if (option) {
-    return {
-      title: option.country,
-      details: `${option.dataLabel} · ${option.durationLabel}`,
-      flagUri: option.flagUri || null
-    };
-  }
-  return { title: "eSIM plan", details: detailsFromPackageId(packageId), flagUri: null };
-}
-
 function PlanIcon({ flagUri, label }: { flagUri: string | null; label: string }) {
   return flagUri ? (
     // Plain img: flag URIs come from the catalog CDN, not a domain the
@@ -51,14 +19,6 @@ function PlanIcon({ flagUri, label }: { flagUri: string | null; label: string })
   ) : (
     <Globe2 size={22} />
   );
-}
-
-export function formatDate(value: string | null): string {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 export function UsageBar({ usage }: { usage: UsageSummary }) {
