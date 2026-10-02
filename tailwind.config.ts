@@ -22,6 +22,9 @@ const config: Config = {
         onSurfaceVariant: "#44495E",
         outline: "#C4C7D4",
         brandInk: "#061131",
+        // velocity-eSim marketplace.textMuted / marketplace.tabInactive (BottomTabBar)
+        dockMuted: "#5C6B8A",
+        dockCenterInactive: "#9FB4DA",
         // velocity-eSim lightPalette.surfaceBright: soft page/section tint
         surfaceBright: "#F5F7FA"
       },
@@ -44,9 +47,9 @@ const config: Config = {
         card: "0 20px 60px rgba(0, 31, 38, 0.12)",
         brandGlow: "0 24px 80px rgba(11, 73, 183, 0.16)",
         brandCard: "0 20px 60px rgba(6, 17, 49, 0.08)",
-        // velocity-eSim BottomTabBar capsule + center ring glow
-        dock: "0 8px 24px rgba(6, 17, 49, 0.18)",
-        dockCenter: "0 8px 22px rgba(9, 195, 190, 0.35)"
+        // velocity-eSim BOTTOM_TAB_STYLE: capsule (ink, 0.28, y10 r20) + center ring (teal, 0.42, y5 r10)
+        dock: "0 10px 20px rgba(6, 17, 49, 0.28)",
+        dockCenter: "0 5px 10px rgba(9, 195, 190, 0.42)"
       }
     }
   },

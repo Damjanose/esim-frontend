@@ -52,7 +52,7 @@ export function PhotoTile({ href, country, countryCode, flagUri, detail, size }:
 
   return (
     <Link
-      className={`group relative block overflow-hidden rounded-[16px] bg-gradient-to-br from-brandBlue via-[#0E86C0] to-brandTeal shadow-brandCard focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue ${PHOTO_TILE_BOX[size]}`}
+      className={`group relative block overflow-hidden rounded-[16px] bg-gradient-to-br from-brandBlue via-[#0E86C0] to-brandTeal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue ${PHOTO_TILE_BOX[size]}`}
       href={href}
       ref={tileRef}
     >
