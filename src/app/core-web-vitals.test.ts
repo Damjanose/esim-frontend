@@ -4,26 +4,31 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Core Web Vitals performance contract", () => {
-  it("serves the homepage hero through next/image with a lightweight WebP source", async () => {
+  it("serves the homepage hero as an art-directed <picture> of lightweight WebP crops", async () => {
     const pageSource = await readFile(join(process.cwd(), "src/app/page.tsx"), "utf8");
-    const heroWebpPath = join(process.cwd(), "public/images/mountain.webp");
 
-    expect(pageSource).toContain('import Image from "next/image"');
-    expect(pageSource).toContain('src="/images/mountain.webp"');
-    expect(pageSource).toContain("priority");
-    // `priority` alone preloads without a priority hint; LCP needs it high.
-    expect(pageSource).toContain('fetchPriority="high"');
-    // The photo is a card now, not full-bleed. sizes is the cover-scaled bitmap
-    // width: below lg the card is aspect-[21/9] (= the 1916x821 file), so the
-    // bitmap equals the card width; at lg+ the card is 520px tall, so 520 * 1916/821 ≈ 1214px.
-    expect(pageSource).toContain(
-      'sizes="(min-width: 1024px) 1214px, (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"',
-    );
-    expect(pageSource).not.toContain('sizes="100vw"');
-    expect(pageSource).toContain("aspect-[21/9]");
-    expect(pageSource).toContain("lg:h-[520px]");
-    expect(existsSync(heroWebpPath)).toBe(true);
-    expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
+    // getImageProps + <picture>: the browser downloads only the crop for its
+    // breakpoint (tall below lg, wide from lg), still through the image optimizer.
+    expect(pageSource).toContain('import { getImageProps } from "next/image"');
+    expect(pageSource).toContain("<picture>");
+    expect(pageSource).toContain('<source media="(min-width: 1024px)"');
+    expect(pageSource).toContain('src: "/images/hero-earth-wide.webp"');
+    expect(pageSource).toContain('src: "/images/hero-earth-tall.webp"');
+    // No `priority` (it would preload the tall crop on desktop too); the LCP
+    // <img> is eager with a high fetch priority instead.
+    expect(pageSource).toContain('fetchPriority: "high"');
+    expect(pageSource).toContain('loading: "eager"');
+    expect(pageSource).toContain('sizes="(min-width: 1440px) 1400px, 1280px"');
+    expect(pageSource).toContain("quality: 90,");
+    expect(pageSource).toContain("quality: 80,");
+
+    // High-quality masters: visitors only ever get the optimizer's per-width
+    // re-encodes, never these files, so the cap is on the source, not the wire.
+    for (const file of ["hero-earth-wide.webp", "hero-earth-tall.webp"]) {
+      const path = join(process.cwd(), "public/images", file);
+      expect(existsSync(path)).toBe(true);
+      expect(statSync(path).size).toBeLessThan(1500 * 1024);
+    }
   });
 
   it("does not mark unversioned logo files as immutable year-long cache", async () => {
@@ -54,7 +59,7 @@ describe("Core Web Vitals performance contract", () => {
     expect(source).toContain("if (popular === null)");
   });
 
-  it("keeps chip placeholders the same height as the real chips, styled for the light hero", async () => {
+  it("keeps chip placeholders the same height as the real chips, styled as light pills", async () => {
     const source = await readFile(join(process.cwd(), "src/app/HeroDestinationChips.tsx"), "utf8");
 
     // Placeholder and chip are both h-11 (44px tap target), so swapping one for the other never shifts layout.
@@ -63,7 +68,7 @@ describe("Core Web Vitals performance contract", () => {
     // unwrapped row from widening the hero column (horizontal page scroll).
     expect(source.match(/\[contain:inline-size\] \[scrollbar-width:none\]/g)).toHaveLength(2);
     expect(source).toMatch(/<Link\s+className="[^"]*\bh-11\b/);
-    // The hero is white now: no white-on-white chips.
+    // Chips are solid light pills, legible over the dark photo card too.
     expect(source).not.toContain("text-white");
     expect(source).not.toContain("border-white");
   });

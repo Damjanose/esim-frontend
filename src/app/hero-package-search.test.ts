@@ -23,11 +23,13 @@ describe("HeroPackageSearch", () => {
     const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
     const componentSource = readFileSync(join(process.cwd(), "src/app/HeroPackageSearch.tsx"), "utf8");
 
-    // The light hero keeps its own stacking context (isolate z-20), so the search
+    // The hero keeps its own stacking context (isolate z-20), so the search
     // pill and its in-flow results dropdown (z-[100]/z-[70]) stay above the photo
-    // card and never escape over the navbar or the sections below.
+    // and never escape over the navbar or the sections below.
     expect(pageSource).toContain('className="relative isolate z-20 bg-surface text-onSurface"');
-    expect(pageSource).toContain('src="/images/mountain.webp"');
+    // Only the photo layer clips; the card itself must not, or the in-flow
+    // dropdown would be cut off.
+    expect(pageSource).toContain('className="absolute inset-0 overflow-hidden rounded-[inherit]"');
     expect(componentSource).toContain('className="relative z-[100] w-full max-w-[620px]"');
   });
 
@@ -42,24 +44,23 @@ describe("HeroPackageSearch", () => {
     expect(pageSource).toContain("<DestinationBrowse");
   });
 
-  it("renders the light split hero with every trust signal and the tune button", () => {
+  it("renders the dark photo-card hero with search, tune button, chips and trust signals", () => {
     const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
     const hero = pageSource.slice(
       pageSource.indexOf("function Hero()"),
       pageSource.indexOf("function Benefits()"),
     );
 
-    expect(hero).not.toContain("bg-brandInk text-white");
-    // Eyebrow pill + H1 with the gradient on its second line.
-    expect(hero).toContain("200+ destinations");
-    expect(hero).toContain("A better way to stay");
-    expect(hero).toContain("from-brandBlue via-[#0E86C0] to-brandTeal bg-clip-text text-transparent");
-    expect(hero).toContain("connected while you travel");
-    // Photo card (on top below lg) carrying the remaining trust signals.
-    expect(hero).toContain("rounded-[24px]");
-    expect(hero).toContain("order-first");
-    expect(hero).toContain("Live plan prices");
+    // Eyebrow pill + H1 with the accent on its second line.
+    expect(hero).toContain("200+ destinations · Instant activation");
+    expect(hero).toContain("Land anywhere.");
+    expect(hero).toContain('<span className="text-brandTeal">Already connected.</span>');
+    // Photo card: full-bleed below lg, rounded from lg; NASA credit line.
+    expect(hero).toContain("rounded-b-[28px] bg-brandInk text-white lg:rounded-[32px]");
+    expect(hero).toContain("Photo: NASA");
+    // Trust signals: the eSIM preview card (lg+) and the perk strip.
     expect(hero).toContain("Install in minutes · 24/7 support");
+    expect(pageSource).toContain("const heroPerks = [");
     // Search + tune + chips.
     expect(hero).toContain("<HeroPackageSearch />");
     expect(hero).toContain("<HeroTuneButton />");

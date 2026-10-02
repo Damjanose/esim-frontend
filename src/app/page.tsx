@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
+import { getImageProps } from "next/image";
 
 import { JsonLd } from "./JsonLd";
 import { SiteFooter } from "./SiteFooter";
@@ -92,66 +93,150 @@ export default async function Home() {
   );
 }
 
+const HERO_PHOTO_ALT =
+  "Southern Italy at night with sunrise breaking over the horizon, photographed from the International Space Station";
+
+const heroPerks = [
+  { icon: Zap, title: "Instant activation", body: "Install before you fly" },
+  { icon: ShieldCheck, title: "No roaming fees", body: "Prepaid, no surprise bills" },
+  { icon: Globe2, title: "200+ destinations", body: "Local, regional and global plans" },
+  { icon: Headphones, title: "24/7 support", body: "Real people, in-app chat" }
+];
+
 function Hero() {
+  // Art-directed hero photo (NASA iss065e045974): a tall crop below lg and a
+  // wide crop from lg. <picture> lets the browser download only one of them.
+  // Quality above the default 75, which visibly smears the point-like city
+  // lights: 90 on desktop; 80 on phones, where 3x density hides the difference
+  // and halves the LCP bytes (w=1200: 527 KB at 90, 268 KB at 80).
+  const { props: { srcSet: wideSrcSet } } = getImageProps({
+    alt: HERO_PHOTO_ALT,
+    height: 1390,
+    quality: 90,
+    sizes: "(min-width: 1440px) 1400px, 1280px",
+    src: "/images/hero-earth-wide.webp",
+    width: 2880
+  });
+  const { props: tallImageProps } = getImageProps({
+    alt: HERO_PHOTO_ALT,
+    fetchPriority: "high",
+    height: 1965,
+    loading: "eager",
+    quality: 80,
+    sizes: "100vw",
+    src: "/images/hero-earth-tall.webp",
+    width: 1290
+  });
+
   return (
     <section className="relative isolate z-20 bg-surface text-onSurface" id="home">
-      {/* Top padding clears the absolute capsule navbar: 68px below lg, 76px at lg+.
-          Phone sizes are tightened so search stays above the bottom dock on
-          640–667px-tall screens. */}
-      <div className="mx-auto grid max-w-[1180px] gap-5 px-5 pb-10 pt-[80px] md:px-8 md:pt-[88px] sm:gap-6 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start lg:gap-12 lg:pb-16 lg:pt-[112px]">
-        {/* items-start: the search dropdown is in normal flow, so a centered
-            column would jump when it opens. */}
-        <div className="min-w-0 lg:pt-6">
-          <span className="inline-flex items-center gap-2 rounded-full bg-brandBlue/[0.08] px-3 py-1.5 text-xs font-bold text-brandBlue">
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brandTeal" />
-            200+ destinations
-          </span>
+      <div className="lg:px-4 lg:pt-3">
+        {/* Full-bleed under lg (the capsule navbar floats inside it), a rounded
+            card from lg. No overflow-hidden here: the search dropdown is in
+            normal flow and must never be clipped; only the photo layer clips. */}
+        <div className="relative mx-auto max-w-[1400px] rounded-b-[28px] bg-brandInk text-white lg:rounded-[32px]">
+          <div className="absolute inset-0 overflow-hidden rounded-[inherit]">
+            <picture>
+              <source media="(min-width: 1024px)" sizes="(min-width: 1440px) 1400px, 1280px" srcSet={wideSrcSet} />
+              <img
+                {...tallImageProps}
+                className="h-full w-full object-cover object-top lg:object-center"
+              />
+            </picture>
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,17,49,0.2)_0%,rgba(6,17,49,0.35)_28%,rgba(6,17,49,0.93)_58%)] lg:bg-[linear-gradient(90deg,rgba(6,17,49,0.92)_0%,rgba(6,17,49,0.62)_46%,rgba(6,17,49,0.05)_80%)]"
+            />
+          </div>
 
-          <h1 className="mt-3 font-display text-[28px] font-black leading-[1.08] tracking-[-0.04em] text-brandInk text-balance sm:mt-4 sm:text-[44px] lg:text-[48px] xl:text-[52px]">
-            A better way to stay
-            <br />
-            <span className="bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal bg-clip-text text-transparent">
-              connected while you travel
-            </span>
-          </h1>
+          {/* Phone top padding leaves the photo's lit coastline visible above
+              the copy while keeping search above the bottom dock on
+              640–667px-tall screens. items-end: the eSIM card sits low. */}
+          <div className="relative mx-auto grid max-w-[1240px] gap-10 px-5 pb-8 pt-[184px] sm:pt-[240px] md:px-8 md:pt-[300px] lg:grid-cols-[minmax(0,1fr)_300px] lg:items-end lg:px-12 lg:pb-14 lg:pt-[148px]">
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brandTeal/45 bg-brandTeal/15 px-3 py-1.5 text-xs font-bold text-[#CFFAF8]">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brandTeal" />
+                200+ destinations · Instant activation
+              </span>
 
-          <p className="mt-3 max-w-[540px] text-sm leading-6 text-onSurfaceVariant sm:mt-4 sm:text-base sm:leading-7">
-            Premium eSIMs with high-speed data in 200+ countries and regions.
-            Instant activation. No SIM card. No roaming fees.
-          </p>
+              <h1 className="mt-3 font-display text-[30px] font-black leading-[1.02] tracking-[-0.045em] text-white text-balance sm:mt-4 sm:text-[48px] lg:text-[64px] xl:text-[72px]">
+                Land anywhere.
+                <br />
+                <span className="text-brandTeal">Already connected.</span>
+              </h1>
 
-          <div className="mt-5 flex w-full max-w-[620px] items-start gap-2.5 sm:mt-6 lg:mt-8">
-            <div className="min-w-0 flex-1">
-              <HeroPackageSearch />
+              <p className="mt-3 max-w-[520px] text-sm leading-6 text-white/80 sm:mt-4 sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
+                Premium eSIMs with high-speed data in 200+ countries and regions.
+                No SIM card. No roaming fees.
+              </p>
+
+              <div className="mt-5 flex w-full max-w-[620px] items-start gap-2.5 text-onSurface sm:mt-6 lg:mt-8">
+                <div className="min-w-0 flex-1">
+                  <HeroPackageSearch />
+                </div>
+
+                <HeroTuneButton />
+              </div>
+
+              <HeroDestinationChips />
             </div>
 
-            <HeroTuneButton />
+            <aside
+              aria-label="eSIM preview"
+              className="hidden flex-col gap-4 rounded-[24px] bg-surface/95 p-5 text-onSurface shadow-[0_24px_60px_rgba(6,17,49,0.35)] backdrop-blur-sm lg:flex"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-label-caps uppercase text-onSurfaceVariant">Your eSIM</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brandTeal/15 px-2.5 py-1 text-xs font-bold text-[#04625F]">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brandTeal" />
+                  Connected
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3.5">
+                <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-brandInk font-mono text-sm text-white">
+                  IT
+                </span>
+                <div>
+                  <p className="font-display text-[22px] font-black tracking-[-0.02em] text-brandInk">Italy</p>
+                  <p className="text-[13px] text-onSurfaceVariant">Activates when you land</p>
+                </div>
+              </div>
+
+              <div aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-outline/40">
+                <div className="h-full w-[68%] rounded-full bg-brandBlue" />
+              </div>
+
+              <p className="text-[13px] font-semibold text-onSurfaceVariant">
+                Install in minutes · 24/7 support
+              </p>
+            </aside>
           </div>
 
-          <HeroDestinationChips />
-        </div>
-
-        {/* Fixed box at every width (aspect ratio below lg, fixed height at lg+),
-            so the LCP image never shifts layout. bg-brandInk shows while it decodes. */}
-        <div className="relative order-first aspect-[21/9] overflow-hidden rounded-[24px] bg-brandInk shadow-brandCard lg:order-none lg:aspect-auto lg:h-[520px]">
-          <Image
-            alt="Mountain traveler destination at dusk"
-            className="object-cover lg:object-[62%_center]"
-            fill
-            priority
-            fetchPriority="high"
-            sizes="(min-width: 1024px) 1214px, (min-width: 768px) calc(100vw - 64px), calc(100vw - 40px)"
-            src="/images/mountain.webp"
-          />
-
-          <div className="absolute bottom-2 left-2 max-w-[calc(100%-16px)] rounded-2xl bg-surface/95 px-3 py-2 sm:bottom-3 sm:left-3 sm:max-w-[calc(100%-24px)] sm:px-4 sm:py-3 shadow-brandCard backdrop-blur-sm lg:bottom-5 lg:left-5">
-            <p className="font-display text-sm font-black text-brandInk">Live plan prices</p>
-            <p className="mt-0.5 text-xs font-semibold text-onSurfaceVariant">
-              Install in minutes · 24/7 support
-            </p>
-          </div>
+          {/* NASA imagery is public domain; NASA asks for a credit line. */}
+          <p className="absolute bottom-2 right-4 text-[10px] font-medium text-white/55 lg:bottom-3 lg:right-6">
+            Photo: NASA
+          </p>
         </div>
       </div>
+
+      <ul className="mx-auto grid max-w-[1240px] grid-cols-2 gap-x-4 gap-y-5 px-5 py-8 md:px-8 lg:grid-cols-4 lg:px-12">
+        {heroPerks.map((perk) => {
+          const Icon = perk.icon;
+
+          return (
+            <li className="flex items-center gap-3" key={perk.title}>
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brandBlue/[0.08] text-brandBlue lg:h-12 lg:w-12">
+                <Icon aria-hidden="true" size={21} />
+              </span>
+              <div className="min-w-0">
+                <p className="font-display text-sm font-extrabold text-brandInk lg:text-[17px]">{perk.title}</p>
+                <p className="text-xs leading-5 text-onSurfaceVariant lg:text-sm">{perk.body}</p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
@@ -458,7 +543,7 @@ function AppDownload() {
           className="relative z-10 h-auto max-h-[300px] w-full max-w-[420px] object-contain object-bottom"
           height={800}
           sizes="(min-width: 1024px) 420px, 100vw"
-          src="/images/app-store.png"
+          src="/images/app-download-phones.png"
           width={1200}
         />
       </div>
