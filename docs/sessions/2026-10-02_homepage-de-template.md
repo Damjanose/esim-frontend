@@ -25,3 +25,10 @@ The primary button gradient in `components/buttonClasses.ts` is site-wide and mi
 
 ## Verification
 `tsc` clean and vitest 755/755. The old chip tests were deleted and the homepage tests rewritten to guard against eyebrows, gradient text, the bento and a gradient CTA coming back. Full-page screenshots at 1440 and 390 were checked before and after.
+
+## Follow-up: phone view of How it works, testimonials, footer
+- **How it works:** the square screenshot is cropped to its phones with an `aspect-[17/12]` box and `object-cover`. On phones the steps are left-aligned numbered rows. Height went from ~930px to ~700px.
+- **Testimonials:** added `scroll-px-5` so the first card lines up with the page gutter (snap ignored the padding), and the cards are tighter.
+- **Footer:** one brand sentence instead of two filler paragraphs, sentence-case group headings, and on phones the links wrap inline instead of sitting in narrow two-column stacks. The "destination coverage" filler line was dropped. Height went from ~1230px to ~940px.
+- Removed the "Photo: NASA" credit from the hero at the owner's request.
+- 755/755 tests; screenshots at 390px checked.

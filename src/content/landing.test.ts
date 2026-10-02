@@ -103,9 +103,9 @@ describe("landingContent", () => {
     expect(footerSource).toContain('<FooterLinkColumn title="Resources" links={footerResourceLinks} />');
     expect(footerSource).not.toContain("function FooterResourceLinks");
     expect(footerSource).not.toContain("rounded-lg border border-white/10 bg-white/5");
-    expect(footerSource).toContain("eSim2you travel data guides");
+    // One brand sentence; the two filler lines were dropped to shorten the phone footer.
     expect(footerSource).toContain("eSim2you helps travelers");
-    expect(footerSource).toContain("eSim2you destination coverage");
+    expect(footerSource).not.toContain("eSim2you travel data guides");
   });
 
   it("uses app logo assets for favicon, header, and footer branding", () => {

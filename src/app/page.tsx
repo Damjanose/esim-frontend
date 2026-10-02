@@ -141,10 +141,6 @@ function Hero() {
 
           </div>
 
-          {/* NASA imagery is public domain; NASA asks for a credit line. */}
-          <p className="absolute bottom-2 right-4 text-[10px] font-medium text-white/55 lg:bottom-3 lg:right-6">
-            Photo: NASA
-          </p>
         </div>
       </div>
 
@@ -160,43 +156,46 @@ function Hero() {
 function HowItWorks() {
   return (
     <section
-      className="overflow-hidden bg-surface px-5 py-14 text-onSurface md:px-8 md:py-20"
+      className="overflow-hidden bg-surface px-5 py-10 text-onSurface md:px-8 md:py-20"
       id="how-it-works"
     >
-      <div className="mx-auto max-w-[720px] text-center">
+      <div className="mx-auto max-w-[720px] sm:text-center">
         <h2 className="font-display text-3xl font-black text-brandInk sm:text-4xl">
           How it works
         </h2>
 
-        <p className="mx-auto mt-3 max-w-[480px] text-sm text-onSurfaceVariant">
+        <p className="mt-2 max-w-[480px] text-sm text-onSurfaceVariant sm:mx-auto sm:mt-3">
           No shop, no plastic SIM. It takes about five minutes on your phone.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 flex flex-col items-center gap-10 sm:mt-14 sm:flex-row sm:items-center sm:justify-center sm:gap-0">
+      {/* The square PNG only has phones in its middle band (y 169-910 of
+          1080); a 17:12 box with object-cover crops the empty top and bottom. */}
+      <div className="relative mx-auto mt-6 aspect-[17/12] w-full max-w-[360px] sm:mt-10 sm:max-w-[452px]">
         <Image
           alt="eSim2you app screens: destination list, United Kingdom plans and billing details"
-          className="z-10 h-auto w-[320px] shrink-0 sm:-mr-6 sm:w-[452px]"
-          height={1080}
-          sizes="(min-width: 640px) 452px, 320px"
+          className="object-cover"
+          fill
+          sizes="(min-width: 640px) 452px, 360px"
           src="/images/how-it-works-app-screens.png"
-          width={1080}
         />
       </div>
 
-      <div className="mx-auto mt-8 grid max-w-[720px] gap-8 sm:mt-4 sm:grid-cols-3 sm:gap-10">
+      <ol className="mx-auto mt-6 grid max-w-[720px] gap-5 sm:mt-8 sm:grid-cols-3 sm:gap-10">
         {installationSteps.map((step, index) => (
-          <div className="text-center" key={step.title}>
-            <span className="mb-2 inline-grid h-[22px] w-[22px] place-items-center rounded-full bg-brandBlue text-[11px] font-black text-white">
+          <li className="flex gap-3.5 sm:block sm:text-center" key={step.title}>
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brandBlue text-xs font-black text-white sm:mx-auto sm:mb-2 sm:h-[22px] sm:w-[22px] sm:text-[11px]">
               {index + 1}
             </span>
 
-            <h3 className="font-display text-sm font-black text-brandInk">{step.title}</h3>
+            <div className="min-w-0">
+              <h3 className="font-display text-base font-black text-brandInk sm:text-sm">{step.title}</h3>
 
-            <p className="mt-1 text-[12.5px] leading-[1.4] text-onSurfaceVariant">{step.description}</p>
-          </div>
+              <p className="mt-0.5 text-sm leading-5 text-onSurfaceVariant sm:mt-1 sm:text-[12.5px] sm:leading-[1.4]">{step.description}</p>
+            </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   );
 }

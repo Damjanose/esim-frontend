@@ -136,8 +136,9 @@ describe("public navigation shell", () => {
     const css = readFileSync("src/app/globals.css", "utf8");
 
     expect(footer).toContain("bg-surfaceBright");
-    expect(footer).toContain("grid-cols-2");
+    // Phones: stacked groups with wrapping inline links; sm+: three columns.
     expect(footer).toContain("sm:grid-cols-3");
+    expect(footer).toContain("flex flex-wrap gap-x-4 gap-y-2 sm:mt-4 sm:grid sm:gap-3");
     expect(css).toContain("body:has([data-bottom-dock]) footer[aria-label=\"Footer\"]");
   });
 });

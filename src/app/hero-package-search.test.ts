@@ -82,9 +82,9 @@ describe("HeroPackageSearch", () => {
     expect(hero).not.toContain("text-brandTeal");
     expect(hero).not.toContain("eSIM preview");
     expect(pageSource).not.toContain("HeroDestinationChips");
-    // Photo card: full-bleed below lg, rounded from lg; NASA credit line.
+    // Photo card: full-bleed below lg, rounded from lg; no on-photo credit line.
     expect(hero).toContain("rounded-b-[28px] bg-brandInk text-white lg:rounded-[32px]");
-    expect(hero).toContain("Photo: NASA");
+    expect(hero).not.toContain("Photo: NASA");
     // Perks are a plain text line, not icon tiles.
     expect(pageSource).toContain("const heroPerks = [");
     expect(hero).toContain("<li key={perk}>{perk}</li>");

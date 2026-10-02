@@ -6,7 +6,7 @@ export function Testimonials({ items }: { items: PublicTestimonial[] }) {
   const featured = items.length === 1;
 
   return (
-    <section className="relative overflow-hidden bg-surface px-5 py-16 text-onSurface md:px-8 md:py-24" id="testimonials">
+    <section className="relative overflow-hidden bg-surface px-5 py-10 text-onSurface md:px-8 md:py-24" id="testimonials">
       <div className="relative mx-auto max-w-[1120px]">
         <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk [text-wrap:balance] sm:text-4xl">
           What travelers say
@@ -17,9 +17,9 @@ export function Testimonials({ items }: { items: PublicTestimonial[] }) {
         ) : (
           // Phones: sideways scroll-snap carousel. min-w-0 + contain:inline-size keep the
           // unwrapped row from widening the page (no horizontal page scroll at 320px).
-          <div className="mt-10 min-w-0 [contain:inline-size] lg:[contain:none]">
+          <div className="mt-6 min-w-0 [contain:inline-size] md:mt-10 lg:[contain:none]">
             <div
-              className={`relative -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] md:-mx-8 md:px-8 lg:mx-0 lg:grid lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0 ${items.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}
+              className={`relative -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-4 md:scroll-px-8 [scrollbar-width:none] md:-mx-8 md:px-8 lg:mx-0 lg:grid lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0 ${items.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}
             >
               {items.map((item) => (
                 <QuoteCard item={item} key={`${item.displayName}-${item.createdAt}`} />
@@ -46,10 +46,10 @@ function FeaturedQuote({ item }: { item: PublicTestimonial }) {
 
 function QuoteCard({ item }: { item: PublicTestimonial }) {
   return (
-    <figure className="relative flex w-[84%] max-w-[360px] shrink-0 snap-start flex-col rounded-[20px] border border-outline/70 bg-surface p-6 sm:w-[70%] lg:w-auto lg:max-w-none">
+    <figure className="relative flex w-[82%] max-w-[340px] shrink-0 snap-start flex-col rounded-[18px] border border-outline/70 bg-surface p-5 sm:w-[70%] lg:w-auto lg:max-w-none lg:p-6">
       <Stars rating={item.rating} size={14} />
-      <blockquote className="mt-4 flex-1 text-[15px] leading-7 text-onSurface">{item.body}</blockquote>
-      <figcaption className="mt-6">
+      <blockquote className="mt-3 flex-1 text-[15px] leading-6 text-onSurface lg:mt-4 lg:leading-7">{item.body}</blockquote>
+      <figcaption className="mt-5 lg:mt-6">
         <Author item={item} />
       </figcaption>
     </figure>
