@@ -68,7 +68,7 @@
     },
     {
       "symptom": "Apple sign-in button renders on /signin but fails immediately with invalid_client",
-      "root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (…apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity",
+      "root_cause": "NEXT_PUBLIC_APPLE_SERVICES_ID held a Google iOS OAuth client id (\u2026apps.googleusercontent.com, copied from GoogleService-Info.plist) instead of an Apple Services ID; the render guard only checks non-empty, not validity",
       "fix": "set NEXT_PUBLIC_APPLE_SERVICES_ID=com.uplisoft.velocityesim.web in .env.local and .env.production; also required creating the Services ID in Apple Developer portal (cannot be done from code) and adding APPLE_BUNDLE_ID/APPLE_SERVICES_ID to the backend .env",
       "facts": [
         "f012",
@@ -77,9 +77,9 @@
       "source": "docs/sessions/2026-08-13_apple_services_id_wiring.md"
     },
     {
-      "symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' — works fine on localhost",
+      "symptom": "Google sign-in fails ONLY in production with a generic 'Access blocked: Authorisation error... doesn't comply with Google's OAuth 2.0 policy' \u2014 works fine on localhost",
       "root_cause": "that message is Google's generic body text for redirect_uri_mismatch; https://esim.uplisoft.com was missing from the OAuth client's Authorized JavaScript origins. Worked locally because Google ignores the port for localhost origins (masked that localhost:3000 wasn't registered either)",
-      "fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console — NO code change",
+      "fix": "added https://esim.uplisoft.com to Authorized JavaScript origins in Google Cloud Console \u2014 NO code change",
       "facts": [
         "f014"
       ],
@@ -104,7 +104,7 @@
     {
       "symptom": "A local .env.local change 'works on my machine' but has no effect after deploying with update.sh",
       "root_cause": ".env.local is gitignored and never exists on the server; update.sh deploys via git pull then builds, so only committed env files (.env.production) reach prod",
-      "fix": "n/a — this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod",
+      "fix": "n/a \u2014 this is a standing operational trap, not a one-time bug; always mirror NEXT_PUBLIC_* additions into .env.production (and .env.example) if they must reach prod",
       "facts": [
         "f029"
       ],
@@ -184,7 +184,7 @@
       "source": "src/app/SiteFooter.tsx"
     },
     {
-      "symptom": "Admin edits a package's 'Minimum profit (cents)' or 'Affiliate commission %' in /xpartnersy, saves successfully, and nothing changes — the preview table doesn't react and real checkout gating is unaffected.",
+      "symptom": "Admin edits a package's 'Minimum profit (cents)' or 'Affiliate commission %' in /xpartnersy, saves successfully, and nothing changes \u2014 the preview table doesn't react and real checkout gating is unaffected.",
       "cause": "Both inputs were vestigial after the move to global PartnerProgramSettings: the backend never read the persisted per-package values for gating, and draftPreview computed safeFloor from companyFloorCentsDraft (the global program setting) rather than the per-package field beside it.",
       "fix": "Removed both inputs, their AffiliateDraft/AffiliateConfig fields, and their PUT payload entries; added a note that floor/max come from program settings. Backend stopped accepting them too.",
       "facts": [
@@ -335,7 +335,7 @@
       "source": "next.config.mjs, src/app/page.tsx"
     }
   ],
-  "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
+  "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app \u2014 several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
   "facts": [
     "f009",
     "f003",
