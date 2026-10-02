@@ -1,12 +1,4 @@
-import {
-  ArrowRight,
-  Check,
-  CircleHelp,
-  Globe2,
-  Headphones,
-  ShieldCheck,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { getImageProps } from "next/image";
@@ -23,44 +15,20 @@ import { landingContent } from "@/content/landing";
 import { HeroPackageSearch } from "./HeroPackageSearch";
 import { HeroTuneButton } from "./HeroTuneButton";
 import { TopDestinationLinks } from "./TopDestinationLinks";
-import { HeroDestinationChips } from "./HeroDestinationChips";
 import { DestinationBrowse } from "./destinations/DestinationBrowse";
-
-const benefits = [
-  {
-    icon: Zap,
-    title: "Instant Activation",
-    description: "Get connected in under one minute with a QR code."
-  },
-  {
-    icon: Globe2,
-    title: "Global Coverage",
-    description: "200+ countries and regions with reliable local networks."
-  },
-  {
-    icon: ShieldCheck,
-    title: "Transparent Pricing",
-    description: "No hidden fees. What you see is exactly what you pay."
-  },
-  {
-    icon: Headphones,
-    title: "24/7 Support",
-    description: "Our support team is available whenever you need help."
-  }
-];
 
 const installationSteps = [
   {
-    title: "Choose your plan",
-    description: "Pick your destination and the data plan that fits your trip — real, live prices, no surprises."
+    title: "Pick where you're going",
+    description: "Choose a plan by how much data you need and how long you're away."
   },
   {
-    title: "Scan & install",
-    description: "Scan the QR code from your order. Installs itself in seconds."
+    title: "Install it before you go",
+    description: "Scan the QR code from your order email while you're still on home Wi-Fi."
   },
   {
-    title: "Connect & go",
-    description: "Track data and manage every eSIM from one dashboard."
+    title: "Turn it on when you land",
+    description: "Switch data to the eSIM and you're online. Check usage or top up from the app."
   }
 ];
 
@@ -82,7 +50,6 @@ export default async function Home() {
       <Hero />
       <DestinationBrowse urlFilters={{}} />
       <TopDestinationLinks />
-      <Benefits />
       <HowItWorks />
       <Testimonials items={testimonials} />
       <TrustAndFaq />
@@ -97,10 +64,9 @@ const HERO_PHOTO_ALT =
   "Southern Italy at night with sunrise breaking over the horizon, photographed from the International Space Station";
 
 const heroPerks = [
-  { icon: Zap, title: "Instant activation", body: "Install before you fly" },
-  { icon: ShieldCheck, title: "No roaming fees", body: "Prepaid, no surprise bills" },
-  { icon: Globe2, title: "200+ destinations", body: "Local, regional and global plans" },
-  { icon: Headphones, title: "24/7 support", body: "Real people, in-app chat" }
+  "Prepaid, so no roaming bill later",
+  "Keep your number for calls and WhatsApp",
+  "Real people on chat, any time"
 ];
 
 function Hero() {
@@ -153,22 +119,15 @@ function Hero() {
           {/* Phone top padding leaves the photo's lit coastline visible above
               the copy while keeping search above the bottom dock on
               640–667px-tall screens. items-end: the eSIM card sits low. */}
-          <div className="relative mx-auto grid max-w-[1240px] gap-10 px-5 pb-8 pt-[184px] sm:pt-[240px] md:px-8 md:pt-[300px] lg:grid-cols-[minmax(0,1fr)_300px] lg:items-end lg:px-12 lg:pb-14 lg:pt-[148px]">
-            <div className="min-w-0">
-              <span className="inline-flex items-center gap-2 rounded-full border border-brandTeal/45 bg-brandTeal/15 px-3 py-1.5 text-xs font-bold text-[#CFFAF8]">
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brandTeal" />
-                200+ destinations · Instant activation
-              </span>
-
-              <h1 className="mt-3 font-display text-[30px] font-black leading-[1.02] tracking-[-0.045em] text-white text-balance sm:mt-4 sm:text-[48px] lg:text-[64px] xl:text-[72px]">
-                Land anywhere.
-                <br />
-                <span className="text-brandTeal">Already connected.</span>
+          <div className="relative mx-auto grid max-w-[1240px] gap-10 px-5 pb-8 pt-[184px] sm:pt-[240px] md:px-8 md:pt-[300px] lg:px-12 lg:pb-14 lg:pt-[148px]">
+            <div className="min-w-0 max-w-[760px]">
+              <h1 className="font-display text-[30px] font-black leading-[1.05] tracking-[-0.04em] text-white text-balance sm:text-[48px] lg:text-[60px] xl:text-[68px]">
+                Your phone works the minute you land.
               </h1>
 
               <p className="mt-3 max-w-[520px] text-sm leading-6 text-white/80 sm:mt-4 sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
-                Premium eSIMs with high-speed data in 200+ countries and regions.
-                No SIM card. No roaming fees.
+                Data plans for 200+ countries. Install the eSIM before you go
+                and skip the roaming bill.
               </p>
 
               <div className="mt-5 flex w-full max-w-[620px] items-start gap-2.5 text-onSurface sm:mt-6 lg:mt-8">
@@ -178,40 +137,8 @@ function Hero() {
 
                 <HeroTuneButton />
               </div>
-
-              <HeroDestinationChips />
             </div>
 
-            <aside
-              aria-label="eSIM preview"
-              className="hidden flex-col gap-4 rounded-[24px] bg-surface/95 p-5 text-onSurface shadow-[0_24px_60px_rgba(6,17,49,0.35)] backdrop-blur-sm lg:flex"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-label-caps uppercase text-onSurfaceVariant">Your eSIM</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-brandTeal/15 px-2.5 py-1 text-xs font-bold text-[#04625F]">
-                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brandTeal" />
-                  Connected
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3.5">
-                <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-brandInk font-mono text-sm text-white">
-                  IT
-                </span>
-                <div>
-                  <p className="font-display text-[22px] font-black tracking-[-0.02em] text-brandInk">Italy</p>
-                  <p className="text-[13px] text-onSurfaceVariant">Activates when you land</p>
-                </div>
-              </div>
-
-              <div aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-outline/40">
-                <div className="h-full w-[68%] rounded-full bg-brandBlue" />
-              </div>
-
-              <p className="text-[13px] font-semibold text-onSurfaceVariant">
-                Install in minutes · 24/7 support
-              </p>
-            </aside>
           </div>
 
           {/* NASA imagery is public domain; NASA asks for a credit line. */}
@@ -221,99 +148,14 @@ function Hero() {
         </div>
       </div>
 
-      <ul className="mx-auto grid max-w-[1240px] grid-cols-2 gap-x-4 gap-y-5 px-5 py-8 md:px-8 lg:grid-cols-4 lg:px-12">
-        {heroPerks.map((perk) => {
-          const Icon = perk.icon;
-
-          return (
-            <li className="flex items-center gap-3" key={perk.title}>
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brandBlue/[0.08] text-brandBlue lg:h-12 lg:w-12">
-                <Icon aria-hidden="true" size={21} />
-              </span>
-              <div className="min-w-0">
-                <p className="font-display text-sm font-extrabold text-brandInk lg:text-[17px]">{perk.title}</p>
-                <p className="text-xs leading-5 text-onSurfaceVariant lg:text-sm">{perk.body}</p>
-              </div>
-            </li>
-          );
-        })}
+      <ul className="mx-auto flex max-w-[1240px] flex-wrap gap-x-8 gap-y-2 px-5 py-6 text-sm text-onSurfaceVariant md:px-8 lg:px-12">
+        {heroPerks.map((perk) => (
+          <li key={perk}>{perk}</li>
+        ))}
       </ul>
     </section>
   );
 }
-
-function Benefits() {
-  return (
-    <section
-      className="bg-surface px-5 py-10 text-onSurface md:px-8"
-      id="benefits"
-    >
-      <div className="mx-auto max-w-[1280px]">
-        <p className="mb-5 text-center text-label-caps uppercase text-brandBlue">
-          Why travelers choose eSim2you
-        </p>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[repeat(2,minmax(140px,auto))]">
-          {benefits.map((benefit, index) => {
-            const Icon = benefit.icon;
-            const style = BENEFIT_TILES[index];
-
-            return (
-              <article
-                className={`flex flex-col justify-end gap-4 rounded-[20px] p-5 ${style.tile}`}
-                key={benefit.title}
-              >
-                <span
-                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${style.icon}`}
-                >
-                  <Icon aria-hidden="true" size={24} />
-                </span>
-
-                <div>
-                  <h3 className={`font-display font-black ${style.title}`}>
-                    {benefit.title}
-                  </h3>
-
-                  <p className={`mt-1 text-sm leading-5 ${style.body}`}>
-                    {benefit.description}
-                  </p>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/** Bento tile styling per benefit index: gradient hero tile, two tinted tiles, one ink strip. */
-const BENEFIT_TILES = [
-  {
-    tile: "bg-gradient-to-br from-brandBlue via-[#0E86C0] to-brandTeal text-white sm:col-span-2 lg:row-span-2 lg:p-8",
-    icon: "bg-white/20 text-white",
-    title: "text-white text-xl lg:text-3xl",
-    body: "text-white lg:text-base lg:leading-7",
-  },
-  {
-    tile: "border border-outline/70 bg-surfaceBright",
-    icon: "bg-white text-brandBlue",
-    title: "text-brandInk text-base",
-    body: "text-onSurfaceVariant",
-  },
-  {
-    tile: "border border-outline/70 bg-surfaceBright",
-    icon: "bg-white text-brandBlue",
-    title: "text-brandInk text-base",
-    body: "text-onSurfaceVariant",
-  },
-  {
-    tile: "bg-brandInk text-white sm:col-span-2 lg:col-span-2",
-    icon: "bg-white/10 text-brandTeal",
-    title: "text-white text-base",
-    body: "text-white/80",
-  },
-] as const;
 
 function HowItWorks() {
   return (
@@ -322,16 +164,12 @@ function HowItWorks() {
       id="how-it-works"
     >
       <div className="mx-auto max-w-[720px] text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
+        <h2 className="font-display text-3xl font-black text-brandInk sm:text-4xl">
           How it works
-        </p>
-
-        <h2 className="mt-2 font-display text-3xl font-black text-brandInk sm:text-4xl">
-          Set up your eSIM in minutes
         </h2>
 
         <p className="mx-auto mt-3 max-w-[480px] text-sm text-onSurfaceVariant">
-          No store visit, no physical SIM. Everything happens on your phone before you land.
+          No shop, no plastic SIM. It takes about five minutes on your phone.
         </p>
       </div>
 
@@ -367,39 +205,18 @@ function TrustAndFaq() {
   return (
     <section className="bg-surface px-5 py-10 text-onSurface md:px-8 md:py-14" id="faq">
       <div className="mx-auto max-w-[1280px]">
-        <div className="text-center">
-          <p className="text-label-caps uppercase text-brandBlue">Plan with confidence</p>
-
-          <h2 className="mt-2 font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
-            Clear plans. Straightforward setup.
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-center font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
+            Questions people ask
           </h2>
-        </div>
-
-        <div className="mt-7 grid gap-4 md:grid-cols-3">
-          {[
-            ["Live availability", "Compare current data, validity, network, and price on each destination page."],
-            ["Ready before arrival", "Install on Wi-Fi before departure and enable travel data when you land."],
-            ["Help when needed", "Use the support center for setup, data, top-up, and refund questions."]
-          ].map(([title, description]) => (
-            <article className="rounded-[20px] border border-outline/70 bg-surfaceBright p-5 sm:p-6" key={title}>
-              <h3 className="font-display text-lg font-black text-brandInk">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">{description}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mx-auto mt-10 max-w-3xl">
-          <p className="text-center text-label-caps uppercase text-brandBlue">
-            Quick answers before you travel
-          </p>
           <div className="mt-5 space-y-3">
             {landingContent.faqs.map((faq) => (
               <details className="group rounded-[16px] border border-outline/70 bg-surface px-5 py-2" key={faq.question}>
                 <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-2 font-display font-black text-brandInk">
                   {faq.question}
-                  <CircleHelp
+                  <Plus
                     aria-hidden="true"
-                    className="shrink-0 text-brandBlue motion-safe:transition group-open:rotate-45"
+                    className="shrink-0 text-onSurfaceVariant motion-safe:transition group-open:rotate-45"
                     size={20}
                   />
                 </summary>
@@ -432,41 +249,14 @@ function AppDownload() {
       id="download-app"
     >
       <div className="relative z-20">
-        <p className="text-label-caps uppercase text-brandBlue">eSim2you in your pocket</p>
-
-        <h2 className="mt-3 font-display text-3xl font-black leading-[1.08] tracking-[-0.04em] text-brandInk sm:text-4xl">
-          Download the App.
-          <br />
-
-          <span className="bg-gradient-to-r from-brandBlue to-brandTeal bg-clip-text text-transparent">
-            Stay Connected Anywhere.
-          </span>
+        <h2 className="font-display text-3xl font-black leading-[1.08] tracking-[-0.04em] text-brandInk sm:text-4xl">
+          Get the app
         </h2>
 
         <p className="mt-4 max-w-[520px] text-sm leading-7 text-onSurfaceVariant sm:text-base">
-          Purchase, install and manage your eSIM directly from your
-          phone. Track your data usage and top up wherever your journey
-          takes you.
+          Buy and install your eSIM on your phone, see how much data is left,
+          and top up in a couple of taps when you&apos;re running low.
         </p>
-
-        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3">
-          {[
-            "Instant eSIM activation",
-            "Real-time data tracking",
-            "Secure in-app purchases"
-          ].map((feature) => (
-            <div
-              className="flex items-center gap-2 text-xs font-semibold text-onSurfaceVariant"
-              key={feature}
-            >
-              <span className="grid h-5 w-5 place-items-center rounded-full border border-brandBlue/40 bg-brandBlue/10 text-brandBlue">
-                <Check aria-hidden="true" size={11} strokeWidth={2.5} />
-              </span>
-
-              {feature}
-            </div>
-          ))}
-        </div>
 
         {/* Store buttons: the accessible name starts with the visible text (label-in-name). */}
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -555,23 +345,21 @@ function AppDownload() {
 function PartnerPromo() {
   return (
     <section
-      className="flex min-w-0 flex-col justify-between gap-8 rounded-[24px] border border-outline/70 bg-surface p-6 shadow-brandCard sm:p-8"
+      className="flex min-w-0 flex-col gap-6 self-start rounded-[24px] border border-outline/70 bg-surface p-6 sm:p-8"
       id="partner-with-us"
     >
       <div>
-        <p className="text-label-caps uppercase text-brandBlue">eSim2you partner program</p>
-
-        <h2 className="mt-3 font-display text-2xl font-black leading-[1.1] tracking-[-0.03em] text-brandInk sm:text-3xl">
-          Earn commission referring travelers to eSim2you
+        <h2 className="font-display text-2xl font-black leading-[1.1] tracking-[-0.03em] text-brandInk sm:text-3xl">
+          Send travelers our way, earn on every booking
         </h2>
 
         <p className="mt-4 text-sm leading-6 text-onSurfaceVariant sm:text-base">
-          Hotels, travel agencies, creators, and drivers can get a personal promo code and
-          earn commission on every booking it brings in. Apply in a couple of minutes.
+          Run a hotel, travel agency or travel channel, or drive tourists around?
+          Get your own promo code and a cut of every eSIM it sells.
         </p>
       </div>
 
-      <LinkButton className="w-full sm:w-auto sm:self-start sm:px-7" href="/partners/request">
+      <LinkButton className="w-full sm:w-auto sm:self-start sm:px-7" href="/partners/request" variant="flat">
         Become a partner
         <ArrowRight aria-hidden="true" size={16} />
       </LinkButton>
@@ -579,26 +367,23 @@ function PartnerPromo() {
   );
 }
 
+
 function Cta() {
   return (
     <section className="bg-surface px-5 pb-16 pt-6 text-onSurface md:px-8 md:pt-10" id="download">
-      <div className="mx-auto flex max-w-[1280px] flex-col justify-center gap-7 rounded-[24px] bg-gradient-to-br from-brandInk via-brandBlue to-[#0E86C0] px-7 py-10 shadow-brandGlow md:flex-row md:items-center md:justify-between md:px-12 md:py-12">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-6 border-t border-outline/60 pt-10 md:flex-row md:items-center md:justify-between md:pt-12">
         <div className="max-w-[560px]">
-          <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-white md:text-[38px] md:leading-[1.08]">
-            Ready to Stay Connected Anywhere?
+          <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk md:text-[38px] md:leading-[1.08]">
+            Going somewhere soon?
           </h2>
 
-          <p className="mt-3 text-sm leading-6 text-white/80 md:text-base">
-            Choose a live travel data plan and get connected before your trip.
+          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant md:text-base">
+            Pick your destination now and you&apos;ll have data before you board.
           </p>
         </div>
 
-        <LinkButton
-          className="w-full ring-2 ring-white/70 md:w-auto md:min-w-[250px]"
-          href="#download-app"
-          size="lg"
-        >
-          Get eSIM Now
+        <LinkButton className="w-full md:w-auto md:min-w-[220px]" href="/destinations" size="lg">
+          Find your eSIM
           <ArrowRight aria-hidden="true" size={20} />
         </LinkButton>
       </div>

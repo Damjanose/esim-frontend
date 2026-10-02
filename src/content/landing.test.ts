@@ -34,12 +34,11 @@ describe("landingContent", () => {
     });
   });
 
-  it("routes the header CTA to the download section and both app CTAs to their store listings", () => {
+  it("points both app store badges at their store listings", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 
-    // Both the hero and bottom CTAs jump to the App Download section (#download-app),
-    // which is where the store badges below actually live.
-    expect(pageSource).toContain('href="#download-app"');
+    // The App Download section the navbar links to still exists.
+    expect(pageSource).toContain('id="download-app"');
     // The store badge hrefs are literal URLs rather than landingContent.appLinks.*.href
     // references, so pin them against the single source of truth here instead —
     // catches drift if either side changes without the other.

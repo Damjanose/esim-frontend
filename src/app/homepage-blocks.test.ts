@@ -16,13 +16,21 @@ function fn(name: string): string {
   return page.slice(start, next === -1 ? undefined : start + 1 + next);
 }
 
-describe("homepage marketing blocks (phase 7, bento)", () => {
-  it("lays Benefits out as a bento: gradient tile, two tinted tiles, one ink strip", () => {
-    const src = fn("Benefits");
-    expect(page).toContain("from-brandBlue via-[#0E86C0] to-brandTeal text-white");
-    expect(page.match(/bg-surfaceBright/g)!.length).toBeGreaterThanOrEqual(2);
-    expect(page).toContain("bg-brandInk text-white");
-    expect(src).toContain("lg:grid-cols-4");
+describe("homepage marketing blocks", () => {
+  it("drops the gradient Benefits bento (the hero perk line already covers it)", () => {
+    expect(page).not.toContain("function Benefits(");
+    expect(page).not.toContain("<Benefits />");
+    expect(page).not.toContain("BENEFIT_TILES");
+  });
+
+  it("uses plain section headings: no tracked-caps eyebrows, gradient text or Title Case slogans", () => {
+    const top = read("src/app/TopDestinationLinks.tsx");
+    for (const source of [page, testimonials, top]) {
+      expect(source).not.toContain("text-label-caps uppercase text-brandBlue");
+      expect(source).not.toMatch(/uppercase tracking-\[0\.2\d?em\] text-brandBlue/);
+      expect(source).not.toContain("bg-clip-text");
+    }
+    expect(page).not.toContain("Stay Connected Anywhere");
   });
 
   it("makes the testimonials a scroll-snap carousel on phones and a grid at lg", () => {
@@ -35,6 +43,9 @@ describe("homepage marketing blocks (phase 7, bento)", () => {
     // Testimonials are not review schema (f191).
     expect(testimonials).not.toContain("Review");
     expect(testimonials).not.toContain("ld+json");
+    // No "5.0 from 3 travelers" average badge or decorative quote glyphs.
+    expect(testimonials).not.toContain("Average from");
+    expect(testimonials).not.toContain("QuoteMark");
   });
 
   it("keeps the FAQ as the native details accordion fed by landingContent.faqs", () => {
@@ -62,15 +73,15 @@ describe("homepage marketing blocks (phase 7, bento)", () => {
     expect(fn("AppDownload")).not.toContain("text-[10px]");
   });
 
-  it("renders the closing CTA as a gradient card with a single primary button", () => {
+  it("renders the closing CTA as a plain row with a single primary button to destinations", () => {
     const src = fn("Cta");
-    expect(src).toContain("bg-gradient-to-br");
+    expect(src).not.toContain("bg-gradient");
     expect(src.match(/<LinkButton/g)).toHaveLength(1);
-    expect(src).not.toContain('variant="flat"');
+    expect(src).toContain('href="/destinations"');
   });
 
   it("uses at most one primary (default variant) button in each of the touched sections", () => {
-    for (const name of ["Benefits", "TrustAndFaq", "AppDownload", "PartnerPromo", "Cta"]) {
+    for (const name of ["TrustAndFaq", "AppDownload", "PartnerPromo", "Cta"]) {
       expect((fn(name).match(/<LinkButton/g) ?? []).length).toBeLessThanOrEqual(1);
     }
   });

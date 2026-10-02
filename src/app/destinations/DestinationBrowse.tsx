@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUp, ChevronDown, ChevronUp, Flame, RefreshCw, Sparkles, WifiOff } from "lucide-react";
+import { ArrowDownUp, ChevronDown, ChevronUp, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -253,8 +253,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
       <div className="relative mx-auto max-w-[1180px]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-label-caps uppercase text-brandBlue">Browse destinations</p>
-            <h2 className="mt-1.5 font-display text-display-lg font-black text-brandInk md:text-[32px] md:leading-[38px]">
+            <h2 className="font-display text-display-lg font-black text-brandInk md:text-[32px] md:leading-[38px]">
               Find your eSIM plan
             </h2>
           </div>
@@ -437,16 +436,11 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
 /** Trending's carousel heading. Exactly h-9 tall, matching BrowseSkeleton's placeholder (no CLS). */
 function TrendingHeading({ count }: { count: number }) {
   return (
-    <div className="flex h-9 items-center gap-2.5">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-error/10 text-error">
-        <Flame aria-hidden="true" size={16} />
+    <div className="flex h-9 min-w-0 items-center gap-2">
+      <h3 className="font-display text-title-sm text-brandInk">Trending now</h3>
+      <span className="truncate text-sm text-onSurfaceVariant">
+        {count} plan{count === 1 ? "" : "s"} picked by the team
       </span>
-      <div className="min-w-0">
-        <h3 className="text-label-caps uppercase text-onSurfaceVariant">Trending now</h3>
-        <p className="truncate text-sm font-black leading-5 text-brandInk">
-          {count} plan{count === 1 ? "" : "s"} selected by the team
-        </p>
-      </div>
     </div>
   );
 }

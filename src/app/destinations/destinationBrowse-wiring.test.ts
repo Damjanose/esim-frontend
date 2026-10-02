@@ -87,7 +87,9 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     // Trending keeps its sort (re-sorting scrolls back to the first tile) and its count line.
     expect(source).toContain("resetKey={trendingSort}");
     expect(source).toContain('<option value="recommended">Recommended</option>');
-    expect(source).toContain("selected by the team");
+    expect(source).toContain("picked by the team");
+    // Plain heading like the other rails: no flame badge, no caps eyebrow.
+    expect(source).not.toContain("Flame");
     for (const label of [
       "Popular destinations",
       "Featured plans",
@@ -157,18 +159,5 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(source).toContain(
       "<DestinationPlans countryCode={countryCode} searchFilters={wizardFilterParams} />",
     );
-  });
-});
-
-describe("HeroDestinationChips error handling", () => {
-  it("shows a retry affordance instead of silently disappearing on a failed fetch", () => {
-    const source = readFileSync(
-      join(process.cwd(), "src/app/HeroDestinationChips.tsx"),
-      "utf8",
-    );
-
-    expect(source).toContain("loadError");
-    expect(source).toContain("try again");
-    expect(source).toContain("handleRetry");
   });
 });

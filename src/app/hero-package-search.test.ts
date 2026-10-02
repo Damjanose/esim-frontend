@@ -70,27 +70,27 @@ describe("HeroPackageSearch", () => {
     expect(pageSource).toContain("<DestinationBrowse");
   });
 
-  it("renders the dark photo-card hero with search, tune button, chips and trust signals", () => {
+  it("renders the dark photo-card hero with search, tune button and a plain perk line", () => {
     const pageSource = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
     const hero = pageSource.slice(
       pageSource.indexOf("function Hero()"),
-      pageSource.indexOf("function Benefits()"),
+      pageSource.indexOf("function HowItWorks()"),
     );
 
-    // Eyebrow pill + H1 with the accent on its second line.
-    expect(hero).toContain("200+ destinations · Instant activation");
-    expect(hero).toContain("Land anywhere.");
-    expect(hero).toContain('<span className="text-brandTeal">Already connected.</span>');
+    // One-colour H1, no eyebrow pill, no fake "Your eSIM" preview card, no chips.
+    expect(hero).toContain("Your phone works the minute you land.");
+    expect(hero).not.toContain("text-brandTeal");
+    expect(hero).not.toContain("eSIM preview");
+    expect(pageSource).not.toContain("HeroDestinationChips");
     // Photo card: full-bleed below lg, rounded from lg; NASA credit line.
     expect(hero).toContain("rounded-b-[28px] bg-brandInk text-white lg:rounded-[32px]");
     expect(hero).toContain("Photo: NASA");
-    // Trust signals: the eSIM preview card (lg+) and the perk strip.
-    expect(hero).toContain("Install in minutes · 24/7 support");
+    // Perks are a plain text line, not icon tiles.
     expect(pageSource).toContain("const heroPerks = [");
-    // Search + tune + chips.
+    expect(hero).toContain("<li key={perk}>{perk}</li>");
+    // Search + tune.
     expect(hero).toContain("<HeroPackageSearch />");
     expect(hero).toContain("<HeroTuneButton />");
-    expect(hero).toContain("<HeroDestinationChips />");
     expect(pageSource).toContain('import { HeroTuneButton } from "./HeroTuneButton";');
     // The wizard is only ever DestinationBrowse's.
     expect(pageSource).not.toContain("HelpMeChooseWizard");

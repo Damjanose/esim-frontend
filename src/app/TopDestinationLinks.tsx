@@ -42,11 +42,8 @@ export async function TopDestinationLinks() {
       id="top-destinations"
     >
       <div className="mx-auto max-w-[1280px]">
-        <p className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-brandBlue">
-          Top eSIM destinations
-        </p>
         <h2
-          className="mt-3 text-center font-display text-3xl font-black tracking-[-0.03em] text-brandInk"
+          className="text-center font-display text-3xl font-black tracking-[-0.03em] text-brandInk"
           id="top-destinations-heading"
         >
           Travel eSIM plans for popular trips
