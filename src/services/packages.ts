@@ -70,7 +70,47 @@ type PackagesResponse = {
 };
 
 const PACKAGE_OPTION_LIMIT = 10;
-const CATALOG_CACHE_TTL_MS = 60_000;
+/**
+ * The catalog is persisted in localStorage after the first load and reused for
+ * 5 days, so repeat visits skip /bff/packages entirely. Displayed prices can be
+ * up to this stale; checkout re-prices server-side, so nothing is charged off it.
+ * Bump CATALOG_CACHE_VERSION when HeroPackageOption's shape changes.
+ */
+const CATALOG_CACHE_TTL_MS = 5 * 24 * 60 * 60 * 1000;
+const CATALOG_CACHE_VERSION = 1;
+const PACKAGE_OPTIONS_STORAGE_KEY = "esim2you:packages";
+const PACKAGE_GROUPS_STORAGE_KEY = "esim2you:package-groups";
+
+type PersistedCatalog<T> = { v: number; expiresAt: number; value: T };
+
+export function readPersistedCatalog<T>(key: string, now = Date.now()): { expiresAt: number; value: T } | null {
+  try {
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedCatalog<T>;
+    if (parsed?.v !== CATALOG_CACHE_VERSION || typeof parsed.expiresAt !== "number" || parsed.expiresAt <= now) {
+      localStorage.removeItem(key);
+      return null;
+    }
+    return { expiresAt: parsed.expiresAt, value: parsed.value };
+  } catch {
+    return null;
+  }
+}
+
+export function writePersistedCatalog<T>(key: string, value: T, now = Date.now()): number {
+  const expiresAt = now + CATALOG_CACHE_TTL_MS;
+  try {
+    if (typeof localStorage !== "undefined") {
+      const entry: PersistedCatalog<T> = { v: CATALOG_CACHE_VERSION, expiresAt, value };
+      localStorage.setItem(key, JSON.stringify(entry));
+    }
+  } catch {
+    // Quota exceeded or storage blocked (private mode): the in-memory cache still works.
+  }
+  return expiresAt;
+}
 
 let packageOptionsCache: { expiresAt: number; value: HeroPackageOption[] } | null = null;
 let packageOptionsRequest: Promise<HeroPackageOption[]> | null = null;
@@ -387,6 +427,11 @@ export async function fetchPackageOptions(): Promise<
   if (packageOptionsCache && packageOptionsCache.expiresAt > Date.now()) {
     return packageOptionsCache.value;
   }
+  const persistedOptions = readPersistedCatalog<HeroPackageOption[]>(PACKAGE_OPTIONS_STORAGE_KEY);
+  if (persistedOptions) {
+    packageOptionsCache = persistedOptions;
+    return persistedOptions.value;
+  }
   if (packageOptionsRequest) return packageOptionsRequest;
 
   packageOptionsRequest = (async () => {
@@ -401,7 +446,7 @@ export async function fetchPackageOptions(): Promise<
 
     const payload = (await response.json()) as PackagesResponse | ApiPackage[];
     const value = mapPackagesPayload(payload);
-    packageOptionsCache = { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, value };
+    packageOptionsCache = { expiresAt: writePersistedCatalog(PACKAGE_OPTIONS_STORAGE_KEY, value), value };
     return value;
   })();
 
@@ -457,6 +502,11 @@ export async function fetchPackageGroups(): Promise<PackageGroupOptions> {
   if (packageGroupsCache && packageGroupsCache.expiresAt > Date.now()) {
     return packageGroupsCache.value;
   }
+  const persistedGroups = readPersistedCatalog<PackageGroupOptions>(PACKAGE_GROUPS_STORAGE_KEY);
+  if (persistedGroups) {
+    packageGroupsCache = persistedGroups;
+    return persistedGroups.value;
+  }
   if (packageGroupsRequest) return packageGroupsRequest;
 
   packageGroupsRequest = (async () => {
@@ -471,7 +521,7 @@ export async function fetchPackageGroups(): Promise<PackageGroupOptions> {
 
     const payload = (await response.json()) as PackageGroupsResponse;
     const value = mapPackageGroupsPayload(payload);
-    packageGroupsCache = { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, value };
+    packageGroupsCache = { expiresAt: writePersistedCatalog(PACKAGE_GROUPS_STORAGE_KEY, value), value };
     return value;
   })();
 

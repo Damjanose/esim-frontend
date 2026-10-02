@@ -1,8 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   mapPackageGroupsPayload,
   mapPackagesPayload,
   planCoversDestination,
+  readPersistedCatalog,
+  writePersistedCatalog,
 } from "./packages";
 
 const apiPackage = {
@@ -150,5 +152,63 @@ describe("mapPackageGroupsPayload", () => {
     if (!planCoversDestination(option, "JP")) {
       throw new Error("Expected regional package to match JP");
     }
+  });
+});
+
+describe("persisted catalog cache", () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  let store: Map<string, string>;
+
+  beforeEach(() => {
+    store = new Map();
+    (globalThis as unknown as { localStorage: unknown }).localStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+      removeItem: (key: string) => {
+        store.delete(key);
+      }
+    };
+  });
+
+  afterEach(() => {
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+  });
+
+  it("returns the stored catalog for 5 days, then drops it", () => {
+    const value = mapPackagesPayload([apiPackage]);
+    const savedAt = 1_000_000;
+    expect(writePersistedCatalog("k", value, savedAt)).toBe(savedAt + 5 * DAY);
+
+    expect(readPersistedCatalog("k", savedAt + 5 * DAY - 1)?.value).toEqual(value);
+    expect(readPersistedCatalog("k", savedAt + 5 * DAY)).toBeNull();
+    expect(store.has("k")).toBe(false);
+  });
+
+  it("ignores entries from another cache version or corrupt JSON", () => {
+    store.set("old", JSON.stringify({ v: 0, expiresAt: Date.now() + DAY, value: [] }));
+    store.set("bad", "{not json");
+
+    expect(readPersistedCatalog("old")).toBeNull();
+    expect(readPersistedCatalog("bad")).toBeNull();
+  });
+
+  it("is a no-op when storage is unavailable or throws", () => {
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+    expect(readPersistedCatalog("k")).toBeNull();
+    expect(() => writePersistedCatalog("k", [])).not.toThrow();
+
+    (globalThis as unknown as { localStorage: unknown }).localStorage = {
+      getItem: () => {
+        throw new Error("blocked");
+      },
+      setItem: () => {
+        throw new Error("QuotaExceededError");
+      },
+      removeItem: () => {}
+    };
+    expect(readPersistedCatalog("k")).toBeNull();
+    expect(() => writePersistedCatalog("k", [])).not.toThrow();
   });
 });
