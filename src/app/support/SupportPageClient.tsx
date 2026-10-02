@@ -31,6 +31,7 @@ import { useMemo, useState, type ComponentType } from "react";
 import { supportEmail } from "@/lib/seo";
 import { Navbar } from "../components/Navbar";
 import { Button, LinkButton } from "../components/Button";
+import { resolveButtonClasses } from "../components/buttonClasses";
 import {
   CONTENT_EYEBROW,
   CONTENT_GUTTER,
@@ -502,8 +503,8 @@ function FaqSection({
                 </p>
 
                 <p className="mt-1 text-body-sm text-onSurfaceVariant">
-                  Email support with your order details, destination,
-                  device model, and the screen where you are stuck.
+                  Chat with us or email support with your order details,
+                  destination, device model, and the screen where you are stuck.
                 </p>
 
                 <a
@@ -709,6 +710,15 @@ function ContactSupport() {
               <span>Email support</span>
               <span className="break-all text-xs text-surface/80">esim2you@uplisoft.com</span>
             </LinkButton>
+
+            {/* Signed-out visitors land on /signin first (middleware guards /profile). */}
+            <Link
+              className={`${resolveButtonClasses({ variant: "flat", size: "lg" })} !h-auto min-h-[54px] max-w-full`}
+              href="/profile/support"
+            >
+              <MessageCircle aria-hidden="true" size={17} />
+              <span>Chat with support</span>
+            </Link>
           </div>
         </div>
 

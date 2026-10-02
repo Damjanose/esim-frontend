@@ -1,4 +1,4 @@
-import { FileText, Globe2, LifeBuoy, ShieldCheck, Wallet } from "lucide-react";
+import { FileText, Globe2, LifeBuoy, MessageCircle, ShieldCheck, Wallet } from "lucide-react";
 import { profileGroupClass, type ProfileTabId } from "@/lib/accountNav";
 import { SettingsGroup, SettingsLinkRow } from "../components/SettingsGroup";
 import { SignOutButton } from "../components/SignOutButton";
@@ -52,6 +52,12 @@ export function ProfileTabs({
       </SettingsGroup>
 
       <SettingsGroup className={profileGroupClass("support", tab)} label="Support">
+        <SettingsLinkRow
+          description="Message our team about an order, eSIM, or payment"
+          href="/profile/support"
+          icon={MessageCircle}
+          label="Chat with support"
+        />
         <SettingsLinkRow
           description="Installation help and contact options"
           href="/support"
