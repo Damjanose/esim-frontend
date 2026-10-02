@@ -34,7 +34,8 @@ describe("profile page", () => {
   });
 
   it("is reachable from the navbar on every page", () => {
-    expect(navbar).toContain('href="/profile"');
+    expect(navbar).toContain("<NavbarAccount />");
+    expect(readFileSync("src/app/components/NavbarAccount.tsx", "utf8")).toContain('href="/profile"');
   });
 
   it("is reachable from the eSIM list", () => {

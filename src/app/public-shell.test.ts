@@ -6,7 +6,6 @@ describe("public navigation shell", () => {
     const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
 
     expect(navbar).toContain('href="/"');
-    expect(navbar).toContain('href="/destinations"');
     expect(navbar).toContain('href: "/destinations"');
     expect(navbar).not.toContain('href="#"');
     expect(navbar).not.toContain('href="#download-app"');
@@ -77,11 +76,16 @@ describe("public navigation shell", () => {
     expect(legalPage).not.toContain("<footer");
   });
 
-  it("links to the account entry point, letting the route guard handle signed-in vs signed-out", () => {
+  it("shows the profile icon when signed in and a Sign in link otherwise", () => {
     const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
+    const account = readFileSync("src/app/components/NavbarAccount.tsx", "utf8");
 
-    expect(navbar).toContain('href="/profile"');
-    expect(navbar).toContain("UserRound");
+    expect(navbar).toContain("<NavbarAccount />");
+    expect(navbar).not.toContain('href="/account"');
+    expect(account).toContain('fetch("/bff/auth/status"');
+    expect(account).toContain('href="/profile"');
+    expect(account).toContain("UserRound");
+    expect(account).toContain('href="/signin"');
     expect(navbar).not.toContain("Showroom mode");
   });
 

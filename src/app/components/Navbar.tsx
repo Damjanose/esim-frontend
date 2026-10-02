@@ -1,9 +1,10 @@
 import { landingContent } from "@/content/landing";
 import Image from "next/image";
-import { ArrowRight, Handshake, Smartphone, UserRound } from "lucide-react";
+import { Handshake } from "lucide-react";
 import { BottomDock } from "./BottomDock";
 import { DOCK_ITEMS } from "./dockNav";
 import { MobileNavbarMenu } from "./MobileNavbarMenu";
+import { NavbarAccount } from "./NavbarAccount";
 import { NavbarTone } from "./NavbarTone";
 import { NavLink } from "./NavLink";
 
@@ -100,36 +101,11 @@ export function Navbar() {
               Partners
             </a>
 
-            {/* Static on purpose: /account and /profile are guarded by the
-                middleware, which sends signed-out visitors to /signin?next=…
-                and lets signed-in visitors through. Below lg the dock's
-                My eSIMs and Profile tabs replace both. */}
-            <a
-              aria-label="My eSIMs"
-              className="hidden h-11 items-center gap-2 rounded-full border border-outline px-3 text-sm font-semibold text-brandInk transition hover:border-brandBlue/40 hover:text-brandBlue group-data-[tone=dark]:border-white/25 group-data-[tone=dark]:text-white group-data-[tone=dark]:hover:border-white/50 lg:flex xl:px-4"
-              href="/account"
-            >
-              <Smartphone aria-hidden="true" size={17} />
-              <span className="hidden xl:inline">My eSIMs</span>
-            </a>
-
-            <a
-              aria-label="Your profile"
-              className="hidden h-11 w-11 place-items-center rounded-full border border-outline text-brandInk transition hover:border-brandBlue/40 hover:text-brandBlue group-data-[tone=dark]:border-white/25 group-data-[tone=dark]:text-white group-data-[tone=dark]:hover:border-white/50 lg:grid"
-              href="/profile"
-            >
-              <UserRound aria-hidden="true" size={19} />
-            </a>
+            {/* Session-aware client island; below lg the dock's My eSIMs and
+                Profile tabs cover this. */}
+            <NavbarAccount />
 
             <MobileNavbarMenu navItems={secondaryNavItems} />
-
-            <a
-              className="hidden h-12 items-center gap-2 rounded-full bg-brandBlue px-5 text-[15px] font-bold text-white transition hover:bg-brandBlue/90 group-data-[tone=dark]:bg-brandTeal group-data-[tone=dark]:text-brandInk group-data-[tone=dark]:hover:bg-brandTeal/90 lg:inline-flex"
-              href="/destinations"
-            >
-              Get an eSIM
-              <ArrowRight aria-hidden="true" size={16} />
-            </a>
           </div>
         </nav>
       </NavbarTone>
