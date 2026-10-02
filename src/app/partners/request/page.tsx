@@ -7,8 +7,11 @@ import { backendFetch } from "@/lib/backend";
 import { createMetadata } from "@/lib/seo";
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/session";
 import { deriveCountryOptions, mapPackagesPayload, type ApiPackage } from "@/services/packages";
+import { AccountShell } from "../../components/AccountShell";
 import { Navbar } from "../../components/Navbar";
+import { SignOutButton } from "../../components/SignOutButton";
 import { SiteFooter } from "../../SiteFooter";
+import { partnerShellItems } from "../partnerShellItems";
 import { PartnerRequestForm } from "./PartnerRequestForm";
 
 export const metadata: Metadata = createMetadata({
@@ -49,30 +52,38 @@ export default async function PartnerRequestPage() {
     : [];
 
   return (
-    <main className="min-h-screen bg-surface text-onSurface">
+    // overflow-x-clip, not -hidden: hidden would make <main> a scroll container and
+    // the AccountShell sidebar would stop sticking.
+    <main className="min-h-screen overflow-x-clip bg-surfaceBright text-onSurface">
       <Navbar />
 
-      <section className="mx-auto w-full max-w-[720px] px-5 pb-24 pt-28 lg:px-10">
-        <Link
-          className="inline-flex items-center gap-2 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk"
-          href="/profile"
+      <div className="mx-auto w-full max-w-[1200px] px-4 pb-16 pt-[92px] sm:px-6 lg:px-10 lg:pb-24 lg:pt-[108px]">
+        <AccountShell
+          footer={<SignOutButton appearance="nav" />}
+          items={partnerShellItems(null)}
+          label="Partner"
         >
-          <ArrowLeft size={14} />
-          Profile
-        </Link>
+          <Link
+            className="inline-flex min-h-11 items-center gap-2 px-1 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk lg:hidden"
+            href="/profile"
+          >
+            <ArrowLeft size={14} />
+            Profile
+          </Link>
 
-        <h1 className="mt-7 font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
-          Become a partner
-        </h1>
-        <p className="mt-2 text-sm text-onSurfaceVariant">
-          Tell us about your business and we&apos;ll review your request for the eSim2you
-          partner program.
-        </p>
+          <h1 className="px-1 font-display text-[28px] font-black leading-[1.15] tracking-[-0.03em] text-brandInk lg:text-4xl">
+            Become a partner
+          </h1>
+          <p className="mt-1 px-1 text-sm text-onSurfaceVariant">
+            Tell us about your business and we&apos;ll review your request for the eSim2you
+            partner program.
+          </p>
 
-        <div className="mt-8 rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
-          <PartnerRequestForm countries={countries} />
-        </div>
-      </section>
+          <div className="mt-6 max-w-[720px] rounded-[20px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
+            <PartnerRequestForm countries={countries} />
+          </div>
+        </AccountShell>
+      </div>
 
       <SiteFooter />
     </main>

@@ -4,8 +4,11 @@ import { ArrowLeft, ArrowRight, BadgeCheck, Clock, FileWarning, PauseCircle, XCi
 import { LinkButton } from "@/app/components/Button";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
+import { AccountShell } from "../../components/AccountShell";
 import { Navbar } from "../../components/Navbar";
+import { SignOutButton } from "../../components/SignOutButton";
 import { SiteFooter } from "../../SiteFooter";
+import { partnerShellItems } from "../partnerShellItems";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/status",
@@ -76,45 +79,53 @@ export default async function PartnerStatusPage() {
   const result = await fetchForPage<Partner>("/partners/me", "/partners/status");
 
   return (
-    <main className="min-h-screen bg-surface text-onSurface">
+    // overflow-x-clip, not -hidden: hidden would make <main> a scroll container and
+    // the AccountShell sidebar would stop sticking.
+    <main className="min-h-screen overflow-x-clip bg-surfaceBright text-onSurface">
       <Navbar />
 
-      <section className="mx-auto w-full max-w-[720px] px-5 pb-24 pt-28 lg:px-10">
-        <Link
-          className="inline-flex items-center gap-2 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk"
-          href="/profile"
+      <div className="mx-auto w-full max-w-[1200px] px-4 pb-16 pt-[92px] sm:px-6 lg:px-10 lg:pb-24 lg:pt-[108px]">
+        <AccountShell
+          footer={<SignOutButton appearance="nav" />}
+          items={partnerShellItems("status")}
+          label="Partner"
         >
-          <ArrowLeft size={14} />
-          Profile
-        </Link>
+          <Link
+            className="inline-flex min-h-11 items-center gap-2 px-1 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk lg:hidden"
+            href="/profile"
+          >
+            <ArrowLeft size={14} />
+            Profile
+          </Link>
 
-        <h1 className="mt-7 font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
-          Partner status
-        </h1>
+          <h1 className="px-1 font-display text-[28px] font-black leading-[1.15] tracking-[-0.03em] text-brandInk lg:text-4xl">
+            Partner status
+          </h1>
 
-        {!result.ok && result.status === 404 ? (
-          <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline bg-white px-6 py-14 text-center shadow-brandCard">
-            <p className="font-display text-xl font-black text-brandInk">
-              You haven&apos;t applied yet
-            </p>
-            <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-              Apply to the eSim2you partner program to start earning commission on referred
-              bookings.
-            </p>
-            <LinkButton className="mt-7" href="/partners/request">
-              Apply now
-              <ArrowRight size={16} />
-            </LinkButton>
-          </div>
-        ) : !result.ok ? (
-          <div className="mt-8 rounded-[18px] border border-amber-600/30 bg-amber-50 px-6 py-5">
-            <p className="font-bold text-brandInk">We couldn&apos;t load your partner status</p>
-            <p className="mt-1 text-sm text-amber-700">{result.message}</p>
-          </div>
-        ) : (
-          <PartnerStatusCard partner={result.data} />
-        )}
-      </section>
+          {!result.ok && result.status === 404 ? (
+            <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline/60 bg-surface px-6 py-14 text-center shadow-brandCard">
+              <p className="font-display text-xl font-black text-brandInk">
+                You haven&apos;t applied yet
+              </p>
+              <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
+                Apply to the eSim2you partner program to start earning commission on referred
+                bookings.
+              </p>
+              <LinkButton className="mt-7" href="/partners/request">
+                Apply now
+                <ArrowRight size={16} />
+              </LinkButton>
+            </div>
+          ) : !result.ok ? (
+            <div className="mt-8 rounded-[18px] border border-error/30 bg-surface px-6 py-5 shadow-brandCard">
+              <p className="font-bold text-brandInk">We couldn&apos;t load your partner status</p>
+              <p className="mt-1 text-sm text-error">{result.message}</p>
+            </div>
+          ) : (
+            <PartnerStatusCard partner={result.data} />
+          )}
+        </AccountShell>
+      </div>
 
       <SiteFooter />
     </main>
@@ -127,7 +138,7 @@ function PartnerStatusCard({ partner }: { partner: Partner }) {
   if (!copy) {
     // Unknown/future status value — degrade gracefully rather than crashing.
     return (
-      <div className="mt-8 rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+      <div className="mt-6 max-w-[720px] rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
         <p className="font-display text-xl font-black text-brandInk">Status: {partner.status}</p>
         <p className="mt-2 text-sm text-onSurfaceVariant">
           Contact support if you have questions about your partner account.
@@ -139,8 +150,8 @@ function PartnerStatusCard({ partner }: { partner: Partner }) {
   const Icon = copy.icon;
 
   return (
-    <div className="mt-8 rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
-      <span className="grid h-14 w-14 place-items-center rounded-[16px] border border-outline bg-mist text-brandBlue">
+    <div className="mt-6 max-w-[720px] rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
+      <span className="grid h-14 w-14 place-items-center rounded-[16px] bg-brandBlue/10 text-brandBlue">
         <Icon size={26} />
       </span>
       <p className="mt-5 font-display text-xl font-black text-brandInk">{copy.title}</p>

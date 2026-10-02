@@ -6,8 +6,11 @@ import { LinkButton } from "@/app/components/Button";
 import { getPublicOrigin } from "@/lib/public-origin";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
+import { AccountShell } from "../../components/AccountShell";
 import { Navbar } from "../../components/Navbar";
+import { SignOutButton } from "../../components/SignOutButton";
 import { SiteFooter } from "../../SiteFooter";
+import { partnerShellItems } from "../partnerShellItems";
 import { CopyField } from "../../account/[orderId]/CopyField";
 import { QrCodeCard } from "../dashboard/QrCodeCard";
 
@@ -103,45 +106,53 @@ export default async function PartnerMaterialsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface text-onSurface">
+    // overflow-x-clip, not -hidden: hidden would make <main> a scroll container and
+    // the AccountShell sidebar would stop sticking.
+    <main className="min-h-screen overflow-x-clip bg-surfaceBright text-onSurface">
       <Navbar />
 
-      <section className="mx-auto w-full max-w-[900px] px-5 pb-24 pt-28 lg:px-10">
-        <Link
-          className="inline-flex items-center gap-2 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk"
-          href="/profile"
+      <div className="mx-auto w-full max-w-[1200px] px-4 pb-16 pt-[92px] sm:px-6 lg:px-10 lg:pb-24 lg:pt-[108px]">
+        <AccountShell
+          footer={<SignOutButton appearance="nav" />}
+          items={partnerShellItems("materials")}
+          label="Partner"
         >
-          <ArrowLeft size={14} />
-          Profile
-        </Link>
+          <Link
+            className="inline-flex min-h-11 items-center gap-2 px-1 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk lg:hidden"
+            href="/profile"
+          >
+            <ArrowLeft size={14} />
+            Profile
+          </Link>
 
-        <h1 className="mt-7 font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
-          Promo materials
-        </h1>
+          <h1 className="px-1 font-display text-[28px] font-black leading-[1.15] tracking-[-0.03em] text-brandInk lg:text-4xl">
+            Promo materials
+          </h1>
 
-        {!result.ok && result.status === 404 ? (
-          <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline bg-white px-6 py-14 text-center shadow-brandCard">
-            <p className="font-display text-xl font-black text-brandInk">
-              You haven&apos;t applied yet
-            </p>
-            <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-              Apply to the eSim2you partner program to start earning commission on referred
-              bookings.
-            </p>
-            <LinkButton className="mt-7" href="/partners/request">
-              Apply now
-              <ArrowRight size={16} />
-            </LinkButton>
-          </div>
-        ) : !result.ok ? (
-          <div className="mt-8 rounded-[18px] border border-amber-600/30 bg-amber-50 px-6 py-5">
-            <p className="font-bold text-brandInk">We couldn&apos;t load your promo materials</p>
-            <p className="mt-1 text-sm text-amber-700">{result.message}</p>
-          </div>
-        ) : (
-          <MaterialsContent partner={result.data} referralLink={referralLink} />
-        )}
-      </section>
+          {!result.ok && result.status === 404 ? (
+            <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline/60 bg-surface px-6 py-14 text-center shadow-brandCard">
+              <p className="font-display text-xl font-black text-brandInk">
+                You haven&apos;t applied yet
+              </p>
+              <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
+                Apply to the eSim2you partner program to start earning commission on referred
+                bookings.
+              </p>
+              <LinkButton className="mt-7" href="/partners/request">
+                Apply now
+                <ArrowRight size={16} />
+              </LinkButton>
+            </div>
+          ) : !result.ok ? (
+            <div className="mt-8 rounded-[18px] border border-error/30 bg-surface px-6 py-5 shadow-brandCard">
+              <p className="font-bold text-brandInk">We couldn&apos;t load your promo materials</p>
+              <p className="mt-1 text-sm text-error">{result.message}</p>
+            </div>
+          ) : (
+            <MaterialsContent partner={result.data} referralLink={referralLink} />
+          )}
+        </AccountShell>
+      </div>
 
       <SiteFooter />
     </main>
@@ -150,9 +161,9 @@ export default async function PartnerMaterialsPage() {
 
 function MaterialsContent({ partner, referralLink }: { partner: Partner; referralLink: string | null }) {
   return (
-    <div className="mt-8 space-y-5">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+    <div className="mt-6 space-y-4 lg:mt-8 lg:space-y-5">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-5">
+        <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
           <h2 className="font-display text-xl font-black text-brandInk">Your promo code</h2>
           <p className="mt-2 text-sm text-onSurfaceVariant">
             Pair this code or your referral link with the templates below — anyone who books with
@@ -179,7 +190,7 @@ function MaterialsContent({ partner, referralLink }: { partner: Partner; referra
         {referralLink ? <QrCodeCard label="Scan to open your referral link" value={referralLink} /> : null}
       </div>
 
-      <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+      <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
         <h2 className="font-display text-xl font-black text-brandInk">Templates</h2>
         <p className="mt-2 text-sm text-onSurfaceVariant">
           Print and social templates for sharing your promo code. Artwork is on its way — check
@@ -202,8 +213,8 @@ function MaterialCard({
   material: { label: string; description: string; href: string; comingSoon: boolean };
 }) {
   return (
-    <div className="flex items-start gap-4 rounded-[16px] border border-outline bg-mist px-5 py-4">
-      <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border border-outline bg-white text-brandBlue">
+    <div className="flex items-start gap-4 rounded-[16px] border border-outline/60 bg-surfaceBright px-4 py-4">
+      <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-brandBlue/10 text-brandBlue">
         <Download size={16} />
       </span>
 
@@ -213,14 +224,14 @@ function MaterialCard({
 
         {material.comingSoon ? (
           <span
-            className="mt-2 inline-flex items-center rounded-full border border-outline bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-onSurfaceVariant"
+            className="mt-2 inline-flex items-center rounded-full border border-outline/60 bg-surface px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-onSurfaceVariant"
             title="This template hasn't been designed yet — check back soon."
           >
             Coming soon
           </span>
         ) : (
           <a
-            className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-brandBlue transition hover:text-brandInk"
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-xs font-black text-brandBlue transition hover:text-brandInk"
             download
             href={material.href}
           >
