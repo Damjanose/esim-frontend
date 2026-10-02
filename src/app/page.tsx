@@ -201,13 +201,6 @@ function Benefits() {
   );
 }
 
-const marketplaceRows = [
-  { code: "af", country: "Afghanistan", plans: "5 plans · up to 10GB", price: "€4.73" },
-  { code: "al", country: "Albania", plans: "12 plans · Unlimited", price: "€3.44" },
-  { code: "dz", country: "Algeria", plans: "12 plans · Unlimited", price: "€3.87" },
-  { code: "ad", country: "Andorra", plans: "12 plans · Unlimited", price: "€3.87" }
-];
-
 function PhoneFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div
@@ -228,67 +221,6 @@ function PhoneStatusBar() {
       <span>9:41</span>
       <span>●●●●&nbsp;&nbsp;📶&nbsp;&nbsp;🔋</span>
     </div>
-  );
-}
-
-function ChoosePlanScreen() {
-  return (
-    <>
-      <div
-        className="relative h-[152px] bg-cover bg-top"
-        style={{ backgroundImage: "url('/images/how-it-works-marketplace.jpg')" }}
-      >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-70% to-brandInk/35" />
-
-        <span className="absolute right-3 top-[30px] grid h-[26px] w-[26px] place-items-center overflow-hidden rounded-full border-2 border-white/85 bg-white">
-          <Image alt="United States flag" className="h-full w-full object-cover" height={26} src="https://flagcdn.com/w80/us.png" unoptimized width={26} />
-        </span>
-      </div>
-
-      <div className="relative z-[3] -mt-5 mx-3 flex items-center gap-1.5 rounded-2xl border border-outline bg-white/95 px-3 py-2 text-[9px] text-onSurfaceVariant shadow-[0_8px_20px_rgba(6,17,49,0.12)] backdrop-blur">
-        🔍 Search countries or region
-      </div>
-
-      <div className="mx-3 mb-2 mt-2 flex gap-1.5 overflow-hidden">
-        <span className="whitespace-nowrap rounded-xl border border-outline px-2 py-1 text-[8px] font-extrabold text-onSurfaceVariant">Favorites 3</span>
-        <span className="whitespace-nowrap rounded-xl border border-brandBlue bg-brandBlue px-2 py-1 text-[8px] font-extrabold text-white">Countries 204</span>
-        <span className="whitespace-nowrap rounded-xl border border-outline px-2 py-1 text-[8px] font-extrabold text-onSurfaceVariant">Popular 8</span>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-1.5 overflow-hidden px-3">
-        {marketplaceRows.map((row) => (
-          <div className="flex items-center gap-2 rounded-[13px] border border-outline px-2.5 py-2" key={row.code}>
-            <span className="grid h-[22px] w-[22px] shrink-0 place-items-center overflow-hidden rounded-full bg-[#eef0f7]">
-              <Image alt={`${row.country} flag`} className="h-full w-full object-cover" height={22} src={`https://flagcdn.com/w80/${row.code}.png`} unoptimized width={22} />
-            </span>
-
-            <div className="min-w-0 flex-1">
-              <b className="block truncate font-display text-[10px] font-black text-brandInk">{row.country}</b>
-              <span className="text-[8px] text-onSurfaceVariant">{row.plans}</span>
-            </div>
-
-            <div className="shrink-0 text-right">
-              <small className="block text-[6.5px] font-bold text-onSurfaceVariant">FROM</small>
-              <b className="font-display text-[10px] font-black text-brandBlue">{row.price}</b>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-auto flex items-center justify-around border-t border-outline px-2.5 pb-3 pt-2">
-        <span className="flex flex-col items-center gap-0.5 text-[7.5px] text-onSurfaceVariant">
-          <span className="text-xs">🏠</span>Plans
-        </span>
-
-        <span className="-mt-[18px] grid h-[34px] w-[34px] place-items-center rounded-full border-[3px] border-white bg-brandBlue text-sm text-white shadow-[0_8px_18px_rgba(11,73,183,0.4)]">
-          🏪
-        </span>
-
-        <span className="flex flex-col items-center gap-0.5 text-[7.5px] text-onSurfaceVariant">
-          <span className="text-xs">👤</span>Profile
-        </span>
-      </div>
-    </>
   );
 }
 
@@ -395,17 +327,14 @@ function HowItWorks() {
       </div>
 
       <div className="mx-auto mt-10 flex flex-col items-center gap-10 sm:mt-14 sm:flex-row sm:items-center sm:justify-center sm:gap-0">
-        <PhoneFrame className="z-10 sm:-mr-6 sm:translate-y-2 sm:-rotate-[7deg]">
-          <ChoosePlanScreen />
-        </PhoneFrame>
-
-        <PhoneFrame className="z-20">
-          <ScanInstallScreen />
-        </PhoneFrame>
-
-        <PhoneFrame className="z-10 sm:-ml-6 sm:translate-y-2 sm:rotate-[7deg]">
-          <ConnectedScreen />
-        </PhoneFrame>
+        <Image
+          alt="eSim2you app screens: destination list, United Kingdom plans and billing details"
+          className="z-10 h-auto w-[320px] shrink-0 sm:-mr-6 sm:w-[452px]"
+          height={1080}
+          sizes="(min-width: 640px) 452px, 320px"
+          src="/images/how-it-works-app-screens.png"
+          width={1080}
+        />
       </div>
 
       <div className="mx-auto mt-8 grid max-w-[720px] gap-8 sm:mt-4 sm:grid-cols-3 sm:gap-10">

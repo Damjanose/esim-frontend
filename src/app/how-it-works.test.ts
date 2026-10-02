@@ -7,7 +7,7 @@ describe("HowItWorks section", () => {
     const source = readFileSync(join(process.cwd(), "src/app/page.tsx"), "utf8");
 
     expect(source).toContain("function HowItWorks()");
-    expect(source).toContain("<ChoosePlanScreen");
+    expect(source).toContain("/images/how-it-works-app-screens.png");
     expect(source).toContain("<ScanInstallScreen");
     expect(source).toContain("<ConnectedScreen");
   });
