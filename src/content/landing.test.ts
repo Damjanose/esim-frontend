@@ -61,7 +61,12 @@ describe("landingContent", () => {
     const photoTileSource = readFileSync("src/app/destinations/PhotoTile.tsx", "utf8");
     const countryRowSource = readFileSync("src/app/destinations/CountryRow.tsx", "utf8");
 
-    expect(pageSource).toContain('alt={`${row.country} flag`}');
+    // The homepage no longer renders flags itself (the old phone mockups were replaced by
+    // a screenshot); its remaining images must carry descriptive alt text.
+    expect(pageSource).toContain(
+      'alt="eSim2you app screens: destination list, United Kingdom plans and billing details"',
+    );
+    expect(pageSource).not.toMatch(/alt=""/);
     // Browse flags render inside PhotoTile (Trending, rails) and CountryRow (All destinations).
     expect(photoTileSource).toContain('alt={`${country} flag`}');
     expect(countryRowSource).toContain('alt={`${country} flag`}');
@@ -72,10 +77,12 @@ describe("landingContent", () => {
 
     // Apple/Google logos are inlined as <svg> markup directly on each store link
     // rather than extracted into named icon components.
-    expect(pageSource).toContain('aria-label="Download eSim2you on the App Store"');
-    expect(pageSource).toContain('aria-label="Get eSim2you on Google Play"');
-    expect(pageSource).toMatch(/aria-label="Download eSim2you on the App Store"[\s\S]*?<svg/);
-    expect(pageSource).toMatch(/aria-label="Get eSim2you on Google Play"[\s\S]*?<svg/);
+    // The accessible name must contain the visible text ("Download on the App Store",
+    // "Get it on Google Play") for WCAG label-in-name / Lighthouse label-content-name-mismatch.
+    expect(pageSource).toContain('aria-label="Download on the App Store, eSim2you"');
+    expect(pageSource).toContain('aria-label="Get it on Google Play, eSim2you"');
+    expect(pageSource).toMatch(/aria-label="Download on the App Store, eSim2you"[\s\S]*?<svg/);
+    expect(pageSource).toMatch(/aria-label="Get it on Google Play, eSim2you"[\s\S]*?<svg/);
   });
 
   it("organizes footer links without duplicate footer download actions", () => {

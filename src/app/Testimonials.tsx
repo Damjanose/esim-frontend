@@ -34,10 +34,16 @@ export function Testimonials({ items }: { items: PublicTestimonial[] }) {
         {featured ? (
           <FeaturedQuote item={items[0]} />
         ) : (
-          <div className={`mt-12 grid gap-5 ${items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"}`}>
-            {items.map((item) => (
-              <QuoteCard item={item} key={`${item.displayName}-${item.createdAt}`} />
-            ))}
+          // Phones: sideways scroll-snap carousel. min-w-0 + contain:inline-size keep the
+          // unwrapped row from widening the page (no horizontal page scroll at 320px).
+          <div className="mt-10 min-w-0 [contain:inline-size] lg:[contain:none]">
+            <div
+              className={`relative -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] md:-mx-8 md:px-8 lg:mx-0 lg:grid lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0 ${items.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}
+            >
+              {items.map((item) => (
+                <QuoteCard item={item} key={`${item.displayName}-${item.createdAt}`} />
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -70,7 +76,7 @@ function FeaturedQuote({ item }: { item: PublicTestimonial }) {
 
 function QuoteCard({ item }: { item: PublicTestimonial }) {
   return (
-    <figure className="group relative flex flex-col rounded-[22px] border border-outline/60 bg-surface p-7 shadow-brandCard transition duration-300 hover:-translate-y-1 hover:shadow-brandGlow">
+    <figure className="group relative flex w-[84%] max-w-[360px] shrink-0 snap-start flex-col rounded-[20px] border border-outline/70 bg-surface p-6 shadow-brandCard sm:w-[70%] lg:w-auto lg:max-w-none lg:p-7">
       <div className="flex items-center justify-between">
         <Stars rating={item.rating} size={16} />
         <QuoteMark className="h-8 w-8 text-brandBlue/15 transition-colors duration-300 group-hover:text-brandTeal/40" />
