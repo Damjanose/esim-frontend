@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   coveredDestinationsForOption,
   fetchPackageOptions,
@@ -148,49 +148,41 @@ export function HeroPackageSearch() {
     <div
     className="relative z-[100] w-full max-w-[620px]"
     >
-      <div
+      {/* One flat white field on the dark hero (the design's search), 56px to
+          match HeroTuneButton; the blue ring marks the open dialog. */}
+      <button
+        aria-haspopup="dialog"
         className={[
-          "relative rounded-[20px] border p-2",
-          "bg-surface",
-          "shadow-brandCard",
-          "transition-colors duration-200",
-          isDialogOpen
-            ? "border-brandBlue"
-            : "border-outline hover:border-brandBlue/40",
+          "flex h-14 w-full min-w-0 items-center gap-3 rounded-[16px] bg-surface px-4 text-left",
+          "transition-shadow duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+          isDialogOpen ? "ring-2 ring-brandBlue" : "hover:ring-2 hover:ring-white/40",
         ].join(" ")}
+        disabled={navigating}
+        onClick={openDialog}
+        ref={triggerRef}
+        type="button"
       >
-        <button
-          aria-haspopup="dialog"
-          className="flex min-h-[60px] w-full min-w-0 items-center gap-3 rounded-[15px] bg-outline/10 px-4 text-left"
-          disabled={navigating}
-          onClick={openDialog}
-          ref={triggerRef}
-          type="button"
+        {selectedCountry?.flagUri ? (
+          <img
+            alt=""
+            className="h-7 w-7 shrink-0 rounded-full border border-outline object-cover"
+            src={selectedCountry.flagUri}
+          />
+        ) : (
+          <Search aria-hidden="true" className="shrink-0 text-brandBlue" size={20} />
+        )}
+        <span
+          className={[
+            "min-w-0 flex-1 truncate text-[15px]",
+            selectedCountry ? "font-semibold text-onSurface" : "text-onSurfaceVariant",
+          ].join(" ")}
         >
-          {selectedCountry?.flagUri ? (
-            <img
-              alt=""
-              className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-              src={selectedCountry.flagUri}
-            />
-          ) : (
-            <Search aria-hidden="true" className="shrink-0 text-brandBlue" size={21} />
-          )}
-          <span
-            className={[
-              "min-w-0 flex-1 truncate text-sm font-semibold",
-              selectedCountry ? "text-onSurface" : "text-onSurfaceVariant/70",
-            ].join(" ")}
-          >
-            {selectedCountry?.country ?? "Where are you traveling to?"}
-          </span>
-          {navigating ? (
-            <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-brandBlue/25 border-t-brandBlue" />
-          ) : (
-            <ChevronDown aria-hidden="true" className="shrink-0 text-onSurfaceVariant" size={18} />
-          )}
-        </button>
-      </div>
+          {selectedCountry?.country ?? "Where are you going?"}
+        </span>
+        {navigating ? (
+          <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-brandBlue/25 border-t-brandBlue" />
+        ) : null}
+      </button>
 
       {isDialogOpen ? (
         <HeroSearchDialog

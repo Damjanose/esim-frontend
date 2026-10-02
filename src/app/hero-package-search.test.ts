@@ -108,7 +108,8 @@ describe("HeroTuneButton", () => {
     // Wrapped in an arrow, so the click event is never passed in as the dispatch target.
     expect(source).toContain("onClick={() => requestPlanWizard()}");
     expect(source).not.toContain("HelpMeChooseWizard");
-    // Matches the 78px search pill next to it.
-    expect(source).toContain("h-[78px]");
+    // Same 56px height as the search field next to it; dark glass on the hero.
+    expect(source).toContain("h-14 w-14");
+    expect(source).toContain("bg-white/10");
   });
 });

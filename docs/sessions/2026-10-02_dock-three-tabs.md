@@ -28,3 +28,8 @@ f248
 - `MobileNavbarMenu.tsx`: the ☰ button lost its border and only gets a hover tint.
 - Tests: `homepage-blocks.test.ts` now asserts the badges come after the tune button in `Hero`, that there's no `AppDownload`, and no text below 12px. 811 passing.
 - Checked at 320, 360, 390, 768, 1024 and 1440: no badge overflow and no horizontal scroll. The 320px overflow was fixed by the 1-column stack. On a 360×640 phone the buttons end at y=505, above the dock at 570. Fact f250 supersedes f249.
+
+## Follow-up 3: hero search + filter like the design
+- `HeroPackageSearch.tsx`: the trigger is now one flat white 56px field. The outer bordered ring, the inner grey box and the chevron are gone. A blue ring shows while the dialog is open. Placeholder is "Where are you going?".
+- `HeroTuneButton.tsx`: now a 56×56 dark-glass square with a white icon, where it used to be a 78px white tile.
+- Checked at 320, 390 and 1440: field and filter are both 56px with tops aligned, the dialog still opens, no horizontal scroll. Tests 811 passing. Fact f251.
