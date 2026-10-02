@@ -7,6 +7,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -21,13 +22,11 @@ import {
   normalizeDestinationValue,
   type HeroPackageOption,
 } from "@/services/packages";
-
-type CountryOption = {
-  country: string;
-  countryCode: string;
-  flagUri: string;
-  planCount: number;
-};
+import {
+  HeroMobileSearch,
+  rememberRecentDestination,
+  type CountryOption,
+} from "./HeroMobileSearch";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const RESULTS_LIMIT = 10;
@@ -85,6 +84,8 @@ const normalizeSearchValue = normalizeDestinationValue;
 export function HeroPackageSearch() {
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const mobileTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const mobileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -93,6 +94,7 @@ export function HeroPackageSearch() {
     useState<CountryOption | null>(null);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [navigating, setNavigating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -204,7 +206,20 @@ export function HeroPackageSearch() {
     );
   }
 
+  function openMobileSearch() {
+    // Mount the sheet synchronously so focusing its input still counts as
+    // part of the tap — iOS only raises the keyboard inside a user gesture.
+    flushSync(() => setIsMobileOpen(true));
+    mobileInputRef.current?.focus();
+  }
+
+  function closeMobileSearch() {
+    setIsMobileOpen(false);
+    mobileTriggerRef.current?.focus();
+  }
+
   function handleCountrySelect(country: CountryOption) {
+    rememberRecentDestination(country);
     setSelectedCountry(country);
     setQuery(country.country);
     setDebouncedQuery(country.country);
@@ -259,7 +274,41 @@ export function HeroPackageSearch() {
             : "border-outline hover:border-brandBlue/40",
         ].join(" ")}
       >
-        <label className="flex min-h-[60px] min-w-0 items-center gap-3 rounded-[15px] bg-outline/10 px-4">
+        {/* Phones: a button that opens the full-screen search instead of an
+            inline dropdown, so the hero never reflows. */}
+        <button
+          aria-haspopup="dialog"
+          className="flex min-h-[60px] w-full min-w-0 items-center gap-3 rounded-[15px] bg-outline/10 px-4 text-left sm:hidden"
+          disabled={navigating}
+          onClick={openMobileSearch}
+          ref={mobileTriggerRef}
+          type="button"
+        >
+          {selectedCountry?.flagUri ? (
+            <img
+              alt=""
+              className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
+              src={selectedCountry.flagUri}
+            />
+          ) : (
+            <Search aria-hidden="true" className="shrink-0 text-brandBlue" size={21} />
+          )}
+          <span
+            className={[
+              "min-w-0 flex-1 truncate text-sm font-semibold",
+              selectedCountry ? "text-onSurface" : "text-onSurfaceVariant/70",
+            ].join(" ")}
+          >
+            {selectedCountry?.country ?? "Where are you traveling to?"}
+          </span>
+          {navigating ? (
+            <span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-brandBlue/25 border-t-brandBlue" />
+          ) : (
+            <ChevronDown aria-hidden="true" className="shrink-0 text-onSurfaceVariant" size={18} />
+          )}
+        </button>
+
+        <label className="hidden min-h-[60px] min-w-0 items-center gap-3 rounded-[15px] bg-outline/10 px-4 sm:flex">
           {selectedCountry?.flagUri ? (
             <img
               alt={`${selectedCountry.country} flag`}
@@ -313,7 +362,8 @@ export function HeroPackageSearch() {
       </div>
 
       {isOpen ? (
-        <div className="relative z-[70] mt-3 overflow-hidden rounded-[20px] border border-outline bg-surface shadow-brandCard">          <div className="flex items-center justify-between gap-4 border-b border-outline px-4 py-3">
+        <div className="relative z-[70] mt-3 hidden overflow-hidden rounded-[20px] border border-outline bg-surface shadow-brandCard sm:block">
+          <div className="flex items-center justify-between gap-4 border-b border-outline px-4 py-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
                 {debouncedQuery.trim()
@@ -424,6 +474,18 @@ export function HeroPackageSearch() {
             </div>
           )}
         </div>
+      ) : null}
+
+      {isMobileOpen ? (
+        <HeroMobileSearch
+          countries={countries}
+          error={error}
+          inputRef={mobileInputRef}
+          loading={loading}
+          navigating={navigating}
+          onClose={closeMobileSearch}
+          onSelect={handleCountrySelect}
+        />
       ) : null}
     </div>
   );
