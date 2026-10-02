@@ -20,6 +20,8 @@ import {
   type DestinationOfferInput
 } from "@/lib/seo";
 import type { DestinationPlanRow } from "@/lib/destinationPricing";
+import type { DestinationMedia } from "@/lib/destinationMedia";
+import { isOptimizableImageUrl } from "./destinations/countryImageCache";
 import { convertEurToGbp, formatGbp } from "@/lib/exchangeRate";
 import { hasBestValueTag, planDurationText, planRowTags } from "@/lib/planRow";
 
@@ -59,7 +61,8 @@ export function EsimDestinationPageView({
   plans,
   coverage = [],
   gbpRate,
-  flagUri
+  flagUri,
+  heroImage
 }: {
   page: SeoContentPage;
   offer?: DestinationOfferInput;
@@ -69,6 +72,8 @@ export function EsimDestinationPageView({
   gbpRate?: number;
   /** The destination's flag image, when the catalog has one. */
   flagUri?: string;
+  /** The country's photo; without it the banner uses the generic mountain photo. */
+  heroImage?: DestinationMedia;
 }) {
   const countryName = destinationDisplay[page.slug]?.countryName ?? page.eyebrow;
   const h1 = destinationH1(page.slug) ?? `eSIM for ${countryName}`;
@@ -101,16 +106,24 @@ export function EsimDestinationPageView({
 
       <article>
         <CountryBanner
+          credit={
+            heroImage?.sourceUrl ? (
+              <a className="transition hover:text-surface/80" href={heroImage.sourceUrl} rel="noreferrer" target="_blank">
+                Image source: Wikimedia Commons
+              </a>
+            ) : undefined
+          }
           crumb={countryName}
           photo={
             <Image
-              alt=""
+              alt={heroImage ? heroImage.alt || `${countryName} travel destination` : ""}
               className="object-cover"
               fetchPriority="high"
               fill
               priority
               sizes="100vw"
-              src="/images/mountain.webp"
+              src={heroImage?.imageUrl ?? "/images/mountain.webp"}
+              unoptimized={heroImage ? !isOptimizableImageUrl(heroImage.imageUrl) : false}
             />
           }
         >

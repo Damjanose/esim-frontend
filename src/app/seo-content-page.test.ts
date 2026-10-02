@@ -30,7 +30,9 @@ describe("SEO content page template", () => {
     const source = readFileSync("src/app/EsimDestinationPage.tsx", "utf8");
 
     expect(source).toContain('import Image from "next/image"');
-    expect(source).toContain('src="/images/mountain.webp"');
+    // The country's own photo, with the generic mountain photo as the fallback.
+    expect(source).toContain('src={heroImage?.imageUrl ?? "/images/mountain.webp"}');
+    expect(source).toContain("Image source: Wikimedia Commons");
     // The banner photo is the LCP element.
     expect(source).toContain("priority");
     expect(source).toContain('fetchPriority="high"');

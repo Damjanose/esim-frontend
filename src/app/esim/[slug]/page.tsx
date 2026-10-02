@@ -9,6 +9,8 @@ import {
   getDestinationOffer,
   getDestinationPlanRows
 } from "@/lib/destinationPricing";
+import { getDestinationMedia } from "@/lib/destinationMedia";
+import { destinationDisplay } from "@/lib/esim-routes";
 import { getGbpRate } from "@/lib/exchangeRate";
 
 export const revalidate = 3600;
@@ -46,13 +48,19 @@ export default async function EsimDestinationPage({ params }: PageProps) {
     notFound();
   }
 
-  const [offer, plans, coverage, gbpRate, flagUri] = await Promise.all([
+  const countryName = destinationDisplay[page.slug]?.countryName ?? page.eyebrow;
+  const [offer, plans, coverage, gbpRate, flagUri, media] = await Promise.all([
     getDestinationOffer(page.slug),
     getDestinationPlanRows(page.slug),
     getDestinationCoverage(page.slug),
     page.slug === "uk" ? getGbpRate() : Promise.resolve(null),
-    getDestinationFlag(page.slug)
+    getDestinationFlag(page.slug),
+    getDestinationMedia(page.slug, countryName)
   ]);
+
+  // Regional pages (coverage set) keep the generic photo: the backend resolves
+  // e.g. "europe" to a single capital, which misrepresents the region.
+  const heroImage = coverage.length === 0 ? (media ?? undefined) : undefined;
 
   return (
     <EsimDestinationPageView
@@ -62,6 +70,7 @@ export default async function EsimDestinationPage({ params }: PageProps) {
       coverage={coverage}
       gbpRate={gbpRate ?? undefined}
       flagUri={flagUri ?? undefined}
+      heroImage={heroImage}
     />
   );
 }
