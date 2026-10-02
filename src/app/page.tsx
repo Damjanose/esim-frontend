@@ -54,7 +54,6 @@ export default async function Home() {
       <Testimonials items={testimonials} />
       <TrustAndFaq />
       <PartnerBand />
-      <Cta />
       <SiteFooter />
     </main>
   );
@@ -355,26 +354,3 @@ function PartnerPromo() {
   );
 }
 
-
-function Cta() {
-  return (
-    <section className="bg-surface px-5 pb-16 pt-6 text-onSurface md:px-8 md:pt-10" id="download">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-6 border-t border-outline/60 pt-10 md:flex-row md:items-center md:justify-between md:pt-12">
-        <div className="max-w-[560px]">
-          <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk md:text-[38px] md:leading-[1.08]">
-            Going somewhere soon?
-          </h2>
-
-          <p className="mt-3 text-sm leading-6 text-onSurfaceVariant md:text-base">
-            Pick your destination now and you&apos;ll have data before you board.
-          </p>
-        </div>
-
-        <LinkButton className="w-full md:w-auto md:min-w-[220px]" href="/destinations" size="lg">
-          Find your eSIM
-          <ArrowRight aria-hidden="true" size={20} />
-        </LinkButton>
-      </div>
-    </section>
-  );
-}

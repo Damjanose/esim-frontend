@@ -75,15 +75,14 @@ describe("homepage marketing blocks", () => {
     expect(fn("HeroAppBadges")).not.toContain("text-[10px]");
   });
 
-  it("renders the closing CTA as a plain row with a single primary button to destinations", () => {
-    const src = fn("Cta");
-    expect(src).not.toContain("bg-gradient");
-    expect(src.match(/<LinkButton/g)).toHaveLength(1);
-    expect(src).toContain('href="/destinations"');
+  it("drops the closing 'Going somewhere soon?' CTA row above the footer", () => {
+    expect(page).not.toContain("function Cta(");
+    expect(page).not.toContain("<Cta />");
+    expect(page).not.toContain("Going somewhere soon?");
   });
 
   it("uses at most one primary (default variant) button in each of the touched sections", () => {
-    for (const name of ["TrustAndFaq", "PartnerPromo", "Cta"]) {
+    for (const name of ["TrustAndFaq", "PartnerPromo"]) {
       expect((fn(name).match(/<LinkButton/g) ?? []).length).toBeLessThanOrEqual(1);
     }
   });
