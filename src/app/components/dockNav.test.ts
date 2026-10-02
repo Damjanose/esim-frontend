@@ -18,13 +18,13 @@ describe("DOCK_ITEMS", () => {
 
 describe("isDockVisible", () => {
   it("shows the dock on public browsing and account routes", () => {
-    for (const path of ["/", "/destinations", "/esim/usa", "/account", "/account/42", "/profile", "/support", "/partners/dashboard"]) {
+    for (const path of ["/", "/destinations", "/esim/usa", "/account", "/account/42", "/profile", "/support", "/partners/dashboard", "/trip-plan"]) {
       expect(isDockVisible(path)).toBe(true);
     }
   });
 
   it("hides the dock where it would compete with a form's primary action", () => {
-    for (const path of ["/checkout", "/checkout/failed", "/signin", "/profile/deleted"]) {
+    for (const path of ["/checkout", "/checkout/failed", "/signin", "/profile/deleted", "/trip-plan/abc123"]) {
       expect(isDockVisible(path)).toBe(false);
     }
   });

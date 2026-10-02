@@ -1,4 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const undiciMock = vi.hoisted(() => ({
+  fetch: vi.fn(),
+  agents: [] as Array<{ headersTimeout: number; bodyTimeout: number }>
+}));
+
+vi.mock("undici", () => ({
+  Agent: class {
+    constructor(public options: { headersTimeout: number; bodyTimeout: number }) {
+      undiciMock.agents.push(options);
+    }
+  },
+  fetch: undiciMock.fetch
+}));
 import {
   backendFetch,
   backendFetchBinary,
@@ -210,7 +224,53 @@ describe("backendFetchBinary", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.contentType).toBe("image/png");
+      expect(result.data.contentDisposition).toBeNull();
       expect(new Uint8Array(result.data.buffer)).toEqual(new Uint8Array([1, 2, 3]));
     }
+  });
+});
+
+describe("backendFetch timeoutMs", () => {
+  it("uses the global fetch when no timeout is set", async () => {
+    const globalFetch = vi.fn(async () => jsonResponse({ status: "success", data: { a: 1 } }));
+    vi.stubGlobal("fetch", globalFetch);
+    undiciMock.fetch.mockReset();
+
+    const result = await backendFetch<{ a: number }>("/x");
+
+    expect(result).toEqual({ ok: true, data: { a: 1 } });
+    expect(globalFetch).toHaveBeenCalledOnce();
+    expect(undiciMock.fetch).not.toHaveBeenCalled();
+  });
+
+  it("routes long calls through undici with matching header/body timeouts", async () => {
+    const globalFetch = vi.fn();
+    vi.stubGlobal("fetch", globalFetch);
+    undiciMock.fetch.mockReset();
+    undiciMock.fetch.mockResolvedValue(jsonResponse({ status: "success", data: { id: "p1" } }, 201));
+
+    const result = await backendFetch<{ id: string }>("/itineraries", {
+      method: "POST",
+      body: { country: "Albania" },
+      token: "tok",
+      timeoutMs: 600_000
+    });
+
+    expect(result).toEqual({ ok: true, data: { id: "p1" } });
+    expect(globalFetch).not.toHaveBeenCalled();
+    const [, init] = undiciMock.fetch.mock.calls[0] as [string, { method: string; body: string; dispatcher: { options: unknown } }];
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({ country: "Albania" });
+    expect(init.dispatcher.options).toEqual({ headersTimeout: 600_000, bodyTimeout: 600_000 });
+  });
+
+  it("maps a thrown long call to the unreachable result", async () => {
+    undiciMock.fetch.mockReset();
+    undiciMock.fetch.mockRejectedValue(new Error("UND_ERR_HEADERS_TIMEOUT"));
+
+    const result = await backendFetch("/itineraries", { method: "POST", body: {}, timeoutMs: 1000 });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.status).toBe(502);
   });
 });

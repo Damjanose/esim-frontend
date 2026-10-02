@@ -1,0 +1,35 @@
+{
+  "topic": "trip-plan",
+  "covers": "Traveler trip planner on the web: /trip-plan landing, /trip-plan/[id] plan page, BFF /bff/itineraries/**, unlock via inline card, refine/versions/PDF. Admin settings are in admin-dashboard-ui (/xtripplany).",
+  "facts": [
+    "f160",
+    "f237",
+    "f238",
+    "f239",
+    "f240"
+  ],
+  "files": {
+    "pages": "src/app/trip-plan/page.tsx (static, revalidate 3600), src/app/trip-plan/[id]/page.tsx (guarded, noindex)",
+    "client": "TripPlanHome, TripPlanForm, TripPlanGenerating (Flight-loader Lottie), TripPlanList, TripPlanDocument, [id]/TripPlanDetail, [id]/TripPlanUnlock, [id]/TripPlanRefine",
+    "lib": "src/lib/tripPlan/{types,logic,docView,sample,client,bff,countries}.ts",
+    "bff": "src/app/bff/itineraries/{route,config,[id],[id]/edit,[id]/versions/[n],[id]/checkout,[id]/provision,[id]/pdf}"
+  },
+  "contract": {
+    "backend": "/api/itineraries (requireDevAuth): GET /config, GET /, POST / (2-5 min), GET/DELETE /:id, POST /:id/edit {prompt<=500} (long), GET /:id/versions/:n, GET /:id/pdf?version=n, POST /:id/checkout (requireRealEmail), POST /:id/provision {payment_id}",
+    "types": "mirror velocity-eSim/src/services/itineraries.ts",
+    "startDate": "DD/MM/YYYY (isoDateToDdMmYyyy from <input type=date>)",
+    "price": "show price.quoteAmount/quoteCurrency (what Pokpay charges), as mobile does"
+  },
+  "gotchas": [
+    "Long calls need backendFetch timeoutMs (undici Agent) AND nginx proxy_read_timeout >= 600s on the Next location",
+    "Delete is only allowed for archived plans; the list only offers delete under Older plans",
+    "Edit response has no document: refetch GET /:id after editing",
+    "BFF validates [id] (^[A-Za-z0-9_-]{1,64}$) and version (^\\d{1,4}$) before interpolating into backend paths",
+    "Running `pnpm build` while `pnpm dev` is running shares .next and breaks the dev server (500s): restart dev afterwards"
+  ],
+  "not_done": [
+    "no web email-claim flow for real_email_required",
+    "no async generation/job queue",
+    "English only (lang 'en')"
+  ]
+}

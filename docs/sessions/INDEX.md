@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-02 | [trip plan on web](./2026-10-02_trip-plan-web.md) | Traveler trip planner at public `/trip-plan` + guarded `/trip-plan/[id]` (generate, inline-card unlock, refine, versions, PDF) over new `/bff/itineraries/**`; long calls use an undici 600s timeout and need nginx ≥600s |
 | 2026-09-27 | [seo audit week-1 fixes](./2026-09-27_seo-audit-week1-fixes.md) | Regional /esim pages mapped to real backend regions, Ireland/Croatia H1s, mobile "databefore" H1, robots.txt stops publishing /x* admin paths, storefront-neutral App Store link, testimonials no longer emitted as review schema, mobile CWV fixes (homepage CLS 0.139→0), regional coverage lists, /esim mobile overflow fix, Article schema, homepage /esim links |
 | 2026-09-26 | [esim share deep links](./2026-09-26_esim-share-deep-links.md) | Claim `/esim/id/*` in the AASA + a redacted `/esim/id/[token]` landing page that reads the public `GET /api/shared-esim/{token}`; no QR shown on web |
 | 2026-09-26 | [og share image redesign](./2026-09-26_og-share-image-redesign.md) | New premium link-preview image (app icon hero), generated from `scripts/og/og-image.html` via `pnpm og:render`; ogImageVersion bumped to 5 |

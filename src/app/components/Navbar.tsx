@@ -14,6 +14,10 @@ const navItems = [
     href: "/destinations"
   },
   {
+    label: "Trip planner",
+    href: "/trip-plan"
+  },
+  {
     label: "Travel guides",
     href: "/travel"
   },
@@ -23,7 +27,9 @@ const navItems = [
   },
   {
     label: "Use cases",
-    href: "/use-cases"
+    href: "/use-cases",
+    // Six links don't fit beside the actions at lg; still in the footer below xl.
+    wideOnly: true
   },
   {
     label: "Support",
@@ -76,13 +82,18 @@ export function Navbar() {
 
           <div className="hidden min-w-0 flex-1 items-center gap-1 lg:flex">
             {navItems.map((item) => (
-              <NavLink href={item.href} key={item.href} label={item.label} />
+              <NavLink
+                className={"wideOnly" in item && item.wideOnly ? "hidden xl:flex" : "flex"}
+                href={item.href}
+                key={item.href}
+                label={item.label}
+              />
             ))}
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
             <a
-              className="hidden h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-onSurfaceVariant transition hover:text-brandBlue group-data-[tone=dark]:text-white/80 group-data-[tone=dark]:hover:text-white xl:flex"
+              className="hidden h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-onSurfaceVariant transition hover:text-brandBlue group-data-[tone=dark]:text-white/80 group-data-[tone=dark]:hover:text-white 2xl:flex"
               href="/partners/request"
             >
               <Handshake aria-hidden="true" size={17} />

@@ -15,7 +15,8 @@ export type SessionTokens = {
 
 export type SessionAttempt<T> =
   | { ok: true; data: T; cookies: CookieSpec[] }
-  | { ok: false; status: number; message: string; cookies: CookieSpec[] };
+  /** `code` is the backend's machine-readable error code when it sent one (e.g. `real_email_required`). */
+  | { ok: false; status: number; message: string; code?: string; cookies: CookieSpec[] };
 
 export type SessionDeps = {
   refresh: (refreshToken: string) => Promise<SessionPairResult>;
@@ -59,7 +60,7 @@ export async function callWithSession<T>(
     }
 
     if (first.status !== 401) {
-      return { ok: false, status: first.status, message: first.message, cookies: [] };
+      return { ok: false, status: first.status, message: first.message, ...errorCode(first), cookies: [] };
     }
   }
 
@@ -84,5 +85,10 @@ export async function callWithSession<T>(
     return expired();
   }
 
-  return { ok: false, status: retried.status, message: retried.message, cookies };
+  return { ok: false, status: retried.status, message: retried.message, ...errorCode(retried), cookies };
+}
+
+function errorCode(result: { payload?: Record<string, unknown> }): { code?: string } {
+  const code = result.payload?.code;
+  return typeof code === "string" && code ? { code } : {};
 }

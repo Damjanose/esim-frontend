@@ -24,6 +24,8 @@ export const DOCK_ITEMS: readonly DockItem[] = [
 /** Routes whose own primary action (Pay, Send code) must not share the screen bottom.
  * Admin x* pages never render Navbar (so never mount the dock); keep their paths out of this client-bundled list. */
 const HIDDEN_ON: readonly string[] = ["/checkout", "/signin", "/profile/deleted"];
+/** Hidden below these but not on the base page: a trip plan page carries the card Pay bar, the /trip-plan landing doesn't. */
+const HIDDEN_BELOW: readonly string[] = ["/trip-plan"];
 
 const ACTIVE_ON: ReadonlyArray<readonly [DockItemId, readonly string[]]> = [
   ["esims", ["/account"]],
@@ -38,6 +40,7 @@ function isUnder(pathname: string, base: string): boolean {
 
 export function isDockVisible(pathname: string | null): boolean {
   if (!pathname) return true;
+  if (HIDDEN_BELOW.some((base) => pathname.startsWith(`${base}/`))) return false;
   return !HIDDEN_ON.some((base) => isUnder(pathname, base));
 }
 
