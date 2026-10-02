@@ -560,6 +560,17 @@ function navigationReply(
   return null;
 }
 
+/**
+ * A looser guess for when the AI timed out: no word limit or advice check, just
+ * "the message names exactly one place" → show its plans (plus any days/data/sort).
+ */
+export function timeoutFallbackReply(rawText: string, destinations: readonly AssistantDestination[]): LocalReply | null {
+  const text = normalizeText(rawText).replace(/\s+/g, " ");
+  const named = findDestinations(text, destinations);
+  if (named.length !== 1) return null;
+  return filterReply({ ...parseFacets(text), destination: named[0].destination.slug }, "assistant.local.filtered");
+}
+
 /** The canned reply for a typed message, or null when it needs the real AI. Navigation wins over filters. */
 export function localReplyFor(
   rawText: string,
@@ -578,39 +589,48 @@ export function localReplyFor(
 // ---------------------------------------------------------------------------
 // FAQ (the app's assistantFAQ.ts)
 
+/**
+ * Full phrases only. Single words like "travel", "price" or "delete" also appear
+ * in plan requests ("I want to travel to Japan"), so they must never match here;
+ * the chat runs the destination/filter parser before this list anyway.
+ */
 const FAQ_ENTRIES: { keywords: string[]; replyKey: string }[] = [
-  { keywords: ["what is esim", "whats an esim", "define esim", "esim meaning"], replyKey: "assistant.faq.whatIsEsim" },
   {
-    keywords: ["how does it work", "how do esims work", "how to use esim", "esim how to"],
+    keywords: ["what is esim", "what is an esim", "whats an esim", "whats esim", "define esim", "esim meaning"],
+    replyKey: "assistant.faq.whatIsEsim"
+  },
+  {
+    keywords: ["how does it work", "how do esims work", "how does esim work", "how does an esim work", "how to use esim", "how to use an esim"],
     replyKey: "assistant.faq.howItWorks"
   },
   {
-    keywords: ["activation time", "how long to activate", "when can i use", "setup time"],
+    keywords: ["activation time", "how long to activate", "how long does activation take", "when can i use it"],
     replyKey: "assistant.faq.activationTime"
   },
   {
-    keywords: ["multiple devices", "can i share", "share esim", "two phones"],
+    keywords: ["multiple devices", "share esim", "share my esim", "two phones", "more than one phone"],
     replyKey: "assistant.faq.multipleDevices"
   },
-  { keywords: ["benefits", "why esim", "advantage", "why use esim", "pros"], replyKey: "assistant.faq.benefits" },
   {
-    keywords: ["supported countries", "which countries", "where can i use", "coverage"],
-    replyKey: "assistant.faq.supportedCountries"
+    keywords: ["why esim", "why use esim", "why use an esim", "esim benefits", "benefits of esim", "advantages of esim"],
+    replyKey: "assistant.faq.benefits"
   },
-  { keywords: ["cost", "how much", "price", "expensive", "value for money"], replyKey: "assistant.faq.pricing" },
+  { keywords: ["supported countries", "which countries do you", "what countries do you"], replyKey: "assistant.faq.supportedCountries" },
   {
-    keywords: ["remove esim", "cancel plan", "refund", "delete", "uninstall"],
+    keywords: ["how much does an esim cost", "how much do esims cost", "are esims expensive", "esim price", "esim cost"],
+    replyKey: "assistant.faq.pricing"
+  },
+  // No "refund": refund requests go to the AI, which hands them to human support.
+  {
+    keywords: ["remove esim", "remove my esim", "delete esim", "delete my esim", "uninstall esim", "cancel my plan"],
     replyKey: "assistant.faq.removeEsim"
   },
-  { keywords: ["roaming", "travel", "when traveling", "abroad", "international"], replyKey: "assistant.faq.roaming" },
-  {
-    keywords: ["sim card", "physical sim", "need physical", "physical card needed"],
-    replyKey: "assistant.faq.physicalSim"
-  }
+  { keywords: ["roaming", "esim vs roaming", "instead of roaming"], replyKey: "assistant.faq.roaming" },
+  { keywords: ["physical sim", "sim card", "need a physical"], replyKey: "assistant.faq.physicalSim" }
 ];
 
 export function matchFAQ(userMessage: string): LocalReply | null {
-  const normalized = userMessage.toLowerCase().trim();
+  const normalized = userMessage.toLowerCase().replace(/[\u2019']/g, "").trim();
   if (normalized.length > 100) return null;
   for (const entry of FAQ_ENTRIES) {
     for (const keyword of entry.keywords) {

@@ -12,11 +12,11 @@ const COPY: Record<string, string> = {
   "assistant.placeholder": "Say hi or ask about your trip…",
   "assistant.inputLabel": "Message to the assistant",
   "assistant.send": "Send",
+  "assistant.stop": "Stop",
   "assistant.thinking": "Thinking…",
-  "assistant.needsHuman":
-    "I can only help with greetings and trip plans. For anything else, message our support team and a real person will help you.",
+  "assistant.needsHuman": "That needs a real person from our team. Message support and we'll sort it out with you.",
   "assistant.needsHumanGuest":
-    "I can only help with greetings and trip plans. For anything else, sign in and message our support team so a real person can help you.",
+    "That needs a real person from our team. Sign in and message support so we can sort it out with you.",
   "assistant.reportProblem": "Contact support",
   "assistant.clear": "Clear conversation",
 
@@ -38,6 +38,7 @@ const COPY: Record<string, string> = {
 
   "assistant.error.rate_limited": "You're sending messages quickly. Try again in a few minutes.",
   "assistant.error.unavailable": "The assistant isn't available right now.",
+  "assistant.error.timeout": "That took too long. Please try again.",
   "assistant.error.failed": "Something went wrong. Please try again.",
 
   "assistant.suggest.signUp": "Create a free account",

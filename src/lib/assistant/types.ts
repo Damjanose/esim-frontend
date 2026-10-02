@@ -45,7 +45,15 @@ export type AssistantAction =
       label: string;
     };
 
-export type AssistantChatMessage = { role: "user" | "assistant"; content: string };
+/**
+ * One turn sent to the backend. Assistant turns carry what they showed (type +
+ * filters, no label) so follow-ups like "cheaper" refine the same plans.
+ */
+export type AssistantChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  action?: { type: AssistantAction["type"]; payload?: AssistantFilterPayload };
+};
 
 export type AssistantReply = {
   reply: string;
@@ -55,7 +63,7 @@ export type AssistantReply = {
   clarify?: { destination: string } | null;
 };
 
-export type AssistantErrorKind = "rate_limited" | "unavailable" | "failed";
+export type AssistantErrorKind = "rate_limited" | "unavailable" | "timeout" | "failed";
 
 /** A catalog destination the chat can filter by. `slug` is the backend country/region code. */
 export type AssistantDestination = { slug: string; label: string };

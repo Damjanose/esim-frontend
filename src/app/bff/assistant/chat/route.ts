@@ -24,20 +24,24 @@ export async function POST(request: Request) {
   const call = (token?: string): Promise<BackendResult<AssistantReply>> =>
     backendFetch<AssistantReply>("/assistant/chat", { method: "POST", token, body: payload });
 
+  /** Keeps the backend's code (e.g. `assistant_timeout`) so the chat can tell a timeout from an outage. */
+  const codeOf = (result: { payload?: Record<string, unknown> }) =>
+    typeof result.payload?.code === "string" ? { code: result.payload.code } : {};
+
   const tokens = readSessionTokens(request);
   if (tokens.accessToken || tokens.refreshToken) {
     const attempt = await callWithSession(tokens, call);
     if (attempt.ok) return successJson(attempt.data, attempt.cookies);
     if (attempt.status !== 401 || body.screen !== "marketplace") {
-      return errorJson(attempt.message, attempt.status, {}, attempt.cookies);
+      return errorJson(attempt.message, attempt.status, attempt.code ? { code: attempt.code } : {}, attempt.cookies);
     }
     // Expired session on a guest-allowed screen: answer as a guest, and still clear the dead cookies.
     const guest = await call();
     return guest.ok
       ? successJson(guest.data, attempt.cookies)
-      : errorJson(guest.message, guest.status, {}, attempt.cookies);
+      : errorJson(guest.message, guest.status, codeOf(guest), attempt.cookies);
   }
 
   const result = await call();
-  return result.ok ? successJson(result.data) : errorJson(result.message, result.status);
+  return result.ok ? successJson(result.data) : errorJson(result.message, result.status, codeOf(result));
 }

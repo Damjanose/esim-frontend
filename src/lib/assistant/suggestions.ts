@@ -208,22 +208,20 @@ function screenPresets(context: AssistantContext): ScreenPreset[] {
   }
 }
 
-/** "quick_1week" matches "1week", "week", "week-long" and single-word typos like "unlimied". */
-function matchesPreset(presetId: string, userMessage: string): boolean {
+/**
+ * True when the whole message is the preset's word ("europe", "unlimited", "week"),
+ * allowing a single-word typo. A longer message ("Europe 10gb") is never a preset:
+ * it goes to the filter parser so the extra facets aren't dropped.
+ */
+export function matchesPreset(presetId: string, userMessage: string): boolean {
   const normalized = userMessage.toLowerCase().trim();
+  if (!normalized || normalized.includes(" ")) return false;
   const suffix = presetId.replace(/^quick_/, "");
-  if (normalized === suffix) return true;
-  if (normalized.startsWith(suffix)) {
-    const nextChar = normalized[suffix.length];
-    if (!nextChar || /[\s-]/.test(nextChar)) return true;
-  }
+  // "1week" also answers to "week".
   const numericStripped = suffix.replace(/^\d+/, "");
-  if (numericStripped && normalized === numericStripped) return true;
-  if (!normalized.includes(" ") && normalized.length > 2) {
-    if (fuzzyMatch(normalized, suffix) >= 0.75) return true;
-    if (numericStripped && fuzzyMatch(normalized, numericStripped) >= 0.75) return true;
-  }
-  return false;
+  if (normalized === suffix || (numericStripped && normalized === numericStripped)) return true;
+  if (normalized.length <= 2) return false;
+  return fuzzyMatch(normalized, suffix) >= 0.75 || (!!numericStripped && fuzzyMatch(normalized, numericStripped) >= 0.75);
 }
 
 export function matchScreenPreset(text: string, context: AssistantContext): LocalReply | null {
@@ -231,9 +229,10 @@ export function matchScreenPreset(text: string, context: AssistantContext): Loca
 }
 
 /**
- * The AI only greets and helps plan trips. Anything else comes back as
- * `outOfScope`, and the chat points to a real person: the support chat when
- * signed in, sign-in first for guests (support needs an account).
+ * The AI answers chat, travel and plan questions itself; `outOfScope` means a
+ * real problem (order, payment, refund, install, account) or "talk to a human".
+ * The chat points to a real person: the support chat when signed in, sign-in
+ * first for guests (support needs an account).
  */
 export function outOfScopeReply(context: AssistantContext): { textKey: string; action: AssistantAction; actionLabelKey: string } {
   if (context.screen === "marketplace" && context.isGuest) {

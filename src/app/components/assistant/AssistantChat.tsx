@@ -1,7 +1,7 @@
 "use client";
 
 import Lottie from "lottie-react";
-import { ArrowRight, ArrowUp, Trash2, X } from "lucide-react";
+import { ArrowRight, ArrowUp, Square, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
@@ -14,6 +14,7 @@ import {
   matchFAQ,
   refineLocalReply,
   resolveClarifyFollowUp,
+  timeoutFallbackReply,
   type LocalReply
 } from "@/lib/assistant/localReplies";
 import {
@@ -47,6 +48,8 @@ import { fetchPackageOptions } from "@/services/packages";
 import { assistantStore, replyCache, replyCacheKey } from "./assistantStore";
 
 const MAX_INPUT_CHARS = 500;
+/** Backstop for a slow network; the backend itself gives the model ~2.5s. */
+const CLIENT_TIMEOUT_MS = 6_000;
 
 type Session = {
   signedIn: boolean;
@@ -97,22 +100,43 @@ class AssistantRequestError extends Error {
   }
 }
 
-async function sendAssistantMessage(input: {
-  screen: AssistantScreen;
-  messages: AssistantChatMessage[];
-}): Promise<AssistantReply> {
+/** Thrown when Stop (or a newer message) aborted the request; the chat ignores it. */
+class AssistantAbortedError extends Error {}
+
+async function sendAssistantMessage(
+  input: { screen: AssistantScreen; messages: AssistantChatMessage[] },
+  signal: AbortSignal
+): Promise<AssistantReply> {
+  // One controller for both Stop and the timeout; combining signals natively needs iOS Safari 17.4+.
+  let timedOut = false;
+  const request = new AbortController();
+  const onStop = () => request.abort();
+  signal.addEventListener("abort", onStop);
+  const timer = setTimeout(() => {
+    timedOut = true;
+    request.abort();
+  }, CLIENT_TIMEOUT_MS);
   let response: Response;
   try {
     response = await fetch("/bff/assistant/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ ...input, lang: "en" })
+      body: JSON.stringify({ ...input, lang: "en" }),
+      signal: request.signal
     });
   } catch {
+    if (timedOut) throw new AssistantRequestError("timeout");
+    if (signal.aborted) throw new AssistantAbortedError();
     throw new AssistantRequestError("failed");
+  } finally {
+    clearTimeout(timer);
+    signal.removeEventListener("abort", onStop);
   }
   if (response.status === 429) throw new AssistantRequestError("rate_limited");
-  if (response.status === 503) throw new AssistantRequestError("unavailable");
+  if (response.status === 503) {
+    const body = (await response.json().catch(() => null)) as { code?: string } | null;
+    throw new AssistantRequestError(body?.code === "assistant_timeout" ? "timeout" : "unavailable");
+  }
   if (!response.ok) throw new AssistantRequestError("failed");
   const payload = (await response.json().catch(() => null)) as { data?: AssistantReply } | null;
   if (!payload?.data || typeof payload.data.reply !== "string") throw new AssistantRequestError("failed");
@@ -130,9 +154,20 @@ function previousFilters(transcript: TranscriptEntry[]): AssistantFilterPayload 
 }
 
 function toApiMessages(transcript: TranscriptEntry[]): AssistantChatMessage[] {
-  return transcript.flatMap((entry): AssistantChatMessage[] =>
-    entry.role === "user" || entry.role === "assistant" ? [{ role: entry.role, content: entry.text }] : []
-  );
+  return transcript.flatMap((entry): AssistantChatMessage[] => {
+    if (entry.role === "user") return [{ role: "user", content: entry.text }];
+    if (entry.role !== "assistant") return [];
+    const action = entry.action;
+    if (!action) return [{ role: "assistant", content: entry.text }];
+    // What the reply showed, so the AI refines it ("cheaper"); the label is UI only.
+    return [
+      {
+        role: "assistant",
+        content: entry.text,
+        action: action.type === "apply_filters" ? { type: action.type, payload: action.payload } : { type: action.type }
+      }
+    ];
+  });
 }
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -167,6 +202,12 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const mounted = useRef(true);
+  /**
+   * Bumped by every send and by Stop. A reply whose id is no longer current was
+   * stopped or replaced by a newer message, so it is dropped (and its fetch aborted).
+   */
+  const requestId = useRef(0);
+  const inFlight = useRef<AbortController | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -253,7 +294,13 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
   const send = useCallback(
     async (rawText: string, preset?: LocalReply) => {
       const text = rawText.trim().slice(0, MAX_INPUT_CHARS);
-      if (!text || sending) return;
+      if (!text) return;
+      // A new message while thinking replaces the pending one.
+      inFlight.current?.abort();
+      const controller = new AbortController();
+      inFlight.current = controller;
+      const id = ++requestId.current;
+      const isCurrent = () => requestId.current === id;
       const before = assistantStore.transcript(screen);
       const previous = previousFilters(before);
       const pendingClarify = lastAssistant(before)?.clarify ?? null;
@@ -266,12 +313,14 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
       let local: LocalReply | null = preset ?? null;
       if (!local && pendingClarify) local = resolveClarifyFollowUp(text, pendingClarify, context, destinations);
       if (!local) local = matchScreenPreset(text, context);
-      if (!local) local = matchFAQ(text);
+      // Places, filters and navigation before the FAQ, so "I want to travel to Japan" shows Japan plans.
       if (!local) local = localReplyFor(text, context, destinations);
+      if (!local) local = matchFAQ(text);
 
       if (local) {
         // Same thinking loader as a real AI reply, without the round-trip.
         await wait(LOCAL_REPLY_DELAY_MS);
+        if (!isCurrent()) return;
         setTranscript([...assistantStore.transcript(screen), renderLocalReply(refineLocalReply(local, previous, destinations))]);
         if (mounted.current) setSending(false);
         return;
@@ -292,9 +341,10 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
         if (reply) {
           await wait(LOCAL_REPLY_DELAY_MS);
         } else {
-          reply = await sendAssistantMessage({ screen, messages: toApiMessages(withUser) });
+          reply = await sendAssistantMessage({ screen, messages: toApiMessages(withUser) }, controller.signal);
           replyCache.set(cacheKey, reply);
         }
+        if (!isCurrent()) return;
         const outOfScope = reply.outOfScope ? outOfScopeReply(context) : null;
         const clarifySlug = reply.clarify?.destination;
         const clarify =
@@ -320,7 +370,14 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
               }
         ]);
       } catch (error) {
+        if (!isCurrent() || error instanceof AssistantAbortedError) return;
         const kind = error instanceof AssistantRequestError ? error.kind : "failed";
+        // The AI was too slow: a local best guess ("Show plans for Japan") beats an error.
+        const fallback = kind === "timeout" ? timeoutFallbackReply(text, destinations) : null;
+        if (fallback) {
+          setTranscript([...assistantStore.transcript(screen), renderLocalReply(refineLocalReply(fallback, previous, destinations))]);
+          return;
+        }
         setTranscript([
           ...assistantStore.transcript(screen),
           {
@@ -331,11 +388,26 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
           }
         ]);
       } finally {
-        if (mounted.current) setSending(false);
+        if (isCurrent()) {
+          inFlight.current = null;
+          if (mounted.current) setSending(false);
+        }
       }
     },
-    [context, destinations, renderLocalReply, screen, sending, setTranscript]
+    [context, destinations, renderLocalReply, screen, setTranscript]
   );
+
+  /** Stops waiting for the current reply and cancels its request. */
+  const stop = useCallback(() => {
+    requestId.current++;
+    inFlight.current?.abort();
+    inFlight.current = null;
+    setSending(false);
+    inputRef.current?.focus();
+  }, []);
+
+  // Closing the chat cancels a pending reply's request.
+  useEffect(() => () => inFlight.current?.abort(), []);
 
   const handleSuggestion = (suggestion: AssistantSuggestion) => {
     if (suggestion.action) {
@@ -358,12 +430,15 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
   };
 
   const clearConversation = () => {
+    stop();
     setTranscript([]);
     setDraft("");
     inputRef.current?.focus();
   };
 
-  const canSend = draft.trim().length > 0 && !sending;
+  const hasDraft = draft.trim().length > 0;
+  // While thinking with an empty input the button stops; typing turns it back into send.
+  const showStop = sending && !hasDraft;
 
   const chip = (suggestion: AssistantSuggestion, compact: boolean) => {
     const label = t(suggestion.labelKey, suggestion.labelParams);
@@ -376,7 +451,6 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
             ? "bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal text-white shadow-[0_8px_20px_rgba(11,73,183,0.22)] hover:-translate-y-0.5"
             : "border border-brandBlue/25 bg-surface text-brandBlue hover:bg-brandBlue/[0.06]"
         ].join(" ")}
-        disabled={sending && !suggestion.action}
         key={suggestion.id}
         onClick={() => handleSuggestion(suggestion)}
         type="button"
@@ -418,8 +492,7 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
         {transcript.length > 0 ? (
           <button
             aria-label={t("assistant.clear")}
-            className="grid h-9 w-9 place-items-center rounded-full bg-surfaceBright text-onSurfaceVariant transition hover:text-brandInk disabled:opacity-40"
-            disabled={sending}
+            className="grid h-9 w-9 place-items-center rounded-full bg-surfaceBright text-onSurfaceVariant transition hover:text-brandInk"
             onClick={clearConversation}
             type="button"
           >
@@ -512,14 +585,25 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
           rows={1}
           value={draft}
         />
-        <button
-          aria-label={t("assistant.send")}
-          className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full bg-brandBlue text-white transition hover:bg-brandBlue/90 disabled:opacity-40"
-          disabled={!canSend}
-          type="submit"
-        >
-          <ArrowUp aria-hidden="true" size={19} />
-        </button>
+        {showStop ? (
+          <button
+            aria-label={t("assistant.stop")}
+            className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full bg-brandInk text-white transition hover:bg-brandInk/90"
+            onClick={stop}
+            type="button"
+          >
+            <Square aria-hidden="true" fill="currentColor" size={15} />
+          </button>
+        ) : (
+          <button
+            aria-label={t("assistant.send")}
+            className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full bg-brandBlue text-white transition hover:bg-brandBlue/90 disabled:opacity-40"
+            disabled={!hasDraft}
+            type="submit"
+          >
+            <ArrowUp aria-hidden="true" size={19} />
+          </button>
+        )}
       </form>
     </section>
   );

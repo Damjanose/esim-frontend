@@ -2,7 +2,14 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { HeroPackageOption } from "@/services/packages";
 import { t } from "./copy";
-import { clarifyChoices, localReplyFor, matchFAQ, refineLocalReply, resolveClarifyFollowUp } from "./localReplies";
+import {
+  clarifyChoices,
+  localReplyFor,
+  matchFAQ,
+  refineLocalReply,
+  resolveClarifyFollowUp,
+  timeoutFallbackReply
+} from "./localReplies";
 import {
   assistantActionHref,
   assistantScreenForPath,
@@ -11,7 +18,7 @@ import {
   isAssistantVisible,
   toAssistantDestinations
 } from "./navigation";
-import { buildAssistantSuggestions, matchScreenPreset, outOfScopeReply } from "./suggestions";
+import { buildAssistantSuggestions, matchScreenPreset, matchesPreset, outOfScopeReply } from "./suggestions";
 import type { AssistantContext, AssistantDestination } from "./types";
 
 const destinations: AssistantDestination[] = [
@@ -216,5 +223,57 @@ describe("catalog helpers", () => {
     expect(featuredDestinationForPath("/esim/japan", destinations)).toBe("Japan");
     expect(featuredDestinationForPath("/esim/usa", destinations)).toBe("United States");
     expect(featuredDestinationForPath("/destinations", destinations)).toBeNull();
+  });
+});
+
+describe("smarter assistant (2026-10-02)", () => {
+  it("answers real FAQ phrases but never swallows plan requests or small talk", () => {
+    expect(matchFAQ("What is an eSIM?")?.replyKey).toBe("assistant.faq.whatIsEsim");
+    expect(matchFAQ("what's an esim")?.replyKey).toBe("assistant.faq.whatIsEsim");
+    expect(matchFAQ("do I need a physical sim card")?.replyKey).toBe("assistant.faq.physicalSim");
+    for (const text of [
+      "I want to travel to Japan",
+      "how much is Turkey",
+      "price for Germany 10GB",
+      "which countries are in the Europe pass",
+      "I want a refund",
+      "hi how are you"
+    ]) {
+      expect(matchFAQ(text), text).toBeNull();
+    }
+  });
+
+  it("matches presets only for a single-word message", () => {
+    expect(matchesPreset("quick_europe", "Europe")).toBe(true);
+    expect(matchesPreset("quick_europe", "eurpe")).toBe(true);
+    expect(matchesPreset("quick_1week", "week")).toBe(true);
+    expect(matchesPreset("quick_europe", "Europe 10gb")).toBe(false);
+    expect(matchScreenPreset("Europe 10gb", member)).toBeNull();
+  });
+
+  it("falls back to plans for one named place when the AI times out", () => {
+    const reply = timeoutFallbackReply("why should I pick a 10 days plan when I go to japan in april", destinations);
+    expect(reply?.action).toMatchObject({ type: "apply_filters", payload: { destination: "japan", durationFrom: 10 } });
+    expect(timeoutFallbackReply("hi how are you", destinations)).toBeNull();
+    expect(timeoutFallbackReply("japan or germany", destinations)).toBeNull();
+  });
+
+  it("chat parses places before the FAQ, sends shown filters and can stop", () => {
+    const chat = readFileSync("src/app/components/assistant/AssistantChat.tsx", "utf8");
+    expect(chat.indexOf("local = localReplyFor(text")).toBeLessThan(chat.indexOf("local = matchFAQ(text)"));
+    expect(chat).toContain('action.type === "apply_filters" ? { type: action.type, payload: action.payload }');
+    expect(chat).toContain('t("assistant.stop")');
+    expect(chat).toContain("inFlight.current?.abort()");
+    expect((chat.match(/if \(!isCurrent\(\)/g) ?? []).length).toBeGreaterThanOrEqual(3);
+    // Older iOS Safari has no AbortSignal.any.
+    expect(chat).not.toContain("AbortSignal.any");
+    expect(t("assistant.stop")).toBe("Stop");
+    expect(t("assistant.error.timeout")).not.toBe("assistant.error.timeout");
+  });
+
+  it("BFF passes the backend error code through so a timeout is recognised", () => {
+    const route = readFileSync("src/app/bff/assistant/chat/route.ts", "utf8");
+    expect(route).toContain("codeOf(result)");
+    expect(route).toContain("codeOf(guest)");
   });
 });
