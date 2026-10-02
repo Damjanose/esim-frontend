@@ -54,7 +54,7 @@ export function Navbar() {
         >
           <a
             aria-label="eSim2you home"
-            className="flex shrink-0 items-center gap-2.5"
+            className="flex min-h-11 shrink-0 items-center gap-2.5"
             href="/"
           >
             <Image
