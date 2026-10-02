@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useState, type FormEvent, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useId, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Minus, Plus, Sparkles, X } from "lucide-react";
 import { Button } from "@/app/components/Button";
 import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
@@ -96,6 +96,9 @@ export function TripPlanForm({
       onSubmit={submit}
     >
       <h2 className="font-display text-headline-md font-black text-brandInk">New trip plan</h2>
+      <Suspense fallback={null}>
+        <DestinationFromQuery onDestination={(destination) => set("country", destination)} />
+      </Suspense>
 
       <fieldset className="mt-5 grid gap-5 sm:grid-cols-2" disabled={disabled || generating}>
         <legend className="sr-only">Trip</legend>
@@ -251,6 +254,20 @@ export function TripPlanForm({
       ) : null}
     </form>
   );
+}
+
+/**
+ * Prefills the destination from `?destination=` (the AI assistant's "Plan my
+ * trip to X"). Re-runs when the query changes, so a second request while already
+ * on /trip-plan still lands. Its own Suspense boundary keeps /trip-plan static.
+ */
+function DestinationFromQuery({ onDestination }: { onDestination: (destination: string) => void }) {
+  const destination = useSearchParams().get("destination")?.trim().slice(0, 80) ?? "";
+  useEffect(() => {
+    if (destination) onDestination(destination);
+    // onDestination is a fresh closure each render; only a new query value should prefill.
+  }, [destination]);
+  return null;
 }
 
 function Optional() {

@@ -1,6 +1,7 @@
 import { landingContent } from "@/content/landing";
 import Image from "next/image";
 import { Handshake } from "lucide-react";
+import { AssistantLauncher } from "./assistant/AssistantLauncher";
 import { BottomDock } from "./BottomDock";
 import { DOCK_ITEMS } from "./dockNav";
 import { MobileNavbarMenu } from "./MobileNavbarMenu";
@@ -111,6 +112,7 @@ export function Navbar() {
       </NavbarTone>
 
       <BottomDock />
+      <AssistantLauncher />
     </>
   );
 }

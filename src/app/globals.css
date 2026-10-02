@@ -54,6 +54,31 @@ input {
   }
 }
 
+/* The AI assistant's launcher teaser and chat card (components/assistant). */
+@keyframes assistant-teaser {
+  0% {
+    opacity: 0;
+    transform: translate(8px, 50%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0, 50%);
+  }
+}
+
+@keyframes assistant-card {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes runway-sweep {
   0% {
     transform: translateX(-100%);
