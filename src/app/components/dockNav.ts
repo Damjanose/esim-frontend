@@ -3,21 +3,20 @@
  * the app's BottomTabBar (velocity-eSim/src/components/bottomTabLayout.ts).
  * Pure so it can be unit-tested; the component only renders what this decides.
  */
-export type DockItemId = "home" | "esims" | "destinations" | "support" | "profile";
+export type DockItemId = "esims" | "marketplace" | "profile";
 
 export interface DockItem {
   id: DockItemId;
   label: string;
   href: string;
-  /** The raised gradient circle in the middle of the dock (the app's Marketplace). */
+  /** The raised circle in the middle of the dock (the app's Marketplace tab). */
   center?: boolean;
 }
 
+/** The app's three tabs: My eSIMs, Marketplace (center, = the homepage), Profile. */
 export const DOCK_ITEMS: readonly DockItem[] = [
-  { id: "home", label: "Home", href: "/" },
   { id: "esims", label: "My eSIMs", href: "/account" },
-  { id: "destinations", label: "Destinations", href: "/destinations", center: true },
-  { id: "support", label: "Support", href: "/support" },
+  { id: "marketplace", label: "Marketplace", href: "/", center: true },
   { id: "profile", label: "Profile", href: "/profile" }
 ];
 
@@ -29,8 +28,8 @@ const HIDDEN_BELOW: readonly string[] = ["/trip-plan"];
 
 const ACTIVE_ON: ReadonlyArray<readonly [DockItemId, readonly string[]]> = [
   ["esims", ["/account"]],
-  ["destinations", ["/destinations", "/esim", "/pkg"]],
-  ["support", ["/support"]],
+  // /destinations is the same catalog as the homepage, so it stays under Marketplace.
+  ["marketplace", ["/destinations", "/esim", "/pkg"]],
   ["profile", ["/profile"]]
 ];
 
@@ -46,7 +45,7 @@ export function isDockVisible(pathname: string | null): boolean {
 
 export function activeDockItem(pathname: string | null): DockItemId | null {
   if (!pathname) return null;
-  if (pathname === "/") return "home";
+  if (pathname === "/") return "marketplace";
   for (const [id, bases] of ACTIVE_ON) {
     if (bases.some((base) => isUnder(pathname, base))) return id;
   }

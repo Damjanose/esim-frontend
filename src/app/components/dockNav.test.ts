@@ -2,16 +2,10 @@ import { describe, expect, it } from "vitest";
 import { DOCK_ITEMS, activeDockItem, isDockVisible } from "./dockNav";
 
 describe("DOCK_ITEMS", () => {
-  it("mirrors the app tab order with Destinations as the single center action", () => {
-    expect(DOCK_ITEMS.map((item) => item.href)).toEqual([
-      "/",
-      "/account",
-      "/destinations",
-      "/support",
-      "/profile"
-    ]);
+  it("mirrors the app's three tabs with Marketplace (the homepage) in the center", () => {
+    expect(DOCK_ITEMS.map((item) => item.href)).toEqual(["/account", "/", "/profile"]);
     expect(DOCK_ITEMS.filter((item) => item.center).map((item) => item.id)).toEqual([
-      "destinations"
+      "marketplace"
     ]);
   });
 });
@@ -40,21 +34,21 @@ describe("isDockVisible", () => {
 });
 
 describe("activeDockItem", () => {
-  it("only marks Home on the exact root", () => {
-    expect(activeDockItem("/")).toBe("home");
+  it("marks Marketplace on the exact root only, not on other content pages", () => {
+    expect(activeDockItem("/")).toBe("marketplace");
     expect(activeDockItem("/travel")).toBeNull();
+    expect(activeDockItem("/support")).toBeNull();
   });
 
-  it("maps destination, plan and package pages to the center Destinations tab", () => {
-    expect(activeDockItem("/destinations")).toBe("destinations");
-    expect(activeDockItem("/esim/japan")).toBe("destinations");
-    expect(activeDockItem("/pkg/abc")).toBe("destinations");
+  it("maps destination, plan and package pages to the center Marketplace tab", () => {
+    expect(activeDockItem("/destinations")).toBe("marketplace");
+    expect(activeDockItem("/esim/japan")).toBe("marketplace");
+    expect(activeDockItem("/pkg/abc")).toBe("marketplace");
     expect(activeDockItem("/esimguide")).toBeNull();
   });
 
-  it("maps account, support and profile sub-routes to their tabs", () => {
+  it("maps account and profile sub-routes to their tabs", () => {
     expect(activeDockItem("/account/7")).toBe("esims");
-    expect(activeDockItem("/support")).toBe("support");
     expect(activeDockItem("/profile/billing")).toBe("profile");
   });
 

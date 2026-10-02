@@ -37,7 +37,7 @@ describe("landingContent", () => {
   it("points both app store badges at their store listings", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 
-    // The App Download section the navbar links to still exists.
+    // The hero's store buttons keep the #download-app anchor.
     expect(pageSource).toContain('id="download-app"');
     // The store badge hrefs are literal URLs rather than landingContent.appLinks.*.href
     // references, so pin them against the single source of truth here instead —

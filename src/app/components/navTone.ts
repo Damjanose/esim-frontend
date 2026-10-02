@@ -23,12 +23,7 @@ function isUnder(pathname: string, base: string): boolean {
   return pathname === base || pathname.startsWith(`${base}/`);
 }
 
-/** Country plan pages (/esim, /pkg) belong to Destinations, as in the bottom dock. */
-const EXTRA_ACTIVE_ON: Record<string, readonly string[]> = {
-  "/destinations": ["/esim", "/pkg"]
-};
-
 export function isNavLinkActive(pathname: string | null, href: string): boolean {
   if (!pathname) return false;
-  return [href, ...(EXTRA_ACTIVE_ON[href] ?? [])].some((base) => isUnder(pathname, base));
+  return isUnder(pathname, href);
 }

@@ -53,7 +53,7 @@ export default async function Home() {
       <HowItWorks />
       <Testimonials items={testimonials} />
       <TrustAndFaq />
-      <AppAndPartner />
+      <PartnerBand />
       <Cta />
       <SiteFooter />
     </main>
@@ -137,6 +137,8 @@ function Hero() {
 
                 <HeroTuneButton />
               </div>
+
+              <HeroAppBadges />
             </div>
 
           </div>
@@ -229,115 +231,102 @@ function TrustAndFaq() {
   );
 }
 
-/** App download + partner promo: two cards on one row at lg, stacked on phones. */
-function AppAndPartner() {
+/**
+ * App Store / Google Play buttons inside the dark hero, under the search, on
+ * every size: the app is a first-screen choice, not a section further down.
+ * Dark glass so they stay secondary to the search. #download-app is the
+ * anchor old links and the landing tests point at.
+ */
+function HeroAppBadges() {
   return (
-    <div className="bg-surface px-5 py-10 text-onSurface md:px-8 md:py-14">
-      <div className="mx-auto grid max-w-[1280px] gap-5 lg:grid-cols-[1.35fr_1fr]">
-        <AppDownload />
-        <PartnerPromo />
+    <div className="mt-4 w-full max-w-[620px] sm:mt-5" id="download-app">
+      <div className="flex items-center gap-3 lg:hidden">
+        <span aria-hidden="true" className="h-px flex-1 bg-white/20" />
+        <span className="text-sm text-white/75">or get the app</span>
+        <span aria-hidden="true" className="h-px flex-1 bg-white/20" />
+      </div>
+
+      {/* Store buttons: the accessible name starts with the visible text (label-in-name). */}
+      <div className="mt-3 grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2 lg:mt-0 lg:flex lg:items-center lg:gap-3">
+        <span className="hidden text-sm text-white/75 lg:mr-1 lg:block">Or get the app</span>
+        <a
+          aria-label="Download on the App Store, eSim2you"
+          className="flex h-[52px] min-w-0 items-center gap-2 rounded-[14px] border border-white/25 bg-white/[0.08] px-3 text-white transition duration-300 hover:border-white/45 hover:bg-white/15 min-[400px]:gap-2.5 min-[400px]:px-3.5 sm:px-4"
+          href="https://apps.apple.com/app/id6768258284"
+        >
+          <svg
+            aria-hidden="true"
+            className="h-6 w-6 shrink-0 fill-white"
+            viewBox="0 0 24 24"
+          >
+            <path d="M18.71 12.5c.03-2.3 1.88-3.4 1.97-3.45-1.07-1.57-2.74-1.78-3.33-1.8-1.4-.15-2.76.84-3.47.84-.72 0-1.81-.82-2.98-.79-1.51.02-2.93.9-3.71 2.27-1.62 2.8-.41 6.92 1.14 9.19.78 1.1 1.69 2.33 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.37 0 1.78.74 2.98.71 1.23-.02 2.01-1.1 2.76-2.21.9-1.27 1.26-2.52 1.28-2.59-.03-.01-2.44-.95-2.47-3.72ZM16.43 5.77a3.84 3.84 0 0 0 .88-2.77 3.9 3.9 0 0 0-2.55 1.32 3.67 3.67 0 0 0-.91 2.67 3.22 3.22 0 0 0 2.58-1.22Z" />
+          </svg>
+
+          <span className="text-left">
+            <span className="block whitespace-nowrap text-xs font-medium leading-none text-white/75">
+              Download on the
+            </span>
+            {" "}
+            <span className="mt-1 block whitespace-nowrap font-display text-base font-black leading-none text-white">
+              App Store
+            </span>
+          </span>
+        </a>
+
+        <a
+          aria-label="Get it on Google Play, eSim2you"
+          className="flex h-[52px] min-w-0 items-center gap-2 rounded-[14px] border border-white/25 bg-white/[0.08] px-3 text-white transition duration-300 hover:border-white/45 hover:bg-white/15 min-[400px]:gap-2.5 min-[400px]:px-3.5 sm:px-4"
+          href="https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
+        >
+          <svg
+            aria-hidden="true"
+            className="h-[22px] w-[22px] shrink-0"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M3.6 2.55c-.37.39-.6.98-.6 1.74v15.42c0 .76.23 1.35.6 1.74l.09.08 8.64-8.64v-.2L3.69 2.46l-.09.09Z"
+              fill="#41D691"
+            />
+
+            <path
+              d="m15.21 15.78-2.88-2.89v-.2l2.89-2.89.06.04 3.43 1.95c.98.56.98 1.47 0 2.03l-3.43 1.95-.07.01Z"
+              fill="#FFCC00"
+            />
+
+            <path
+              d="m15.28 15.77-2.95-2.98-8.73 8.73c.32.34.86.38 1.47.04l10.21-5.79Z"
+              fill="#F34A45"
+            />
+
+            <path
+              d="M15.28 9.82 5.07 4.03c-.61-.35-1.15-.3-1.47.04l8.73 8.72 2.95-2.97Z"
+              fill="#2AA4F4"
+            />
+          </svg>
+
+          <span className="text-left">
+            <span className="block whitespace-nowrap text-xs font-medium leading-none text-white/75">
+              Get it on
+            </span>
+            {" "}
+            <span className="mt-1 block whitespace-nowrap font-display text-base font-black leading-none text-white">
+              Google Play
+            </span>
+          </span>
+        </a>
       </div>
     </div>
   );
 }
 
-function AppDownload() {
+/** Partner promo on its own row near the end of the page. */
+function PartnerBand() {
   return (
-    <section
-      className="relative min-w-0 overflow-hidden rounded-[24px] border border-outline/70 bg-surfaceBright p-6 sm:p-8"
-      id="download-app"
-    >
-      <div className="relative z-20">
-        <h2 className="font-display text-3xl font-black leading-[1.08] tracking-[-0.04em] text-brandInk sm:text-4xl">
-          Get the app
-        </h2>
-
-        <p className="mt-4 max-w-[520px] text-sm leading-7 text-onSurfaceVariant sm:text-base">
-          Buy and install your eSIM on your phone, see how much data is left,
-          and top up in a couple of taps when you&apos;re running low.
-        </p>
-
-        {/* Store buttons: the accessible name starts with the visible text (label-in-name). */}
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <a
-            aria-label="Download on the App Store, eSim2you"
-            className="group flex h-[64px] min-w-0 items-center gap-3 rounded-[16px] border border-outline bg-surface px-5 transition duration-300 hover:border-brandBlue/50 hover:bg-brandBlue/5 sm:min-w-[210px]"
-            href="https://apps.apple.com/app/id6768258284"
-          >
-            <svg
-              aria-hidden="true"
-              className="h-8 w-8 shrink-0 fill-brandInk"
-              viewBox="0 0 24 24"
-            >
-              <path d="M18.71 12.5c.03-2.3 1.88-3.4 1.97-3.45-1.07-1.57-2.74-1.78-3.33-1.8-1.4-.15-2.76.84-3.47.84-.72 0-1.81-.82-2.98-.79-1.51.02-2.93.9-3.71 2.27-1.62 2.8-.41 6.92 1.14 9.19.78 1.1 1.69 2.33 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.37 0 1.78.74 2.98.71 1.23-.02 2.01-1.1 2.76-2.21.9-1.27 1.26-2.52 1.28-2.59-.03-.01-2.44-.95-2.47-3.72ZM16.43 5.77a3.84 3.84 0 0 0 .88-2.77 3.9 3.9 0 0 0-2.55 1.32 3.67 3.67 0 0 0-.91 2.67 3.22 3.22 0 0 0 2.58-1.22Z" />
-            </svg>
-
-            <span className="text-left">
-              <span className="block text-xs font-medium leading-none text-onSurfaceVariant">
-                Download on the
-              </span>
-              {" "}
-              <span className="mt-1 block font-display text-lg font-black leading-none text-brandInk">
-                App Store
-              </span>
-            </span>
-          </a>
-
-          <a
-            aria-label="Get it on Google Play, eSim2you"
-            className="group flex h-[64px] min-w-0 items-center gap-3 rounded-[16px] border border-outline bg-surface px-5 transition duration-300 hover:border-brandBlue/50 hover:bg-brandBlue/5 sm:min-w-[210px]"
-            href="https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
-          >
-            <svg
-              aria-hidden="true"
-              className="h-8 w-8 shrink-0"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M3.6 2.55c-.37.39-.6.98-.6 1.74v15.42c0 .76.23 1.35.6 1.74l.09.08 8.64-8.64v-.2L3.69 2.46l-.09.09Z"
-                fill="#41D691"
-              />
-
-              <path
-                d="m15.21 15.78-2.88-2.89v-.2l2.89-2.89.06.04 3.43 1.95c.98.56.98 1.47 0 2.03l-3.43 1.95-.07.01Z"
-                fill="#FFCC00"
-              />
-
-              <path
-                d="m15.28 15.77-2.95-2.98-8.73 8.73c.32.34.86.38 1.47.04l10.21-5.79Z"
-                fill="#F34A45"
-              />
-
-              <path
-                d="M15.28 9.82 5.07 4.03c-.61-.35-1.15-.3-1.47.04l8.73 8.72 2.95-2.97Z"
-                fill="#2AA4F4"
-              />
-            </svg>
-
-            <span className="text-left">
-              <span className="block text-xs font-medium leading-none text-onSurfaceVariant">
-                Get it on
-              </span>
-              {" "}
-              <span className="mt-1 block font-display text-lg font-black leading-none text-brandInk">
-                Google Play
-              </span>
-            </span>
-          </a>
-        </div>
+    <div className="bg-surface px-5 py-10 text-onSurface md:px-8 md:py-14">
+      <div className="mx-auto max-w-[1280px]">
+        <PartnerPromo />
       </div>
-
-      <div className="relative mt-6 flex justify-center">
-        <Image
-          alt="eSim2you mobile application"
-          className="relative z-10 h-auto max-h-[300px] w-full max-w-[420px] object-contain object-bottom"
-          height={800}
-          sizes="(min-width: 1024px) 420px, 100vw"
-          src="/images/app-download-phones.png"
-          width={1200}
-        />
-      </div>
-    </section>
+    </div>
   );
 }
 

@@ -31,9 +31,8 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive(null, "/support")).toBe(false);
   });
 
-  it("keeps Destinations active on country plan pages", () => {
-    expect(isNavLinkActive("/esim/italy", "/destinations")).toBe(true);
-    expect(isNavLinkActive("/pkg/123", "/destinations")).toBe(true);
+  it("marks no navbar link on country plan pages", () => {
     expect(isNavLinkActive("/esim/italy", "/compare")).toBe(false);
+    expect(isNavLinkActive("/pkg/123", "/travel")).toBe(false);
   });
 });

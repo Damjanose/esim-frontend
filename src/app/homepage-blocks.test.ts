@@ -55,12 +55,14 @@ describe("homepage marketing blocks", () => {
     expect(src).toContain("min-h-11");
   });
 
-  it("puts app download and partner promo on one row at lg, stacked on phones", () => {
-    const src = fn("AppAndPartner");
-    expect(src).toContain("lg:grid-cols-");
-    expect(src).toContain("<AppDownload />");
-    expect(src).toContain("<PartnerPromo />");
-    expect(page).toContain('id="download-app"');
+  it("puts the store buttons in the hero under the search, and the partner promo on its own row", () => {
+    const hero = fn("Hero");
+    expect(hero).toContain("<HeroAppBadges />");
+    expect(hero.indexOf("<HeroAppBadges />")).toBeGreaterThan(hero.indexOf("<HeroTuneButton />"));
+    expect(fn("HeroAppBadges")).toContain('id="download-app"');
+    // No separate Get the app card further down the page.
+    expect(page).not.toContain("function AppDownload(");
+    expect(fn("PartnerBand")).toContain("<PartnerPromo />");
     expect(page).toContain('id="partner-with-us"');
   });
 
@@ -70,7 +72,7 @@ describe("homepage marketing blocks", () => {
     expect(page).toContain('aria-label="Get it on Google Play, eSim2you"');
     expect(page).toContain("Get it on");
     // No micro text below 12px in the store badges.
-    expect(fn("AppDownload")).not.toContain("text-[10px]");
+    expect(fn("HeroAppBadges")).not.toContain("text-[10px]");
   });
 
   it("renders the closing CTA as a plain row with a single primary button to destinations", () => {
@@ -81,7 +83,7 @@ describe("homepage marketing blocks", () => {
   });
 
   it("uses at most one primary (default variant) button in each of the touched sections", () => {
-    for (const name of ["TrustAndFaq", "AppDownload", "PartnerPromo", "Cta"]) {
+    for (const name of ["TrustAndFaq", "PartnerPromo", "Cta"]) {
       expect((fn(name).match(/<LinkButton/g) ?? []).length).toBeLessThanOrEqual(1);
     }
   });

@@ -9,12 +9,9 @@ import { NavbarAccount } from "./NavbarAccount";
 import { NavbarTone } from "./NavbarTone";
 import { NavLink } from "./NavLink";
 
-/** Real pages only: no homepage #anchors, so every link works from every route. */
+/** Real pages only: no homepage #anchors, so every link works from every route.
+ * No Destinations link: /destinations repeats the homepage catalog (the logo goes there). */
 const navItems = [
-  {
-    label: "Destinations",
-    href: "/destinations"
-  },
   {
     label: "Trip planner",
     href: "/trip-plan"
@@ -30,7 +27,7 @@ const navItems = [
   {
     label: "Use cases",
     href: "/use-cases",
-    // Six links don't fit beside the actions at lg; still in the footer below xl.
+    // Five links don't all fit beside the actions at lg; still in the footer below xl.
     wideOnly: true
   },
   {

@@ -6,12 +6,13 @@ describe("public navigation shell", () => {
     const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
 
     expect(navbar).toContain('href="/"');
-    expect(navbar).toContain('href: "/destinations"');
+    // /destinations repeats the homepage catalog, so it isn't a navbar link.
+    expect(navbar).not.toContain('href: "/destinations"');
     expect(navbar).not.toContain('href="#"');
     expect(navbar).not.toContain('href="#download-app"');
     // Only real pages: no links that just scroll the homepage.
     expect(navbar).not.toMatch(/href: "\/#/);
-    for (const href of ["/travel", "/compare", "/use-cases", "/support"]) {
+    for (const href of ["/trip-plan", "/travel", "/compare", "/use-cases", "/support"]) {
       expect(navbar).toContain(`href: "${href}"`);
     }
   });
