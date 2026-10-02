@@ -134,7 +134,8 @@ function Hero() {
         {/* Full-bleed under lg (the capsule navbar floats inside it), a rounded
             card from lg. No overflow-hidden here: the search dropdown is in
             normal flow and must never be clipped; only the photo layer clips. */}
-        <div className="relative mx-auto max-w-[1400px] rounded-b-[28px] bg-brandInk text-white lg:rounded-[32px]">
+        {/* data-nav-dark: NavbarTone keeps the fixed navbar dark glass while this card is under it. */}
+        <div className="relative mx-auto max-w-[1400px] rounded-b-[28px] bg-brandInk text-white lg:rounded-[32px]" data-nav-dark="">
           <div className="absolute inset-0 overflow-hidden rounded-[inherit]">
             <picture>
               <source media="(min-width: 1024px)" sizes="(min-width: 1440px) 1400px, 1280px" srcSet={wideSrcSet} />

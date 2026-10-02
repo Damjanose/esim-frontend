@@ -11,7 +11,7 @@ type NavItem = {
 
 /**
  * Phone/tablet ☰ panel. Holds only the links the bottom dock doesn't
- * (Plans, How it Works, About Us, Partner with us) plus the browse CTA.
+ * (Travel guides, Compare, Use cases, Partner with us) plus the browse CTA.
  * Anchored to the capsule nav, which is `relative`.
  */
 export function MobileNavbarMenu({ navItems }: { navItems: readonly NavItem[] }) {
@@ -40,7 +40,7 @@ export function MobileNavbarMenu({ navItems }: { navItems: readonly NavItem[] })
       <button
         aria-expanded={mobileOpen}
         aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
-        className="grid h-11 w-11 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/40 hover:text-brandBlue lg:hidden"
+        className="grid h-11 w-11 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/40 hover:text-brandBlue group-data-[tone=dark]:border-white/25 group-data-[tone=dark]:text-white lg:hidden"
         onClick={() => setMobileOpen((open) => !open)}
         type="button"
       >

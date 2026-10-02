@@ -10,6 +10,11 @@ describe("public navigation shell", () => {
     expect(navbar).toContain('href: "/destinations"');
     expect(navbar).not.toContain('href="#"');
     expect(navbar).not.toContain('href="#download-app"');
+    // Only real pages: no links that just scroll the homepage.
+    expect(navbar).not.toMatch(/href: "\/#/);
+    for (const href of ["/travel", "/compare", "/use-cases", "/support"]) {
+      expect(navbar).toContain(`href: "${href}"`);
+    }
   });
 
   it("uses footer links that resolve from every route", () => {
@@ -91,17 +96,24 @@ describe("public navigation shell", () => {
     expect(mobileMenu).toContain("Browse eSIM plans");
   });
 
-  it("uses one capsule navbar style on every page instead of a dark/light theme switch", () => {
+  it("keeps one fixed capsule navbar whose tone follows the page, not a theme prop", () => {
     const navbar = readFileSync("src/app/components/Navbar.tsx", "utf8");
+    const tone = readFileSync("src/app/components/NavbarTone.tsx", "utf8");
     const home = readFileSync("src/app/page.tsx", "utf8");
 
     expect(navbar).toContain("rounded-full");
     expect(navbar).toContain("backdrop-blur-md");
+    // Dark glass over the homepage's dark hero, light glass elsewhere, decided
+    // by NavbarTone from the page itself, never by a prop.
     expect(navbar).not.toContain('theme?: "light" | "dark"');
     expect(home).not.toContain('<Navbar theme="dark" />');
+    expect(navbar).toContain("group-data-[tone=dark]:bg-brandInk/55");
+    expect(tone).toContain('className="group fixed inset-x-0 top-0 z-50');
+    expect(tone).toContain("data-tone={tone}");
+    expect(home).toContain('data-nav-dark=""');
     // The dock must sit outside the blurred capsule: backdrop-filter creates a
     // containing block that would pin a position:fixed child to the header.
-    expect(navbar.indexOf("<BottomDock />")).toBeGreaterThan(navbar.indexOf("</header>"));
+    expect(navbar.indexOf("<BottomDock />")).toBeGreaterThan(navbar.indexOf("</NavbarTone>"));
   });
 
   it("renders the app-style bottom dock on phones and tablets only", () => {
