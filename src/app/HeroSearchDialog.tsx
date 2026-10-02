@@ -4,6 +4,7 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type KeyboardEvent,
   type RefObject,
@@ -84,7 +85,7 @@ function HighlightedName({ name, query }: { name: string; query: string }) {
   );
 }
 
-type HeroMobileSearchProps = {
+type HeroSearchDialogProps = {
   countries: readonly CountryOption[];
   loading: boolean;
   error: string | null;
@@ -95,11 +96,12 @@ type HeroMobileSearchProps = {
 };
 
 /**
- * Phone-only, full-screen destination search. Portaled to <body> so it
- * escapes the hero's `isolate` stacking context and sits above the fixed
- * navbar and bottom dock instead of pushing the hero around.
+ * Destination search dialog: full screen on phones, a centered panel over a
+ * dimmed page from sm up. Portaled to <body> so it escapes the hero's
+ * `isolate` stacking context and sits above the fixed navbar and bottom dock
+ * instead of rendering inline and pushing the hero around.
  */
-export function HeroMobileSearch({
+export function HeroSearchDialog({
   countries,
   loading,
   error,
@@ -107,21 +109,37 @@ export function HeroMobileSearch({
   inputRef,
   onClose,
   onSelect,
-}: HeroMobileSearchProps) {
+}: HeroSearchDialogProps) {
   const [query, setQuery] = useState("");
   const [pendingCode, setPendingCode] = useState<string | null>(null);
   const [recent] = useState(readRecentDestinations);
   const deferredQuery = useDeferredValue(query);
   const normalizedQuery = normalizeDestinationValue(deferredQuery);
+  // Keyboard-highlighted match; resets to the top whenever the query changes.
+  const [active, setActive] = useState({ query: "", index: 0 });
+  const activeIndex = active.query === normalizedQuery ? active.index : 0;
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const { overflow } = document.body.style;
+    const { overflow, paddingRight } = document.body.style;
+    // Desktop scrollbars vanish under overflow:hidden; pad so the page behind
+    // the backdrop doesn't jump sideways.
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
       document.body.style.overflow = overflow;
+      document.body.style.paddingRight = paddingRight;
     };
   }, []);
+
+  useEffect(() => {
+    resultsRef.current
+      ?.querySelector('[data-active="true"]')
+      ?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, normalizedQuery]);
 
   const popular = useMemo(() => {
     const byCode = new Map(
@@ -157,23 +175,67 @@ export function HeroMobileSearch({
     onSelect(country);
   }
 
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Escape") {
-      onClose();
+  function handleInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (matches.length === 0) return;
+      event.preventDefault();
+      const step = event.key === "ArrowDown" ? 1 : -1;
+      setActive({
+        query: normalizedQuery,
+        index: (activeIndex + step + matches.length) % matches.length,
+      });
     } else if (event.key === "Enter" && matches.length > 0) {
       event.preventDefault();
-      select(matches[0]);
+      select(matches[activeIndex] ?? matches[0]);
     }
   }
 
-  function renderRow(country: CountryOption, highlight: boolean) {
+  function handleDialogKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    // Keep Tab inside the dialog; the page behind it is inert to the user.
+    const focusable = Array.from(
+      dialogRef.current?.querySelectorAll<HTMLElement>("input, button:not([disabled])") ?? [],
+    ).filter((element) => element.offsetParent !== null);
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function renderRow(country: CountryOption, highlight: boolean, index = -1) {
     const isPending = pendingCode === country.countryCode;
+    const isActive = highlight && index === activeIndex;
 
     return (
       <li key={country.countryCode}>
         <button
-          className="flex min-h-[60px] w-full items-center gap-3 border-b border-outline/40 px-1 py-2 text-left transition-colors active:bg-brandBlue/5 disabled:opacity-60"
+          className={[
+            "flex min-h-[60px] w-full items-center gap-3 border-b border-outline/40 px-1 py-2 text-left transition-colors active:bg-brandBlue/5 disabled:opacity-60 sm:rounded-[12px] sm:px-2",
+            // Matches share one highlight (keyboard or mouse); other lists use hover.
+            highlight ? "" : "sm:hover:bg-brandBlue/5",
+            isActive ? "bg-brandBlue/5" : "",
+          ].join(" ")}
+          data-active={isActive ? "true" : undefined}
           disabled={navigating}
+          onMouseMove={
+            highlight && !isActive
+              ? () => setActive({ query: normalizedQuery, index })
+              : undefined
+          }
           onClick={() => select(country)}
           type="button"
         >
@@ -235,7 +297,7 @@ export function HeroMobileSearch({
       matches.length > 0 ? (
         <section>
           <h2 className={sectionLabel}>Matching destinations</h2>
-          <ul>{matches.map((country) => renderRow(country, true))}</ul>
+          <ul>{matches.map((country, index) => renderRow(country, true, index))}</ul>
         </section>
       ) : (
         <div className="py-12 text-center">
@@ -274,13 +336,17 @@ export function HeroMobileSearch({
         {popular.length > 0 ? (
           <section>
             <h2 className={sectionLabel}>Popular</h2>
-            <ul>{popular.map((country) => renderRow(country, false))}</ul>
+            <ul className="sm:grid sm:grid-cols-2 sm:gap-x-4">
+              {popular.map((country) => renderRow(country, false))}
+            </ul>
           </section>
         ) : null}
 
         <section>
           <h2 className={sectionLabel}>All destinations · A–Z</h2>
-          <ul>{countries.map((country) => renderRow(country, false))}</ul>
+          <ul className="sm:grid sm:grid-cols-2 sm:gap-x-4">
+            {countries.map((country) => renderRow(country, false))}
+          </ul>
         </section>
       </div>
     );
@@ -288,53 +354,76 @@ export function HeroMobileSearch({
 
   return createPortal(
     <div
-      aria-label="Search destinations"
-      aria-modal="true"
-      className="fixed inset-0 z-[1000] flex flex-col bg-surface text-onSurface"
-      role="dialog"
+      className="fixed inset-0 z-[1000] flex flex-col bg-surface text-onSurface sm:items-center sm:bg-brandInk/60 sm:px-6 sm:pb-6 sm:pt-[10vh] sm:backdrop-blur-sm"
+      onMouseDown={(event) => {
+        // Backdrop click (sm+ only; on phones the panel covers the screen).
+        if (event.target !== event.currentTarget) return;
+        // Stop the mousedown from moving focus to <body> after onClose
+        // has returned it to the hero trigger.
+        event.preventDefault();
+        onClose();
+      }}
     >
-      <div className="flex items-center gap-2.5 border-b border-outline/40 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))]">
-        <label className="flex h-12 min-w-0 flex-1 items-center gap-2.5 rounded-[14px] border-2 border-brandBlue bg-outline/10 pl-3.5 pr-1">
-          <Search aria-hidden="true" className="shrink-0 text-brandBlue" size={20} />
-          <span className="sr-only">Search destination</span>
-          <input
-            autoComplete="off"
-            className="min-w-0 flex-1 bg-transparent text-base font-semibold text-onSurface outline-none placeholder:text-onSurfaceVariant/60"
-            enterKeyHint="search"
-            onChange={(event) => setQuery(event.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Country or region"
-            inputMode="search"
-            ref={inputRef}
-            type="text"
-            value={query}
-          />
-          {query ? (
-            <button
-              aria-label="Clear search"
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-onSurfaceVariant"
-              onClick={() => {
-                setQuery("");
-                inputRef.current?.focus();
-              }}
-              type="button"
-            >
-              <X aria-hidden="true" size={18} />
-            </button>
-          ) : null}
-        </label>
+      <div
+        aria-label="Search destinations"
+        aria-modal="true"
+        className="flex min-h-0 flex-1 flex-col bg-surface sm:max-h-[min(680px,80vh)] sm:w-full sm:max-w-[680px] sm:flex-none sm:overflow-hidden sm:rounded-[24px] sm:shadow-[0_32px_80px_rgba(6,17,49,0.45)]"
+        onKeyDown={handleDialogKeyDown}
+        ref={dialogRef}
+        role="dialog"
+      >
+        <div className="flex items-center gap-2.5 border-b border-outline/40 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] sm:p-4">
+          <label className="flex h-12 min-w-0 flex-1 items-center gap-2.5 rounded-[14px] border-2 border-brandBlue bg-outline/10 pl-3.5 pr-1">
+            <Search aria-hidden="true" className="shrink-0 text-brandBlue" size={20} />
+            <span className="sr-only">Search destination</span>
+            <input
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-base font-semibold text-onSurface outline-none placeholder:text-onSurfaceVariant/60"
+              enterKeyHint="search"
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="Country or region"
+              inputMode="search"
+              ref={inputRef}
+              type="text"
+              value={query}
+            />
+            {query ? (
+              <button
+                aria-label="Clear search"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] text-onSurfaceVariant"
+                onClick={() => {
+                  setQuery("");
+                  inputRef.current?.focus();
+                }}
+                type="button"
+              >
+                <X aria-hidden="true" size={18} />
+              </button>
+            ) : null}
+          </label>
 
-        <button
-          className="h-11 shrink-0 px-1 text-base font-bold text-brandBlue"
-          onClick={onClose}
-          type="button"
+          <button
+            className="h-11 shrink-0 px-1 text-base font-bold text-brandBlue sm:hidden"
+            onClick={onClose}
+            type="button"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(24px,env(safe-area-inset-bottom))] pt-4 sm:px-5 sm:pb-5"
+          ref={resultsRef}
         >
-          Cancel
-        </button>
-      </div>
+          {body}
+        </div>
 
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(24px,env(safe-area-inset-bottom))] pt-4">
-        {body}
+        <div className="hidden items-center gap-4 border-t border-outline/40 px-5 py-2.5 text-xs font-semibold text-onSurfaceVariant sm:flex">
+          <span>↑ ↓ to move</span>
+          <span>Enter to select</span>
+          <span>Esc to close</span>
+        </div>
       </div>
     </div>,
     document.body,
