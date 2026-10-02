@@ -456,10 +456,10 @@ function AppDownload() {
         <Image
           alt="eSim2you mobile application"
           className="relative z-10 h-auto max-h-[300px] w-full max-w-[420px] object-contain object-bottom"
-          height={1080}
+          height={800}
           sizes="(min-width: 1024px) 420px, 100vw"
           src="/images/app-store.png"
-          width={1080}
+          width={1200}
         />
       </div>
     </section>
