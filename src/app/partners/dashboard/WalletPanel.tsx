@@ -4,8 +4,20 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CreditCard, Loader2, Wallet } from "lucide-react";
 import { Button, LinkButton } from "@/app/components/Button";
+import { FIELD_CONTROL_CLASSES, FIELD_TEXT_CLASSES } from "@/app/components/fieldClasses";
 
 const TOPUP_AMOUNTS_EUR = [25, 50, 100, 250];
+
+function formatMoney(cents: number) {
+  return new Intl.NumberFormat("en", { style: "currency", currency: "EUR" }).format(cents / 100);
+}
+
+// On the blue card the buttons are the white flat ones (no gradient: the card is the
+// emphasis), at least 44px tall; messages sit on a white pill so they stay readable.
+const ACTION_CLASSES = "min-h-11";
+const FIELD_CLASSES = `min-w-0 flex-1 ${FIELD_CONTROL_CLASSES} ${FIELD_TEXT_CLASSES}`;
+const MESSAGE_CLASSES = "mt-3 rounded-[10px] bg-surface px-3 py-2 text-sm font-semibold";
+const SECTION_LABEL_CLASSES = "text-xs font-black uppercase tracking-[0.1em] text-surface/80";
 
 /**
  * Wallet actions attached to the partner dashboard: top up the wallet via
@@ -18,7 +30,7 @@ const TOPUP_AMOUNTS_EUR = [25, 50, 100, 250];
  * `/partners/withdraw`) — this panel only starts money moving into the
  * wallet, then links onward.
  */
-export function WalletPanel() {
+export function WalletPanel({ walletBalanceCents }: { walletBalanceCents: number }) {
   const router = useRouter();
 
   const [topupPending, setTopupPending] = useState<number | "custom" | null>(null);
@@ -127,18 +139,24 @@ export function WalletPanel() {
   }
 
   return (
-    <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
-      <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
-        <Wallet aria-hidden="true" className="text-brandBlue" size={20} />
-        Wallet
+    <section aria-labelledby="partner-wallet-heading" className="rounded-[18px] bg-brandBlue p-5 text-surface shadow-brandGlow sm:p-6">
+      <h2
+        className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.1em] text-surface/80"
+        id="partner-wallet-heading"
+      >
+        <Wallet aria-hidden="true" size={16} />
+        Wallet balance
       </h2>
-      <p className="mt-2 text-sm text-onSurfaceVariant">
+      <p className="mt-2 font-display text-[40px] font-black leading-[1.1] tracking-[-0.03em]">
+        {formatMoney(walletBalanceCents)}
+      </p>
+      <p className="mt-2 text-sm text-surface/80">
         Top up your wallet to buy packages at your partner price, or move earned commission into
         it.
       </p>
 
       <div className="mt-6">
-        <p className="text-xs font-black uppercase tracking-[0.1em] text-onSurfaceVariant">
+        <p className={SECTION_LABEL_CLASSES}>
           Top up with Pokpay
         </p>
         <div className="mt-3 flex flex-wrap gap-2.5">
@@ -149,6 +167,7 @@ export function WalletPanel() {
                 disabled={anyActionPending}
                 key={eur}
                 onClick={() => void startTopup(eur * 100, eur)}
+                className={ACTION_CLASSES}
                 size="sm"
                 type="button"
                 variant="flat"
@@ -165,7 +184,7 @@ export function WalletPanel() {
             Custom amount (EUR)
           </label>
           <input
-            className="h-10 w-32 rounded-[10px] border border-outline bg-mist px-3 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+            className={FIELD_CLASSES}
             disabled={anyActionPending}
             id="wallet-custom-topup"
             inputMode="decimal"
@@ -173,21 +192,21 @@ export function WalletPanel() {
             placeholder="Custom €"
             value={customAmount}
           />
-          <Button disabled={anyActionPending || !customAmount} size="sm" type="submit" variant="flat">
+          <Button className={ACTION_CLASSES} disabled={anyActionPending || !customAmount} size="sm" type="submit" variant="flat">
             {topupPending === "custom" ? <Loader2 className="animate-spin" size={14} /> : null}
             Top up
           </Button>
         </form>
 
-        {topupError ? <p className="mt-3 text-sm font-semibold text-error">{topupError}</p> : null}
+        {topupError ? <p className={`${MESSAGE_CLASSES} text-error`}>{topupError}</p> : null}
 
-        <p className="mt-3 text-xs text-onSurfaceVariant">
+        <p className="mt-3 text-xs text-surface/80">
           You will be redirected to Pokpay to complete your payment securely.
         </p>
       </div>
 
-      <div className="mt-7 border-t border-outline/70 pt-6">
-        <p className="text-xs font-black uppercase tracking-[0.1em] text-onSurfaceVariant">
+      <div className="mt-7 border-t border-surface/25 pt-6">
+        <p className={SECTION_LABEL_CLASSES}>
           Transfer commission to wallet
         </p>
 
@@ -196,7 +215,7 @@ export function WalletPanel() {
             Amount to transfer (EUR)
           </label>
           <input
-            className="h-10 w-32 rounded-[10px] border border-outline bg-mist px-3 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+            className={FIELD_CLASSES}
             disabled={anyActionPending}
             id="wallet-transfer-amount"
             inputMode="decimal"
@@ -207,28 +226,28 @@ export function WalletPanel() {
             placeholder="Amount €"
             value={transferAmount}
           />
-          <Button disabled={anyActionPending || !transferAmount} size="sm" type="submit" variant="flat">
+          <Button className={ACTION_CLASSES} disabled={anyActionPending || !transferAmount} size="sm" type="submit" variant="flat">
             {transferBusy ? <Loader2 className="animate-spin" size={14} /> : null}
             Transfer
           </Button>
         </form>
 
-        {transferError ? <p className="mt-3 text-sm font-semibold text-error">{transferError}</p> : null}
+        {transferError ? <p className={`${MESSAGE_CLASSES} text-error`}>{transferError}</p> : null}
         {transferSuccess ? (
-          <p className="mt-3 text-sm font-semibold text-brandTeal">Transferred to your wallet.</p>
+          <p className={`${MESSAGE_CLASSES} text-brandTeal`}>Transferred to your wallet.</p>
         ) : null}
       </div>
 
-      <div className="mt-7 flex flex-wrap gap-3 border-t border-outline/70 pt-6">
-        <LinkButton href="/partners/buy" size="sm" variant="flat">
+      <div className="mt-7 flex flex-wrap gap-3 border-t border-surface/25 pt-6">
+        <LinkButton className={ACTION_CLASSES} href="/partners/buy" size="sm" variant="flat">
           Buy with wallet
           <ArrowRight size={14} />
         </LinkButton>
-        <LinkButton href="/partners/withdraw" size="sm" variant="flat">
+        <LinkButton className={ACTION_CLASSES} href="/partners/withdraw" size="sm" variant="flat">
           Withdraw commission
           <ArrowRight size={14} />
         </LinkButton>
       </div>
-    </div>
+    </section>
   );
 }
