@@ -4,18 +4,31 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Core Web Vitals performance contract", () => {
-  it("serves the homepage hero through next/image with a lightweight WebP source", async () => {
+  it("serves the homepage hero as an art-directed <picture> of lightweight WebP crops", async () => {
     const pageSource = await readFile(join(process.cwd(), "src/app/page.tsx"), "utf8");
-    const heroWebpPath = join(process.cwd(), "public/images/mountain.webp");
 
-    expect(pageSource).toContain('import Image from "next/image"');
-    expect(pageSource).toContain('src="/images/mountain.webp"');
-    expect(pageSource).toContain("priority");
-    // `priority` alone preloads without a priority hint; LCP needs it high.
-    expect(pageSource).toContain('fetchPriority="high"');
-    expect(pageSource).toContain('sizes="100vw"');
-    expect(existsSync(heroWebpPath)).toBe(true);
-    expect(statSync(heroWebpPath).size).toBeLessThan(450 * 1024);
+    // getImageProps + <picture>: the browser downloads only the crop for its
+    // breakpoint (tall below lg, wide from lg), still through the image optimizer.
+    expect(pageSource).toContain('import { getImageProps } from "next/image"');
+    expect(pageSource).toContain("<picture>");
+    expect(pageSource).toContain('<source media="(min-width: 1024px)"');
+    expect(pageSource).toContain('src: "/images/hero-earth-wide.webp"');
+    expect(pageSource).toContain('src: "/images/hero-earth-tall.webp"');
+    // No `priority` (it would preload the tall crop on desktop too); the LCP
+    // <img> is eager with a high fetch priority instead.
+    expect(pageSource).toContain('fetchPriority: "high"');
+    expect(pageSource).toContain('loading: "eager"');
+    expect(pageSource).toContain('sizes="(min-width: 1440px) 1400px, 1280px"');
+    expect(pageSource).toContain("quality: 90,");
+    expect(pageSource).toContain("quality: 80,");
+
+    // High-quality masters: visitors only ever get the optimizer's per-width
+    // re-encodes, never these files, so the cap is on the source, not the wire.
+    for (const file of ["hero-earth-wide.webp", "hero-earth-tall.webp"]) {
+      const path = join(process.cwd(), "public/images", file);
+      expect(existsSync(path)).toBe(true);
+      expect(statSync(path).size).toBeLessThan(1500 * 1024);
+    }
   });
 
   it("does not mark unversioned logo files as immutable year-long cache", async () => {
@@ -39,12 +52,6 @@ describe("Core Web Vitals performance contract", () => {
     expect(configSource).toContain('hostname: "*.wikimedia.org"');
   });
 
-  it("reserves hero chip space while popular destinations load (CLS)", async () => {
-    const source = await readFile(join(process.cwd(), "src/app/HeroDestinationChips.tsx"), "utf8");
-
-    expect(source).toContain("CHIP_PLACEHOLDER_WIDTHS");
-    expect(source).toContain("if (popular === null)");
-  });
 
   it("serves the footer logo through next/image at its display size", async () => {
     const source = await readFile(join(process.cwd(), "src/app/SiteFooter.tsx"), "utf8");

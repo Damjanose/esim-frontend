@@ -119,6 +119,15 @@ export const indexableRoutes: IndexableRoute[] = [
     priority: 0.6
   })),
   {
+    path: "/trip-plan",
+    url: `${siteUrl}/trip-plan`,
+    title: "AI Trip Planner: Day-by-Day Itineraries | eSim2you",
+    description:
+      "Tell us where you're going and for how long. Get a day-by-day travel itinerary with timed stops, transport tips and practical notes, then download it as a PDF.",
+    changeFrequency: "monthly",
+    priority: 0.7
+  },
+  {
     path: "/support",
     url: `${siteUrl}/support`,
     title: "Support Center | eSIM2you",
@@ -282,7 +291,7 @@ export function createWebPageJsonLd({
   description,
   breadcrumbName
 }: {
-  path: "/policy" | "/support" | "/terms";
+  path: "/policy" | "/support" | "/terms" | "/trip-plan";
   name: string;
   description: string;
   breadcrumbName: string;

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { Button } from "../components/Button";
 
 export type LinkedIdentity = {
   provider: "google" | "apple";
@@ -51,7 +52,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
 
   if (identities.length === 0) {
     return (
-      <p className="border-b border-outline/70 px-1 py-4 text-sm text-onSurfaceVariant">
+      <p className="px-4 py-4 text-sm text-onSurfaceVariant">
         No sign-in providers linked. You sign in with an emailed code.
       </p>
     );
@@ -59,10 +60,11 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
 
   return (
     <>
-      <ul>
+      {/* Inside a SettingsGroup card: rows split by hairlines like the card's own. */}
+      <ul className="divide-y divide-outline/60">
         {identities.map((identity) => (
           <li
-            className="flex items-center gap-4 border-b border-outline/70 px-1 py-4"
+            className="flex min-h-14 items-center gap-4 px-4 py-3"
             key={identity.provider}
           >
             <span className="min-w-0 flex-1">
@@ -74,23 +76,24 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
               </span>
             </span>
 
-            <button
-              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-[10px] border border-outline px-4 text-xs font-black text-onSurfaceVariant transition hover:border-brandBlue/75 hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-60"
+            <Button
+              className="shrink-0"
               disabled={pending !== null}
               onClick={() => void unlink(identity.provider)}
               type="button"
+              variant="flat"
             >
               {pending === identity.provider ? (
-                <Loader2 className="animate-spin" size={13} />
+                <Loader2 aria-hidden="true" className="animate-spin" size={14} />
               ) : null}
               Unlink
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
 
       {error ? (
-        <p className="border-b border-outline/70 px-1 py-4 text-sm font-semibold text-error">{error}</p>
+        <p className="px-4 py-4 text-sm font-semibold text-error">{error}</p>
       ) : null}
     </>
   );

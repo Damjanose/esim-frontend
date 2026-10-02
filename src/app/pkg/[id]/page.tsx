@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { CalendarClock, Database, Globe2, Phone } from "lucide-react";
+import { Globe2 } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
+import { planRowTags } from "@/lib/planRow";
 import { landingContent } from "@/content/landing";
 import { getPackageOption } from "@/services/server-packages";
 import { Navbar } from "../../components/Navbar";
+import { PlanRow } from "../../components/PlanRow";
 import { SiteFooter } from "../../SiteFooter";
 import { OpenAppActions } from "./OpenAppActions";
 
@@ -47,27 +49,6 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
   const plan = await getPackageOption(packageId);
   const { appLinks } = landingContent;
 
-  const rows = plan
-    ? [
-        { icon: Globe2, label: "Destination", value: plan.country },
-        { icon: Database, label: "Data", value: plan.dataLabel },
-        { icon: CalendarClock, label: "Validity", value: plan.durationLabel },
-        ...(plan.voiceMinutes || plan.smsCount
-          ? [
-              {
-                icon: Phone,
-                label: "Voice & SMS",
-                value: [
-                  plan.voiceMinutes ? `${plan.voiceMinutes} min` : null,
-                  plan.smsCount ? `${plan.smsCount} SMS` : null
-                ]
-                  .filter(Boolean)
-                  .join(" + ")
-              }
-            ]
-          : [])
-      ]
-    : [];
   const coverage = plan?.countries ?? [];
 
   return (
@@ -95,27 +76,13 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-outline/70 bg-white p-5">
-              <dl>
-                {rows.map(({ icon: Icon, label, value }) => (
-                  <div className="flex items-center justify-between gap-4 py-1.5" key={label}>
-                    <dt className="flex items-center gap-2 text-[13px] text-onSurfaceVariant">
-                      <Icon aria-hidden="true" className="text-brandBlue" size={15} />
-                      {label}
-                    </dt>
-                    <dd className="text-right text-[13px] font-bold text-brandInk">{value}</dd>
-                  </div>
-                ))}
-              </dl>
+            <div className="mt-6">
+              <PlanRow plan={plan} showTitle={false} tags={planRowTags(plan, { position: null })} />
               {coverage.length > 1 ? (
-                <p className="mt-3 border-t border-outline/70 pt-3 text-xs text-onSurfaceVariant">
+                <p className="mt-3 rounded-[14px] bg-surfaceBright px-4 py-3 text-xs text-onSurfaceVariant">
                   Covers {coverage.length} countries: {coverage.map((country) => country.title).join(", ")}
                 </p>
               ) : null}
-              <div className="mt-4 flex items-baseline justify-between border-t border-outline/70 pt-4">
-                <span className="text-sm font-semibold text-onSurfaceVariant">Price</span>
-                <span className="font-display text-2xl font-black text-brandInk">{plan.price}</span>
-              </div>
             </div>
           </>
         ) : (

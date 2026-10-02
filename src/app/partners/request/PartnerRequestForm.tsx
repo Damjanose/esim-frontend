@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 import type { CountryOption } from "@/services/packages";
 
 // Mirrors PARTNER_TYPES in `E-SIM backend/src/services/partner.service.ts` —
@@ -79,10 +80,10 @@ export function PartnerRequestForm({ countries }: { countries: CountryOption[] }
 
   return (
     <form className="mt-6 space-y-4" onSubmit={submit}>
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         Partner type
         <select
-          className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+          className={FIELD_INPUT_CLASSES}
           onChange={(event) =>
             setForm((current) => ({ ...current, partnerType: event.target.value }))
           }
@@ -100,11 +101,11 @@ export function PartnerRequestForm({ countries }: { countries: CountryOption[] }
         </select>
       </label>
 
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         Business or brand name
         <input
           autoComplete="organization"
-          className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+          className={FIELD_INPUT_CLASSES}
           onChange={(event) =>
             setForm((current) => ({ ...current, businessName: event.target.value }))
           }
@@ -112,11 +113,11 @@ export function PartnerRequestForm({ countries }: { countries: CountryOption[] }
         />
       </label>
 
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         Country
         <select
           autoComplete="country-name"
-          className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+          className={FIELD_INPUT_CLASSES}
           onChange={(event) => setForm((current) => ({ ...current, country: event.target.value }))}
           required
           value={form.country}
@@ -132,11 +133,11 @@ export function PartnerRequestForm({ countries }: { countries: CountryOption[] }
         </select>
       </label>
 
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         Website (optional)
         <input
           autoComplete="url"
-          className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+          className={FIELD_INPUT_CLASSES}
           onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))}
           type="url"
           value={form.website}

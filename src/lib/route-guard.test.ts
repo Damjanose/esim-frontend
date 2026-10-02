@@ -51,4 +51,10 @@ describe("guardedRedirect", () => {
       "/signin?next=%2Fpartners%2Frequest"
     );
   });
+
+  it("keeps the /trip-plan landing public but guards each plan page", () => {
+    expect(guardedRedirect("/trip-plan", "", false)).toBeNull();
+    expect(guardedRedirect("/trip-plan/abc123", "", false)).toBe("/signin?next=%2Ftrip-plan%2Fabc123");
+    expect(guardedRedirect("/trip-plan/abc123", "", true)).toBeNull();
+  });
 });

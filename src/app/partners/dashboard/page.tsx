@@ -6,9 +6,13 @@ import { LinkButton } from "@/app/components/Button";
 import { getPublicOrigin } from "@/lib/public-origin";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
+import { AccountShell } from "../../components/AccountShell";
 import { Navbar } from "../../components/Navbar";
+import { SettingsGroup, SettingsLinkRow } from "../../components/SettingsGroup";
+import { SignOutButton } from "../../components/SignOutButton";
 import { SiteFooter } from "../../SiteFooter";
 import { CopyField } from "../../account/[orderId]/CopyField";
+import { PARTNER_NAV, PARTNER_NAV_ICONS, partnerShellItems } from "../partnerShellItems";
 import { QrCodeCard } from "./QrCodeCard";
 import { DiscountPanel } from "./DiscountPanel";
 import { WalletPanel } from "./WalletPanel";
@@ -51,6 +55,12 @@ type Dashboard = {
 // that isn't earning yet or no longer is.
 const DASHBOARD_STATUSES = new Set(["Pending", "Active"]);
 
+// White tile: the discount, promo, stat and commission blocks (the wallet is the blue card).
+const TILE_CLASSES = "rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6";
+const EMPTY_CARD_CLASSES =
+  "mt-8 flex flex-col items-center rounded-[20px] border border-outline/60 bg-surface px-6 py-14 text-center shadow-brandCard";
+const ERROR_CARD_CLASSES = "mt-8 rounded-[18px] border border-error/30 bg-surface px-6 py-5 shadow-brandCard";
+
 function formatMoney(cents: number) {
   return new Intl.NumberFormat("en", { style: "currency", currency: "EUR" }).format(cents / 100);
 }
@@ -73,58 +83,66 @@ export default async function PartnerDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface text-onSurface">
+    // overflow-x-clip, not -hidden: hidden would make <main> a scroll container and
+    // the AccountShell sidebar would stop sticking.
+    <main className="min-h-screen overflow-x-clip bg-surfaceBright text-onSurface">
       <Navbar />
 
-      <section className="mx-auto w-full max-w-[900px] px-5 pb-24 pt-28 lg:px-10">
-        <Link
-          className="inline-flex items-center gap-2 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk"
-          href="/profile"
+      <div className="mx-auto w-full max-w-[1200px] px-4 pb-16 pt-[92px] sm:px-6 lg:px-10 lg:pb-24 lg:pt-[108px]">
+        <AccountShell
+          footer={<SignOutButton appearance="nav" />}
+          items={partnerShellItems("dashboard")}
+          label="Partner"
         >
-          <ArrowLeft size={14} />
-          Profile
-        </Link>
+          <Link
+            className="inline-flex min-h-11 items-center gap-2 px-1 text-xs font-black text-onSurfaceVariant transition hover:text-brandInk lg:hidden"
+            href="/profile"
+          >
+            <ArrowLeft size={14} />
+            Profile
+          </Link>
 
-        <h1 className="mt-7 font-display text-3xl font-black tracking-[-0.03em] text-brandInk sm:text-4xl">
-          Partner dashboard
-        </h1>
+          <h1 className="px-1 font-display text-[28px] font-black leading-[1.15] tracking-[-0.03em] text-brandInk lg:text-4xl">
+            Partner dashboard
+          </h1>
 
-        {!result.ok && result.status === 404 ? (
-          <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline bg-white px-6 py-14 text-center shadow-brandCard">
-            <p className="font-display text-xl font-black text-brandInk">
-              You haven&apos;t applied yet
-            </p>
-            <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-              Apply to the eSim2you partner program to start earning commission on referred
-              bookings.
-            </p>
-            <LinkButton className="mt-7" href="/partners/request">
-              Apply now
-              <ArrowRight size={16} />
-            </LinkButton>
-          </div>
-        ) : !result.ok ? (
-          <div className="mt-8 rounded-[18px] border border-amber-600/30 bg-amber-50 px-6 py-5">
-            <p className="font-bold text-brandInk">We couldn&apos;t load your dashboard</p>
-            <p className="mt-1 text-sm text-amber-700">{result.message}</p>
-          </div>
-        ) : !DASHBOARD_STATUSES.has(result.data.status) ? (
-          <div className="mt-8 flex flex-col items-center rounded-[20px] border border-outline bg-white px-6 py-14 text-center shadow-brandCard">
-            <p className="font-display text-xl font-black text-brandInk">
-              Your dashboard isn&apos;t ready yet
-            </p>
-            <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-              Check your partner status to see what&apos;s next.
-            </p>
-            <LinkButton className="mt-7" href="/partners/status">
-              View partner status
-              <ArrowRight size={16} />
-            </LinkButton>
-          </div>
-        ) : (
-          <DashboardContent dashboard={result.data} referralLink={referralLink} />
-        )}
-      </section>
+          {!result.ok && result.status === 404 ? (
+            <div className={EMPTY_CARD_CLASSES}>
+              <p className="font-display text-xl font-black text-brandInk">
+                You haven&apos;t applied yet
+              </p>
+              <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
+                Apply to the eSim2you partner program to start earning commission on referred
+                bookings.
+              </p>
+              <LinkButton className="mt-7" href="/partners/request">
+                Apply now
+                <ArrowRight size={16} />
+              </LinkButton>
+            </div>
+          ) : !result.ok ? (
+            <div className={ERROR_CARD_CLASSES}>
+              <p className="font-bold text-brandInk">We couldn&apos;t load your dashboard</p>
+              <p className="mt-1 text-sm text-error">{result.message}</p>
+            </div>
+          ) : !DASHBOARD_STATUSES.has(result.data.status) ? (
+            <div className={EMPTY_CARD_CLASSES}>
+              <p className="font-display text-xl font-black text-brandInk">
+                Your dashboard isn&apos;t ready yet
+              </p>
+              <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
+                Check your partner status to see what&apos;s next.
+              </p>
+              <LinkButton className="mt-7" href="/partners/status">
+                View partner status
+                <ArrowRight size={16} />
+              </LinkButton>
+            </div>
+          ) : (
+            <DashboardContent dashboard={result.data} referralLink={referralLink} />
+          )}
+        </AccountShell>
+      </div>
 
       <SiteFooter />
     </main>
@@ -139,9 +157,29 @@ function DashboardContent({
   referralLink: string | null;
 }) {
   return (
-    <div className="mt-8 space-y-5">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+    <div className="mt-6 space-y-4 lg:mt-8 lg:space-y-5">
+      <WalletPanel walletBalanceCents={dashboard.walletBalanceCents} />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:gap-5">
+        <StatCard icon={Users} label="Referred customers" value={String(dashboard.validCustomerCount)} />
+        <StatCard icon={Wallet} label="Commission balance" value={formatMoney(dashboard.commissionBalanceCents)} />
+      </div>
+
+      {/* Phones and tablets: the partner sub-pages as the app's grouped list (lg+ has the sidebar). */}
+      <SettingsGroup className="lg:hidden" label="Partner tools">
+        {PARTNER_NAV.filter((entry) => entry.id !== "dashboard").map((entry) => (
+          <SettingsLinkRow
+            description={entry.description}
+            href={entry.href}
+            icon={PARTNER_NAV_ICONS[entry.id]}
+            key={entry.id}
+            label={entry.label}
+          />
+        ))}
+      </SettingsGroup>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-5">
+        <div className={TILE_CLASSES}>
           <h2 className="font-display text-xl font-black text-brandInk">Your promo code</h2>
           <p className="mt-2 text-sm text-onSurfaceVariant">
             Share this code or your referral link — anyone who books with it counts toward your
@@ -168,19 +206,12 @@ function DashboardContent({
         {referralLink ? <QrCodeCard label="Scan to open your referral link" value={referralLink} /> : null}
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
-        <StatCard icon={Users} label="Referred customers" value={String(dashboard.validCustomerCount)} />
-        <StatCard icon={Wallet} label="Commission balance" value={formatMoney(dashboard.commissionBalanceCents)} />
-        <StatCard icon={Wallet} label="Wallet balance" value={formatMoney(dashboard.walletBalanceCents)} />
-      </div>
-
-      <WalletPanel />
       <DiscountPanel
         discountPct={dashboard.discountPct}
         maxDiscountPct={dashboard.maxDiscountPct ?? 15}
       />
 
-      <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+      <div className={TILE_CLASSES}>
         <h2 className="font-display text-xl font-black text-brandInk">Recent commissions</h2>
 
         {dashboard.recentCredits.length === 0 ? (
@@ -231,8 +262,8 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard">
-      <span className="grid h-11 w-11 place-items-center rounded-[12px] border border-outline bg-mist text-brandBlue">
+    <div className={TILE_CLASSES}>
+      <span className="grid h-11 w-11 place-items-center rounded-[12px] bg-brandBlue/10 text-brandBlue">
         <Icon size={20} />
       </span>
       <p className="mt-4 font-display text-2xl font-black tracking-[-0.03em] text-brandInk">{value}</p>

@@ -239,7 +239,7 @@ export function SocialSignInButtons({
   }
 
   return (
-    <div className="mt-8">
+    <div className="mt-6">
       <div className="flex items-center gap-4">
         <span className="h-px flex-1 bg-gradient-to-r from-transparent to-outline" />
         <span className="text-[10px] font-black uppercase tracking-[0.22em] text-onSurfaceVariant">
@@ -253,14 +253,18 @@ export function SocialSignInButtons({
           rather than the taller house button above. */}
       <div className="mt-5 flex flex-col items-center gap-3" ref={rowRef}>
         {GOOGLE_CLIENT_ID ? (
-          // No forced height: Google owns the button box, and clipping it would
-          // cut the label. The measured width is what makes it span the card.
-          <div className="flex w-full justify-center" ref={googleButtonRef} />
+          // CLS guard, never a clip (no overflow-hidden, so the label is never cut):
+          // Google first mounts a plain fallback button and then its iframe next to
+          // it inside its own wrapper div, and drops the fallback once the iframe
+          // loads. [&>div]:grid stacks the two in one cell and h-10 fixes the box
+          // (the iframe is 44px with -2px margins = 40px of layout), so Apple and
+          // the terms below never jump. The measured width is what makes it span the card.
+          <div className="flex h-10 w-full justify-center [&>div>*]:[grid-area:1/1] [&>div]:grid" ref={googleButtonRef} />
         ) : null}
 
         {APPLE_SERVICES_ID ? (
           <button
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-outline bg-white text-sm font-semibold text-brandInk transition hover:bg-mist focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue disabled:cursor-not-allowed disabled:opacity-60"
+            className="relative inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-outline bg-white after:absolute after:inset-x-0 after:-inset-y-0.5 after:content-[''] text-sm font-semibold text-brandInk transition hover:bg-surfaceBright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue disabled:cursor-not-allowed disabled:opacity-60"
             disabled={busy !== null}
             onClick={() => void signInWithApple()}
             type="button"

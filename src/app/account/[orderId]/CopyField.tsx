@@ -17,7 +17,7 @@ export function CopyField({ label, value }: { label: string; value: string }) {
   }
 
   return (
-    <div className="rounded-[12px] border border-outline bg-mist px-4 py-3">
+    <div className="rounded-[12px] border border-outline/60 bg-surfaceBright px-4 py-3">
       <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">{label}</p>
 
       <div className="mt-1.5 flex items-center gap-3">
@@ -25,11 +25,11 @@ export function CopyField({ label, value }: { label: string; value: string }) {
 
         <button
           aria-label={`Copy ${label}`}
-          className="shrink-0 rounded-[8px] border border-outline p-2 text-onSurfaceVariant transition hover:border-brandBlue/75 hover:text-brandInk"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] border border-outline bg-surface text-onSurfaceVariant transition hover:border-brandBlue/75 hover:text-brandInk"
           onClick={() => void copy()}
           type="button"
         >
-          {copied ? <Check size={14} /> : <Copy size={14} />}
+          {copied ? <Check aria-hidden="true" size={16} /> : <Copy aria-hidden="true" size={16} />}
         </button>
       </div>
     </div>

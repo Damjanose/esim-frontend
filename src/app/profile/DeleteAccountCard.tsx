@@ -5,9 +5,9 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
 
 /**
- * Trigger stays a quiet text link (mirrors the mobile app's footer-tucked
- * "Delete account" link) so the destructive action never visually competes
- * with the rest of the page. The confirm flow itself lives in a native
+ * Trigger is a flat danger button at the end of the settings list (never solid
+ * red, never the page's gradient), so the destructive action never visually
+ * competes with the rest of the page. The confirm flow itself lives in a native
  * <dialog> — deletion is irreversible and the confirm step spells out what
  * is removed and what is kept.
  */
@@ -54,13 +54,12 @@ export function DeleteAccountCard() {
 
   return (
     <>
-      <button
-        className="text-xs font-semibold text-onSurfaceVariant underline decoration-onSurfaceVariant/40 underline-offset-2 transition hover:text-error"
-        onClick={openDialog}
-        type="button"
-      >
-        Want to leave? Delete account
-      </button>
+      <div className="flex flex-col gap-2 px-1 lg:flex-row lg:items-center lg:gap-4">
+        <p className="text-xs text-onSurfaceVariant">Want to leave?</p>
+        <Button className="w-full lg:w-auto" onClick={openDialog} tone="danger" type="button" variant="flat">
+          Delete account
+        </Button>
+      </div>
 
       <dialog
         ref={dialogRef}

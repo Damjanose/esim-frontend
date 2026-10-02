@@ -31,7 +31,7 @@ export function QrCodeCard({ value, label }: { value: string; label?: string }) 
   }, [value]);
 
   return (
-    <div className="flex flex-col items-center rounded-[16px] border border-outline bg-white p-5">
+    <div className="flex flex-col items-center rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard">
       {dataUrl ? (
         // Plain img: the QR is a data URI, which the image optimiser cannot process.
         <img alt={label ?? "QR code"} className="h-[180px] w-[180px] object-contain" src={dataUrl} />
@@ -40,7 +40,7 @@ export function QrCodeCard({ value, label }: { value: string; label?: string }) 
           Couldn&apos;t generate the QR code.
         </p>
       ) : (
-        <div className="h-[180px] w-[180px] animate-pulse rounded-[12px] bg-mist" />
+        <div className="h-[180px] w-[180px] animate-pulse rounded-[12px] bg-brandBlue/10" />
       )}
 
       {label ? <p className="mt-4 text-center text-xs text-onSurfaceVariant">{label}</p> : null}

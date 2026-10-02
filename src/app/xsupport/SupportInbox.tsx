@@ -286,6 +286,19 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     [authHeaders, emitTyping, handleAuthStatus, loadUnreadCount, tab]
   );
 
+  // Deep link from the admin "new support message" email: /xsupport?thread=<id>.
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current) return;
+    deepLinkHandledRef.current = true;
+    const url = new URL(window.location.href);
+    const threadId = url.searchParams.get("thread");
+    if (!threadId) return;
+    url.searchParams.delete("thread");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    void openThread(threadId);
+  }, [openThread]);
+
   useEffect(() => {
     void loadThreads(tab);
   }, [loadThreads, tab]);

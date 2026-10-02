@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Percent } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { FIELD_CONTROL_CLASSES, FIELD_TEXT_CLASSES } from "@/app/components/fieldClasses";
 
 export function DiscountPanel({
   discountPct,
@@ -61,7 +62,7 @@ export function DiscountPanel({
   }
 
   return (
-    <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+    <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <Percent aria-hidden="true" className="text-brandBlue" size={20} />
         Your discount
@@ -75,23 +76,25 @@ export function DiscountPanel({
         <label className="sr-only" htmlFor="partner-discount-pct">
           Discount percentage
         </label>
-        <input
-          className="h-10 w-24 rounded-[10px] border border-outline bg-mist px-3 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
-          disabled={busy}
-          id="partner-discount-pct"
-          inputMode="numeric"
-          max={maxDiscountPct}
-          min={0}
-          onChange={(event) => {
-            setSuccess(false);
-            setDraft(event.target.value);
-          }}
-          step={1}
-          type="number"
-          value={draft}
-        />
+        <div className="w-24">
+          <input
+            className={`${FIELD_CONTROL_CLASSES} ${FIELD_TEXT_CLASSES}`}
+            disabled={busy}
+            id="partner-discount-pct"
+            inputMode="numeric"
+            max={maxDiscountPct}
+            min={0}
+            onChange={(event) => {
+              setSuccess(false);
+              setDraft(event.target.value);
+            }}
+            step={1}
+            type="number"
+            value={draft}
+          />
+        </div>
         <span className="text-sm font-bold text-onSurfaceVariant">%</span>
-        <Button disabled={busy} size="sm" type="submit" variant="flat">
+        <Button className="min-h-11" disabled={busy} size="sm" type="submit" variant="flat">
           {busy ? <Loader2 className="animate-spin" size={14} /> : null}
           Save
         </Button>

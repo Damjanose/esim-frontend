@@ -34,11 +34,15 @@ describe("profile page", () => {
   });
 
   it("is reachable from the navbar on every page", () => {
-    expect(navbar).toContain('href="/profile"');
+    expect(navbar).toContain("<NavbarAccount />");
+    expect(readFileSync("src/app/components/NavbarAccount.tsx", "utf8")).toContain('href="/profile"');
   });
 
   it("is reachable from the eSIM list", () => {
-    expect(accountPage).toContain('href="/profile"');
+    // lg+: the AccountShell sidebar (Account → /profile); below lg the dock's Profile tab.
+    const accountNav = readFileSync("src/lib/accountNav.ts", "utf8");
+    expect(accountPage).toContain('items={accountShellItems("esims")}');
+    expect(accountNav).toContain('{ id: "account", label: "Account", href: "/profile" }');
   });
 
   it("links payments and billing", () => {

@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, FileWarning, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { FIELD_CONTROL_CLASSES, FIELD_LABEL_CLASSES, FIELD_TEXT_CLASSES } from "@/app/components/fieldClasses";
 
 /**
  * Shown when a partner's status is `VerificationRequired` (set after their
@@ -60,9 +61,9 @@ export function VerificationForm() {
   }
 
   return (
-    <div className="rounded-[20px] border border-amber-600/30 bg-amber-50 p-6 sm:p-8">
+    <div className="rounded-[18px] border border-brandBlue/30 bg-brandBlue/5 p-5 sm:p-6">
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
-        <FileWarning aria-hidden="true" className="text-amber-600" size={20} />
+        <FileWarning aria-hidden="true" className="text-brandBlue" size={20} />
         Verification needed
       </h2>
       <p className="mt-2 text-sm text-onSurfaceVariant">
@@ -72,10 +73,10 @@ export function VerificationForm() {
       </p>
 
       <form className="mt-5 space-y-4" onSubmit={submit}>
-        <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        <label className={FIELD_LABEL_CLASSES}>
           Verification details
           <textarea
-            className="mt-2 min-h-[120px] w-full rounded-[12px] border border-outline bg-white px-4 py-3 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+            className={`mt-2 min-h-[120px] py-3 ${FIELD_CONTROL_CLASSES.replace("h-12 ", "")} ${FIELD_TEXT_CLASSES}`}
             onChange={(event) => {
               setSuccess(false);
               setDetails(event.target.value);
@@ -93,7 +94,7 @@ export function VerificationForm() {
           </span>
         ) : null}
 
-        <Button disabled={busy || !details.trim()} type="submit">
+        <Button disabled={busy || !details.trim()} type="submit" variant="flat">
           {busy ? <Loader2 className="animate-spin" size={18} /> : null}
           Submit for review
         </Button>

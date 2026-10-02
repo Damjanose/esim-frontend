@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Banknote, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 
 // Mirrors MINIMUM_WITHDRAWAL_CENTS in
 // `E-SIM backend/src/services/partnerPayout.service.ts` — kept as a client-side
@@ -78,7 +79,7 @@ export function WithdrawForm({ commissionBalanceCents }: { commissionBalanceCent
   }
 
   return (
-    <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+    <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <Banknote aria-hidden="true" className="text-brandBlue" size={20} />
         Withdraw
@@ -96,11 +97,11 @@ export function WithdrawForm({ commissionBalanceCents }: { commissionBalanceCent
         </p>
       ) : (
         <form className="mt-5 space-y-4" onSubmit={submit}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+          <label className={FIELD_LABEL_CLASSES}>
             PayPal email
             <input
               autoComplete="email"
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+              className={FIELD_INPUT_CLASSES}
               onChange={(event) => {
                 setSuccess(false);
                 setPayoutEmail(event.target.value);

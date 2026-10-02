@@ -57,13 +57,13 @@ export default async function CheckoutFailedPage({
   const copy = copyFor(reason);
 
   return (
-    <main className="min-h-screen bg-surface text-onSurface">
+    <main className="min-h-screen bg-surfaceBright text-onSurface">
       <Navbar />
 
-      <section className="mx-auto flex w-full max-w-[1440px] justify-center px-5 pb-24 pt-28 lg:px-10">
-        <div className="w-full max-w-[560px] rounded-[20px] border border-outline bg-white p-7 shadow-brandCard sm:p-9">
-          <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-amber-600/30 bg-amber-50 text-amber-600">
-            <AlertTriangle size={22} />
+      <section className="mx-auto flex w-full max-w-[1440px] justify-center px-4 pb-16 pt-[92px] sm:px-6 lg:px-10 lg:pb-24 lg:pt-28">
+        <div className="w-full max-w-[560px] rounded-[24px] border border-outline/70 bg-surface p-6 shadow-brandCard sm:p-9">
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-error/10 text-error">
+            <AlertTriangle aria-hidden="true" size={24} />
           </span>
 
           <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
@@ -72,34 +72,35 @@ export default async function CheckoutFailedPage({
 
           <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">{copy.body}</p>
 
-          <p className="mt-4 rounded-[12px] border border-outline bg-mist px-4 py-3 text-sm font-semibold text-brandInk">
+          <p className="mt-4 rounded-[16px] border border-outline/70 bg-surfaceBright px-4 py-3 text-sm font-semibold text-brandInk">
             {copy.chargeNote}
           </p>
 
           {payment ? (
-            <p className="mt-4 text-xs text-onSurfaceVariant">
+            <p className="mt-4 break-all text-xs text-onSurfaceVariant">
               Payment reference:{" "}
               <span className="font-mono font-bold text-brandInk">{payment}</span>
             </p>
           ) : null}
 
+          {/* w-full, not flex-1, below sm: in a column, flex-1 (basis 0) squashed the 54px buttons to ~24px. */}
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             {reason === "unpaid" && packageId ? (
               <LinkButton
-                className="flex-1"
+                className="w-full sm:flex-1"
                 href={`/checkout?package=${encodeURIComponent(packageId)}`}
                 size="lg"
               >
                 Try again
               </LinkButton>
             ) : (
-              <LinkButton className="flex-1" href="/account" size="lg">
+              <LinkButton className="w-full sm:flex-1" href="/account" size="lg">
                 Go to my eSIMs
               </LinkButton>
             )}
 
-            <LinkButton className="flex-1" href="/support" size="lg" tone="brand" variant="flat">
-              <LifeBuoy size={17} />
+            <LinkButton className="w-full sm:flex-1" href="/support" size="lg" tone="brand" variant="flat">
+              <LifeBuoy aria-hidden="true" size={17} />
               Contact support
             </LinkButton>
           </div>

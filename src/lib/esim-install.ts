@@ -39,6 +39,11 @@ export type UsagePayload = {
   available?: boolean;
   reason?: string;
   message?: string;
+  /** What GET /orders/:id/usage sends today (backend normalizeSimUsage), in MB. */
+  data_total_mb?: number;
+  data_remaining_mb?: number;
+  is_unlimited?: boolean;
+  /** Older field names. Still read, so a payload in either shape summarises the same. */
   remaining?: number;
   total?: number;
   expiredAt?: string;
@@ -47,6 +52,8 @@ export type UsagePayload = {
 export type UsageSummary =
   | {
       available: true;
+      /** Uncapped plan: there is no meaningful remaining/total pair. */
+      unlimited: boolean;
       usedPercent: number;
       remainingLabel: string;
       totalLabel: string;
@@ -68,7 +75,18 @@ export function formatMegabytes(value: number): string {
   return `${Math.round(value)} MB`;
 }
 
+function firstNumber(...values: unknown[]): number {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return 0;
+}
+
 /**
+ * The backend's usage route answers with `data_total_mb` / `data_remaining_mb` /
+ * `is_unlimited` (normalizeSimUsage). This used to read only `total` / `remaining`,
+ * so every live plan showed "0 MB of 0 MB remaining".
+ *
  * Unavailable usage is reported as an explanation rather than zeroes, because
  * "0 GB used" would be a lie for an eSIM that is not provisioned yet.
  */
@@ -83,12 +101,25 @@ export function summariseUsage(usage: UsagePayload | null | undefined): UsageSum
     };
   }
 
-  const total = typeof usage.total === "number" ? usage.total : 0;
-  const remaining = typeof usage.remaining === "number" ? usage.remaining : 0;
-  const usedPercent = total > 0 ? Math.round(((total - remaining) / total) * 100) : 0;
+  if (usage.is_unlimited === true) {
+    return {
+      available: true,
+      unlimited: true,
+      usedPercent: 0,
+      remainingLabel: "Unlimited",
+      totalLabel: "Unlimited",
+      expiresAt: usage.expiredAt
+    };
+  }
+
+  const total = firstNumber(usage.data_total_mb, usage.total);
+  const remaining = firstNumber(usage.data_remaining_mb, usage.remaining);
+  const usedPercent =
+    total > 0 ? Math.min(100, Math.max(0, Math.round(((total - remaining) / total) * 100))) : 0;
 
   return {
     available: true,
+    unlimited: false,
     usedPercent,
     remainingLabel: formatMegabytes(remaining),
     totalLabel: formatMegabytes(total),

@@ -1,14 +1,12 @@
 "use client";
 
-import { ArrowDownUp, ChevronDown, ChevronUp, Flame, Globe2, RefreshCw, Sparkles, WifiOff } from "lucide-react";
-import Link from "next/link";
+import { ArrowDownUp, ChevronDown, ChevronUp, RefreshCw, Sparkles, WifiOff } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchPackageGroups,
   fetchPackageOptions,
-  coveredDestinationsForOption,
   normalizeDestinationValue,
   type HeroPackageOption,
   type PackageGroupOptions,
@@ -20,8 +18,15 @@ import {
   type DestinationBrowseFilters,
 } from "@/services/destinationFilters";
 import { destinationBrowseHref } from "@/lib/esim-routes";
+import { Button } from "../components/Button";
 import { useConsent } from "../ConsentManager";
+import { BrowseSkeleton } from "./BrowseSkeleton";
+import { toCountryOptions } from "./browseCountries";
+import { CountryRow } from "./CountryRow";
 import type { WizardResult } from "./HelpMeChooseWizard";
+import { PhotoTile } from "./PhotoTile";
+import { onPlanWizardRequest } from "./planWizardOpener";
+import { TileCarousel } from "./TileCarousel";
 import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
 
 const HelpMeChooseWizard = dynamic(
@@ -32,14 +37,6 @@ const HelpMeChooseWizard = dynamic(
 /** Minimum time the welcome intro stays on screen before the wizard opens. */
 const WELCOME_MIN_DELAY_MS = 2000;
 const DESTINATIONS_COLLAPSED_COUNT = 20;
-
-type CountryOption = {
-  country: string;
-  countryCode: string;
-  flagUri: string;
-  planCount: number;
-  fromPrice: string;
-};
 
 type RailDef = {
   id: keyof PackageGroupOptions;
@@ -64,10 +61,6 @@ const EMPTY_GROUPS: PackageGroupOptions = {
   regional: [],
 };
 
-function normalizeCountryCode(value: string) {
-  return value.trim().toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
-}
-
 function isUnlimitedPlan(plan: HeroPackageOption) {
   return (
     plan.dataNumericGb >= 999 ||
@@ -82,49 +75,6 @@ function getPlanValueScore(plan: HeroPackageOption) {
     return Math.max(plan.durationDays, 1) / plan.priceNumeric;
   }
   return Math.max(plan.dataNumericGb, 0.1) / plan.priceNumeric;
-}
-
-function toCountryOptions(packages: readonly HeroPackageOption[]): CountryOption[] {
-  const byCode = new Map<string, CountryOption>();
-
-  for (const pkg of packages) {
-    const destinations = [
-      {
-        country: pkg.country,
-        countryCode: pkg.countryCode,
-        flagUri: pkg.flagUri,
-      },
-      ...(!pkg.filters.includes("local")
-        ? coveredDestinationsForOption(pkg).map((destination) => ({
-            country: destination.title,
-            countryCode: destination.slug,
-            flagUri: "",
-          }))
-        : []),
-    ];
-
-    for (const destination of destinations) {
-      const code = normalizeCountryCode(destination.countryCode);
-      if (!code || !destination.country.trim()) continue;
-
-      const existing = byCode.get(code);
-      if (existing) {
-        existing.planCount += 1;
-        if (!existing.flagUri && destination.flagUri) existing.flagUri = destination.flagUri;
-        continue;
-      }
-
-      byCode.set(code, {
-        country: destination.country,
-        countryCode: destination.countryCode,
-        flagUri: destination.flagUri,
-        planCount: 1,
-        fromPrice: pkg.price,
-      });
-    }
-  }
-
-  return Array.from(byCode.values()).sort((a, b) => a.country.localeCompare(b.country));
 }
 
 type DestinationBrowseProps = {
@@ -147,6 +97,12 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  /**
+   * Set by an outside "open the wizard" request (the homepage hero's tune
+   * button, via planWizardOpener). Held until the fetch settles, for the same
+   * reason the Help me choose button is disabled while loading.
+   */
+  const [wizardRequested, setWizardRequested] = useState(false);
   /**
    * Shown instead of the wizard for the first `WELCOME_MIN_DELAY_MS` on an
    * auto-opened wizard, so it doesn't just snap open the instant the page
@@ -216,6 +172,17 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
     if (!loadError) setWizardOpen(true);
   }, [showWelcome, welcomeMinDelayDone, loading, loadError]);
 
+  useEffect(() => onPlanWizardRequest(() => setWizardRequested(true)), []);
+
+  // Same rule as the manual button (enabled once loading is false), so an
+  // early click on the hero tune button opens the wizard as soon as the
+  // destinations have arrived instead of showing "No destination found".
+  useEffect(() => {
+    if (!wizardRequested || loading) return;
+    setWizardRequested(false);
+    setWizardOpen(true);
+  }, [wizardRequested, loading]);
+
   const filters: DestinationBrowseFilters = useMemo(
     () => parseDestinationFiltersFromParams(urlFilters),
     [urlFilters],
@@ -284,38 +251,30 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
   return (
     <section className="relative px-5 pb-20 pt-4 md:px-8" id="plans">
       <div className="relative mx-auto max-w-[1180px]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brandBlue">
-              Browse destinations
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-black tracking-[-0.03em] text-brandInk">
+            <h2 className="font-display text-display-lg font-black text-brandInk md:text-[32px] md:leading-[38px]">
               Find your eSIM plan
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brandBlue to-brandTeal px-5 py-3 text-xs font-black uppercase tracking-wide text-white shadow-brandCard transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={loading}
-              onClick={() => setWizardOpen(true)}
-              type="button"
-            >
-              <Sparkles aria-hidden="true" size={15} />
-              Help me choose
-            </button>
-          </div>
+          {/* This section's one gradient primary (spec §3). Arrows, Show all and Try again are flat. */}
+          <Button
+            className="self-start sm:self-auto"
+            disabled={loading}
+            onClick={() => setWizardOpen(true)}
+            type="button"
+          >
+            <Sparkles aria-hidden="true" size={16} />
+            Help me choose
+          </Button>
         </div>
 
         {loading ? (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div className="h-24 animate-pulse rounded-[18px] border border-outline bg-mist" key={i} />
-            ))}
-          </div>
+          <BrowseSkeleton />
         ) : loadError ? (
-          <div className="mt-8 flex flex-col items-center gap-3 rounded-[18px] border border-outline bg-mist px-6 py-10 text-center">
-            <span className="grid h-11 w-11 place-items-center rounded-full border border-outline bg-white text-onSurfaceVariant">
+          <div className="mt-8 flex flex-col items-center gap-3 rounded-[20px] border border-outline/70 bg-surfaceBright px-6 py-10 text-center">
+            <span className="grid h-11 w-11 place-items-center rounded-full border border-outline bg-surface text-onSurfaceVariant">
               <WifiOff aria-hidden="true" size={20} />
             </span>
             <p className="text-sm font-black text-brandInk">
@@ -325,39 +284,21 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
               We couldn&apos;t reach the eSIM service just now. Check your connection and try
               again.
             </p>
-            <button
-              className="mt-1 inline-flex items-center gap-2 rounded-full border border-outline bg-white px-4 py-2 text-xs font-black text-brandInk transition hover:border-brandBlue/50"
-              onClick={handleRetry}
-              type="button"
-            >
+            <Button className="mt-1" onClick={handleRetry} type="button" variant="flat">
               <RefreshCw aria-hidden="true" size={14} />
               Try again
-            </button>
+            </Button>
           </div>
         ) : (
           <>
             {trendingPackages.length > 0 ? (
-              <div className="mt-8 rounded-[18px] border border-outline bg-mist/55 p-4 sm:p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-error/10 text-error">
-                      <Flame aria-hidden="true" size={16} />
-                    </span>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
-                        Trending now
-                      </p>
-                      <p className="text-sm font-black text-brandInk">
-                        {trendingPackages.length} plan{trendingPackages.length === 1 ? "" : "s"} selected by the team
-                      </p>
-                    </div>
-                  </div>
-
-                  <label className="flex h-10 w-fit items-center gap-2 rounded-full border border-outline bg-white px-3.5">
+              <TileCarousel
+                controls={
+                  <label className="flex h-11 w-fit items-center gap-2 rounded-full border border-outline bg-surface px-4">
                     <ArrowDownUp aria-hidden="true" className="text-brandBlue" size={14} />
-                    <span className="text-[11px] font-bold text-onSurfaceVariant">Sort</span>
+                    <span className="text-xs font-bold text-onSurfaceVariant">Sort</span>
                     <select
-                      className="bg-white text-xs font-black text-brandInk outline-none"
+                      className="bg-surface text-xs font-black text-brandInk outline-none"
                       onChange={(event) => setTrendingSort(event.target.value as TrendingSortOption)}
                       value={trendingSort}
                     >
@@ -367,38 +308,24 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                       <option value="duration">Longest validity</option>
                     </select>
                   </label>
-                </div>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {trendingPackages.map((pkg) => (
-                    <Link
-                      className="group flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 shadow-brandCard transition hover:border-brandBlue/50"
+                }
+                heading={<TrendingHeading count={trendingPackages.length} />}
+                label="Trending now"
+                resetKey={trendingSort}
+              >
+                {trendingPackages.map((pkg) => (
+                  <li className="shrink-0 snap-start" key={pkg.id}>
+                    <PhotoTile
+                      country={pkg.country}
+                      countryCode={pkg.countryCode}
+                      detail={`${pkg.dataLabel} · ${pkg.durationLabel} · from ${pkg.price}`}
+                      flagUri={pkg.flagUri}
                       href={destinationBrowseHref(pkg.countryCode)}
-                      key={pkg.id}
-                    >
-                      {pkg.flagUri ? (
-                        <img
-                          alt={`${pkg.country} flag`}
-                          className="h-10 w-10 shrink-0 rounded-full border border-outline object-cover"
-                          src={pkg.flagUri}
-                        />
-                      ) : (
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                          <Globe2 aria-hidden="true" size={16} />
-                        </span>
-                      )}
-
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-brandInk">{pkg.country}</p>
-                        <p className="truncate text-xs font-semibold text-onSurfaceVariant">
-                          {pkg.dataLabel} · {pkg.durationLabel}
-                        </p>
-                        <p className="text-xs font-black text-brandBlue">from {pkg.price}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                      size="trending"
+                    />
+                  </li>
+                ))}
+              </TileCarousel>
             ) : null}
 
             {RAILS.map((rail) => {
@@ -406,46 +333,35 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
               if (items.length === 0) return null;
 
               return (
-                <div className="mt-8" key={rail.id}>
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
-                    {rail.label}
-                  </p>
-                  <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-                    {items.map((pkg) => (
-                      <Link
-                        className="group flex min-w-[160px] shrink-0 items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 shadow-brandCard transition hover:border-brandBlue/50"
+                <TileCarousel
+                  heading={<h3 className="font-display text-title-sm text-brandInk">{rail.label}</h3>}
+                  key={rail.id}
+                  label={rail.label}
+                >
+                  {items.map((pkg) => (
+                    <li className="shrink-0 snap-start" key={pkg.id}>
+                      <PhotoTile
+                        country={pkg.country}
+                        countryCode={pkg.countryCode}
+                        detail={`from ${pkg.price}`}
+                        flagUri={pkg.flagUri}
                         href={destinationBrowseHref(pkg.countryCode)}
-                        key={pkg.id}
-                      >
-                        {pkg.flagUri ? (
-                          <img
-                            alt={`${pkg.country} flag`}
-                            className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-                            src={pkg.flagUri}
-                          />
-                        ) : (
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                            <Globe2 aria-hidden="true" size={16} />
-                          </span>
-                        )}
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-brandInk">{pkg.country}</p>
-                          <p className="text-xs font-bold text-onSurfaceVariant">from {pkg.price}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+                        size="rail"
+                      />
+                    </li>
+                  ))}
+                </TileCarousel>
               );
             })}
 
             <div className="mt-10">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-onSurfaceVariant">
+                <h3 className="font-display text-title-sm text-brandInk">
                   All destinations ({filteredCountries.length})
-                </p>
+                </h3>
                 <input
-                  className="w-full max-w-[260px] rounded-full border border-outline bg-white px-4 py-2 text-sm font-semibold text-onSurface outline-none focus:border-brandBlue"
+                  aria-label="Search all destinations"
+                  className="h-11 w-full rounded-full border border-outline bg-surface px-4 text-sm font-semibold text-onSurface outline-none transition placeholder:text-onSurfaceVariant/70 focus:border-brandBlue sm:max-w-[280px]"
                   onChange={(e) => setGridSearch(e.target.value)}
                   placeholder="Search all destinations..."
                   type="text"
@@ -459,40 +375,26 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                 </p>
               ) : (
                 <>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
                     {visibleCountries.map((country) => (
-                      <Link
-                        className="flex items-center gap-3 rounded-[16px] border border-outline bg-white px-4 py-3 transition hover:border-brandBlue/50"
-                        href={destinationBrowseHref(country.countryCode)}
-                        key={country.countryCode}
-                      >
-                        {country.flagUri ? (
-                          <img
-                            alt={`${country.country} flag`}
-                            className="h-9 w-9 shrink-0 rounded-full border border-outline object-cover"
-                            src={country.flagUri}
-                          />
-                        ) : (
-                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
-                            <Globe2 aria-hidden="true" size={16} />
-                          </span>
-                        )}
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-brandInk">{country.country}</p>
-                          <p className="text-xs font-bold text-onSurfaceVariant">
-                            {country.planCount} {country.planCount === 1 ? "plan" : "plans"}
-                          </p>
-                        </div>
-                      </Link>
+                      <li className="min-w-0" key={country.countryCode}>
+                        <CountryRow
+                          country={country.country}
+                          flagUri={country.flagUri}
+                          fromPrice={country.fromPrice}
+                          href={destinationBrowseHref(country.countryCode)}
+                          planCount={country.planCount}
+                        />
+                      </li>
                     ))}
-                  </div>
+                  </ul>
 
                   {hasMoreDestinations || showAllDestinations ? (
                     <div className="mt-5 flex justify-center">
-                      <button
-                        className="flex items-center gap-1.5 rounded-full border border-outline bg-white px-5 py-2 text-sm font-bold text-brandBlue transition hover:border-brandBlue/50"
+                      <Button
                         onClick={() => setShowAllDestinations((prev) => !prev)}
                         type="button"
+                        variant="flat"
                       >
                         {showAllDestinations ? (
                           <>
@@ -505,7 +407,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                             <ChevronDown aria-hidden="true" size={16} />
                           </>
                         )}
-                      </button>
+                      </Button>
                     </div>
                   ) : null}
                 </>
@@ -527,5 +429,18 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
         />
       ) : null}
     </section>
+  );
+}
+
+
+/** Trending's carousel heading. Exactly h-9 tall, matching BrowseSkeleton's placeholder (no CLS). */
+function TrendingHeading({ count }: { count: number }) {
+  return (
+    <div className="flex h-9 min-w-0 items-center gap-2">
+      <h3 className="font-display text-title-sm text-brandInk">Trending now</h3>
+      <span className="truncate text-sm text-onSurfaceVariant">
+        {count} plan{count === 1 ? "" : "s"} picked by the team
+      </span>
+    </div>
   );
 }

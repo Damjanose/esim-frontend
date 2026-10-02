@@ -6,7 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2, MailCheck, ShieldCheck } from "lucide-react";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { Button } from "../components/Button";
+import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "../components/fieldClasses";
 import { LinkEmailStep } from "./LinkEmailStep";
+import { CODE_INPUT_CLASSES, SIGN_IN_CARD_CLASSES, SIGN_IN_TEXT_ACTION_CLASSES } from "./signInClasses";
 import { SocialSignInButtons, type LinkChallenge } from "./SocialSignInButtons";
 
 type Step = "email" | "code";
@@ -88,7 +90,7 @@ export function SignInForm() {
 
   if (linkChallenge) {
     return (
-      <div className="relative w-full max-w-[460px] rounded-[22px] border border-outline bg-white p-7 shadow-brandCard sm:p-9">
+      <div className={SIGN_IN_CARD_CLASSES}>
         <LinkEmailStep
           challenge={linkChallenge}
           next={next}
@@ -99,12 +101,12 @@ export function SignInForm() {
   }
 
   return (
-    <div className="relative w-full max-w-[460px] rounded-[22px] border border-outline bg-white p-7 shadow-brandCard sm:p-9">
-      <span className="grid h-12 w-12 place-items-center rounded-[14px] border border-outline bg-mist text-brandBlue">
-        {step === "email" ? <ShieldCheck size={22} /> : <MailCheck size={22} />}
+    <div className={SIGN_IN_CARD_CLASSES}>
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">
+        {step === "email" ? <ShieldCheck aria-hidden="true" size={26} /> : <MailCheck aria-hidden="true" size={26} />}
       </span>
 
-      <h1 className="mt-5 font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
+      <h1 className="mt-4 text-center font-display text-2xl font-black tracking-[-0.03em] text-brandInk sm:text-3xl">
         {step === "email"
           ? isCheckout
             ? "Sign in to continue your purchase"
@@ -112,7 +114,7 @@ export function SignInForm() {
           : "Enter your code"}
       </h1>
 
-      <p className="mt-2 text-sm leading-6 text-onSurfaceVariant">
+      <p className="mt-2 text-center text-sm leading-6 text-onSurfaceVariant">
         {step === "email"
           ? isCheckout
             ? "We'll email you a 6-digit code so your eSIM and QR code arrive in your account. No password required."
@@ -122,12 +124,12 @@ export function SignInForm() {
 
       {step === "email" ? (
         <>
-          <form className="mt-7 space-y-4" onSubmit={requestCode}>
-            <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+          <form className="mt-6 space-y-4" onSubmit={requestCode}>
+            <label className={FIELD_LABEL_CLASSES}>
               Email address
               <input
                 autoComplete="email"
-                className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition placeholder:text-onSurfaceVariant/60 focus:border-brandBlue focus:ring-4 focus:ring-brandBlue/15"
+                className={FIELD_INPUT_CLASSES}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@example.com"
                 required
@@ -149,7 +151,7 @@ export function SignInForm() {
               second control of the email one. */}
           <SocialSignInButtons next={next} onLinkRequired={setLinkChallenge} />
 
-          <p className="mt-7 text-center text-xs leading-5 text-onSurfaceVariant">
+          <p className="mt-6 text-center text-xs leading-5 text-onSurfaceVariant">
             By continuing you agree to our{" "}
             <Link className="text-onSurfaceVariant underline underline-offset-2 transition hover:text-brandInk" href="/terms">
               Terms
@@ -162,12 +164,12 @@ export function SignInForm() {
           </p>
         </>
       ) : (
-        <form className="mt-7 space-y-4" onSubmit={verifyCode}>
-          <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        <form className="mt-6 space-y-4" onSubmit={verifyCode}>
+          <label className={FIELD_LABEL_CLASSES}>
             6-digit code
             <input
               autoComplete="one-time-code"
-              className="mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-center font-display text-xl font-black tracking-[0.4em] text-brandInk outline-none transition focus:border-brandBlue focus:ring-4 focus:ring-brandBlue/15"
+              className={CODE_INPUT_CLASSES}
               inputMode="numeric"
               maxLength={6}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
@@ -184,9 +186,9 @@ export function SignInForm() {
             Verify and continue
           </Button>
 
-          <div className="flex items-center justify-between pt-1 text-xs font-semibold">
+          <div className="flex items-center justify-between gap-3">
             <button
-              className="text-onSurfaceVariant transition hover:text-brandInk"
+              className={`${SIGN_IN_TEXT_ACTION_CLASSES} text-onSurfaceVariant hover:text-brandInk`}
               onClick={() => {
                 setStep("email");
                 setCode("");
@@ -198,7 +200,7 @@ export function SignInForm() {
             </button>
 
             <button
-              className="text-brandBlue transition hover:text-brandInk disabled:cursor-not-allowed disabled:opacity-50"
+              className={`${SIGN_IN_TEXT_ACTION_CLASSES} text-brandBlue hover:text-brandInk`}
               disabled={busy || cooldown > 0}
               onClick={() => void requestCode()}
               type="button"

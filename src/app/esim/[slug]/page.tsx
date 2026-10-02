@@ -5,6 +5,7 @@ import { destinationPages } from "@/content/seo-pages";
 import { createMetadata } from "@/lib/seo";
 import {
   getDestinationCoverage,
+  getDestinationFlag,
   getDestinationOffer,
   getDestinationPlanRows
 } from "@/lib/destinationPricing";
@@ -45,11 +46,12 @@ export default async function EsimDestinationPage({ params }: PageProps) {
     notFound();
   }
 
-  const [offer, plans, coverage, gbpRate] = await Promise.all([
+  const [offer, plans, coverage, gbpRate, flagUri] = await Promise.all([
     getDestinationOffer(page.slug),
     getDestinationPlanRows(page.slug),
     getDestinationCoverage(page.slug),
-    page.slug === "uk" ? getGbpRate() : Promise.resolve(null)
+    page.slug === "uk" ? getGbpRate() : Promise.resolve(null),
+    getDestinationFlag(page.slug)
   ]);
 
   return (
@@ -59,6 +61,7 @@ export default async function EsimDestinationPage({ params }: PageProps) {
       plans={plans}
       coverage={coverage}
       gbpRate={gbpRate ?? undefined}
+      flagUri={flagUri ?? undefined}
     />
   );
 }

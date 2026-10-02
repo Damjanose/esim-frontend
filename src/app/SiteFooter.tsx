@@ -25,6 +25,7 @@ const footerExploreLinks = [
   { label: "Browse all eSIM destinations", href: "/destinations" },
   { label: "Compare travel eSIMs", href: "/compare" },
   { label: "Travel eSIM guides", href: "/travel" },
+  { label: "AI trip planner", href: "/trip-plan" },
   ...useCasePages.map((page) => ({
     label: footerUseCaseLabels[page.slug] ?? page.heading,
     href: page.path
@@ -44,9 +45,9 @@ const footerCompanyLinks = [
 
 export function SiteFooter() {
   return (
-    <footer aria-label="Footer" className="border-t border-outline bg-surface text-onSurface">
-      <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_1.4fr]">
+    <footer aria-label="Footer" className="border-t border-outline/60 bg-surfaceBright text-onSurface">
+      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16">
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_1.4fr] lg:gap-10">
           <div>
             <div className="flex items-center gap-3 font-display text-lg font-black">
               <Image
@@ -58,13 +59,10 @@ export function SiteFooter() {
               />
               {landingContent.brand}
             </div>
-            <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant">
-              eSim2you helps travelers choose reliable mobile data for international trips without roaming surprises.
+            <p className="mt-3 max-w-md text-sm leading-6 text-onSurfaceVariant">
+              eSim2you helps travelers get prepaid mobile data in 200+ countries, without the roaming bill.
             </p>
-            <p className="mt-4 max-w-md text-sm leading-6 text-onSurfaceVariant/70">
-              eSim2you travel data guides and destination pages are built for quick planning before you fly.
-            </p>
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-4 flex items-center gap-3">
               <a
                 aria-label="eSim2you on Instagram"
                 className="grid h-10 w-10 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/60 hover:text-brandBlue"
@@ -85,15 +83,15 @@ export function SiteFooter() {
               </a>
             </div>
           </div>
-          <div className="grid gap-8 sm:grid-cols-3">
+          {/* Phones: one group per row, links wrap inline. sm+: three columns. */}
+          <div className="grid gap-6 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-8">
             <FooterLinkColumn title="Company" links={footerCompanyLinks} />
             <FooterLinkColumn title="Explore" links={footerExploreLinks} />
             <FooterLinkColumn title="Resources" links={footerResourceLinks} />
           </div>
         </div>
-        <div className="mt-10 flex flex-col gap-3 border-t border-outline pt-6 text-xs font-semibold text-onSurfaceVariant/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 eSim2you. All rights reserved.</p>
-          <p>eSim2you destination coverage for 200+ destinations.</p>
+        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-outline pt-5 text-xs font-semibold text-onSurfaceVariant sm:mt-10 sm:justify-between sm:pt-6">
+          <p className="w-full sm:w-auto">© 2026 eSim2you</p>
           <a
             className="transition hover:text-brandBlue"
             href="https://www.producthunt.com/products/esim2you?embed=true&utm_source=embed&utm_medium=post_embed"
@@ -118,10 +116,10 @@ function FooterLinkColumn({
 }) {
   return (
     <nav aria-label={title}>
-      <h2 className="text-xs font-black uppercase tracking-[0.08em] text-brandBlue">{title}</h2>
-      <div className="mt-4 grid gap-3">
+      <h2 className="font-display text-sm font-black text-brandInk">{title}</h2>
+      <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-2 sm:mt-4 sm:grid sm:gap-3">
         {links.map((link) => (
-          <a className="text-sm font-semibold text-onSurfaceVariant transition hover:text-brandBlue" href={link.href} key={link.href}>
+          <a className="text-sm font-medium text-onSurfaceVariant transition hover:text-brandBlue" href={link.href} key={link.href}>
             {link.label}
           </a>
         ))}

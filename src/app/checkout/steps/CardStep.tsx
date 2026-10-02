@@ -6,6 +6,7 @@ import Lottie from "lottie-react";
 import { usePOK, type PaymentErrorResponse } from "@nebula-ltd/pok-payments-js/react";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import { Button } from "@/app/components/Button";
+import { FIELD_ERROR_CLASSES, FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 import {
   formatCardNumber,
   formatExpiration,
@@ -16,8 +17,11 @@ import {
 } from "@/lib/cardValidation";
 import otpErrorAnimation from "@/../public/lottie/otp-error.json";
 
-const INPUT_CLASSNAME =
-  "mt-2 h-12 w-full rounded-[12px] border border-outline bg-mist px-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue disabled:opacity-60";
+/**
+ * scroll-mb-32: below lg the sticky Pay bar (about 80px) covers the bottom of the
+ * screen, so a focused card field scrolls far enough up to stay above it.
+ */
+const CARD_INPUT_CLASSNAME = `${FIELD_INPUT_CLASSES} scroll-mb-32`;
 
 const EMPTY_CARD: CardFormData = { cardNumber: "", expiration: "", securityCode: "" };
 
@@ -141,7 +145,7 @@ export function CardStep({
   return (
     <div>
       {submitError ? (
-        <div className="mb-4 flex items-start gap-2 rounded-[12px] border border-error bg-error/5 p-3">
+        <div className="mb-4 flex items-start gap-2 rounded-[16px] border border-error/40 bg-error/5 p-3" role="alert">
           <div className="h-10 w-10 shrink-0">
             <Lottie animationData={otpErrorAnimation} autoplay={!reduceMotion} loop={false} />
           </div>
@@ -151,11 +155,11 @@ export function CardStep({
         </div>
       ) : null}
 
-      <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+      <label className={FIELD_LABEL_CLASSES}>
         Card number
         <input
           autoComplete="cc-number"
-          className={INPUT_CLASSNAME}
+          className={CARD_INPUT_CLASSNAME}
           disabled={submitting}
           inputMode="numeric"
           onChange={(event) => update("cardNumber", formatCardNumber)(event.target.value)}
@@ -163,18 +167,18 @@ export function CardStep({
           value={card.cardNumber}
         />
         {fieldErrors.cardNumber ? (
-          <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
+          <span className={FIELD_ERROR_CLASSES}>
             {fieldErrorMessage(fieldErrors.cardNumber)}
           </span>
         ) : null}
       </label>
 
       <div className="mt-4 grid grid-cols-2 gap-4">
-        <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        <label className={FIELD_LABEL_CLASSES}>
           Expiration
           <input
             autoComplete="cc-exp"
-            className={INPUT_CLASSNAME}
+            className={CARD_INPUT_CLASSNAME}
             disabled={submitting}
             inputMode="numeric"
             onChange={(event) => update("expiration", formatExpiration)(event.target.value)}
@@ -182,17 +186,17 @@ export function CardStep({
             value={card.expiration}
           />
           {fieldErrors.expiration ? (
-            <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
+            <span className={FIELD_ERROR_CLASSES}>
               {fieldErrorMessage(fieldErrors.expiration)}
             </span>
           ) : null}
         </label>
 
-        <label className="block text-xs font-bold uppercase tracking-[0.14em] text-onSurfaceVariant">
+        <label className={FIELD_LABEL_CLASSES}>
           CVC
           <input
             autoComplete="cc-csc"
-            className={INPUT_CLASSNAME}
+            className={CARD_INPUT_CLASSNAME}
             disabled={submitting}
             inputMode="numeric"
             onChange={(event) =>
@@ -202,23 +206,30 @@ export function CardStep({
             value={card.securityCode}
           />
           {fieldErrors.securityCode ? (
-            <span className="mt-1 block text-[11px] font-medium normal-case tracking-normal text-error">
+            <span className={FIELD_ERROR_CLASSES}>
               {fieldErrorMessage(fieldErrors.securityCode)}
             </span>
           ) : null}
         </label>
       </div>
 
-      <Button
-        aria-busy={submitting}
-        className="mt-5 flex w-full items-center justify-center gap-2"
-        disabled={submitting}
-        onClick={() => void submit()}
-        size="lg"
-      >
-        {submitting ? <Loader2 className="animate-spin" size={16} /> : null}
-        {submitting ? "Processing…" : "Pay"}
-      </Button>
+      {/* Below lg the real Pay button sticks to the bottom of the screen. Sticky is
+          bounded by this step's own box, so it only pins while the card fields are on
+          screen and never floats over the billing form. The negative margin matches the
+          page gutter (px-4 sm:px-6 in checkout/page.tsx) so the bar spans the screen.
+          lg+: back in the flow, under the CVC field. */}
+      <div className="sticky bottom-0 z-30 -mx-4 mt-5 border-t border-outline/60 bg-surface/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+        <Button
+          aria-busy={submitting}
+          className="flex w-full items-center justify-center gap-2"
+          disabled={submitting}
+          onClick={() => void submit()}
+          size="lg"
+        >
+          {submitting ? <Loader2 className="animate-spin" size={16} /> : null}
+          {submitting ? "Processing…" : "Pay"}
+        </Button>
+      </div>
 
       <p className="mt-4 text-center text-xs text-onSurfaceVariant">
         Your card is encrypted on this device before it is sent. eSim2you never sees your card details.

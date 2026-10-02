@@ -143,4 +143,26 @@ describe("callWithSession", () => {
     expect(refresh).not.toHaveBeenCalled();
     expect(result).toEqual({ ok: false, status: 502, message: "Upstream down", cookies: [] });
   });
+
+  it("carries the backend's error code through", async () => {
+    const call = vi.fn(
+      async () =>
+        ({
+          ok: false,
+          status: 403,
+          message: "Add your email address before paying.",
+          payload: { code: "real_email_required" }
+        }) as BackendResult<never>
+    );
+
+    const result = await callWithSession({ accessToken: "good" }, call);
+
+    expect(result).toEqual({
+      ok: false,
+      status: 403,
+      message: "Add your email address before paying.",
+      code: "real_email_required",
+      cookies: []
+    });
+  });
 });

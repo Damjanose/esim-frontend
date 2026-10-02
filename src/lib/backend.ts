@@ -1,3 +1,5 @@
+import { Agent, fetch as undiciFetch } from "undici";
+
 const DEFAULT_BACKEND_API_URL = "https://esim.uplisoft.com/api";
 
 /**
@@ -33,7 +35,29 @@ export type BackendRequest = {
   body?: unknown;
   token?: string;
   next?: { revalidate?: number };
+  /**
+   * For calls that legitimately run for minutes (trip-plan generation and edits).
+   * Node's global fetch gives up after 300s without response headers, so these go
+   * through undici's own fetch with an Agent whose header/body timeouts match.
+   */
+  timeoutMs?: number;
 };
+
+const longAgents = new Map<number, Agent>();
+
+function longFetch(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  let dispatcher = longAgents.get(timeoutMs);
+  if (!dispatcher) {
+    dispatcher = new Agent({ headersTimeout: timeoutMs, bodyTimeout: timeoutMs });
+    longAgents.set(timeoutMs, dispatcher);
+  }
+  return undiciFetch(url, {
+    method: init.method,
+    headers: init.headers as Record<string, string> | Headers,
+    body: init.body as string | undefined,
+    dispatcher
+  }) as unknown as Promise<Response>;
+}
 
 type BackendEnvelope<T> = {
   status?: string;
@@ -46,7 +70,7 @@ const UNREACHABLE_MESSAGE = "We could not reach the eSIM service. Please try aga
 
 export async function backendFetch<T>(
   path: string,
-  { method = "GET", body, token, next }: BackendRequest = {}
+  { method = "GET", body, token, next, timeoutMs }: BackendRequest = {}
 ): Promise<BackendResult<T>> {
   const headers = new Headers({ Accept: "application/json" });
   if (body !== undefined) {
@@ -64,7 +88,8 @@ export async function backendFetch<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
       ...(next ? { next } : { cache: "no-store" })
     };
-    response = await fetch(`${getBackendApiUrl()}${path}`, requestInit);
+    const url = `${getBackendApiUrl()}${path}`;
+    response = timeoutMs ? await longFetch(url, requestInit, timeoutMs) : await fetch(url, requestInit);
   } catch {
     return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
   }
@@ -140,6 +165,8 @@ export async function backendFetchFormData<T>(
 export type BackendBinary = {
   buffer: ArrayBuffer;
   contentType: string;
+  /** The backend's Content-Disposition (e.g. a PDF's attachment filename), when it sent one. */
+  contentDisposition: string | null;
 };
 
 export async function backendFetchBinary(
@@ -176,7 +203,10 @@ export async function backendFetchBinary(
 
   try {
     const buffer = await response.arrayBuffer();
-    return { ok: true, data: { buffer, contentType } };
+    return {
+      ok: true,
+      data: { buffer, contentType, contentDisposition: response.headers.get("content-disposition") }
+    };
   } catch {
     return { ok: false, status: 502, message: UNREACHABLE_MESSAGE };
   }

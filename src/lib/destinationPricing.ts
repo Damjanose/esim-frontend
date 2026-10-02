@@ -17,6 +17,16 @@ export type DestinationPlanRow = {
   network: string;
   price: string;
   priceNumeric: number;
+  /** 999+ means unlimited; 0 when the backend didn't say. */
+  dataNumericGb: number;
+  /** 0 when the backend didn't say. */
+  durationDays: number;
+  /** Only set when the plan includes minutes / texts. */
+  voiceMinutes?: number;
+  smsCount?: number;
+  /** Only set while an admin discount is active (see services/discountPricing). */
+  hasDiscount?: true;
+  retailPrice?: number;
 };
 
 type ApiPackage = {
@@ -28,6 +38,13 @@ type ApiPackage = {
   price?: string;
   priceNumeric?: number;
   network?: string;
+  flagUri?: string;
+  dataNumericGb?: number;
+  durationDays?: number;
+  voiceMinutes?: number;
+  smsCount?: number;
+  hasDiscount?: boolean;
+  retailPrice?: number;
   filters?: string[];
   countries?: { countryCode?: string; title?: string }[];
 };
@@ -41,11 +58,14 @@ type OfferIndex = Record<string, DestinationOffer>;
 type PlanIndex = Record<string, DestinationPlanRow[]>;
 /** Regional code -> country names included in EVERY plan for that code. */
 type CoverageIndex = Record<string, string[]>;
+/** Code -> the first flag image its packages carry. */
+type FlagIndex = Record<string, string>;
 
 type DestinationCatalog = {
   offers: OfferIndex;
   plans: PlanIndex;
   coverage: CoverageIndex;
+  flags: FlagIndex;
 };
 
 const OFFER_CURRENCY = "EUR";
@@ -55,6 +75,7 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
   const pricesByCode = new Map<string, number[]>();
   const plansByCode = new Map<string, DestinationPlanRow[]>();
   const coverageByCode = new Map<string, Set<string>>();
+  const flags: FlagIndex = {};
 
   for (const pkg of packages) {
     const code = pkg.countryCode?.trim().toLowerCase();
@@ -76,8 +97,18 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
       durationLabel: pkg.durationLabel?.trim() || "Flexible validity",
       network: pkg.network?.trim() || "4G/5G",
       price: pkg.price?.trim() || `€${pkg.priceNumeric.toFixed(2)}`,
-      priceNumeric: pkg.priceNumeric
+      priceNumeric: pkg.priceNumeric,
+      dataNumericGb: typeof pkg.dataNumericGb === "number" ? pkg.dataNumericGb : 0,
+      durationDays: typeof pkg.durationDays === "number" ? pkg.durationDays : 0,
+      ...(typeof pkg.voiceMinutes === "number" && pkg.voiceMinutes > 0 ? { voiceMinutes: pkg.voiceMinutes } : {}),
+      ...(typeof pkg.smsCount === "number" && pkg.smsCount > 0 ? { smsCount: pkg.smsCount } : {}),
+      ...(pkg.hasDiscount === true && typeof pkg.retailPrice === "number"
+        ? { hasDiscount: true as const, retailPrice: pkg.retailPrice }
+        : {})
     };
+
+    const flagUri = pkg.flagUri?.trim();
+    if (flagUri && !flags[code]) flags[code] = flagUri;
 
     const planCountries = new Set(
       (pkg.countries ?? []).map((country) => country.title?.trim() ?? "").filter(Boolean)
@@ -125,7 +156,7 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
     }
   }
 
-  return { offers, plans, coverage };
+  return { offers, plans, coverage, flags };
 }
 
 async function loadCatalog(): Promise<DestinationCatalog> {
@@ -136,13 +167,13 @@ async function loadCatalog(): Promise<DestinationCatalog> {
     });
 
     if (!response.ok) {
-      return { offers: {}, plans: {}, coverage: {} };
+      return { offers: {}, plans: {}, coverage: {}, flags: {} };
     }
 
     const payload = (await response.json()) as PackagesResponse;
     return catalogFromPackages(payload.data?.packages ?? payload.packages ?? []);
   } catch {
-    return { offers: {}, plans: {}, coverage: {} };
+    return { offers: {}, plans: {}, coverage: {}, flags: {} };
   }
 }
 
@@ -167,6 +198,12 @@ export async function getDestinationPlanRows(slug: string): Promise<DestinationP
 export async function getDestinationCoverage(slug: string): Promise<string[]> {
   const catalog = await getCachedCatalog();
   return catalog.coverage?.[backendCountryCode(slug)] ?? [];
+}
+
+/** The destination's flag image (Airalo CDN), or null. */
+export async function getDestinationFlag(slug: string): Promise<string | null> {
+  const catalog = await getCachedCatalog();
+  return catalog.flags?.[backendCountryCode(slug)] ?? null;
 }
 
 export async function getGlobalOffer(): Promise<DestinationOffer | null> {

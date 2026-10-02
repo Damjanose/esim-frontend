@@ -7,7 +7,7 @@ const walletPanel = readFileSync("src/app/partners/dashboard/WalletPanel.tsx", "
 describe("partner dashboard page wiring WalletPanel", () => {
   it("imports and renders WalletPanel alongside the existing stats/commissions", () => {
     expect(dashboardPage).toContain('import { WalletPanel } from "./WalletPanel"');
-    expect(dashboardPage).toContain("<WalletPanel />");
+    expect(dashboardPage).toContain("<WalletPanel walletBalanceCents={dashboard.walletBalanceCents} />");
   });
 });
 

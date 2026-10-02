@@ -34,12 +34,11 @@ describe("landingContent", () => {
     });
   });
 
-  it("routes the header CTA to the download section and both app CTAs to their store listings", () => {
+  it("points both app store badges at their store listings", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
 
-    // Both the hero and bottom CTAs jump to the App Download section (#download-app),
-    // which is where the store badges below actually live.
-    expect(pageSource).toContain('href="#download-app"');
+    // The App Download section the navbar links to still exists.
+    expect(pageSource).toContain('id="download-app"');
     // The store badge hrefs are literal URLs rather than landingContent.appLinks.*.href
     // references, so pin them against the single source of truth here instead —
     // catches drift if either side changes without the other.
@@ -58,11 +57,18 @@ describe("landingContent", () => {
 
   it("uses descriptive alt text for homepage destination and flag images", () => {
     const pageSource = readFileSync("src/app/page.tsx", "utf8");
-    const browseSource = readFileSync("src/app/destinations/DestinationBrowse.tsx", "utf8");
+    const photoTileSource = readFileSync("src/app/destinations/PhotoTile.tsx", "utf8");
+    const countryRowSource = readFileSync("src/app/destinations/CountryRow.tsx", "utf8");
 
-    expect(pageSource).toContain('alt={`${row.country} flag`}');
-    expect(browseSource).toContain('alt={`${pkg.country} flag`}');
-    expect(browseSource).toContain('alt={`${country.country} flag`}');
+    // The homepage no longer renders flags itself (the old phone mockups were replaced by
+    // a screenshot); its remaining images must carry descriptive alt text.
+    expect(pageSource).toContain(
+      'alt="eSim2you app screens: destination list, United Kingdom plans and billing details"',
+    );
+    expect(pageSource).not.toMatch(/alt=""/);
+    // Browse flags render inside PhotoTile (Trending, rails) and CountryRow (All destinations).
+    expect(photoTileSource).toContain('alt={`${country} flag`}');
+    expect(countryRowSource).toContain('alt={`${country} flag`}');
   });
 
   it("renders premium store buttons with platform icons", () => {
@@ -70,10 +76,12 @@ describe("landingContent", () => {
 
     // Apple/Google logos are inlined as <svg> markup directly on each store link
     // rather than extracted into named icon components.
-    expect(pageSource).toContain('aria-label="Download eSim2you on the App Store"');
-    expect(pageSource).toContain('aria-label="Get eSim2you on Google Play"');
-    expect(pageSource).toMatch(/aria-label="Download eSim2you on the App Store"[\s\S]*?<svg/);
-    expect(pageSource).toMatch(/aria-label="Get eSim2you on Google Play"[\s\S]*?<svg/);
+    // The accessible name must contain the visible text ("Download on the App Store",
+    // "Get it on Google Play") for WCAG label-in-name / Lighthouse label-content-name-mismatch.
+    expect(pageSource).toContain('aria-label="Download on the App Store, eSim2you"');
+    expect(pageSource).toContain('aria-label="Get it on Google Play, eSim2you"');
+    expect(pageSource).toMatch(/aria-label="Download on the App Store, eSim2you"[\s\S]*?<svg/);
+    expect(pageSource).toMatch(/aria-label="Get it on Google Play, eSim2you"[\s\S]*?<svg/);
   });
 
   it("organizes footer links without duplicate footer download actions", () => {
@@ -95,9 +103,9 @@ describe("landingContent", () => {
     expect(footerSource).toContain('<FooterLinkColumn title="Resources" links={footerResourceLinks} />');
     expect(footerSource).not.toContain("function FooterResourceLinks");
     expect(footerSource).not.toContain("rounded-lg border border-white/10 bg-white/5");
-    expect(footerSource).toContain("eSim2you travel data guides");
+    // One brand sentence; the two filler lines were dropped to shorten the phone footer.
     expect(footerSource).toContain("eSim2you helps travelers");
-    expect(footerSource).toContain("eSim2you destination coverage");
+    expect(footerSource).not.toContain("eSim2you travel data guides");
   });
 
   it("uses app logo assets for favicon, header, and footer branding", () => {

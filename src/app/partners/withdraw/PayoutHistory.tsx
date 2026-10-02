@@ -32,14 +32,14 @@ export function PayoutHistory({
   loadError: string | null;
 }) {
   return (
-    <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+    <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <History aria-hidden="true" className="text-brandBlue" size={20} />
         Payout history
       </h2>
 
       {loadError ? (
-        <p className="mt-4 text-sm text-amber-700">We couldn&apos;t load your payout history.</p>
+        <p className="mt-4 text-sm text-error">We couldn&apos;t load your payout history.</p>
       ) : payouts.length === 0 ? (
         <p className="mt-4 text-sm text-onSurfaceVariant">
           No withdrawals yet — they&apos;ll show up here once you request one.

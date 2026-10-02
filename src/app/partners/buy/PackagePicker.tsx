@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Gift, Loader2, Search, ShoppingBag, User } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { FIELD_CONTROL_CLASSES, FIELD_TEXT_CLASSES } from "@/app/components/fieldClasses";
+import { PlanDataDisc, PlanPrice } from "@/app/components/PlanRow";
 import { fetchPackageOptions, filterPackageOptions, type HeroPackageOption } from "@/services/packages";
+
+const TILE_CLASSES = "rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6";
+const TOGGLE_CLASSES =
+  "flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[12px] border px-4 text-sm font-black transition";
 
 function formatMoney(cents: number) {
   return new Intl.NumberFormat("en", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -125,21 +131,21 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
   }
 
   return (
-    <div className="mt-8 space-y-5">
-      <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
-        <p className="text-xs font-black uppercase tracking-[0.1em] text-onSurfaceVariant">
+    <div className="mt-6 space-y-4 lg:mt-8 lg:space-y-5">
+      <div className="rounded-[18px] bg-brandBlue p-5 text-surface shadow-brandGlow sm:p-6">
+        <p className="text-xs font-black uppercase tracking-[0.1em] text-surface/80">
           Wallet balance
         </p>
-        <p className="mt-1 font-display text-2xl font-black tracking-[-0.03em] text-brandInk">
+        <p className="mt-1 font-display text-[30px] font-black leading-9 tracking-[-0.03em]">
           {formatMoney(walletBalance)}
         </p>
-        <p className="mt-3 text-xs text-onSurfaceVariant">
+        <p className="mt-3 text-xs text-surface/80">
           Prices below are retail — your partner discount is applied automatically when you
           purchase, and the amount actually charged is shown afterward.
         </p>
       </div>
 
-      <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+      <div className={TILE_CLASSES}>
         <label className="relative block">
           <Search
             aria-hidden="true"
@@ -147,7 +153,7 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
             size={16}
           />
           <input
-            className="h-12 w-full rounded-[12px] border border-outline bg-mist pl-11 pr-4 text-sm font-medium text-brandInk outline-none transition focus:border-brandBlue"
+            className={`${FIELD_CONTROL_CLASSES} ${FIELD_TEXT_CLASSES} pl-11`}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search a destination or package"
             value={query}
@@ -164,7 +170,7 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
         ) : null}
 
         {options ? (
-          <ul className="mt-5 max-h-[420px] space-y-2 overflow-y-auto">
+          <ul className="mt-5 max-h-[480px] space-y-2 overflow-y-auto">
             {filtered.length === 0 ? (
               <li className="py-6 text-center text-sm text-onSurfaceVariant">
                 No packages match &quot;{query}&quot;.
@@ -175,10 +181,10 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
                 return (
                   <li key={option.id}>
                     <button
-                      className={`flex w-full items-center justify-between gap-4 rounded-[14px] border px-5 py-4 text-left transition ${
+                      className={`flex min-h-14 w-full items-center gap-3 rounded-[14px] border px-3 py-3 text-left transition sm:gap-4 sm:px-4 ${
                         isSelected
-                          ? "border-brandBlue bg-mist"
-                          : "border-outline bg-white hover:border-brandBlue/60"
+                          ? "border-brandBlue bg-brandBlue/5"
+                          : "border-outline/60 bg-surface hover:border-brandBlue/60"
                       }`}
                       onClick={() => {
                         setSelected(option);
@@ -187,15 +193,18 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
                       }}
                       type="button"
                     >
-                      <span className="min-w-0">
-                        <span className="block font-display text-base font-black text-brandInk">
+                      <PlanDataDisc plan={option} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-display text-base font-black text-brandInk">
                           {option.country}
                         </span>
                         <span className="mt-0.5 block text-xs text-onSurfaceVariant">
                           {option.title} · {option.dataLabel} · {option.durationLabel}
                         </span>
                       </span>
-                      <span className="shrink-0 font-black text-brandBlue">{option.price}</span>
+                      <span className="shrink-0">
+                        <PlanPrice plan={option} />
+                      </span>
                     </button>
                   </li>
                 );
@@ -206,7 +215,7 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
       </div>
 
       {selected ? (
-        <div className="rounded-[20px] border border-outline bg-white p-6 shadow-brandCard sm:p-8">
+        <div className={TILE_CLASSES}>
           <p className="font-display text-lg font-black text-brandInk">{selected.country}</p>
           <p className="mt-1 text-sm text-onSurfaceVariant">
             {selected.title} · {selected.dataLabel} · {selected.durationLabel} ·{" "}
@@ -215,10 +224,10 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
 
           <div className="mt-5 flex gap-2.5">
             <button
-              className={`flex flex-1 items-center justify-center gap-2 rounded-[12px] border px-4 py-3 text-sm font-black transition ${
+              className={`${TOGGLE_CLASSES} ${
                 !sendAsGift
-                  ? "border-brandBlue bg-mist text-brandInk"
-                  : "border-outline text-onSurfaceVariant"
+                  ? "border-brandBlue bg-brandBlue/10 text-brandBlue"
+                  : "border-outline/60 text-onSurfaceVariant hover:bg-surfaceBright"
               }`}
               onClick={() => setSendAsGift(false)}
               type="button"
@@ -227,10 +236,10 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
               Use for myself
             </button>
             <button
-              className={`flex flex-1 items-center justify-center gap-2 rounded-[12px] border px-4 py-3 text-sm font-black transition ${
+              className={`${TOGGLE_CLASSES} ${
                 sendAsGift
-                  ? "border-brandBlue bg-mist text-brandInk"
-                  : "border-outline text-onSurfaceVariant"
+                  ? "border-brandBlue bg-brandBlue/10 text-brandBlue"
+                  : "border-outline/60 text-onSurfaceVariant hover:bg-surfaceBright"
               }`}
               onClick={() => setSendAsGift(true)}
               type="button"
@@ -252,7 +261,7 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
       ) : null}
 
       {result ? (
-        <div className="rounded-[20px] border border-brandTeal/40 bg-white p-6 shadow-brandCard sm:p-8">
+        <div className="rounded-[18px] border border-brandTeal/40 bg-surface p-5 shadow-brandCard sm:p-6">
           <p className="font-display text-lg font-black text-brandInk">Purchase complete</p>
           <p className="mt-2 text-sm text-onSurfaceVariant">
             Your new wallet balance is{" "}
