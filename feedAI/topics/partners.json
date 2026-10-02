@@ -8,7 +8,8 @@
     "f098",
     "f103",
     "f104",
-    "f176"
+    "f176",
+    "f227"
   ],
   "xpartnersy_admin": {
     "file": "src/app/xpartnersy/page.tsx",
