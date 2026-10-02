@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-02 | [web reviews](./2026-10-02_web-reviews.md) | Signed-in buyers can leave a review from the homepage, checkout success and order page; signed-out users write first and sign in at Send with the draft kept |
 | 2026-10-02 | [AI assistant on web](./2026-10-02_ai-assistant-web.md) | Floating bottom-right AI assistant (port of the app's AssistantBubble): local replies first, AI via new `/bff/assistant/chat`, buttons route to /destinations filters, /trip-plan?destination=, top-up, support |
 | 2026-10-02 | [traveler support chat](./2026-10-02_traveler-support-chat.md) | Signed-in `/profile/support` chat (text + photos, mark solved) over new `/bff/user/support/**`, polling every 5s; linked from `/support` and the profile Support group |
 | 2026-10-02 | [trip plan on web](./2026-10-02_trip-plan-web.md) | Traveler trip planner at public `/trip-plan` + guarded `/trip-plan/[id]` (generate, inline-card unlock, refine, versions, PDF) over new `/bff/itineraries/**`; long calls use an undici 600s timeout and need nginx ≥600s |

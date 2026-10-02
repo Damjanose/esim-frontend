@@ -31,6 +31,7 @@ import { UsageRingCard } from "../../components/UsageRing";
 import { SiteFooter } from "../../SiteFooter";
 import { accountShellItems } from "../accountShellItems";
 import { CopyField } from "./CopyField";
+import { OrderReviewCard } from "./OrderReviewCard";
 import { PurchaseConversion } from "./PurchaseConversion";
 import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
 
@@ -206,6 +207,12 @@ export default async function OrderDetailPage({
               </div>
             </div>
           ) : null}
+
+          <OrderReviewCard
+            airaloOrderId={order.id}
+            justPaid={isNew === "1"}
+            lifecycle={order.lifecycle_status}
+          />
 
           <h1 className="mt-5 break-words px-1 font-display text-[28px] font-black leading-[1.15] tracking-[-0.03em] text-brandInk lg:text-4xl">
             {order.package_id}

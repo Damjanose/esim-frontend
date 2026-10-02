@@ -1,18 +1,22 @@
 import type { PublicTestimonial } from "@/lib/testimonials";
+import { ShareExperienceButton } from "./ShareExperienceButton";
 
 export function Testimonials({ items }: { items: PublicTestimonial[] }) {
-  if (items.length === 0) return null;
-
   const featured = items.length === 1;
 
   return (
     <section className="relative overflow-hidden bg-surface px-5 py-10 text-onSurface md:px-8 md:py-24" id="testimonials">
       <div className="relative mx-auto max-w-[1120px]">
-        <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk [text-wrap:balance] sm:text-4xl">
-          What travelers say
-        </h2>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-brandInk [text-wrap:balance] sm:text-4xl">
+            What travelers say
+          </h2>
+          <ShareExperienceButton />
+        </div>
 
-        {featured ? (
+        {items.length === 0 ? (
+          <p className="mt-4 max-w-xl text-onSurfaceVariant">Bought a plan? Tell other travelers how it went.</p>
+        ) : featured ? (
           <FeaturedQuote item={items[0]} />
         ) : (
           // Phones: sideways scroll-snap carousel. min-w-0 + contain:inline-size keep the
@@ -71,7 +75,7 @@ function Author({ item }: { item: PublicTestimonial }) {
           {item.displayName}
         </span>
         <span className="text-xs text-onSurfaceVariant">
-          eSim2you traveler{date ? ` · ${date}` : ""}
+          Verified traveler{date ? ` · ${date}` : ""}
         </span>
       </span>
     </div>

@@ -48,6 +48,13 @@ describe("homepage marketing blocks", () => {
     expect(testimonials).not.toContain("QuoteMark");
   });
 
+  it("lets travelers share their experience and labels quotes as verified", () => {
+    expect(testimonials).toContain("<ShareExperienceButton");
+    expect(testimonials).toContain("Verified traveler");
+    // Section stays (header + button) with zero approved quotes.
+    expect(testimonials).not.toContain("if (items.length === 0) return null;");
+  });
+
   it("keeps the FAQ as the native details accordion fed by landingContent.faqs", () => {
     const src = fn("TrustAndFaq");
     expect(src).toContain("<details");

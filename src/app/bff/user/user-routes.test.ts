@@ -7,6 +7,7 @@ import {
 } from "@/lib/session";
 import { DELETE as deleteAccount } from "./account/route";
 import { GET as getBillingAddress, PUT as putBillingAddress } from "./billing-address/route";
+import { GET as getTestimonial, PUT as putTestimonial } from "./testimonial/route";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -168,5 +169,89 @@ describe("DELETE /bff/user/account", () => {
     expect(response.status).toBe(500);
     // Signing the visitor out here would strand them: the account still exists.
     expect(response.headers.getSetCookie()).toEqual([]);
+  });
+});
+
+describe("GET /bff/user/testimonial", () => {
+  it("returns the latest review and quota", async () => {
+    const data = { testimonial: null, quota: { limit: 2, windowDays: 90, remaining: 2, resetsAt: null } };
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ status: "success", data })));
+
+    const response = await getTestimonial(
+      new Request("http://localhost:3000/bff/user/testimonial", { headers: { cookie: signedIn } })
+    );
+    const payload = (await response.json()) as { data: unknown };
+
+    expect(response.status).toBe(200);
+    expect(payload.data).toEqual(data);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("is 401 without a session, without calling the backend", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await getTestimonial(new Request("http://localhost:3000/bff/user/testimonial"));
+
+    expect(response.status).toBe(401);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("PUT /bff/user/testimonial", () => {
+  const body = {
+    airaloOrderId: 123,
+    rating: 5,
+    body: "Worked the moment I landed.",
+    displayName: "Anna K.",
+    consentToPublish: true
+  };
+  function putRequest(value: unknown) {
+    return new Request("http://localhost:3000/bff/user/testimonial", {
+      method: "PUT",
+      headers: { "content-type": "application/json", cookie: signedIn },
+      body: JSON.stringify(value)
+    });
+  }
+
+  it("forwards the review with web locale and platform", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: { testimonial: {}, quota: {} } }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await putTestimonial(putRequest(body));
+
+    expect(response.status).toBe(200);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toContain("/user/testimonial");
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({ ...body, locale: "en", platform: "web" });
+  });
+
+  it("passes the backend error code through", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        jsonResponse(
+          { status: "error", message: "You can share a testimonial after a purchase", code: "TESTIMONIAL_NO_PURCHASE" },
+          400
+        )
+      )
+    );
+
+    const response = await putTestimonial(putRequest({ ...body, airaloOrderId: undefined }));
+    const payload = (await response.json()) as { error: string; code: string };
+
+    expect(response.status).toBe(400);
+    expect(payload.code).toBe("TESTIMONIAL_NO_PURCHASE");
+  });
+
+  it("rejects a non-object body before calling the backend", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await putTestimonial(putRequest("nope"));
+
+    expect(response.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

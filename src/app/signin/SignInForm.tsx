@@ -34,6 +34,7 @@ export function SignInForm() {
   const searchParams = useSearchParams();
   const next = safeNextPath(searchParams.get("next"));
   const isCheckout = next.startsWith("/checkout");
+  const isReview = searchParams.get("reason") === "review";
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -110,7 +111,9 @@ export function SignInForm() {
         {step === "email"
           ? isCheckout
             ? "Sign in to continue your purchase"
-            : "Sign in to eSim2you"
+            : isReview
+              ? "Sign in to post your review"
+              : "Sign in to eSim2you"
           : "Enter your code"}
       </h1>
 
@@ -118,7 +121,9 @@ export function SignInForm() {
         {step === "email"
           ? isCheckout
             ? "We'll email you a 6-digit code so your eSIM and QR code arrive in your account. No password required."
-            : "We'll email you a 6-digit code. No password required."
+            : isReview
+              ? "Your text is saved. Reviews come from travelers who bought a plan, so we just need to know it's you."
+              : "We'll email you a 6-digit code. No password required."
           : `We sent a 6-digit code to ${email}.`}
       </p>
 
