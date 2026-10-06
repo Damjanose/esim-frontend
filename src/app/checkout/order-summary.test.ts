@@ -24,8 +24,8 @@ describe("checkout order summary", () => {
   it("reuses the plan-row pieces and the pure totals", () => {
     expect(summary).toContain("<PlanDataDisc plan={plan} />");
     expect(summary).toContain("planRowTags(plan, { position: null })");
-    expect(summary).toContain("checkoutTotal(plan, promo, promoPending)");
-    expect(summary).toContain("checkoutPriceLines(plan, promo)");
+    expect(summary).toContain("checkoutTotal(plan, promo, promoPending, streak, quotePending)");
+    expect(summary).toContain("checkoutPriceLines(plan, promo, streak)");
     expect(summary).toContain("coverageCountries(plan.countries)");
   });
 

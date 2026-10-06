@@ -11,10 +11,22 @@ import {
  * totals can be unit-tested without rendering.
  */
 
-/** Same shape as PromoCodeField's AppliedPromo: what the backend confirmed for a partner code. */
-export type CheckoutPromo = { promoCode: string; discountPct: number; finalCustomerPriceCents: number };
+/**
+ * Same shape as PromoCodeField's AppliedPromo: what the backend confirmed for a partner code.
+ * `partnerFinalCents` is the price after the partner code alone; `finalCustomerPriceCents`
+ * may also include a games streak reward stacked on top (absent from older responses).
+ */
+export type CheckoutPromo = {
+  promoCode: string;
+  discountPct: number;
+  finalCustomerPriceCents: number;
+  partnerFinalCents?: number;
+};
 
-export type CheckoutPriceLine = { kind: "plan" | "discount" | "partner"; label: string; value: string };
+/** An active games streak reward, priced by the backend's /payments/quote. */
+export type CheckoutStreak = { discountPct: number; finalCustomerPriceCents: number };
+
+export type CheckoutPriceLine = { kind: "plan" | "discount" | "partner" | "streak"; label: string; value: string };
 
 /** Shown once per viewport: in section 02 below lg, in the order summary at lg+. */
 export const PAYMENT_TRUST_NOTE = "Payments are handled by Pokpay — eSim2you never sees your card details.";
@@ -24,16 +36,20 @@ function toCents(amount: number): number {
 }
 
 /**
- * What Pay charges, or null while a partner code is still being checked, so the
- * full price never flashes before a stored code's discount is confirmed (f094).
- * An applied code's backend total wins outright: it already includes any admin discount.
+ * What Pay charges, or null while a partner code or the price quote is still being
+ * checked, so the full price never flashes before a discount is confirmed (f094).
+ * A backend total wins outright: it already includes any admin discount, and the
+ * streak reward's total also includes a partner code under it.
  */
 export function checkoutTotal(
   plan: DiscountPricedPlan,
   promo: CheckoutPromo | null,
   promoPending: boolean,
+  streak: CheckoutStreak | null = null,
+  quotePending = false,
 ): string | null {
-  if (promoPending) return null;
+  if (promoPending || quotePending) return null;
+  if (streak) return formatPriceFromCents(plan, streak.finalCustomerPriceCents);
   return promo ? formatPriceFromCents(plan, promo.finalCustomerPriceCents) : plan.price;
 }
 
@@ -41,9 +57,14 @@ export function checkoutTotal(
  * Plan price, then each discount, so the lines step down to the total.
  * - Admin discount: a line only for a real reduction (discountPercentOff, f078).
  *   A markup (hasDiscount with a higher price) shows the charged price as the plan price.
- * - Partner code: the price before it minus the backend's total; "-N%" when that isn't a saving.
+ * - Partner code: the price before it minus the backend's partner-only total; "-N%" when that isn't a saving.
+ * - Games streak reward: the price before it (after any partner code) minus the quote's total.
  */
-export function checkoutPriceLines(plan: DiscountPricedPlan, promo: CheckoutPromo | null): CheckoutPriceLine[] {
+export function checkoutPriceLines(
+  plan: DiscountPricedPlan,
+  promo: CheckoutPromo | null,
+  streak: CheckoutStreak | null = null,
+): CheckoutPriceLine[] {
   const lines: CheckoutPriceLine[] = [];
   const percentOff = discountPercentOff(plan);
 
@@ -58,12 +79,24 @@ export function checkoutPriceLines(plan: DiscountPricedPlan, promo: CheckoutProm
     lines.push({ kind: "plan", label: "Plan price", value: plan.price });
   }
 
+  let beforeStreakCents = toCents(plan.priceNumeric);
   if (promo) {
-    const savedCents = toCents(plan.priceNumeric) - promo.finalCustomerPriceCents;
+    const partnerFinalCents = promo.partnerFinalCents ?? promo.finalCustomerPriceCents;
+    const savedCents = beforeStreakCents - partnerFinalCents;
     lines.push({
       kind: "partner",
       label: `Partner code -${promo.discountPct}%`,
       value: savedCents > 0 ? `-${formatPriceFromCents(plan, savedCents)}` : `-${promo.discountPct}%`,
+    });
+    beforeStreakCents = partnerFinalCents;
+  }
+
+  if (streak) {
+    const savedCents = beforeStreakCents - streak.finalCustomerPriceCents;
+    lines.push({
+      kind: "streak",
+      label: `Games streak reward -${streak.discountPct}%`,
+      value: savedCents > 0 ? `-${formatPriceFromCents(plan, savedCents)}` : `-${streak.discountPct}%`,
     });
   }
 

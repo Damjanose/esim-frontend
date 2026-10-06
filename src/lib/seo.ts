@@ -41,6 +41,7 @@ export const privateRoutePrefixes = [
   "/xnotificationy",
   "/xpartnersy",
   "/xpricing",
+  "/xstreaky",
   "/xsupport",
   "/xtestimonialsy",
   "/xtripplany",

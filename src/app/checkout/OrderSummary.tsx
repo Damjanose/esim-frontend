@@ -9,6 +9,7 @@ import {
   checkoutTotal,
   coverageCountries,
   orderSummaryToggleLabel,
+  type CheckoutStreak,
 } from "@/lib/checkoutSummary";
 import { planDurationText, planRowTags, planVoiceSmsDetail } from "@/lib/planRow";
 import type { HeroPackageOption } from "@/services/packages";
@@ -41,6 +42,8 @@ export function OrderSummary({
   plan,
   promo,
   promoPending,
+  streak = null,
+  quotePending = false,
   onPromoChange,
   onPromoPendingChange,
   className = "",
@@ -48,6 +51,9 @@ export function OrderSummary({
   plan: HeroPackageOption;
   promo: AppliedPromo | null;
   promoPending: boolean;
+  /** Active games streak reward priced by /payments/quote, or null. */
+  streak?: CheckoutStreak | null;
+  quotePending?: boolean;
   onPromoChange: (promo: AppliedPromo | null) => void;
   onPromoPendingChange: (pending: boolean) => void;
   className?: string;
@@ -56,8 +62,8 @@ export function OrderSummary({
   const [countriesExpanded, setCountriesExpanded] = useState(false);
   const [flagFailed, setFlagFailed] = useState(false);
 
-  const total = checkoutTotal(plan, promo, promoPending);
-  const lines = checkoutPriceLines(plan, promo);
+  const total = checkoutTotal(plan, promo, promoPending, streak, quotePending);
+  const lines = checkoutPriceLines(plan, promo, streak);
   const planCountries = coverageCountries(plan.countries);
   const voiceSms = planVoiceSmsDetail(plan);
   // Not in a list, so no "Best value": just the discount and Calls + SMS tags.

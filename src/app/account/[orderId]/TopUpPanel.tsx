@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard, Loader2, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CreditCard, Flame, Loader2, Plus } from "lucide-react";
 import { topupPlanRowPlan, type TopupOffer } from "@/lib/accountEsims";
 import { planDurationText, planRowTags } from "@/lib/planRow";
 import { Button } from "../../components/Button";
@@ -23,6 +23,7 @@ export function TopUpPanel({
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const streakPct = useStreakRewardPct(orderId, packages[0]?.id ?? null);
 
   async function startTopup(packageId: string) {
     setPendingId(packageId);
@@ -71,6 +72,13 @@ export function TopUpPanel({
       <p className="mt-2 text-sm text-onSurfaceVariant">
         Top up this eSIM without installing a new one.
       </p>
+
+      {streakPct ? (
+        <p className="mt-3 flex items-center gap-2 rounded-[12px] bg-brandBlue/10 px-3 py-2 text-sm font-semibold text-brandBlue">
+          <Flame aria-hidden="true" className="shrink-0" size={16} />
+          Your games streak reward takes {streakPct}% off one top-up at payment.
+        </p>
+      ) : null}
 
       <ul className="mt-5 space-y-3">
         {packages.map((pkg) => {
@@ -123,4 +131,33 @@ export function TopUpPanel({
       </p>
     </section>
   );
+}
+
+/**
+ * The games streak reward % the backend would take off a top-up right now, or null.
+ * One quote is enough: the reward is a flat % on whichever offer is bought.
+ */
+function useStreakRewardPct(orderId: number, packageId: string | null): number | null {
+  const [pct, setPct] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!packageId) return;
+    let cancelled = false;
+    void fetch("/bff/checkout/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ packageId, orderId })
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { data?: { streakDiscountPct?: number | null } } | null) => {
+        const value = payload?.data?.streakDiscountPct;
+        if (!cancelled) setPct(typeof value === "number" && value > 0 ? value : null);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [orderId, packageId]);
+
+  return pct;
 }

@@ -4,7 +4,13 @@ import { callWithSession } from "@/lib/with-session";
 
 type ApplyPromoResult =
   | { applied: false }
-  | { applied: true; discountPct: number; finalCustomerPriceCents: number };
+  | {
+      applied: true;
+      discountPct: number;
+      finalCustomerPriceCents: number;
+      partnerFinalCents?: number;
+      streakDiscountPct?: number | null;
+    };
 
 export async function POST(request: Request) {
   let body: { promoCode?: unknown; packageId?: unknown };

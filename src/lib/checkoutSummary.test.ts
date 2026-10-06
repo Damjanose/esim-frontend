@@ -85,3 +85,30 @@ describe("coverageCountries", () => {
     expect(coverageCountries(eu)).toEqual(eu);
   });
 });
+
+describe("games streak reward", () => {
+  const streak = { discountPct: 5, finalCustomerPriceCents: 380 };
+
+  it("uses the quote's total, and holds it while the quote loads", () => {
+    expect(checkoutTotal(plan(), null, false, streak)).toBe("€3.80");
+    expect(checkoutTotal(plan(), null, false, null, true)).toBeNull();
+  });
+
+  it("adds a streak line under the plan price", () => {
+    expect(checkoutPriceLines(plan(), null, streak)).toEqual([
+      { kind: "plan", label: "Plan price", value: "€4.00" },
+      { kind: "streak", label: "Games streak reward -5%", value: "-€0.20" },
+    ]);
+  });
+
+  it("stacks under a partner code, each line its own step down to the total", () => {
+    const stacked = { ...promo, partnerFinalCents: 360, finalCustomerPriceCents: 342 };
+    const lines = checkoutPriceLines(plan(), stacked, { discountPct: 5, finalCustomerPriceCents: 342 });
+    expect(lines.map((line) => [line.kind, line.value])).toEqual([
+      ["plan", "€4.00"],
+      ["partner", "-€0.40"],
+      ["streak", "-€0.18"],
+    ]);
+    expect(checkoutTotal(plan(), stacked, false, { discountPct: 5, finalCustomerPriceCents: 342 })).toBe("€3.42");
+  });
+});

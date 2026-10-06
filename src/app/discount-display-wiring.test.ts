@@ -12,7 +12,7 @@ describe("discount price display wiring", () => {
     expect(rules).toContain("hasActiveDiscount(plan)");
     expect(rules).toContain("formatOriginalPrice(plan)");
     expect(rules).toContain("discountPercentOff(plan)");
-    expect(summary).toContain("checkoutPriceLines(plan, promo)");
+    expect(summary).toContain("checkoutPriceLines(plan, promo, streak)");
   });
 
   it("destination plan rows (live view, /esim table, /pkg) show the same discount treatment", () => {

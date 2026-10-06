@@ -7,6 +7,7 @@ import {
   BarChart3,
   Bell,
   Bug,
+  Flame,
   LifeBuoy,
   LogOut,
   Map,
@@ -33,7 +34,8 @@ const adminLinks: Array<{
   { href: "/xpartnersy", label: "Partners", full: "Partner program", Icon: Users },
   { href: "/xsupport", label: "Support", full: "Support inbox", Icon: LifeBuoy },
   { href: "/xtestimonialsy", label: "Quotes", full: "Testimonials", Icon: MessageSquareQuote },
-  { href: "/xtripplany", label: "Trips", full: "Trip plans", Icon: Map }
+  { href: "/xtripplany", label: "Trips", full: "Trip plans", Icon: Map },
+  { href: "/xstreaky", label: "Streak", full: "Games streak promo", Icon: Flame }
 ];
 
 export function AdminNav() {

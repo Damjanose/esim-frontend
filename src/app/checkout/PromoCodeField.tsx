@@ -11,12 +11,15 @@ const STORAGE_KEY = PROMO_STORAGE_KEY;
 export type AppliedPromo = {
   promoCode: string;
   discountPct: number;
+  /** The backend total, including a games streak reward stacked on top if one is active. */
   finalCustomerPriceCents: number;
+  /** The price after the partner code alone. */
+  partnerFinalCents?: number;
 };
 
 type ApplyPromoResponse =
   | { applied: false }
-  | { applied: true; discountPct: number; finalCustomerPriceCents: number };
+  | { applied: true; discountPct: number; finalCustomerPriceCents: number; partnerFinalCents?: number };
 
 type StoredPromo = { promoCode: string; packageId: string };
 
@@ -123,7 +126,10 @@ export function PromoCodeField({
       const next: AppliedPromo = {
         promoCode,
         discountPct: payload.data.discountPct,
-        finalCustomerPriceCents: payload.data.finalCustomerPriceCents
+        finalCustomerPriceCents: payload.data.finalCustomerPriceCents,
+        ...(typeof payload.data.partnerFinalCents === "number"
+          ? { partnerFinalCents: payload.data.partnerFinalCents }
+          : {})
       };
       writeStoredPromo(packageId, promoCode);
       setApplied(next);

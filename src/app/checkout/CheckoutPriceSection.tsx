@@ -7,6 +7,7 @@ import { LinkButton } from "@/app/components/Button";
 import { CheckoutWizard } from "./CheckoutWizard";
 import { OrderSummary } from "./OrderSummary";
 import type { AppliedPromo } from "./PromoCodeField";
+import { useCheckoutQuote } from "./useCheckoutQuote";
 
 /**
  * The `plan.hasDiscount`/`retailPrice` fields describe an admin-set retail
@@ -43,6 +44,12 @@ export function CheckoutPriceSection({
   // unsettled) and to avoid flashing the full price before a stored code's
   // discount is confirmed.
   const [promoPending, setPromoPending] = useState(false);
+  // A games streak reward is applied by the backend with no code; the quote shows it.
+  const quote = useCheckoutQuote({
+    packageId: plan.id,
+    promoCode: promo?.promoCode ?? null,
+    enabled: Boolean(accountEmail) && !promoPending
+  });
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
@@ -53,6 +60,8 @@ export function CheckoutPriceSection({
         plan={plan}
         promo={promo}
         promoPending={promoPending}
+        quotePending={quote.pending}
+        streak={quote.streak}
       />
 
       <div className="min-w-0 lg:col-start-1 lg:row-start-1">
