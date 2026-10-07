@@ -29,8 +29,8 @@ describe("/partners/buy layout (account shell, plan-row picker)", () => {
 
   it("gives one gradient: Buy with wallet; the toggles are 44px flat controls", () => {
     expect(picker.match(/<Button\b/g)).toHaveLength(1);
-    expect(picker).not.toContain('variant="flat"');
-    expect(page).not.toContain('variant="flat"');
+    expect(picker).not.toContain('variant="tint"');
+    expect(page).not.toContain('variant="tint"');
     // The page's only other buttons are the empty-state links (mutually exclusive with the picker).
     expect(picker).toContain("flex min-h-11 flex-1");
     expect(picker.match(/\$\{TOGGLE_CLASSES\}/g)).toHaveLength(2);

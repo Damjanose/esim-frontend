@@ -40,7 +40,7 @@ describe("EsimListRow", () => {
   it("makes the whole row open the eSIM without nesting the action in a link", () => {
     expect(row).toContain("after:absolute after:inset-0");
     expect(row).toContain("relative z-10 shrink-0");
-    expect(row).toContain('variant={action.primary ? "primary" : "flat"}');
+    expect(row).toContain('variant={action.primary ? "lit" : "tint"}');
     // Buy again is a 44px text action, never a gradient.
     expect(row).toContain("min-h-11");
   });

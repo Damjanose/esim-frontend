@@ -11,6 +11,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
+import { Button } from "@/app/components/Button";
 import {
   defaultConsent,
   readConsentFromDocument,
@@ -112,6 +113,8 @@ function ConsentDialog({ hasExistingChoice }: { hasExistingChoice: boolean }) {
 
   const save = () => chooseConsent({ analytics, marketing });
   const firstVisit = !hasExistingChoice;
+  // The first-visit banner is dark (brandInk), so its buttons use the on-dark paints.
+  const bannerSurface = firstVisit ? "dark" : "light";
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[1000]">
@@ -159,15 +162,16 @@ function ConsentDialog({ hasExistingChoice }: { hasExistingChoice: boolean }) {
 
             {!showDetails ? (
               <div className="grid shrink-0 gap-1.5 sm:grid-cols-3 md:w-[28rem]">
-                <button className={`rounded-lg px-2.5 py-2 text-[11px] font-black shadow-[0_5px_14px_rgba(0,0,0,0.16)] transition ${firstVisit ? "bg-white text-brandInk hover:bg-brandBlue hover:text-white" : "bg-brandBlue text-white hover:bg-brandInk"}`} onClick={() => chooseConsent({ analytics: true, marketing: true })} type="button">
+                {/* Accept and Reject carry equal weight on purpose (no nudging toward consent). */}
+                <Button onClick={() => chooseConsent({ analytics: true, marketing: true })} size="sm" surface={bannerSurface} type="button" variant="tint">
                   Accept all
-                </button>
-                <button className={`rounded-lg border px-2.5 py-2 text-[11px] font-black transition ${firstVisit ? "border-white/40 bg-white text-brandInk hover:bg-brandBlue hover:text-white" : "border-outline bg-white text-onSurface hover:border-brandBlue hover:text-brandBlue"}`} onClick={() => chooseConsent({ analytics: false, marketing: false })} type="button">
+                </Button>
+                <Button onClick={() => chooseConsent({ analytics: false, marketing: false })} size="sm" surface={bannerSurface} type="button" variant="tint">
                   Reject optional
-                </button>
-                <button className={`rounded-lg border px-2.5 py-2 text-[11px] font-black transition ${firstVisit ? "border-white/35 bg-white/10 text-white hover:bg-white/20" : "border-outline bg-white text-onSurface hover:border-brandBlue hover:text-brandBlue"}`} onClick={() => setShowDetails(true)} type="button">
+                </Button>
+                <Button onClick={() => setShowDetails(true)} size="sm" surface={bannerSurface} type="button" variant="ghost">
                   Manage preferences
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="w-full shrink-0 md:max-w-3xl">
@@ -192,12 +196,12 @@ function ConsentDialog({ hasExistingChoice }: { hasExistingChoice: boolean }) {
                   />
                 </div>
                 <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                  <button className="rounded-xl border border-outline bg-white px-4 py-2.5 text-xs font-black text-onSurface transition hover:border-brandBlue hover:text-brandBlue" onClick={() => chooseConsent({ analytics: false, marketing: false })} type="button">
+                  <Button onClick={() => chooseConsent({ analytics: false, marketing: false })} size="sm" type="button" variant="tint">
                     Reject optional
-                  </button>
-                  <button className="rounded-xl bg-brandBlue px-4 py-2.5 text-xs font-black text-white shadow-[0_5px_14px_rgba(11,73,183,0.2)] transition hover:bg-brandInk" onClick={save} type="button">
+                  </Button>
+                  <Button onClick={save} size="sm" type="button">
                     Save preferences
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

@@ -99,7 +99,7 @@ export default async function CheckoutFailedPage({
               </LinkButton>
             )}
 
-            <LinkButton className="w-full sm:flex-1" href="/support" size="lg" tone="brand" variant="flat">
+            <LinkButton className="w-full sm:flex-1" href="/support" size="lg" tone="brand" variant="tint">
               <LifeBuoy aria-hidden="true" size={17} />
               Contact support
             </LinkButton>

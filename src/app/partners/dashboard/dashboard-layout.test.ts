@@ -49,8 +49,8 @@ describe("/partners/dashboard layout (account shell, blue wallet card)", () => {
 
   it("uses no gradient on the ready dashboard: the blue card is the emphasis, every button is flat", () => {
     for (const source of [wallet, discount]) {
-      expect(source).not.toContain('variant="primary"');
-      expect(source.match(/<(?:Link)?Button\b/g)?.length).toBe(source.match(/variant="flat"/g)?.length);
+      expect(source).not.toContain('variant="lit"');
+      expect(source.match(/<(?:Link)?Button\b/g)?.length).toBe(source.match(/variant="tint"/g)?.length);
     }
   });
 

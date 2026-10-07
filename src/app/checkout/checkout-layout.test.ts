@@ -52,7 +52,7 @@ describe("checkout page layout (spec option B)", () => {
 
   it("restyles the partner-code field with the shared controls and a flat Apply", () => {
     expect(promoField).toContain("FIELD_CONTROL_CLASSES");
-    expect(promoField).toMatch(/size="md" type="submit" variant="flat"/);
+    expect(promoField).toMatch(/size="md" type="submit" variant="tint"/);
     expect(promoField).not.toContain("bg-mist");
     for (const source of [page, section, wizard, promoField]) {
       expect(source).not.toMatch(HEX);

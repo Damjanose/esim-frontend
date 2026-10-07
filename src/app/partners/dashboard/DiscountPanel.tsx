@@ -94,7 +94,7 @@ export function DiscountPanel({
           />
         </div>
         <span className="text-sm font-bold text-onSurfaceVariant">%</span>
-        <Button className="min-h-11" disabled={busy} size="sm" type="submit" variant="flat">
+        <Button className="min-h-11" disabled={busy} size="sm" type="submit" variant="tint">
           {busy ? <Loader2 className="animate-spin" size={14} /> : null}
           Save
         </Button>

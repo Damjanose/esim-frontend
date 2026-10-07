@@ -2,44 +2,82 @@ import { describe, expect, it } from "vitest";
 import { resolveButtonClasses } from "./buttonClasses";
 
 describe("resolveButtonClasses", () => {
-  it("defaults to a medium primary button with the brand gradient", () => {
+  it("defaults to a medium lit pill: blue lit from above with the lift", () => {
     const classes = resolveButtonClasses();
     expect(classes).toContain("h-[46px]");
-    expect(classes).toContain("rounded-[12px]");
-    expect(classes).toContain("from-brandBlue");
-    expect(classes).toContain("to-brandTeal");
+    expect(classes).toContain("rounded-full");
+    expect(classes).toContain("from-litTop");
+    expect(classes).toContain("to-brandBlue");
     expect(classes).toContain("text-white");
+    expect(classes).toContain("shadow-lit");
+    expect(classes).toContain("active:translate-y-[2px]");
   });
 
-  it("sizes sm/md/lg to the mobile control heights", () => {
-    expect(resolveButtonClasses({ size: "sm" })).toContain("h-[34px]");
-    expect(resolveButtonClasses({ size: "md" })).toContain("h-[46px]");
-    expect(resolveButtonClasses({ size: "lg" })).toContain("h-[54px]");
+  it("sizes sm/md/lg to the mobile control heights, all full pills", () => {
+    for (const [size, height] of [["sm", "34"], ["md", "46"], ["lg", "54"]] as const) {
+      const classes = resolveButtonClasses({ size });
+      expect(classes).toContain(`h-[${height}px]`);
+      expect(classes).toContain("rounded-full");
+    }
   });
 
-  it("sm uses the 8px radius, md/lg use 12px", () => {
-    expect(resolveButtonClasses({ size: "sm" })).toContain("rounded-[8px]");
-    expect(resolveButtonClasses({ size: "md" })).toContain("rounded-[12px]");
-    expect(resolveButtonClasses({ size: "lg" })).toContain("rounded-[12px]");
+  it("drops the lift on sm so rows of small buttons stay quiet", () => {
+    expect(resolveButtonClasses({ size: "sm" })).not.toContain("shadow-lit");
   });
 
-  it("resolves flat/brand as a bordered white button with brand-blue text, no gradient", () => {
-    const classes = resolveButtonClasses({ variant: "flat", tone: "brand" });
+  it("swaps the sink for an opacity dip under reduced motion", () => {
+    const classes = resolveButtonClasses();
+    expect(classes).toContain("motion-reduce:active:translate-y-0");
+    expect(classes).toContain("motion-reduce:active:opacity-85");
+  });
+
+  it("paints lit/danger red and keeps it red on a dark surface", () => {
+    expect(resolveButtonClasses({ tone: "danger" })).toContain("to-error");
+    expect(resolveButtonClasses({ tone: "danger", surface: "dark" })).toContain("to-error");
+  });
+
+  it("turns lit into the white moon on a dark surface", () => {
+    const classes = resolveButtonClasses({ surface: "dark" });
+    expect(classes).toContain("from-white");
     expect(classes).toContain("text-brandBlue");
-    expect(classes).toContain("bg-white");
-    expect(classes).not.toContain("from-brandBlue");
+    expect(classes).toContain("shadow-moon");
   });
 
-  it("resolves flat/danger with the error color and a bordered white background, never a solid fill", () => {
-    const classes = resolveButtonClasses({ variant: "flat", tone: "danger" });
-    expect(classes).toContain("text-error");
-    expect(classes).toContain("bg-white");
-    expect(classes).not.toContain("bg-error");
+  it("resolves tint as a soft wash with no outline or lift", () => {
+    const classes = resolveButtonClasses({ variant: "tint" });
+    expect(classes).toContain("bg-brandBlue/[0.08]");
+    expect(classes).toContain("text-brandBlue");
+    expect(classes).not.toContain("border");
+    expect(classes).not.toContain("shadow-lit");
+    expect(resolveButtonClasses({ variant: "tint", tone: "danger" })).toContain("text-error");
+    expect(resolveButtonClasses({ variant: "tint", surface: "dark" })).toContain("bg-white/10");
   });
 
-  it("marks disabled buttons at 40% opacity and non-interactive", () => {
+  it("resolves ghost as text-only", () => {
+    const classes = resolveButtonClasses({ variant: "ghost" });
+    expect(classes).toContain("bg-transparent");
+    expect(classes).toContain("text-brandBlue");
+  });
+
+  it("shows the orbit dot only on an enabled lit md/lg hero", () => {
+    expect(resolveButtonClasses({ hero: true })).toContain("after:bg-orbitCore");
+    expect(resolveButtonClasses({ hero: true, size: "lg" })).toContain("pr-[30px]");
+    for (const args of [
+      { hero: true, variant: "tint" as const },
+      { hero: true, variant: "ghost" as const },
+      { hero: true, size: "sm" as const },
+      { hero: true, disabled: true }
+    ]) {
+      expect(resolveButtonClasses(args)).not.toContain("after:bg-orbitCore");
+    }
+  });
+
+  it("goes flat grey and non-interactive when disabled, with no lift", () => {
     const classes = resolveButtonClasses({ disabled: true });
-    expect(classes).toContain("disabled:opacity-40");
+    expect(classes).toContain("bg-disabledFill");
+    expect(classes).toContain("text-disabledLabel");
     expect(classes).toContain("pointer-events-none");
+    expect(classes).not.toContain("shadow-lit");
+    expect(resolveButtonClasses({ variant: "ghost", disabled: true })).toContain("bg-transparent");
   });
 });

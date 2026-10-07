@@ -7,13 +7,14 @@ import {
   detectMobilePlatform,
   type MobilePlatform
 } from "@/lib/app-links";
+import { resolveButtonClasses } from "@/app/components/buttonClasses";
 
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
 
-const openAppClass = "block rounded-full bg-brandBlue px-5 py-3 text-center text-sm font-bold text-white";
-const secondaryClass =
-  "block rounded-full border border-brandBlue px-5 py-3 text-center text-sm font-bold text-brandBlue";
+// Shared lit-pill paint; these stay raw <a>/<button> because Android needs a real intent:// link.
+const openAppClass = `${resolveButtonClasses({ size: "lg", hero: true })} w-full`;
+const secondaryClass = `${resolveButtonClasses({ variant: "tint", size: "lg" })} w-full`;
 
 export function OpenAppActions({
   packageId,

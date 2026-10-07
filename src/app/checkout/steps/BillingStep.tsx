@@ -232,7 +232,7 @@ export function BillingStep({
 
           {saveError ? <p className="text-sm font-semibold text-error">{saveError}</p> : null}
           {/* Flat: Pay is the page's one gradient primary, and it can show at the same time. */}
-          <Button className="w-full" disabled={saving} onClick={() => void save()} size="lg" type="button" variant="flat">
+          <Button className="w-full" disabled={saving} onClick={() => void save()} size="lg" type="button" variant="tint">
             {saving ? "Saving…" : "Save address"}
           </Button>
         </>

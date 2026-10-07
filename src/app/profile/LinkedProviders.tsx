@@ -81,7 +81,7 @@ export function LinkedProviders({ identities }: { identities: LinkedIdentity[] }
               disabled={pending !== null}
               onClick={() => void unlink(identity.provider)}
               type="button"
-              variant="flat"
+              variant="tint"
             >
               {pending === identity.provider ? (
                 <Loader2 aria-hidden="true" className="animate-spin" size={14} />

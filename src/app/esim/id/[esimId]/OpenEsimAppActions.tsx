@@ -7,11 +7,14 @@ import {
   detectMobilePlatform,
   type MobilePlatform
 } from "@/lib/app-links";
+import { resolveButtonClasses } from "@/app/components/buttonClasses";
 
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
 
-const openAppClass = "block rounded-full bg-brandBlue px-5 py-3 text-sm font-bold text-white";
+// Shared lit-pill paint; these stay raw <a>/<button> because Android needs a real intent:// link.
+const openAppClass = `${resolveButtonClasses({ size: "lg", hero: true })} w-full`;
+const storeClass = `${resolveButtonClasses({ variant: "tint", size: "lg" })} w-full`;
 
 /**
  * Mirrors `pkg/[id]/OpenAppActions` but for a shared eSIM token, and adds a
@@ -51,7 +54,7 @@ export function OpenEsimAppActions({
     <a
       key={label}
       href={href}
-      className="block rounded-full border border-brandBlue px-5 py-3 text-sm font-bold text-brandBlue"
+      className={storeClass}
     >
       {label}
     </a>

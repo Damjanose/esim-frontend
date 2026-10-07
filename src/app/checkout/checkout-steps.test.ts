@@ -22,7 +22,8 @@ describe("checkout card step", () => {
   it("keeps one real Pay button, sticky at the bottom below lg and in the flow at lg+", () => {
     // No second, decorative Pay button anywhere: the sticky bar wraps the real one.
     expect(cardStep.match(/<Button\b/g)).toHaveLength(1);
-    expect(cardStep).toContain('{submitting ? "Processing…" : "Pay"}');
+    // Keeps the "Pay" label; the shared Button shows the spinner and blocks re-submits.
+    expect(cardStep).toContain("loading={submitting}");
     expect(cardStep).toContain("sticky bottom-0");
     expect(cardStep).toContain("pb-[max(12px,env(safe-area-inset-bottom))]");
     expect(cardStep).toContain("lg:static");
@@ -39,8 +40,8 @@ describe("checkout card step", () => {
 });
 
 describe("checkout billing step", () => {
-  it("saves with a flat button, so Pay stays the one gradient primary", () => {
-    expect(billingStep).toContain('variant="flat"');
+  it("saves with a tint button, so Pay stays the one lit primary", () => {
+    expect(billingStep).toContain('variant="tint"');
     expect(billingStep).toContain("className={FIELD_INPUT_CLASSES}");
     expect(billingStep).toContain("min-h-11");
     // Tells the wizard when it has its real height, so step 02 never jumps (CLS).

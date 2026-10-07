@@ -161,11 +161,11 @@ export function EsimDestinationPageView({
           <p className="mt-5 max-w-3xl text-base leading-7 text-surface/75 sm:text-lg sm:leading-8">{page.intro}</p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             {/* Flat: the best-value row's Buy now is this page's one gradient CTA. */}
-            <LinkButton href="#plans" size="lg" variant="flat">
+            <LinkButton href="#plans" size="lg" variant="tint">
               {offer ? `Buy from €${offer.lowPrice.toFixed(2)}` : "View plans"}
               <ArrowRight aria-hidden="true" size={18} />
             </LinkButton>
-            <LinkButton href={landingContent.appLinks.ios.href} size="lg" variant="flat">
+            <LinkButton href={landingContent.appLinks.ios.href} size="lg" variant="tint">
               {landingContent.appLinks.ios.label}
               <ArrowRight aria-hidden="true" size={18} />
             </LinkButton>

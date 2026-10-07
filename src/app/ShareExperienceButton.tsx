@@ -27,7 +27,7 @@ export function ShareExperienceButton() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} type="button" variant="flat">
+      <Button onClick={() => setOpen(true)} type="button" variant="tint">
         Share your experience
       </Button>
 

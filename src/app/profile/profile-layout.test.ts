@@ -27,14 +27,17 @@ describe("/profile layout (sidebar sections at lg, grouped list below)", () => {
     expect(existsSync("src/app/components/SettingsSection.tsx")).toBe(false);
   });
 
-  it("never paints sign-out or delete as a gradient or solid red", () => {
+  it("keeps sign-out plain and only the final delete confirm red lit", () => {
     expect(signOut).not.toContain("<Button");
-    expect(deleteCard).toContain('tone="danger" type="button" variant="flat"');
-    expect(deleteCard).not.toContain('variant="primary"');
+    // Opening the dialog and the first step stay a soft red tint.
+    expect(deleteCard).toContain('tone="danger" type="button" variant="tint"');
+    // "Yes, delete my account" is the one red lit button, blocked while deleting.
+    expect(deleteCard).toContain('<Button loading={busy} onClick={() => void deleteAccount()} tone="danger" type="button">');
+    expect(deleteCard).not.toContain('variant="lit"');
   });
 
   it("gives Unlink a 46px flat button inside the card's hairline rows", () => {
-    expect(linked).toContain('variant="flat"');
+    expect(linked).toContain('variant="tint"');
     expect(linked).not.toContain("h-9");
     expect(linked).toContain("divide-y divide-outline/60");
   });

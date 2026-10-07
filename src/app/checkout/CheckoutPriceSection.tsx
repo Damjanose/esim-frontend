@@ -80,7 +80,7 @@ export function CheckoutPriceSection({
                   className="mt-3"
                   href={`/signin?next=${encodeURIComponent(`/checkout?package=${plan.id}`)}`}
                   size="md"
-                  variant="primary"
+                  variant="lit"
                 >
                   Sign in to checkout
                 </LinkButton>

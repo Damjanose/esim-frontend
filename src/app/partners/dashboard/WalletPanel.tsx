@@ -170,7 +170,7 @@ export function WalletPanel({ walletBalanceCents }: { walletBalanceCents: number
                 className={ACTION_CLASSES}
                 size="sm"
                 type="button"
-                variant="flat"
+                variant="tint"
               >
                 {busy ? <Loader2 className="animate-spin" size={14} /> : <CreditCard size={14} />}
                 €{eur}
@@ -192,7 +192,7 @@ export function WalletPanel({ walletBalanceCents }: { walletBalanceCents: number
             placeholder="Custom €"
             value={customAmount}
           />
-          <Button className={ACTION_CLASSES} disabled={anyActionPending || !customAmount} size="sm" type="submit" variant="flat">
+          <Button className={ACTION_CLASSES} disabled={anyActionPending || !customAmount} size="sm" type="submit" variant="tint">
             {topupPending === "custom" ? <Loader2 className="animate-spin" size={14} /> : null}
             Top up
           </Button>
@@ -226,7 +226,7 @@ export function WalletPanel({ walletBalanceCents }: { walletBalanceCents: number
             placeholder="Amount €"
             value={transferAmount}
           />
-          <Button className={ACTION_CLASSES} disabled={anyActionPending || !transferAmount} size="sm" type="submit" variant="flat">
+          <Button className={ACTION_CLASSES} disabled={anyActionPending || !transferAmount} size="sm" type="submit" variant="tint">
             {transferBusy ? <Loader2 className="animate-spin" size={14} /> : null}
             Transfer
           </Button>
@@ -239,11 +239,11 @@ export function WalletPanel({ walletBalanceCents }: { walletBalanceCents: number
       </div>
 
       <div className="mt-7 flex flex-wrap gap-3 border-t border-surface/25 pt-6">
-        <LinkButton className={ACTION_CLASSES} href="/partners/buy" size="sm" variant="flat">
+        <LinkButton className={ACTION_CLASSES} href="/partners/buy" size="sm" variant="tint">
           Buy with wallet
           <ArrowRight size={14} />
         </LinkButton>
-        <LinkButton className={ACTION_CLASSES} href="/partners/withdraw" size="sm" variant="flat">
+        <LinkButton className={ACTION_CLASSES} href="/partners/withdraw" size="sm" variant="tint">
           Withdraw commission
           <ArrowRight size={14} />
         </LinkButton>

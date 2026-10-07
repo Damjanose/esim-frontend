@@ -74,16 +74,22 @@ Type scale (`fontSize`, `lineHeight`, `letterSpacing`, `fontWeight`):
 
 Mirrors mobile's `resolveButtonVisual` (`controls.ts`):
 
-| Size | Height | Radius | Horizontal padding | Label size |
-|---|---|---|---|---|
-| `sm` | 34px | 8px | 8px | 13px |
-| `md` | 46px | 12px | 16px | 14px |
-| `lg` | 54px | 12px | 20px | 15px |
+Lit pill (2026-10-07, mirrors velocity-eSim `Button` / `resolveButtonVisual`). Every size is a full pill (`rounded-full`).
 
-- `variant: "primary"` — always the brand gradient (`brandBlue → #0E86C0 → brandTeal`), white label, no border. The one unambiguous action on a screen; never used for a destructive action.
-- `variant: "flat", tone: "brand"` — white background, `brandBlue` label, 1px border (`rgba(11,73,183,0.42)`).
-- `variant: "flat", tone: "danger"` — white background, `error` label, 1px border (`rgba(186,26,26,0.38)`). Mobile deliberately has **no solid-red primary button** — destructive actions stay outlined, never filled red. The web's Delete Account flow currently uses a solid red fill; Phase 1 changes it to `flat/danger` to match this rule (see Task 8).
-- Disabled: 40% opacity, non-interactive.
+| Size | Height | Horizontal padding | Label size | Lift |
+|---|---|---|---|---|
+| `sm` | 34px | 12px | 13px | none (rows stay quiet) |
+| `md` | 46px | 16px | 14px | highlight + lip + glow |
+| `lg` | 54px | 20px | 15px | highlight + lip + glow |
+
+- `variant: "lit"` (default): solid blue lit from above (`from-litTop to-brandBlue`), 1px top highlight, 3px lip, blue glow (`shadow-lit`). Sinks 2px into a 1px lip on press (`active:`), opacity dip under reduced motion. **One per page.**
+- `tone: "danger"` on `lit`: red version, **only** for the final destructive confirm ("Yes, delete my account").
+- `variant: "tint"`: soft wash of the tone (`bg-brandBlue/[0.08]` or `bg-error/[0.08]`), no outline. Everything secondary.
+- `variant: "ghost"`: text-only (Cancel, Manage preferences).
+- `surface: "dark"` (blue eSIM card, dark banners): lit becomes the white "moon" with a sky-blue glow; tint becomes glass (`bg-white/10` + 1px inner edge).
+- `hero`: the app icon's orbit dot on the right edge. Only on the page's main buy/pay/send action.
+- `loading` (Button only): spinner, keeps the live paint and the label, blocks clicks. Use it instead of swapping the label to "...ing".
+- Disabled: flat grey (`bg-disabledFill text-disabledLabel`), no lift, no orbit.
 
 ## Radius & spacing
 

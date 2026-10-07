@@ -448,8 +448,8 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
           "rounded-full px-3.5 py-2 text-left text-body-sm font-semibold transition disabled:opacity-40",
           compact ? "max-w-[240px] shrink-0 truncate" : "max-w-full",
           suggestion.primary
-            ? "bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal text-white shadow-[0_8px_20px_rgba(11,73,183,0.22)] hover:-translate-y-0.5"
-            : "border border-brandBlue/25 bg-surface text-brandBlue hover:bg-brandBlue/[0.06]"
+            ? "bg-gradient-to-b from-litTop to-brandBlue text-white shadow-lit hover:brightness-[1.04] active:translate-y-[2px] active:shadow-litPressed"
+            : "bg-brandBlue/[0.08] text-brandBlue hover:bg-brandBlue/[0.11] active:bg-brandBlue/[0.14]"
         ].join(" ")}
         key={suggestion.id}
         onClick={() => handleSuggestion(suggestion)}
@@ -464,7 +464,8 @@ export function AssistantChat({ onClose, pathname }: { onClose: () => void; path
     if (!assistantActionHref(action, { signedIn, currentPath: pathname })) return null;
     return (
       <button
-        className="inline-flex items-center gap-1.5 self-start rounded-full bg-gradient-to-r from-brandBlue via-[#0E86C0] to-brandTeal px-3.5 py-2 text-body-sm font-semibold text-white shadow-[0_8px_20px_rgba(11,73,183,0.22)] transition hover:-translate-y-0.5"
+        // Wraps long labels, so it stays hand-sized; painted like a lit `Button`.
+        className="inline-flex items-center gap-1.5 self-start rounded-full bg-gradient-to-b from-litTop to-brandBlue px-3.5 py-2 text-body-sm font-semibold text-white shadow-lit transition hover:brightness-[1.04] active:translate-y-[2px] active:shadow-litPressed motion-reduce:active:translate-y-0"
         key={key}
         onClick={() => runAction(action)}
         type="button"

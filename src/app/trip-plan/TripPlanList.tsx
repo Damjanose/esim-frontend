@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Lock, Trash2, Unlock } from "lucide-react";
+import { Button } from "@/app/components/Button";
 import { deleteTripPlan, redirectToSignIn } from "@/lib/tripPlan/client";
 import { splitPlansByWindow } from "@/lib/tripPlan/logic";
 import type { ItineraryListItem } from "@/lib/tripPlan/types";
@@ -81,21 +82,21 @@ export function TripPlanList({
                 </div>
                 {confirming === plan.id ? (
                   <div className="flex shrink-0 items-center gap-1">
-                    <button
-                      className="min-h-11 rounded-[12px] bg-error px-3 text-sm font-bold text-white disabled:opacity-50"
-                      disabled={deleting === plan.id}
+                    <Button
+                      loading={deleting === plan.id}
                       onClick={() => void remove(plan.id)}
+                      tone="danger"
                       type="button"
                     >
-                      {deleting === plan.id ? "Deleting…" : "Delete"}
-                    </button>
-                    <button
-                      className="min-h-11 rounded-[12px] px-3 text-sm font-bold text-onSurfaceVariant hover:text-brandInk"
+                      Delete
+                    </Button>
+                    <Button
                       onClick={() => setConfirming(null)}
                       type="button"
+                      variant="ghost"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 ) : (
                   <button

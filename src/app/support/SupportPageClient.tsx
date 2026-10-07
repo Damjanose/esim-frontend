@@ -713,7 +713,7 @@ function ContactSupport() {
 
             {/* Signed-out visitors land on /signin first (middleware guards /profile). */}
             <Link
-              className={`${resolveButtonClasses({ variant: "flat", size: "lg" })} !h-auto min-h-[54px] max-w-full`}
+              className={`${resolveButtonClasses({ variant: "tint", size: "lg" })} !h-auto min-h-[54px] max-w-full`}
               href="/profile/support"
             >
               <MessageCircle aria-hidden="true" size={17} />
@@ -807,7 +807,7 @@ function NoResults({ query, onClear }: NoResultsProps) {
       </p>
 
       {/* Flat: Email support below stays the page's one gradient CTA. */}
-      <Button className="mt-6" onClick={onClear} size="md" variant="flat">
+      <Button className="mt-6" onClick={onClear} size="md" variant="tint">
         <Sparkles aria-hidden="true" size={16} />
 
         View all help topics

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
 
 /**
@@ -56,7 +55,7 @@ export function DeleteAccountCard() {
     <>
       <div className="flex flex-col gap-2 px-1 lg:flex-row lg:items-center lg:gap-4">
         <p className="text-xs text-onSurfaceVariant">Want to leave?</p>
-        <Button className="w-full lg:w-auto" onClick={openDialog} tone="danger" type="button" variant="flat">
+        <Button className="w-full lg:w-auto" onClick={openDialog} tone="danger" type="button" variant="tint">
           Delete account
         </Button>
       </div>
@@ -89,15 +88,9 @@ export function DeleteAccountCard() {
               ) : null}
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button
-                  disabled={busy}
-                  onClick={() => void deleteAccount()}
-                  tone="danger"
-                  type="button"
-                  variant="flat"
-                >
-                  {busy ? <Loader2 className="animate-spin" size={16} /> : null}
-                  {busy ? "Deleting…" : "Yes, delete my account"}
+                {/* The final destructive confirm is the only red lit button (matches mobile). */}
+                <Button loading={busy} onClick={() => void deleteAccount()} tone="danger" type="button">
+                  Yes, delete my account
                 </Button>
 
                 <Button
@@ -105,7 +98,7 @@ export function DeleteAccountCard() {
                   onClick={() => setConfirming(false)}
                   tone="brand"
                   type="button"
-                  variant="flat"
+                  variant="tint"
                 >
                   Cancel
                 </Button>
@@ -118,10 +111,10 @@ export function DeleteAccountCard() {
               </p>
 
               <div className="mt-5 flex flex-wrap gap-3">
-                <Button onClick={() => setConfirming(true)} tone="danger" type="button" variant="flat">
+                <Button onClick={() => setConfirming(true)} tone="danger" type="button" variant="tint">
                   Delete account
                 </Button>
-                <Button onClick={closeDialog} tone="brand" type="button" variant="flat">
+                <Button onClick={closeDialog} tone="brand" type="button" variant="tint">
                   Never mind
                 </Button>
               </div>

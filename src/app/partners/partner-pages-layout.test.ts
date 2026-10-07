@@ -46,14 +46,14 @@ describe("partner pages in the account shell", () => {
 
   it("gives each page one gradient", () => {
     // withdraw: Request withdrawal is the gradient; Verification's submit is flat.
-    expect(parts.withdrawForm).not.toContain('variant="flat"');
-    expect(parts.verification).toContain('variant="flat"');
+    expect(parts.withdrawForm).not.toContain('variant="tint"');
+    expect(parts.verification).toContain('variant="tint"');
     // request: Submit request.
     expect(parts.requestForm.match(/<Button\b/g)).toHaveLength(1);
-    expect(parts.requestForm).not.toContain('variant="flat"');
+    expect(parts.requestForm).not.toContain('variant="tint"');
     // status: the one status action; materials has no button besides the apply prompt.
     expect(pages.status.match(/<LinkButton\b[^>]*href=\{copy\.action\.href\}/g)).toHaveLength(1);
-    expect(pages.materials).not.toContain('variant="primary"');
+    expect(pages.materials).not.toContain('variant="lit"');
   });
 
   it("keeps every interactive control at 44px", () => {

@@ -103,7 +103,7 @@ export function TripPlanDetail({
             ? "It may have been deleted, or it belongs to another account."
             : state.message}
         </p>
-        <LinkButton className="mt-5" href="/trip-plan" variant="flat">
+        <LinkButton className="mt-5" href="/trip-plan" variant="tint">
           Back to your plans
         </LinkButton>
       </div>

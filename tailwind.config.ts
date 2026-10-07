@@ -26,7 +26,15 @@ const config: Config = {
         dockMuted: "#5C6B8A",
         dockCenterInactive: "#9FB4DA",
         // velocity-eSim lightPalette.surfaceBright: soft page/section tint
-        surfaceBright: "#F5F7FA"
+        surfaceBright: "#F5F7FA",
+        // velocity-eSim `button` tokens (lit pill): top stop of each vertical fill + flat states
+        litTop: "#1D5ED6",
+        dangerTop: "#D23131",
+        moonBottom: "#E4EEFF",
+        onDarkLabel: "#EAF4FF",
+        orbitCore: "#5CE6F0",
+        disabledFill: "#E6EAF1",
+        disabledLabel: "#8A96B0"
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter", "system-ui", "sans-serif"],
@@ -49,7 +57,16 @@ const config: Config = {
         brandCard: "0 20px 60px rgba(6, 17, 49, 0.08)",
         // velocity-eSim BOTTOM_TAB_STYLE: capsule (ink, 0.28, y10 r20) + center ring (teal, 0.42, y5 r10)
         dock: "0 10px 20px rgba(6, 17, 49, 0.28)",
-        dockCenter: "0 5px 10px rgba(9, 195, 190, 0.42)"
+        dockCenter: "0 5px 10px rgba(9, 195, 190, 0.42)",
+        // Lit pill (velocity-eSim Button): 1px top highlight, 3px lip, coloured glow; pressed = 1px lip, tight glow
+        lit: "inset 0 1px 0 rgba(255, 255, 255, 0.30), inset 0 -3px 0 rgba(4, 26, 80, 0.35), 0 8px 18px -6px rgba(11, 73, 183, 0.55), 0 1px 2px rgba(6, 17, 49, 0.15)",
+        litPressed: "inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(4, 26, 80, 0.35), 0 3px 8px -4px rgba(11, 73, 183, 0.55)",
+        litDanger: "inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -3px 0 rgba(90, 0, 0, 0.30), 0 8px 18px -6px rgba(186, 26, 26, 0.50)",
+        litDangerPressed: "inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(90, 0, 0, 0.30), 0 3px 8px -4px rgba(186, 26, 26, 0.50)",
+        moon: "inset 0 -3px 0 rgba(11, 73, 183, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.4), 0 8px 24px -6px rgba(92, 200, 255, 0.60)",
+        moonPressed: "inset 0 -1px 0 rgba(11, 73, 183, 0.18), 0 3px 12px -4px rgba(92, 200, 255, 0.60)",
+        glassEdge: "inset 0 0 0 1px rgba(255, 255, 255, 0.14)",
+        orbit: "0 0 0 3px rgba(92, 230, 240, 0.25), 0 0 10px #5CE6F0"
       }
     }
   },

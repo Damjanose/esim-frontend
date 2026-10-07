@@ -114,13 +114,14 @@ export function TripPlanUnlock({
       {phase.kind === "idle" || phase.kind === "starting" ? (
         <Button
           className="mt-5 w-full sm:w-auto"
-          disabled={phase.kind === "starting"}
+          hero
+          loading={phase.kind === "starting"}
           onClick={() => void start()}
           size="lg"
           type="button"
         >
-          <Sparkles aria-hidden="true" size={18} />
-          {phase.kind === "starting" ? "Preparing…" : free ? "Get it for free" : `Unlock for ${priceLabel}`}
+          {phase.kind === "starting" ? null : <Sparkles aria-hidden="true" size={18} />}
+          {free ? "Get it for free" : `Unlock for ${priceLabel}`}
         </Button>
       ) : null}
 
@@ -159,7 +160,7 @@ export function TripPlanUnlock({
             {phase.message} Try again, or contact support with your payment reference:{" "}
             <span className="font-mono font-bold">{phase.paymentId}</span>
           </p>
-          <Button className="mt-3" onClick={() => void confirm(phase.paymentId)} type="button" variant="flat">
+          <Button className="mt-3" onClick={() => void confirm(phase.paymentId)} type="button" variant="tint">
             Try again
           </Button>
         </div>

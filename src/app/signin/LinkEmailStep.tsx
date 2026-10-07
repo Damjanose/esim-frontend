@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Loader2, MailCheck } from "lucide-react";
+import { MailCheck } from "lucide-react";
 import { Button } from "../components/Button";
 import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "../components/fieldClasses";
 import { CODE_INPUT_CLASSES, SIGN_IN_TEXT_ACTION_CLASSES } from "./signInClasses";
@@ -125,8 +125,7 @@ export function LinkEmailStep({
 
           {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-          <Button className="w-full" disabled={busy || !email} size="lg" type="submit">
-            {busy ? <Loader2 className="animate-spin" size={18} /> : null}
+          <Button className="w-full" disabled={!email} hero loading={busy} size="lg" type="submit">
             Send code
           </Button>
         </form>
@@ -148,8 +147,7 @@ export function LinkEmailStep({
 
           {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-          <Button className="w-full" disabled={busy || code.length !== 6} size="lg" type="submit">
-            {busy ? <Loader2 className="animate-spin" size={18} /> : null}
+          <Button className="w-full" disabled={code.length !== 6} hero loading={busy} size="lg" type="submit">
             Confirm and continue
           </Button>
 

@@ -184,7 +184,7 @@ export function SupportChat() {
           </div>
         </div>
         {threadOpen ? (
-          <Button disabled={solving} onClick={() => void markSolved()} size="sm" type="button" variant="flat">
+          <Button disabled={solving} onClick={() => void markSolved()} size="sm" type="button" variant="tint">
             {solving ? <Loader2 aria-hidden="true" className="animate-spin" size={14} /> : <CheckCircle2 aria-hidden="true" size={14} />}
             <span className="hidden sm:inline">Mark as solved</span>
             <span className="sm:hidden">Solved</span>

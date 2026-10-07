@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Loader2, MailCheck, ShieldCheck } from "lucide-react";
+import { ArrowRight, MailCheck, ShieldCheck } from "lucide-react";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { Button } from "../components/Button";
 import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "../components/fieldClasses";
@@ -145,8 +145,7 @@ export function SignInForm() {
 
             {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-            <Button className="w-full" disabled={busy || !email} size="lg" type="submit">
-              {busy ? <Loader2 className="animate-spin" size={18} /> : null}
+            <Button className="w-full" disabled={!email} hero loading={busy} size="lg" type="submit">
               Send code
               {busy ? null : <ArrowRight size={17} />}
             </Button>
@@ -186,8 +185,7 @@ export function SignInForm() {
 
           {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}
 
-          <Button className="w-full" disabled={busy || code.length !== 6} size="lg" type="submit">
-            {busy ? <Loader2 className="animate-spin" size={18} /> : null}
+          <Button className="w-full" disabled={code.length !== 6} hero loading={busy} size="lg" type="submit">
             Verify and continue
           </Button>
 

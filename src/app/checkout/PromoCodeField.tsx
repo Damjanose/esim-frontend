@@ -218,7 +218,7 @@ export function PromoCodeField({
           value={code}
         />
         {/* Flat: Pay is the page's one gradient primary. */}
-        <Button aria-busy={busy} className="shrink-0" disabled={busy || !code.trim()} size="md" type="submit" variant="flat">
+        <Button aria-busy={busy} className="shrink-0" disabled={busy || !code.trim()} size="md" type="submit" variant="tint">
           {busy ? <Loader2 className="animate-spin" size={16} /> : null}
           {busy ? "Applying…" : "Apply"}
         </Button>

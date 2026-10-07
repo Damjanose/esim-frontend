@@ -252,9 +252,9 @@ export function PackagePicker({ walletBalanceCents }: { walletBalanceCents: numb
           {error ? <p className="mt-4 text-sm font-semibold text-error">{error}</p> : null}
 
           <div className="mt-5">
-            <Button disabled={busy} onClick={() => void purchase()} type="button">
-              {busy ? <Loader2 className="animate-spin" size={18} /> : <ShoppingBag size={18} />}
-              {busy ? "Purchasing…" : "Buy with wallet"}
+            <Button hero loading={busy} onClick={() => void purchase()} type="button">
+              {busy ? null : <ShoppingBag size={18} />}
+              Buy with wallet
             </Button>
           </div>
         </div>

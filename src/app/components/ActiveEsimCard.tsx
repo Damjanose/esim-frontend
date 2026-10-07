@@ -48,17 +48,14 @@ export function ActiveEsimCard({
       {topUpHref || detailsHref ? (
         <div className="mt-5 flex gap-2">
           {topUpHref ? (
-            <LinkButton className="flex-1" href={topUpHref} variant="flat">
+            <LinkButton className="flex-1" href={topUpHref} surface="dark">
               Top up
             </LinkButton>
           ) : null}
           {detailsHref ? (
-            <a
-              className="inline-flex h-[46px] flex-1 items-center justify-center rounded-[12px] border border-surface/50 text-sm font-black text-surface transition hover:bg-surface/10"
-              href={detailsHref}
-            >
+            <LinkButton className="flex-1" href={detailsHref} surface="dark" variant="tint">
               Details
-            </a>
+            </LinkButton>
           ) : null}
         </div>
       ) : null}

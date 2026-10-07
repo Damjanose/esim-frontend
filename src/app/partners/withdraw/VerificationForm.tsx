@@ -94,7 +94,7 @@ export function VerificationForm() {
           </span>
         ) : null}
 
-        <Button disabled={busy || !details.trim()} type="submit" variant="flat">
+        <Button disabled={busy || !details.trim()} type="submit" variant="tint">
           {busy ? <Loader2 className="animate-spin" size={18} /> : null}
           Submit for review
         </Button>

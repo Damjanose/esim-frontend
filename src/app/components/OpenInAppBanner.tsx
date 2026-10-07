@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { appSchemeUrlForPackage, detectMobilePlatform, sharedPackageIdFromLocation } from "@/lib/app-links";
+import { LinkButton } from "@/app/components/Button";
 
 /**
  * "Open in the eSim2you app" for a shared package link that ended up on the web.
@@ -29,12 +30,9 @@ export function OpenInAppBanner() {
   return (
     <div className="fixed inset-x-3 bottom-3 z-50 flex items-center gap-3 rounded-2xl bg-brandInk px-4 py-3 text-white shadow-lg">
       <p className="flex-1 text-sm font-semibold">Have the eSim2you app?</p>
-      <a
-        href={appSchemeUrlForPackage(packageId)}
-        className="rounded-full bg-white px-4 py-2 text-sm font-bold text-brandBlue"
-      >
+      <LinkButton href={appSchemeUrlForPackage(packageId)} size="sm" surface="dark">
         Open in app
-      </a>
+      </LinkButton>
       <button
         type="button"
         aria-label="Dismiss"

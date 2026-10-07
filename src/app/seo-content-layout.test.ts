@@ -24,7 +24,7 @@ describe("SeoContentPage restyle (spec 8B: same structure, new styling)", () => 
 
   it("keeps both app CTAs with the Play button as the page's one gradient", () => {
     expect(source.match(/<LinkButton/g)).toHaveLength(2);
-    expect(source.match(/variant="flat"/g)).toHaveLength(1);
+    expect(source.match(/variant="tint"/g)).toHaveLength(1);
     expect(source).toContain('aria-label="Download eSim2you on the App Store"');
     expect(source).toContain('aria-label="Download eSim2you on Google Play"');
   });

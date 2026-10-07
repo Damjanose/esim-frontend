@@ -297,7 +297,7 @@ export default async function OrderDetailPage({
               ) : null}
 
               {sim?.direct_apple_installation_url ? (
-                <LinkButton className="mt-4 w-full" href={sim.direct_apple_installation_url} variant="flat">
+                <LinkButton className="mt-4 w-full" href={sim.direct_apple_installation_url} variant="tint">
                   <Smartphone aria-hidden="true" size={16} />
                   Install on this iPhone
                 </LinkButton>
@@ -310,7 +310,7 @@ export default async function OrderDetailPage({
                 </p>
               ) : null}
 
-              <LinkButton className="mt-4 w-full" href="/support" variant="flat">
+              <LinkButton className="mt-4 w-full" href="/support" variant="tint">
                 <LifeBuoy aria-hidden="true" size={16} />
                 Need help?
               </LinkButton>

@@ -89,12 +89,12 @@ export function UsageRingCard({
         {topUpHref || detailsHref || children ? (
           <div className="mt-5 flex flex-wrap gap-3">
             {topUpHref ? (
-              <LinkButton href={topUpHref} variant={primaryTopUp ? "primary" : "flat"}>
+              <LinkButton href={topUpHref} variant={primaryTopUp ? "lit" : "tint"}>
                 Top up
               </LinkButton>
             ) : null}
             {detailsHref ? (
-              <LinkButton href={detailsHref} variant="flat">
+              <LinkButton href={detailsHref} variant="tint">
                 Details
               </LinkButton>
             ) : null}

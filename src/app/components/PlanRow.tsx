@@ -87,7 +87,7 @@ export function PlanBuyLink({ href, primary, planTitle }: { href: string; primar
       className="whitespace-nowrap"
       href={href}
       size="md"
-      variant={primary ? "primary" : "flat"}
+      variant={primary ? "lit" : "tint"}
     >
       Buy now
       <ArrowRight aria-hidden="true" className="hidden sm:block" size={16} />

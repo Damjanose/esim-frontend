@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CreditCard, Flame, Loader2, Plus } from "lucide-react";
+import { CreditCard, Flame, Plus } from "lucide-react";
 import { topupPlanRowPlan, type TopupOffer } from "@/lib/accountEsims";
 import { planDurationText, planRowTags } from "@/lib/planRow";
 import { Button } from "../../components/Button";
@@ -107,15 +107,12 @@ export function TopUpPanel({
                   aria-label={`Top up: ${plan.title}`}
                   className="whitespace-nowrap"
                   disabled={pendingId !== null}
+                  loading={busy}
                   onClick={() => void startTopup(pkg.id)}
                   type="button"
-                  variant="flat"
+                  variant="tint"
                 >
-                  {busy ? (
-                    <Loader2 aria-hidden="true" className="animate-spin" size={16} />
-                  ) : (
-                    <CreditCard aria-hidden="true" size={16} />
-                  )}
+                  {busy ? null : <CreditCard aria-hidden="true" size={16} />}
                   Top up
                 </Button>
               </div>

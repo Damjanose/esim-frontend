@@ -38,7 +38,7 @@ describe("PlanRow", () => {
     const source = read("PlanRow.tsx");
 
     expect(source).toContain("const bestValue = hasBestValueTag(tags);");
-    expect(source).toContain('variant={primary ? "primary" : "flat"}');
+    expect(source).toContain('variant={primary ? "lit" : "tint"}');
     expect(source).toContain("primary={bestValue}");
     expect(source).toContain('size="md"');
     expect(source).toContain("aria-label={`Buy now: ${planTitle}`}");

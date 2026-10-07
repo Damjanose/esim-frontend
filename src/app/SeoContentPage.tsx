@@ -86,7 +86,7 @@ export function SeoContentPageView({
                 href={landingContent.appLinks.android.href}
                 size="lg"
                 tone="brand"
-                variant="flat"
+                variant="tint"
               >
                 {landingContent.appLinks.android.label}
                 <ArrowRight aria-hidden="true" size={18} />

@@ -346,7 +346,7 @@ function PartnerPromo() {
         </p>
       </div>
 
-      <LinkButton className="w-full sm:w-auto sm:self-start sm:px-7" href="/partners/request" variant="flat">
+      <LinkButton className="w-full sm:w-auto sm:self-start sm:px-7" href="/partners/request" variant="tint">
         Become a partner
         <ArrowRight aria-hidden="true" size={16} />
       </LinkButton>

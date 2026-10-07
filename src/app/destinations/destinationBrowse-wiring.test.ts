@@ -120,7 +120,7 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
     expect(source).toContain("Show less");
     expect(source).toContain("Show all {filteredCountries.length} destinations");
     // One gradient primary (Help me choose); Show all and Try again are flat.
-    expect(source.match(/variant="flat"/g)).toHaveLength(2);
+    expect(source.match(/variant="tint"/g)).toHaveLength(2);
     expect(source).toContain('import { Button } from "../components/Button";');
     // Tokens only: no retired mist panels or raw white.
     expect(source).not.toContain("bg-mist");

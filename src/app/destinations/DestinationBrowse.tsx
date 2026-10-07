@@ -284,7 +284,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
               We couldn&apos;t reach the eSIM service just now. Check your connection and try
               again.
             </p>
-            <Button className="mt-1" onClick={handleRetry} type="button" variant="flat">
+            <Button className="mt-1" onClick={handleRetry} type="button" variant="tint">
               <RefreshCw aria-hidden="true" size={14} />
               Try again
             </Button>
@@ -394,7 +394,7 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
                       <Button
                         onClick={() => setShowAllDestinations((prev) => !prev)}
                         type="button"
-                        variant="flat"
+                        variant="tint"
                       >
                         {showAllDestinations ? (
                           <>

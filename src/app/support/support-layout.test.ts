@@ -23,7 +23,7 @@ describe("support page restyle (spec 8B)", () => {
 
   it("has one gradient CTA (Email support); the no-results reset is flat", () => {
     expect(source.match(/<LinkButton/g)).toHaveLength(1);
-    expect(source).toContain('<Button className="mt-6" onClick={onClear} size="md" variant="flat">');
+    expect(source).toContain('<Button className="mt-6" onClick={onClear} size="md" variant="tint">');
   });
 
   it("gives the search clear button and text links 44px targets", () => {

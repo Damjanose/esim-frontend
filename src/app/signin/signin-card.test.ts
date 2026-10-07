@@ -40,8 +40,8 @@ describe("sign-in card (spec section 5)", () => {
     expect(form).toContain("className={SIGN_IN_CARD_CLASSES}");
   });
 
-  it("keeps one gradient primary per step (Send code, Verify and continue)", () => {
-    // Button defaults to the gradient primary; sign-in never passes a variant.
+  it("keeps one lit primary per step (Send code, Verify and continue)", () => {
+    // Button defaults to the lit pill; sign-in never passes a variant.
     expect(form.match(/<Button\b/g)).toHaveLength(2);
     expect(linkStep.match(/<Button\b/g)).toHaveLength(2);
   });

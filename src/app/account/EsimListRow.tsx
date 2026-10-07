@@ -59,7 +59,7 @@ export function EsimListRow({
           aria-label={`Install ${description.title}`}
           className="relative z-10 shrink-0"
           href={action.href}
-          variant={action.primary ? "primary" : "flat"}
+          variant={action.primary ? "lit" : "tint"}
         >
           Install
         </LinkButton>

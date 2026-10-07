@@ -18,8 +18,8 @@ describe("UsageRing / UsageRingCard (lg+)", () => {
   });
 
   it("makes Top up the gradient only when the page says so; Details stays flat", () => {
-    expect(ring).toContain('variant={primaryTopUp ? "primary" : "flat"}');
-    expect(ring.match(/variant="flat"/g)).toHaveLength(1);
+    expect(ring).toContain('variant={primaryTopUp ? "lit" : "tint"}');
+    expect(ring.match(/variant="tint"/g)).toHaveLength(1);
   });
 });
 
@@ -33,9 +33,10 @@ describe("ActiveEsimCard (phones/tablets)", () => {
     expect(blueCard).toContain(">\n              Details");
   });
 
-  it("never puts a gradient on the blue card, and uses tokens only", () => {
-    expect(blueCard).not.toContain('variant="primary"');
-    expect(blueCard).toContain('variant="flat"');
+  it("uses the on-dark paints on the blue card (white moon + glass), and tokens only", () => {
+    // Every button on the blue card must be surface="dark", or a blue lit pill would vanish into it.
+    expect(blueCard.match(/<LinkButton\b/g)?.length).toBe(blueCard.match(/surface="dark"/g)?.length);
+    expect(blueCard).toContain('variant="tint"');
     expect(blueCard).not.toMatch(HEX);
   });
 });

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
 import Lottie from "lottie-react";
 import { usePOK, type PaymentErrorResponse } from "@nebula-ltd/pok-payments-js/react";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
@@ -219,15 +218,8 @@ export function CardStep({
           page gutter (px-4 sm:px-6 in checkout/page.tsx) so the bar spans the screen.
           lg+: back in the flow, under the CVC field. */}
       <div className="sticky bottom-0 z-30 -mx-4 mt-5 border-t border-outline/60 bg-surface/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
-        <Button
-          aria-busy={submitting}
-          className="flex w-full items-center justify-center gap-2"
-          disabled={submitting}
-          onClick={() => void submit()}
-          size="lg"
-        >
-          {submitting ? <Loader2 className="animate-spin" size={16} /> : null}
-          {submitting ? "Processing…" : "Pay"}
+        <Button className="w-full" hero loading={submitting} onClick={() => void submit()} size="lg">
+          Pay
         </Button>
       </div>
 

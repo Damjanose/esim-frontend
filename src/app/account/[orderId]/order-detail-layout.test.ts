@@ -40,7 +40,7 @@ describe("TopUpPanel", () => {
     expect(topUp).toContain('fetch("/bff/payments/topups/intent"');
     expect(topUp).toContain("window.location.assign(payload.data.checkoutUrl)");
     // Every row's Top up is flat: the page's one gradient is the usage card's.
-    expect(topUp).toContain('variant="flat"');
-    expect(topUp).not.toContain('variant="primary"');
+    expect(topUp).toContain('variant="tint"');
+    expect(topUp).not.toContain('variant="lit"');
   });
 });
