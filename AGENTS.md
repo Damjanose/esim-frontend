@@ -7,6 +7,20 @@ one level up (`../AGENTS.md`).
 
 ---
 
+## Subagents and model choice
+
+Subagents are pre-approved for multi-step tasks. Use the repo's agents in `.claude/agents/`, so cheap work runs on cheap models:
+
+| Agent | Model | Use for |
+|---|---|---|
+| `searcher` | haiku | Read-only lookups: where X is used, what calls Y, feedAI fact greps |
+| `implementer` | sonnet | One clearly specified plan task, tests first, then verify |
+| `reviewer` | opus | Final review of a diff before asking to commit |
+
+Keep design decisions and talking to the user in the main session. Don't delegate small tasks: if the work fits in a few file reads, do it inline. Subagents follow the same rules (no commits, no new branches or worktrees). See the root `../AGENTS.md` for the workspace-wide version.
+
+---
+
 ## Docs workflow
 
 ### At session start
