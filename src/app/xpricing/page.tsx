@@ -9,7 +9,6 @@ import { useAdminSession } from "../useAdminSession";
 type DiscountType = "percentage" | "flat";
 type DiscountDirection = "decrease" | "increase";
 type RowFilter = "all" | "adjust" | "trending" | "discount-label";
-type BulkProfitMode = "set" | "adjust";
 
 type PricingRow = {
   packageId: string;
@@ -21,8 +20,16 @@ type PricingRow = {
   network: string | null;
   dataLabel: string;
   durationDays: number;
+  /** Weekly-snapshot Airalo net cost (what we pay). */
   originalPrice: number;
+  /** Weekly-snapshot Airalo suggested resale price; caps the sell price. */
   recommendedRetailPrice?: number;
+  /** This package's own markup %, or null when it follows the default. */
+  markupPct: number | null;
+  /** Markup actually applied (own ?? default); null = no default set, sells at suggested. */
+  effectiveMarkupPct: number | null;
+  /** True when the markup was cut down to the suggested sell price. */
+  capped: boolean;
   retailPrice: number;
   discountEnabled: boolean;
   discountLabel: boolean;
@@ -35,7 +42,7 @@ type PricingRow = {
 
 type PricingListPayload = {
   status?: string;
-  data?: { packages?: PricingRow[] };
+  data?: { packages?: PricingRow[]; defaultMarkupPct?: number | null; basePricesCapturedAt?: string | null };
   message?: string;
 };
 
@@ -51,9 +58,21 @@ type BulkDiscountPayload = {
   message?: string;
 };
 
-type BulkProfitPayload = {
+type BulkMarkupPayload = {
   status?: string;
-  data?: { updatedCount?: number; clampedCount?: number; mode?: string; value?: number };
+  data?: { updatedCount?: number; cappedCount?: number; markupPct?: number | null };
+  message?: string;
+};
+
+type PricingSettingsPayload = {
+  status?: string;
+  data?: { defaultMarkupPct?: number | null; basePricesCapturedAt?: string | null };
+  message?: string;
+};
+
+type RefreshBasePayload = {
+  status?: string;
+  data?: { packageCount?: number; capturedAt?: string | null };
   message?: string;
 };
 
@@ -64,7 +83,8 @@ type ResetPricingPayload = {
 };
 
 type Draft = {
-  profit: string;
+  /** Markup % as typed; "" = follow the default markup. */
+  markup: string;
   discountEnabled: boolean;
   discountLabel: boolean;
   trending: boolean;
@@ -75,7 +95,7 @@ type Draft = {
 
 function toDraft(row: PricingRow): Draft {
   return {
-    profit: String(profitFromPrices(row.originalPrice, row.retailPrice)),
+    markup: row.markupPct == null ? "" : String(row.markupPct),
     discountEnabled: row.discountEnabled,
     discountLabel: Boolean(row.discountLabel),
     trending: Boolean(row.trending),
@@ -87,73 +107,70 @@ function toDraft(row: PricingRow): Draft {
 
 /** Fixed Pokpay fee shown on every pricing row (EUR). */
 const POK_FEE = 0.25;
+const MAX_MARKUP_PCT = 1000;
 
 function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
+}
+
+/** Same as the backend: any cents round up to the next .00 / .50. */
+function roundUpToHalf(value: number) {
+  const cents = Math.round(value * 100);
+  return Math.ceil(cents / 50) / 2;
 }
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("en", { style: "currency", currency: "EUR" }).format(value);
 }
 
-function profitFromPrices(buyPrice: number, sellPrice: number) {
-  return roundMoney(sellPrice - buyPrice);
-}
-
-function sellFromProfit(buyPrice: number, profit: number) {
-  return Math.max(0, roundMoney(buyPrice + profit));
+function formatPct(value: number) {
+  return `${Number(value.toFixed(2))}%`;
 }
 
 function suggestedSellPrice(row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">) {
   return row.recommendedRetailPrice ?? row.originalPrice;
 }
 
-/** Sell price must sit between Airalo buy (min) and Airalo suggested retail (max). */
-function sellPriceBounds(row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">) {
-  const min = row.originalPrice;
-  const max = Math.max(min, suggestedSellPrice(row));
-  return { min, max };
+/** "" → null (use default); otherwise a markup between 0 and MAX, or NaN when invalid. */
+function parseMarkupDraft(value: string): number | null {
+  const trimmed = value.trim();
+  if (trimmed === "") return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) && parsed >= 0 && parsed <= MAX_MARKUP_PCT ? parsed : Number.NaN;
 }
 
-function clampSellPrice(
+/**
+ * Mirrors the backend's computeRetailPrice: net × (1 + markup%), clamped to
+ * [net, Airalo suggested]; with no markup at all it sells at suggested.
+ */
+function previewSellPrice(
   row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">,
-  sellPrice: number
-) {
-  const { min, max } = sellPriceBounds(row);
-  return Math.min(max, Math.max(min, roundMoney(sellPrice)));
+  markupDraft: string,
+  defaultMarkupPct: number | null
+): { sellPrice: number; capped: boolean } | null {
+  const own = parseMarkupDraft(markupDraft);
+  if (Number.isNaN(own)) return null;
+  const cost = roundMoney(row.originalPrice);
+  const cap = Math.max(cost, roundMoney(suggestedSellPrice(row)));
+  const pct = own ?? defaultMarkupPct;
+  if (pct == null) return { sellPrice: cap, capped: false };
+  const uncapped = roundMoney(cost * (1 + pct / 100));
+  return { sellPrice: Math.min(cap, Math.max(cost, uncapped)), capped: uncapped > cap };
 }
 
-function validateSellPrice(
-  row: Pick<PricingRow, "originalPrice" | "recommendedRetailPrice">,
-  sellPrice: number
-): string | null {
-  if (!Number.isFinite(sellPrice)) return "Sell price must be a number.";
-  const { min, max } = sellPriceBounds(row);
-  if (sellPrice < min) {
-    return `Sell price must be at least the buy price (${formatPrice(min)}).`;
-  }
-  if (sellPrice > max) {
-    return `Sell price must be at most Airalo's suggested sell (${formatPrice(max)}).`;
-  }
-  return null;
-}
-
-function previewSellPrice(buyPrice: number, profitDraft: string): number | null {
-  const profit = Number(profitDraft);
-  if (!Number.isFinite(buyPrice) || !Number.isFinite(profit)) return null;
-  return sellFromProfit(buyPrice, profit);
-}
-
-function previewFinalPrice(buyPrice: number, draft: Draft): number | null {
-  const retailPrice = previewSellPrice(buyPrice, draft.profit);
+function previewFinalPrice(sellPrice: number, draft: Draft): number | null {
   const discountValue = Number(draft.discountValue);
-  if (retailPrice == null) return null;
-  if (!draft.discountEnabled) return retailPrice;
+  if (!draft.discountEnabled) return roundUpToHalf(sellPrice);
   if (!Number.isFinite(discountValue) || discountValue < 0) return null;
 
-  const delta = draft.discountType === "flat" ? discountValue : retailPrice * (discountValue / 100);
-  const raw = draft.discountDirection === "increase" ? retailPrice + delta : retailPrice - delta;
-  return Math.max(0, roundMoney(raw));
+  const delta = draft.discountType === "flat" ? discountValue : sellPrice * (discountValue / 100);
+  const raw = draft.discountDirection === "increase" ? sellPrice + delta : sellPrice - delta;
+  return Math.max(0, roundUpToHalf(raw));
+}
+
+function formatCapturedAt(value: string | null) {
+  if (!value) return "never (snapshot fills on first catalog sync)";
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
 export default function AdminPricingPage() {
@@ -175,11 +192,13 @@ export default function AdminPricingPage() {
   const [bulkValue, setBulkValue] = useState("10");
   const [bulkDirection, setBulkDirection] = useState<DiscountDirection>("decrease");
   const [isBulkApplying, setIsBulkApplying] = useState(false);
-  const [bulkProfitMode, setBulkProfitMode] = useState<BulkProfitMode>("set");
-  const [bulkProfitType, setBulkProfitType] = useState<DiscountType>("flat");
-  const [bulkProfitValue, setBulkProfitValue] = useState("1.50");
-  const [bulkProfitDirection, setBulkProfitDirection] = useState<DiscountDirection>("increase");
-  const [isBulkProfitApplying, setIsBulkProfitApplying] = useState(false);
+  const [bulkMarkupValue, setBulkMarkupValue] = useState("30");
+  const [isBulkMarkupApplying, setIsBulkMarkupApplying] = useState(false);
+  const [defaultMarkupPct, setDefaultMarkupPct] = useState<number | null>(null);
+  const [defaultMarkupDraft, setDefaultMarkupDraft] = useState("");
+  const [basePricesCapturedAt, setBasePricesCapturedAt] = useState<string | null>(null);
+  const [isSavingDefault, setIsSavingDefault] = useState(false);
+  const [isRefreshingBase, setIsRefreshingBase] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
   async function loadPricing(nextToken = token, options?: { clearError?: boolean }) {
@@ -205,6 +224,10 @@ export default function AdminPricingPage() {
       }
 
       const rows = payload.data?.packages ?? [];
+      const nextDefault = payload.data?.defaultMarkupPct ?? null;
+      setDefaultMarkupPct(nextDefault);
+      setDefaultMarkupDraft(nextDefault == null ? "" : String(nextDefault));
+      setBasePricesCapturedAt(payload.data?.basePricesCapturedAt ?? null);
       setPackages(rows);
       setDrafts(Object.fromEntries(rows.map((row) => [row.packageId, toDraft(row)])));
       setSelectedIds(new Set());
@@ -279,16 +302,10 @@ export default function AdminPricingPage() {
     const row = packages.find((item) => item.packageId === packageId);
     if (!draft || !row) return;
 
-    const profit = Number(draft.profit);
+    const markupPct = parseMarkupDraft(draft.markup);
     const discountValue = Number(draft.discountValue);
-    if (!Number.isFinite(profit)) {
-      setError("Profit must be a number.");
-      return;
-    }
-    const retailPrice = sellFromProfit(row.originalPrice, profit);
-    const sellError = validateSellPrice(row, retailPrice);
-    if (sellError) {
-      setError(sellError);
+    if (Number.isNaN(markupPct)) {
+      setError(`Markup must be a number between 0 and ${MAX_MARKUP_PCT}, or empty to use the default.`);
       return;
     }
     if (draft.discountEnabled && (!Number.isFinite(discountValue) || discountValue < 0)) {
@@ -305,7 +322,7 @@ export default function AdminPricingPage() {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          retailPrice,
+          markupPct,
           discountEnabled: draft.discountEnabled,
           discountLabel: draft.discountLabel,
           trending: draft.trending,
@@ -382,69 +399,113 @@ export default function AdminPricingPage() {
     }
   }
 
-  async function applyBulkProfit(scope: "selected" | "all") {
+  async function applyBulkMarkup(scope: "selected" | "all", clear = false) {
     if (scope === "selected" && selectedIds.size === 0) {
       setError("Select at least one package first.");
       return;
     }
 
-    const value = Number(bulkProfitValue);
-    if (!Number.isFinite(value) || value < 0) {
-      setError(
-        bulkProfitMode === "set"
-          ? "Enter a valid profit amount (0 or more)."
-          : "Enter a valid profit adjustment value."
-      );
+    const markupPct = clear ? null : parseMarkupDraft(bulkMarkupValue);
+    if (!clear && (markupPct == null || Number.isNaN(markupPct))) {
+      setError(`Enter a markup between 0 and ${MAX_MARKUP_PCT}.`);
       return;
     }
 
-    const packageIds = scope === "all" ? "all" : Array.from(selectedIds);
-
-    setIsBulkProfitApplying(true);
+    setIsBulkMarkupApplying(true);
     setError("");
     setNotice("");
 
     try {
-      const response = await fetch("/bff/admin/packages/pricing/bulk-profit", {
+      const response = await fetch("/bff/admin/packages/pricing/bulk-markup", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packageIds,
-          mode: bulkProfitMode,
-          value,
-          direction: bulkProfitDirection,
-          type: bulkProfitType
-        })
+        body: JSON.stringify({ packageIds: scope === "all" ? "all" : Array.from(selectedIds), markupPct })
       });
-      const payload = (await response.json()) as BulkProfitPayload;
+      const payload = (await response.json()) as BulkMarkupPayload;
 
       if (response.status === 401) {
         handleUnauthorized();
         throw new Error("Session expired. Sign in again.");
       }
       if (!response.ok || payload.status !== "success") {
-        throw new Error(payload.message ?? "Could not apply bulk profit");
+        throw new Error(payload.message ?? "Could not apply bulk markup");
       }
 
       const updatedCount = payload.data?.updatedCount ?? 0;
-      const clampedCount = payload.data?.clampedCount ?? 0;
-
-      const modeLabel =
-        bulkProfitMode === "set"
-          ? `Set profit to ${formatPrice(value)}`
-          : "Applied profit adjustment";
-      const clampNote =
-        clampedCount > 0
-          ? ` (${clampedCount} clamped to buy…suggested sell range)`
-          : "";
-      setNotice(`${modeLabel} on ${updatedCount} package(s)${clampNote}.`);
+      const cappedCount = payload.data?.cappedCount ?? 0;
+      const label = markupPct == null ? "Cleared markup (now default)" : `Set markup to ${formatPct(markupPct)}`;
+      const capNote = cappedCount > 0 ? ` (${cappedCount} capped at Airalo suggested sell)` : "";
+      setNotice(`${label} on ${updatedCount} package(s)${capNote}.`);
       await loadPricing(token, { clearError: false });
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Could not apply bulk profit";
-      await loadPricing(token, { clearError: false });
-      setError(message);
+      setError(err instanceof Error ? err.message : "Could not apply bulk markup");
     } finally {
-      setIsBulkProfitApplying(false);
+      setIsBulkMarkupApplying(false);
+    }
+  }
+
+  async function saveDefaultMarkup() {
+    const next = parseMarkupDraft(defaultMarkupDraft);
+    if (Number.isNaN(next)) {
+      setError(`Default markup must be a number between 0 and ${MAX_MARKUP_PCT}, or empty for none.`);
+      return;
+    }
+
+    setIsSavingDefault(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/bff/admin/pricing/settings", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ defaultMarkupPct: next })
+      });
+      const payload = (await response.json()) as PricingSettingsPayload;
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not save default markup");
+      }
+
+      setNotice(next == null ? "Default markup cleared." : `Default markup set to ${formatPct(next)}.`);
+      await loadPricing(token, { clearError: false });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save default markup");
+    } finally {
+      setIsSavingDefault(false);
+    }
+  }
+
+  async function refreshBasePrices() {
+    setIsRefreshingBase(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const response = await fetch("/bff/admin/packages/pricing/refresh-base", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = (await response.json()) as RefreshBasePayload;
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not refresh prices from Airalo");
+      }
+
+      setNotice(`Pulled Airalo's latest prices for ${payload.data?.packageCount ?? 0} package(s).`);
+      await loadPricing(token, { clearError: false });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not refresh prices from Airalo");
+    } finally {
+      setIsRefreshingBase(false);
     }
   }
 
@@ -474,7 +535,7 @@ export default function AdminPricingPage() {
         throw new Error(payload.message ?? "Could not reset package pricing");
       }
 
-      setNotice(`Reset ${payload.data?.resetCount ?? 0} package(s) to the Airalo default price.`);
+      setNotice(`Reset ${payload.data?.resetCount ?? 0} package(s) to the default markup.`);
       await loadPricing();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not reset package pricing");
@@ -497,9 +558,9 @@ export default function AdminPricingPage() {
               Price management
             </h1>
             <p className="mt-1 text-sm font-semibold text-muted">
-              Set profit and adjustments per package. Buy price is what Airalo charges us; Suggested sell is
-              Airalo&apos;s recommended retail; sell price is buy plus profit and must stay between buy and
-              suggested sell; Price is the final amount shown in the marketplace after adjustments.
+              Buy price is what Airalo charges us, frozen weekly (Monday 03:00). Sell price is buy price plus the
+              markup % (the package&apos;s own, or the default), capped at Airalo&apos;s suggested sell. Price is
+              the final marketplace amount after adjustments, rounded up to .00/.50.
             </p>
           </div>
           {token ? (
@@ -576,6 +637,48 @@ export default function AdminPricingPage() {
             </div>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
+              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Pricing basis</h2>
+              <div className="mt-3 grid gap-3 md:grid-cols-6 md:items-end">
+                <label className="text-xs font-bold text-muted md:col-span-2">
+                  Default markup %
+                  <input
+                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
+                    inputMode="decimal"
+                    onChange={(event) => setDefaultMarkupDraft(event.target.value)}
+                    placeholder="none — sells at Airalo suggested"
+                    value={defaultMarkupDraft}
+                  />
+                </label>
+                <button
+                  className="h-10 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-black text-aqua shadow-glow transition hover:opacity-90 disabled:opacity-50"
+                  disabled={isSavingDefault}
+                  onClick={() => void saveDefaultMarkup()}
+                  type="button"
+                >
+                  {isSavingDefault ? "Saving..." : "Save default"}
+                </button>
+                <div className="text-xs font-semibold text-muted md:col-span-2">
+                  Airalo prices last updated
+                  <p className="mt-1 text-sm font-bold text-midnight">{formatCapturedAt(basePricesCapturedAt)}</p>
+                </div>
+                <button
+                  className="h-10 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
+                  disabled={isRefreshingBase}
+                  onClick={() => void refreshBasePrices()}
+                  type="button"
+                >
+                  {isRefreshingBase ? "Refreshing..." : "Refresh prices now"}
+                </button>
+              </div>
+              <p className="mt-3 text-xs font-semibold text-muted">
+                Applies to every package without its own markup
+                {defaultMarkupPct == null ? " (none set: those packages sell at Airalo's suggested price)" : ` (now ${formatPct(defaultMarkupPct)})`}.
+                Airalo prices refresh automatically every Monday at 03:00; &ldquo;Refresh prices now&rdquo; pulls them
+                immediately and may move every price.
+              </p>
+            </section>
+
+            <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Bulk discount</h2>
               <div className="mt-3 grid gap-3 md:grid-cols-6 md:items-end">
                 <label className="flex items-center gap-2 text-sm font-bold text-midnight">
@@ -638,91 +741,59 @@ export default function AdminPricingPage() {
                 </button>
               </div>
               <p className="mt-3 text-xs font-semibold text-muted">
-                Bulk discount only changes the adjustment fields — sell prices and profit are left as they are.
+                Bulk discount only changes the adjustment fields — markups are left as they are.
               </p>
             </section>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
-              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Bulk profit</h2>
+              <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Bulk markup</h2>
               <div className="mt-3 grid gap-3 md:grid-cols-6 md:items-end">
                 <label className="text-xs font-bold text-muted">
-                  Mode
-                  <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
-                    onChange={(event) => setBulkProfitMode(event.target.value as BulkProfitMode)}
-                    value={bulkProfitMode}
-                  >
-                    <option value="set">Set exact profit</option>
-                    <option value="adjust">Adjust (+/−)</option>
-                  </select>
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  Direction
-                  <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight disabled:opacity-50"
-                    disabled={bulkProfitMode === "set"}
-                    onChange={(event) => setBulkProfitDirection(event.target.value as DiscountDirection)}
-                    value={bulkProfitDirection}
-                  >
-                    <option value="decrease">Decrease profit</option>
-                    <option value="increase">Increase profit</option>
-                  </select>
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  Type
-                  <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight disabled:opacity-50"
-                    disabled={bulkProfitMode === "set"}
-                    onChange={(event) => setBulkProfitType(event.target.value as DiscountType)}
-                    value={bulkProfitType}
-                  >
-                    <option value="percentage">Percentage</option>
-                    <option value="flat">Flat amount</option>
-                  </select>
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  {bulkProfitMode === "set" ? "Profit amount" : "Value"}
+                  Markup %
                   <input
                     className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
                     inputMode="decimal"
-                    onChange={(event) => setBulkProfitValue(event.target.value)}
-                    placeholder={bulkProfitMode === "set" ? "1.50" : "0.50"}
-                    value={bulkProfitValue}
+                    onChange={(event) => setBulkMarkupValue(event.target.value)}
+                    placeholder="30"
+                    value={bulkMarkupValue}
                   />
                 </label>
                 <button
                   className="h-10 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-black text-aqua shadow-glow transition hover:opacity-90 disabled:opacity-50"
-                  disabled={isBulkProfitApplying}
-                  onClick={() => void applyBulkProfit("selected")}
+                  disabled={isBulkMarkupApplying}
+                  onClick={() => void applyBulkMarkup("selected")}
                   type="button"
                 >
-                  {isBulkProfitApplying ? "Applying…" : `Apply to selected (${selectedIds.size})`}
+                  {isBulkMarkupApplying ? "Applying…" : `Apply to selected (${selectedIds.size})`}
                 </button>
                 <button
                   className="h-10 rounded-xl border border-red-200 bg-white px-4 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
-                  disabled={isBulkProfitApplying}
-                  onClick={() => void applyBulkProfit("all")}
+                  disabled={isBulkMarkupApplying}
+                  onClick={() => void applyBulkMarkup("all")}
                   type="button"
                 >
-                  {isBulkProfitApplying ? "Applying…" : "Apply to ALL packages"}
+                  {isBulkMarkupApplying ? "Applying…" : "Apply to ALL packages"}
+                </button>
+                <button
+                  className="h-10 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
+                  disabled={isBulkMarkupApplying}
+                  onClick={() => void applyBulkMarkup("selected", true)}
+                  type="button"
+                >
+                  Use default for selected
                 </button>
               </div>
               <p className="mt-3 text-xs font-semibold text-muted">
-                {bulkProfitMode === "set"
-                  ? "Set exact profit saves sell price as buy + that amount on every target package (clamped between buy and Airalo suggested sell)."
-                  : "Adjust mode changes each row's current profit by % or flat amount, then saves sell as buy + profit (same clamp)."}{" "}
-                Runs as one server request. Adjustment fields are left unchanged.
-                {isBulkProfitApplying ? (
-                  <span className="mt-1 block font-bold text-cyanDeep">Updating packages on the server…</span>
-                ) : null}
+                Sets each target package&apos;s own markup. Sell price = buy price × (1 + markup), capped at Airalo&apos;s
+                suggested sell. Adjustment fields are left unchanged.
               </p>
             </section>
 
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Reset to default</h2>
               <p className="mt-1 text-xs font-semibold text-muted">
-                Clears any admin-set sell price and adjustment, reverting the sell price back to the Airalo buy
-                price for the package.
+                Clears a package&apos;s own markup and adjustment, so it goes back to the default markup with no
+                adjustment.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
@@ -795,13 +866,16 @@ export default function AdminPricingPage() {
                         Validity
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                        Buy price
+                        Buy price (weekly)
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Pok
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Suggested sell
+                      </th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
+                        Markup %
                       </th>
                       <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
                         Sell price
@@ -821,12 +895,10 @@ export default function AdminPricingPage() {
                   <tbody>
                     {filtered.map((row) => {
                       const draft = drafts[row.packageId] ?? toDraft(row);
-                      const sellPrice = previewSellPrice(row.originalPrice, draft.profit);
-                      const preview = previewFinalPrice(row.originalPrice, draft);
-                      const profit = Number(draft.profit);
-                      const profitValid = Number.isFinite(profit);
-                      const sellOutOfBounds =
-                        sellPrice != null && validateSellPrice(row, sellPrice) != null;
+                      const sell = previewSellPrice(row, draft.markup, defaultMarkupPct);
+                      const sellPrice = sell?.sellPrice ?? null;
+                      const preview = sellPrice == null ? null : previewFinalPrice(sellPrice, draft);
+                      const markupInvalid = sell == null;
                       const discounted =
                         draft.discountEnabled &&
                         preview != null &&
@@ -873,26 +945,34 @@ export default function AdminPricingPage() {
                           >
                             {formatPrice(row.recommendedRetailPrice ?? row.originalPrice)}
                           </td>
-                          <td
-                            className={`whitespace-nowrap px-3 py-3 font-bold ${
-                              sellOutOfBounds ? "text-red-600" : "text-midnight"
-                            }`}
-                            title={`Buy + profit; must be between ${formatPrice(row.originalPrice)} and ${formatPrice(suggestedSellPrice(row))}`}
-                          >
-                            {sellPrice == null ? "—" : formatPrice(sellPrice)}
-                          </td>
                           <td className="px-3 py-3">
                             <input
-                              className={`h-9 w-24 rounded-lg border px-2 text-sm outline-none focus:border-cyan ${
-                                sellOutOfBounds || (profitValid && profit < 0)
-                                  ? "border-red-400 text-red-600"
-                                  : "border-line text-midnight"
+                              className={`h-9 w-20 rounded-lg border px-2 text-sm outline-none focus:border-cyan ${
+                                markupInvalid ? "border-red-400 text-red-600" : "border-line text-midnight"
                               }`}
                               inputMode="decimal"
-                              onChange={(event) => updateDraft(row.packageId, { profit: event.target.value })}
-                              title={`Profit so sell stays between buy (${formatPrice(row.originalPrice)}) and suggested (${formatPrice(suggestedSellPrice(row))})`}
-                              value={draft.profit}
+                              onChange={(event) => updateDraft(row.packageId, { markup: event.target.value })}
+                              placeholder={defaultMarkupPct == null ? "—" : String(defaultMarkupPct)}
+                              title="Empty = use the default markup"
+                              value={draft.markup}
                             />
+                            {draft.markup.trim() === "" ? (
+                              <p className="mt-1 text-[10px] font-bold text-muted">default</p>
+                            ) : null}
+                          </td>
+                          <td
+                            className="whitespace-nowrap px-3 py-3 font-bold text-midnight"
+                            title={`Buy × (1 + markup), capped at suggested ${formatPrice(suggestedSellPrice(row))}`}
+                          >
+                            {sellPrice == null ? "—" : formatPrice(sellPrice)}
+                            {sell?.capped ? (
+                              <span className="ml-1.5 rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">
+                                capped
+                              </span>
+                            ) : null}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-3 text-midnight" title="Sell price − buy price">
+                            {sellPrice == null ? "—" : formatPrice(roundMoney(sellPrice - row.originalPrice))}
                           </td>
                           <td className="px-3 py-3">
                             <label className="flex items-center gap-1.5 whitespace-nowrap text-xs font-bold text-midnight">
@@ -998,7 +1078,7 @@ export default function AdminPricingPage() {
                     })}
                     {filtered.length === 0 ? (
                       <tr>
-                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={14}>
+                        <td className="px-5 py-8 text-center font-bold text-muted" colSpan={15}>
                           {isLoading ? "Loading packages..." : "No packages found"}
                         </td>
                       </tr>

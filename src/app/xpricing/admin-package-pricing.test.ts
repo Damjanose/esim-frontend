@@ -30,7 +30,7 @@ describe("hidden admin package pricing page", () => {
     expect(hookSource).toContain("/bff/admin/login");
   });
 
-  it("renders a retail price / discount table with per-row editing and a bulk discount panel", () => {
+  it("renders a markup / discount table with per-row editing, bulk panels and the pricing basis", () => {
     const pageSource = readFileSync("src/app/xpricing/page.tsx", "utf8");
 
     expect(pageSource).toContain("/bff/admin/packages/pricing");
@@ -46,19 +46,19 @@ describe("hidden admin package pricing page", () => {
     expect(pageSource).toContain("recommendedRetailPrice");
     expect(pageSource).toContain("POK_FEE");
     expect(pageSource).toContain("previewSellPrice");
-    expect(pageSource).toContain("sellFromProfit");
-    expect(pageSource).toContain("validateSellPrice");
-    expect(pageSource).toContain("clampSellPrice");
-    expect(pageSource).toContain("Bulk profit");
-    expect(pageSource).toContain("applyBulkProfit");
-    expect(pageSource).toContain("bulkProfitMode");
-    expect(pageSource).toContain("Set exact profit");
-    expect(pageSource).toContain('useState<BulkProfitMode>("set")');
-    expect(pageSource).toContain("/bff/admin/packages/pricing/bulk-profit");
+    expect(pageSource).toContain("Markup %");
+    expect(pageSource).toContain("markupPct");
+    expect(pageSource).toContain("capped");
+    expect(pageSource).toContain("Bulk markup");
+    expect(pageSource).toContain("applyBulkMarkup");
+    expect(pageSource).toContain("/bff/admin/packages/pricing/bulk-markup");
     expect(pageSource).toContain("Applying…");
-    expect(pageSource).toContain("profit:");
-    expect(existsSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts")).toBe(true);
-    expect(pageSource).not.toContain("updateDraft(row.packageId, { retailPrice:");
+    expect(pageSource).toContain("Default markup %");
+    expect(pageSource).toContain("/bff/admin/pricing/settings");
+    expect(pageSource).toContain("Refresh prices now");
+    expect(pageSource).toContain("/bff/admin/packages/pricing/refresh-base");
+    expect(existsSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts")).toBe(false);
+    expect(pageSource).not.toContain("retailPrice,\n");
     expect(pageSource).toContain("Adjustment");
     expect(pageSource).toContain("discountLabel");
     expect(pageSource).toContain("Discount label");
@@ -95,17 +95,21 @@ describe("hidden admin package pricing page", () => {
     expect(navSource).toContain("Price management");
   });
 
-  it("adds local admin API proxy routes for the pricing table, single edits, and bulk discount", () => {
+  it("adds local admin API proxy routes for the pricing table, edits, bulk actions, settings and refresh", () => {
     expect(existsSync("src/app/bff/admin/packages/pricing/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/[packageId]/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/bulk-discount/route.ts")).toBe(true);
-    expect(existsSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/packages/pricing/bulk-markup/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/packages/pricing/refresh-base/route.ts")).toBe(true);
+    expect(existsSync("src/app/bff/admin/pricing/settings/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/packages/pricing/reset/route.ts")).toBe(true);
 
     const listProxy = readFileSync("src/app/bff/admin/packages/pricing/route.ts", "utf8");
     const editProxy = readFileSync("src/app/bff/admin/packages/pricing/[packageId]/route.ts", "utf8");
     const bulkProxy = readFileSync("src/app/bff/admin/packages/pricing/bulk-discount/route.ts", "utf8");
-    const bulkProfitProxy = readFileSync("src/app/bff/admin/packages/pricing/bulk-profit/route.ts", "utf8");
+    const bulkMarkupProxy = readFileSync("src/app/bff/admin/packages/pricing/bulk-markup/route.ts", "utf8");
+    const refreshProxy = readFileSync("src/app/bff/admin/packages/pricing/refresh-base/route.ts", "utf8");
+    const settingsProxy = readFileSync("src/app/bff/admin/pricing/settings/route.ts", "utf8");
     const resetProxy = readFileSync("src/app/bff/admin/packages/pricing/reset/route.ts", "utf8");
 
     expect(listProxy).toContain("/admin/packages/pricing");
@@ -116,9 +120,13 @@ describe("hidden admin package pricing page", () => {
     expect(bulkProxy).toContain("/admin/packages/pricing/bulk-discount");
     expect(bulkProxy).toContain("backendFetch");
     expect(bulkProxy).toContain('method: "POST"');
-    expect(bulkProfitProxy).toContain("/admin/packages/pricing/bulk-profit");
-    expect(bulkProfitProxy).toContain("backendFetch");
-    expect(bulkProfitProxy).toContain('method: "POST"');
+    expect(bulkMarkupProxy).toContain("/admin/packages/pricing/bulk-markup");
+    expect(bulkMarkupProxy).toContain('method: "POST"');
+    expect(refreshProxy).toContain("/admin/packages/pricing/refresh-base");
+    expect(refreshProxy).toContain('method: "POST"');
+    expect(settingsProxy).toContain("/admin/pricing/settings");
+    expect(settingsProxy).toContain('method: "PUT"');
+    expect(settingsProxy).toContain("export async function GET");
     expect(resetProxy).toContain("/admin/packages/pricing/reset");
     expect(resetProxy).toContain("backendFetch");
     expect(resetProxy).toContain('method: "POST"');

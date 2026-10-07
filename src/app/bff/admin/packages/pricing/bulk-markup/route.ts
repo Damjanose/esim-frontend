@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await backendFetch<unknown>("/admin/packages/pricing/bulk-profit", {
+  const result = await backendFetch<unknown>("/admin/packages/pricing/bulk-markup", {
     method: "POST",
     body,
     token
