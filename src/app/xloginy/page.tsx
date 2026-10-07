@@ -104,12 +104,16 @@ function formatOtpStatus(status: string) {
   return status.replaceAll("_", " ");
 }
 
-const CHART_LEFT_PAD = 44;
-const CHART_RIGHT_PAD = 54;
-const CHART_TOP_PAD = 20;
-const CHART_BASELINE = 172;
-const CHART_BAND = 150;
-const CHART_HEIGHT = 220;
+const CHART_WIDTH = 900;
+const CHART_HEIGHT = 180;
+const CHART_PAD_LEFT = 60;
+const CHART_PAD_RIGHT = 20;
+const CHART_PAD_TOP = 12;
+const CHART_PAD_BOTTOM = 30;
+const CHART_Y_TICKS = 4;
+const CHART_MAX_X_LABELS = 8;
+
+type ChartMetric = "revenue" | "purchases";
 
 function compactMoney(amountCents: number, currency: string | null) {
   const amount = amountCents / 100;
@@ -122,6 +126,63 @@ function compactMoney(amountCents: number, currency: string | null) {
   }).format(amount);
 }
 
+// Rounds the axis top up to a 1/2/5 x 10^n step so tick labels are clean numbers.
+function niceAxisMax(maxValue: number, minStep: number) {
+  const rawStep = Math.max(minStep, maxValue / CHART_Y_TICKS);
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+  const normalized = rawStep / magnitude;
+  const niceStep = (normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10) * magnitude;
+  return Math.max(minStep, niceStep) * CHART_Y_TICKS;
+}
+
+function formatAxisDate(date: string) {
+  const parsed = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date.slice(5);
+  return new Intl.DateTimeFormat("en", { day: "numeric", month: "short" }).format(parsed);
+}
+
+function formatChartDate(date: string) {
+  const parsed = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric" }).format(parsed);
+}
+
+// Monotone cubic (Fritsch–Carlson) so the curve is smooth like the mobile spend chart
+// but never overshoots below zero or above the day's real value.
+function smoothPath(points: { x: number; y: number }[]) {
+  if (points.length < 2) return "";
+  const n = points.length;
+  const slopes = points.slice(0, -1).map((p, i) => (points[i + 1].y - p.y) / (points[i + 1].x - p.x));
+  const tangents = points.map((_, i) => {
+    if (i === 0) return slopes[0];
+    if (i === n - 1) return slopes[n - 2];
+    return slopes[i - 1] * slopes[i] <= 0 ? 0 : (slopes[i - 1] + slopes[i]) / 2;
+  });
+  for (let i = 0; i < n - 1; i++) {
+    if (slopes[i] === 0) {
+      tangents[i] = 0;
+      tangents[i + 1] = 0;
+      continue;
+    }
+    const a = tangents[i] / slopes[i];
+    const b = tangents[i + 1] / slopes[i];
+    const h = a * a + b * b;
+    if (h > 9) {
+      const t = 3 / Math.sqrt(h);
+      tangents[i] = t * a * slopes[i];
+      tangents[i + 1] = t * b * slopes[i];
+    }
+  }
+  let d = `M${points[0].x},${points[0].y}`;
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    const dx = (p1.x - p0.x) / 3;
+    d += ` C${p0.x + dx},${p0.y + tangents[i] * dx} ${p1.x - dx},${p1.y - tangents[i + 1] * dx} ${p1.x},${p1.y}`;
+  }
+  return d;
+}
+
 function PurchasesRevenueChart({
   data,
   revenueByCurrency
@@ -130,6 +191,7 @@ function PurchasesRevenueChart({
   revenueByCurrency: Record<string, number>;
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [metric, setMetric] = useState<ChartMetric>("revenue");
   const currencies = Object.keys(revenueByCurrency);
   const primaryCurrency = currencies[0] ?? null;
   const hasMixedCurrencies = currencies.length > 1;
@@ -142,175 +204,172 @@ function PurchasesRevenueChart({
     );
   }
 
+  const valueOf = (point: ChartPoint) => (metric === "revenue" ? point.revenueCents : point.purchases);
+  const formatValue = (value: number) =>
+    metric === "revenue" ? compactMoney(value, primaryCurrency) : `${value} purchase${value === 1 ? "" : "s"}`;
+
   const totalPurchases = data.reduce((sum, point) => sum + point.purchases, 0);
   const totalRevenueCents = data.reduce((sum, point) => sum + point.revenueCents, 0);
-  const avgPerDay = totalPurchases / data.length;
-  const busiestDay = data.reduce((best, point) => (point.purchases > best.purchases ? point : best), data[0]);
+  const total = metric === "revenue" ? totalRevenueCents : totalPurchases;
+  // Revenue ticks step in whole currency units (100 cents), purchases in whole purchases.
+  const axisMax = niceAxisMax(Math.max(0, ...data.map(valueOf)), metric === "revenue" ? 100 : 1);
+  const yTicks = Array.from({ length: CHART_Y_TICKS + 1 }, (_, i) => (axisMax / CHART_Y_TICKS) * i);
+  const formatTick = (value: number) =>
+    metric === "revenue" ? compactMoney(value, primaryCurrency) : String(Math.round(value));
+  const labelEvery = Math.max(1, Math.ceil(data.length / CHART_MAX_X_LABELS));
 
-  const maxPurchases = Math.max(1, ...data.map((point) => point.purchases));
-  const maxRevenue = Math.max(1, ...data.map((point) => point.revenueCents));
-  const width = Math.max(480, data.length * 64);
-  const columnWidth = (width - CHART_LEFT_PAD - CHART_RIGHT_PAD) / data.length;
-  const barWidth = Math.max(14, Math.min(36, columnWidth - 16));
-  const gridSteps = 4;
-  const gridFractions = Array.from({ length: gridSteps + 1 }, (_, i) => i / gridSteps);
+  const plotWidth = CHART_WIDTH - CHART_PAD_LEFT - CHART_PAD_RIGHT;
+  const plotHeight = CHART_HEIGHT - CHART_PAD_TOP - CHART_PAD_BOTTOM;
+  const baseline = CHART_PAD_TOP + plotHeight;
+  const step = data.length > 1 ? plotWidth / (data.length - 1) : 0;
 
-  function columnX(index: number) {
-    return CHART_LEFT_PAD + index * columnWidth;
-  }
+  const points = data.map((point, index) => ({
+    x: data.length > 1 ? CHART_PAD_LEFT + index * step : CHART_PAD_LEFT + plotWidth / 2,
+    y: baseline - (valueOf(point) / axisMax) * plotHeight
+  }));
+  // A single day still reads as a flat line across the card instead of a lone dot.
+  const linePoints =
+    points.length > 1
+      ? points
+      : [
+          { x: CHART_PAD_LEFT, y: points[0].y },
+          { x: CHART_PAD_LEFT + plotWidth, y: points[0].y }
+        ];
+  const linePath = smoothPath(linePoints);
+  const first = linePoints[0];
+  const last = linePoints[linePoints.length - 1];
+  const areaPath = `${linePath} L${last.x},${baseline} L${first.x},${baseline} Z`;
 
-  const linePoints = data.map((point, index) => {
-    const x = columnX(index) + columnWidth / 2;
-    const y = CHART_BASELINE - (point.revenueCents / maxRevenue) * CHART_BAND;
-    return { x, y };
-  });
-  const linePath = linePoints.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
-  const areaPath = `${linePath} L${linePoints[linePoints.length - 1].x},${CHART_BASELINE} L${linePoints[0].x},${CHART_BASELINE} Z`;
-
+  const activeIndex = hoveredIndex ?? data.length - 1;
+  const activePoint = points.length > 1 ? points[activeIndex] : last;
   const hovered = hoveredIndex != null ? data[hoveredIndex] : null;
+  const hitWidth = data.length > 1 ? step : plotWidth;
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center gap-4 text-[11px] font-bold text-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="h-2 w-2 rounded-sm bg-[#00d9f5]" />
-          Purchases
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-brandTeal" />
-          Revenue
-        </span>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-lg font-black tracking-tight text-midnight">
+            {metric === "revenue" ? "Revenue" : "Purchases"} over {data.length} day{data.length === 1 ? "" : "s"}
+          </p>
+          <p className="mt-0.5 text-xs font-semibold text-muted">
+            {hovered
+              ? `${formatChartDate(hovered.date)}: ${formatValue(valueOf(hovered))}`
+              : `Total: ${formatValue(total)}`}
+          </p>
+        </div>
+        <div className="flex rounded-full bg-[#eef8fa] p-1" role="group" aria-label="Chart metric">
+          {(["revenue", "purchases"] as const).map((option) => (
+            <button
+              aria-pressed={metric === option}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold capitalize transition ${
+                metric === option ? "bg-white text-midnight shadow-sm" : "text-muted hover:text-midnight"
+              }`}
+              key={option}
+              onClick={() => setMetric(option)}
+              type="button"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <svg
-          aria-label="Purchases and revenue over time"
-          className="min-w-full"
-          onMouseLeave={() => setHoveredIndex(null)}
-          role="img"
-          viewBox={`0 0 ${width} ${CHART_HEIGHT}`}
-        >
-          <defs>
-            <linearGradient id="barGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#00d9f5" />
-              <stop offset="100%" stopColor="#71efff" />
-            </linearGradient>
-            <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#09C3BE" stopOpacity="0.28" />
-              <stop offset="100%" stopColor="#09C3BE" stopOpacity="0" />
-            </linearGradient>
-          </defs>
+      <svg
+        aria-label={`${metric === "revenue" ? "Revenue" : "Purchases"} over time`}
+        className="mt-4 block h-auto w-full overflow-visible"
+        onMouseLeave={() => setHoveredIndex(null)}
+        role="img"
+        viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
+      >
+        <defs>
+          <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#00d9f5" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#00d9f5" stopOpacity="0" />
+          </linearGradient>
+          <filter id="chartLineGlow" x="-10%" y="-30%" width="120%" height="160%">
+            <feGaussianBlur stdDeviation="4" />
+          </filter>
+        </defs>
 
-          {gridFractions.map((fraction) => {
-            const y = CHART_BASELINE - fraction * CHART_BAND;
-            return (
-              <g key={fraction}>
-                <line
-                  stroke={fraction === 0 ? "#c7e9ef" : "#eef8fa"}
-                  strokeWidth="1"
-                  x1={CHART_LEFT_PAD}
-                  x2={width - CHART_RIGHT_PAD}
-                  y1={y}
-                  y2={y}
-                />
-                <text fill="#5a8b93" fontSize="10" textAnchor="end" x={CHART_LEFT_PAD - 8} y={y + 3}>
-                  {Math.round(fraction * maxPurchases)}
-                </text>
-                <text fill="#0a8a86" fontSize="10" textAnchor="start" x={width - CHART_RIGHT_PAD + 8} y={y + 3}>
-                  {compactMoney(fraction * maxRevenue, primaryCurrency)}
-                </text>
-              </g>
-            );
-          })}
-
-          {data.map((point, index) => {
-            const x = columnX(index) + (columnWidth - barWidth) / 2;
-            const barHeight = point.purchases > 0 ? Math.max(4, (point.purchases / maxPurchases) * CHART_BAND) : 0;
-            const y = CHART_BASELINE - barHeight;
-            const isHovered = hoveredIndex === index;
-
-            return (
-              <rect
-                fill={isHovered ? "#001f26" : "url(#barGradient)"}
-                height={barHeight}
-                key={`bar-${point.date}`}
-                rx="6"
-                width={barWidth}
-                x={x}
-                y={y}
+        {yTicks.map((tick) => {
+          const y = baseline - (tick / axisMax) * plotHeight;
+          return (
+            <g key={`y-${tick}`}>
+              <line
+                stroke={tick === 0 ? "#c7e9ef" : "#eef8fa"}
+                strokeWidth="1"
+                x1={CHART_PAD_LEFT}
+                x2={CHART_PAD_LEFT + plotWidth}
+                y1={y}
+                y2={y}
               />
-            );
-          })}
+              <text fill="#5a8b93" fontSize="11" textAnchor="end" x={CHART_PAD_LEFT - 10} y={y + 4}>
+                {formatTick(tick)}
+              </text>
+            </g>
+          );
+        })}
 
-          <path d={areaPath} fill="url(#areaGradient)" />
-          <path d={linePath} fill="none" stroke="#09C3BE" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
-          {linePoints.map((p, index) => (
-            <circle
-              cx={p.x}
-              cy={p.y}
-              fill={hoveredIndex === index ? "#09C3BE" : "#ffffff"}
-              key={`dot-${data[index].date}`}
-              r={hoveredIndex === index ? 4.5 : 3}
-              stroke="#09C3BE"
-              strokeWidth="2"
-            />
-          ))}
-
-          {data.map((point, index) => (
+        {data.map((point, index) =>
+          // Skip a regular label that would crowd the always-shown last date.
+          (index % labelEvery === 0 && data.length - 1 - index >= labelEvery / 2) || index === data.length - 1 ? (
             <text
               fill="#5a8b93"
               fontSize="11"
-              key={`label-${point.date}`}
-              textAnchor="middle"
-              x={columnX(index) + columnWidth / 2}
-              y="198"
+              key={`x-${point.date}`}
+              textAnchor={data.length === 1 ? "middle" : index === 0 ? "start" : index === data.length - 1 ? "end" : "middle"}
+              x={points[index].x}
+              y={CHART_HEIGHT - 8}
             >
-              {point.date.slice(5)}
+              {formatAxisDate(point.date)}
             </text>
-          ))}
-
-          {data.map((point, index) => (
-            <rect
-              fill="transparent"
-              height={CHART_HEIGHT}
-              key={`hit-${point.date}`}
-              onMouseEnter={() => setHoveredIndex(index)}
-              width={columnWidth}
-              x={columnX(index)}
-              y={0}
-            />
-          ))}
-
-          {hoveredIndex != null ? (
-            <line
-              stroke="#c7e9ef"
-              strokeDasharray="3 3"
-              x1={columnX(hoveredIndex) + columnWidth / 2}
-              x2={columnX(hoveredIndex) + columnWidth / 2}
-              y1={CHART_TOP_PAD}
-              y2={CHART_BASELINE}
-            />
-          ) : null}
-        </svg>
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#f8fdfe] px-4 py-3">
-        {hovered ? (
-          <p className="text-xs font-bold text-midnight">
-            {hovered.date} · {hovered.purchases} purchase{hovered.purchases === 1 ? "" : "s"} ·{" "}
-            {compactMoney(hovered.revenueCents, primaryCurrency)} revenue
-          </p>
-        ) : (
-          <p className="text-xs font-bold text-midnight">
-            {totalPurchases} purchases over {data.length} day{data.length === 1 ? "" : "s"} ·{" "}
-            {compactMoney(totalRevenueCents, primaryCurrency)} total ·{" "}
-            {avgPerDay.toFixed(1)} avg/day · busiest {busiestDay.date} ({busiestDay.purchases})
-          </p>
+          ) : null
         )}
-        {hasMixedCurrencies ? (
-          <p className="text-[10px] font-semibold text-muted">Revenue mixes multiple currencies; totals are approximate.</p>
+
+        <path d={areaPath} fill="url(#chartAreaGradient)" />
+        <path
+          d={linePath}
+          fill="none"
+          filter="url(#chartLineGlow)"
+          opacity="0.35"
+          stroke="#00d9f5"
+          strokeLinecap="round"
+          strokeWidth="8"
+        />
+        <path d={linePath} fill="none" stroke="#00b8cf" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" />
+
+        {hoveredIndex != null ? (
+          <line
+            stroke="#c7e9ef"
+            strokeDasharray="3 4"
+            x1={activePoint.x}
+            x2={activePoint.x}
+            y1={CHART_PAD_TOP}
+            y2={baseline}
+          />
         ) : null}
-      </div>
+
+        <circle cx={activePoint.x} cy={activePoint.y} fill="#00d9f5" filter="url(#chartLineGlow)" opacity="0.5" r="9" />
+        <circle cx={activePoint.x} cy={activePoint.y} fill="#00b8cf" r="5.5" stroke="#ffffff" strokeWidth="2.5" />
+
+        {data.map((point, index) => (
+          <rect
+            fill="transparent"
+            height={CHART_HEIGHT}
+            key={`hit-${point.date}`}
+            onMouseEnter={() => setHoveredIndex(index)}
+            width={hitWidth}
+            x={data.length > 1 ? points[index].x - step / 2 : CHART_PAD_LEFT}
+            y={0}
+          />
+        ))}
+      </svg>
+
+
+      {hasMixedCurrencies && metric === "revenue" ? (
+        <p className="mt-2 text-[10px] font-semibold text-muted">Revenue mixes multiple currencies; totals are approximate.</p>
+      ) : null}
     </div>
   );
 }
