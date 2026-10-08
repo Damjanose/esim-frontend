@@ -15,8 +15,8 @@ import { WithdrawForm } from "./WithdrawForm";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/withdraw",
-  title: "Withdraw commission | eSim2you",
-  description: "Withdraw your eSim2you partner commission balance via PayPal.",
+  title: "Withdraw commission | eSIM2you",
+  description: "Withdraw your eSIM2you partner commission balance via PayPal.",
   indexable: false
 });
 
@@ -74,7 +74,7 @@ export default async function PartnerWithdrawPage() {
                 You haven&apos;t applied yet
               </p>
               <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-                Apply to the eSim2you partner program to start earning commission.
+                Apply to the eSIM2you partner program to start earning commission.
               </p>
               <LinkButton className="mt-7" href="/partners/request">
                 Apply now

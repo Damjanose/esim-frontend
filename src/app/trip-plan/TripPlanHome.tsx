@@ -57,7 +57,7 @@ export function TripPlanHome({ countries }: { countries: string[] }) {
       <div className="rounded-[20px] border border-outline/70 bg-surfaceBright p-6 text-center sm:p-8">
         <h2 className="font-display text-headline-md font-black text-brandInk">Sign in to plan a trip</h2>
         <p className="mx-auto mt-2 max-w-[42ch] text-body-md text-onSurfaceVariant">
-          Use the same email, Google or Apple account as the eSim2you app. Plans you make on one show up on the
+          Use the same email, Google or Apple account as the eSIM2you app. Plans you make on one show up on the
           other.
         </p>
         <LinkButton className="mt-5" href="/signin?next=%2Ftrip-plan" rel="nofollow" size="lg">

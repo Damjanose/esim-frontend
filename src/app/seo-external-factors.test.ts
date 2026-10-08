@@ -38,7 +38,7 @@ describe("SEO external factors", () => {
     for (const source of publicChromeSources) {
       expect(source).not.toContain('alt=""');
     }
-    expect(publicChromeSources.join("\n")).toContain('alt="eSim2you app logo"');
+    expect(publicChromeSources.join("\n")).toContain('alt="eSIM2you app logo"');
   });
 
   it("supports H1 terms in non-heading SEO page copy", () => {
@@ -62,7 +62,7 @@ describe("SEO external factors", () => {
     const seoPagesSource = readFileSync("src/content/seo-pages.ts", "utf8");
 
     expect(footerSource).toContain("Browse all eSIM destinations");
-    expect(footerSource).toContain("eSim2you support");
+    expect(footerSource).toContain("eSIM2you support");
     expect(footerSource).toContain("Business travel eSIM guide");
     expect(footerSource).toContain("Remote work eSIM guide");
     expect(footerSource).toContain("Cruise port-day eSIM guide");

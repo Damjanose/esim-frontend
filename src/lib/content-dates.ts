@@ -20,7 +20,10 @@ const byPath: Record<string, string> = {
   // Planner launched on the web (2ed6b77).
   "/trip-plan": "2026-10-02",
   // Support chat and FAQ on the web (e4131cb).
-  "/support": "2026-10-02"
+  "/support": "2026-10-02",
+  // Brand pages launched.
+  "/about": "2026-10-08",
+  "/contact": "2026-10-08"
 };
 
 const byPrefix: Array<[prefix: string, date: string]> = [

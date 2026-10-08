@@ -16,8 +16,8 @@ type EsimCountry = { code: string; name: string; geography: string };
 
 export const metadata: Metadata = createMetadata({
   path: "/profile/billing",
-  title: "Payments and billing | eSim2you",
-  description: "Manage the billing address used for your eSim2you purchases.",
+  title: "Payments and billing | eSIM2you",
+  description: "Manage the billing address used for your eSIM2you purchases.",
   indexable: false
 });
 

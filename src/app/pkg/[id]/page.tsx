@@ -26,10 +26,10 @@ export async function generateMetadata({
   const plan = await getPackageOption(safeDecode(id));
   return createMetadata({
     path: `/pkg/${id}`,
-    title: plan ? `${plan.country} eSIM · ${plan.title} | eSim2you` : "eSIM plan | eSim2you",
+    title: plan ? `${plan.country} eSIM · ${plan.title} | eSIM2you` : "eSIM plan | eSIM2you",
     description: plan
-      ? `${plan.title} for ${plan.price}. Open it in the eSim2you app or buy it on the web.`
-      : "Open this eSIM plan in the eSim2you app, or download the app to get it.",
+      ? `${plan.title} for ${plan.price}. Open it in the eSIM2you app or buy it on the web.`
+      : "Open this eSIM plan in the eSIM2you app, or download the app to get it.",
     indexable: false
   });
 }
@@ -88,10 +88,10 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
         ) : (
           <>
             <h1 className="mt-3 font-display text-2xl font-black tracking-[-0.02em] text-brandInk sm:text-3xl">
-              Get this eSIM plan in eSim2you
+              Get this eSIM plan in eSIM2you
             </h1>
             <p className="mt-2 text-sm text-onSurfaceVariant">
-              This plan is no longer available on the web. Open eSim2you to see the latest plans.
+              This plan is no longer available on the web. Open eSIM2you to see the latest plans.
             </p>
           </>
         )}

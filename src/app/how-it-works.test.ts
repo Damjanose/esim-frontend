@@ -10,7 +10,7 @@ describe("HowItWorks section", () => {
     expect(source).toContain('import Image from "next/image"');
     expect(source).toContain("/images/how-it-works-app-screens.png");
     expect(source).toContain(
-      'alt="eSim2you app screens: destination list, United Kingdom plans and billing details"',
+      'alt="eSIM2you app screens: destination list, United Kingdom plans and billing details"',
     );
     // The CSS phone mockups were replaced by the screenshot; no dead helpers left behind.
     expect(source).not.toContain("PhoneFrame");

@@ -37,11 +37,12 @@ const footerResourceLinks = guidePages.slice(0, 3).map((page) => ({
   href: page.path
 }));
 const footerCompanyLinks = [
-  { label: "eSim2you support", href: "/support" },
-  { label: "Contact eSim2you", href: "mailto:esim2you@uplisoft.com" },
-  { label: "Partner with eSim2you", href: "/partners/request" },
-  { label: "eSim2you privacy policy", href: "/policy" },
-  { label: "eSim2you terms", href: "/terms" }
+  { label: "About eSIM2you", href: "/about" },
+  { label: "eSIM2you support", href: "/support" },
+  { label: "Contact eSIM2you", href: "/contact" },
+  { label: "Partner with eSIM2you", href: "/partners/request" },
+  { label: "eSIM2you privacy policy", href: "/policy" },
+  { label: "eSIM2you terms", href: "/terms" }
 ];
 
 export function SiteFooter() {
@@ -52,7 +53,7 @@ export function SiteFooter() {
           <div>
             <div className="flex items-center gap-3 font-display text-lg font-black">
               <Image
-                alt="eSim2you app logo"
+                alt="eSIM2you app logo"
                 className="h-9 w-9 rounded-lg shadow-brandCard"
                 height={36}
                 src="/app-logo.png"
@@ -61,11 +62,11 @@ export function SiteFooter() {
               {landingContent.brand}
             </div>
             <p className="mt-3 max-w-md text-sm leading-6 text-onSurfaceVariant">
-              eSim2you helps travelers get prepaid mobile data in 200+ countries, without the roaming bill.
+              eSIM2you helps travelers get prepaid mobile data in 200+ countries, without the roaming bill.
             </p>
             <div className="mt-4 flex items-center gap-3">
               <a
-                aria-label="eSim2you on Instagram"
+                aria-label="eSIM2you on Instagram"
                 className="grid h-10 w-10 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/60 hover:text-brandBlue"
                 href={socialLinks.instagram}
                 rel="me noopener noreferrer"
@@ -74,7 +75,7 @@ export function SiteFooter() {
                 <Instagram aria-hidden="true" size={18} />
               </a>
               <a
-                aria-label="eSim2you on Facebook"
+                aria-label="eSIM2you on Facebook"
                 className="grid h-10 w-10 place-items-center rounded-full border border-outline text-onSurfaceVariant transition hover:border-brandBlue/60 hover:text-brandBlue"
                 href={socialLinks.facebook}
                 rel="me noopener noreferrer"
@@ -92,7 +93,7 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-outline pt-5 text-xs font-semibold text-onSurfaceVariant sm:mt-10 sm:justify-between sm:pt-6">
-          <p className="w-full sm:w-auto">© 2026 eSim2you</p>
+          <p className="w-full sm:w-auto">© 2026 eSIM2you</p>
           <a
             className="transition hover:text-brandBlue"
             href="https://www.producthunt.com/products/esim2you?embed=true&utm_source=embed&utm_medium=post_embed"

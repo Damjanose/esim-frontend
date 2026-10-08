@@ -15,8 +15,8 @@ import type { LinkedIdentity } from "./LinkedProviders";
 
 export const metadata: Metadata = createMetadata({
   path: "/profile",
-  title: "Profile | eSim2you",
-  description: "Manage your eSim2you account, plans, and preferences.",
+  title: "Profile | eSIM2you",
+  description: "Manage your eSIM2you account, plans, and preferences.",
   indexable: false
 });
 

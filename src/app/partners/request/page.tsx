@@ -16,8 +16,8 @@ import { PartnerRequestForm } from "./PartnerRequestForm";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/request",
-  title: "Become a partner | eSim2you",
-  description: "Apply for the eSim2you partner program and earn commission on referred bookings.",
+  title: "Become a partner | eSIM2you",
+  description: "Apply for the eSIM2you partner program and earn commission on referred bookings.",
   indexable: false
 });
 
@@ -75,7 +75,7 @@ export default async function PartnerRequestPage() {
             Become a partner
           </h1>
           <p className="mt-1 px-1 text-sm text-onSurfaceVariant">
-            Tell us about your business and we&apos;ll review your request for the eSim2you
+            Tell us about your business and we&apos;ll review your request for the eSIM2you
             partner program.
           </p>
 

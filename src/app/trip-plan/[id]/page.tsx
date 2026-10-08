@@ -12,7 +12,7 @@ import { TripPlanDetail } from "./TripPlanDetail";
 
 export const metadata: Metadata = createMetadata({
   path: "/trip-plan",
-  title: "Your trip plan | eSim2you",
+  title: "Your trip plan | eSIM2you",
   description: "Your day-by-day trip plan.",
   indexable: false
 });

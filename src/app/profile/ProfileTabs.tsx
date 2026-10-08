@@ -27,7 +27,7 @@ export function ProfileTabs({
         <div className="px-4 py-3">
           <span className="block text-xs text-onSurfaceVariant">Signed in as</span>
           <span className="mt-0.5 block break-all font-display text-lg font-black text-brandBlue">
-            {email ?? "Your eSim2you account"}
+            {email ?? "Your eSIM2you account"}
           </span>
         </div>
         <SettingsLinkRow

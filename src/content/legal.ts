@@ -18,13 +18,13 @@ export const termsDocument = {
     {
       title: "Agreement",
       paragraphs: [
-        'By creating an account or using eSim2you ("the App"), you agree to these Terms. If you do not agree, do not use the App. We may update these Terms; continued use after changes means you accept the revised Terms.'
+        'By creating an account or using eSIM2you ("the App"), you agree to these Terms. If you do not agree, do not use the App. We may update these Terms; continued use after changes means you accept the revised Terms.'
       ]
     },
     {
       title: "The service",
       paragraphs: [
-        "eSim2you helps you discover, purchase, activate, and manage prepaid mobile data plans using compatible eSIM-capable devices. Plans are provided by third-party mobile operators or aggregators we integrate with. Availability, coverage, speeds, and pricing depend on those networks and may change without notice."
+        "eSIM2you helps you discover, purchase, activate, and manage prepaid mobile data plans using compatible eSIM-capable devices. Plans are provided by third-party mobile operators or aggregators we integrate with. Availability, coverage, speeds, and pricing depend on those networks and may change without notice."
       ]
     },
     {
@@ -42,7 +42,7 @@ export const termsDocument = {
     {
       title: "Fees & purchases",
       paragraphs: [
-        "Prices shown at checkout are determined when you pay. Taxes or carrier fees may apply. On the website, plan purchases collect card details in the checkout form; the card is encrypted in your browser by Pokpay before it is sent, and eSim2you does not store your card number, expiry, or security code. Some other payments (such as top-ups) may still use Pokpay's hosted payment page. Unless stated otherwise, plans are prepaid and non-refundable once activated or delivered according to the plan's terms. Chargebacks or payment disputes may affect your ability to use the service."
+        "Prices shown at checkout are determined when you pay. Taxes or carrier fees may apply. On the website, plan purchases collect card details in the checkout form; the card is encrypted in your browser by Pokpay before it is sent, and eSIM2you does not store your card number, expiry, or security code. Some other payments (such as top-ups) may still use Pokpay's hosted payment page. Unless stated otherwise, plans are prepaid and non-refundable once activated or delivered according to the plan's terms. Chargebacks or payment disputes may affect your ability to use the service."
       ]
     },
     {
@@ -54,13 +54,13 @@ export const termsDocument = {
     {
       title: "Intellectual property",
       paragraphs: [
-        "The App, branding, and content are owned by eSim2you or licensors and protected by applicable laws. You receive a limited, revocable license to use the App for personal, non-commercial use unless otherwise agreed."
+        "The App, branding, and content are owned by eSIM2you or licensors and protected by applicable laws. You receive a limited, revocable license to use the App for personal, non-commercial use unless otherwise agreed."
       ]
     },
     {
       title: "Limitation of liability",
       paragraphs: [
-        "To the maximum extent permitted by law, eSim2you is not liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill arising from use of the App or third-party connectivity services. Some jurisdictions do not allow certain limitations; in those cases our liability is limited to the fullest extent permitted."
+        "To the maximum extent permitted by law, eSIM2you is not liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill arising from use of the App or third-party connectivity services. Some jurisdictions do not allow certain limitations; in those cases our liability is limited to the fullest extent permitted."
       ]
     },
     {
@@ -77,7 +77,7 @@ export const policyDocument = {
     {
       title: "Overview",
       paragraphs: [
-        'eSim2you ("we", "us") respects your privacy. This Policy describes how we collect, use, store, and share personal information when you use our website, mobile application, and related services to browse, purchase, activate, and manage prepaid travel eSIM data plans.'
+        'eSIM2you ("we", "us") respects your privacy. This Policy describes how we collect, use, store, and share personal information when you use our website, mobile application, and related services to browse, purchase, activate, and manage prepaid travel eSIM data plans.'
       ]
     },
     {
@@ -86,7 +86,7 @@ export const policyDocument = {
         "Account & verification: phone number, one-time passcodes, email, and related authentication signals needed to secure your account.",
         "Profile & usage: app and website interactions, device type, OS version, app version, diagnostics, and crash data to keep the service reliable.",
         "Billing address: the name, address, email, and phone number you provide for receipts and payment verification.",
-        "Transaction data: plan purchases, payment references, amounts, currency, payment status, activation timestamps, and carrier identifiers needed to deliver connectivity. On website plan checkout, card number, expiry, and security code are entered in the checkout form and encrypted in your browser by Pokpay before transmission; eSim2you does not store those card details.",
+        "Transaction data: plan purchases, payment references, amounts, currency, payment status, activation timestamps, and carrier identifiers needed to deliver connectivity. On website plan checkout, card number, expiry, and security code are entered in the checkout form and encrypted in your browser by Pokpay before transmission; eSIM2you does not store those card details.",
         "Support communications: messages you send to support and metadata needed to respond.",
         "Optional biometrics: if you enable device biometrics, biometric templates stay on your device; we do not receive your raw biometric data."
       ]
@@ -107,7 +107,7 @@ export const policyDocument = {
     {
       title: "Sharing",
       paragraphs: [
-        "We share information with mobile operators and technical partners as needed to provision data plans; with Pokpay, our payment processor, which encrypts and processes card details to take payment; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSim2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
+        "We share information with mobile operators and technical partners as needed to provision data plans; with Pokpay, our payment processor, which encrypts and processes card details to take payment; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSIM2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."
       ]
     },
     {
@@ -119,7 +119,7 @@ export const policyDocument = {
     {
       title: "Security",
       paragraphs: [
-        "We use administrative, technical, and organizational measures designed to protect personal information. On website plan checkout, card details are encrypted in your browser by Pokpay before they leave your device and are not stored by eSim2you. No method of transmission or storage is completely secure; use strong device passcodes and keep your OS updated."
+        "We use administrative, technical, and organizational measures designed to protect personal information. On website plan checkout, card details are encrypted in your browser by Pokpay before they leave your device and are not stored by eSIM2you. No method of transmission or storage is completely secure; use strong device passcodes and keep your OS updated."
       ]
     },
     {

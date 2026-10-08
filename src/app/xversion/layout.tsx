@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xversion",
-  title: "App Version | eSim2you",
-  description: "Private eSim2you minimum app version admin surface.",
+  title: "App Version | eSIM2you",
+  description: "Private eSIM2you minimum app version admin surface.",
   indexable: false
 });
 

@@ -7,8 +7,8 @@ import { SiteFooter } from "../../SiteFooter";
 
 export const metadata: Metadata = createMetadata({
   path: "/profile/deleted",
-  title: "Account deleted | eSim2you",
-  description: "Your eSim2you account has been deleted.",
+  title: "Account deleted | eSIM2you",
+  description: "Your eSIM2you account has been deleted.",
   indexable: false
 });
 
@@ -29,7 +29,7 @@ export default function AccountDeletedPage() {
           </h1>
 
           <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
-            Your eSim2you account has been deleted and you have been signed out. Any eSIM
+            Your eSIM2you account has been deleted and you have been signed out. Any eSIM
             you already installed keeps working until its data runs out.
           </p>
 
@@ -38,7 +38,7 @@ export default function AccountDeletedPage() {
           </p>
 
           <LinkButton className="mt-7 w-full sm:w-auto" href="/" size="lg">
-            Back to eSim2you
+            Back to eSIM2you
             <ArrowRight aria-hidden="true" size={16} />
           </LinkButton>
         </div>

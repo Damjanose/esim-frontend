@@ -11,6 +11,15 @@ Typing or searching "esim2you" landed people on `esim2you.com` (a STRATO "domain
 - `.env.example` documents the new vars. `docs/runbooks/brand-domain-migration.md` covers getting the domain, the manual brand-signal steps and the full move checklist.
 - Tests: `site-host.test.ts`, brand-domain cases in `middleware.test.ts`, an alternateName/sameAs test in `seo.test.ts`, and an updated source assertion in `seo-routes.test.ts`.
 
+## Round 2: brand entity (same day)
+- Normalized `eSim2you` → `eSIM2you` across src/ and public/ (69 files, tests included). A "brand spelling" test in `seo.test.ts` guards it. `alternateName` was trimmed to `["esim2you"]`.
+- Organization schema: added `description` (`brandDescription`) and a `contactPoint`.
+- New `/about` (AboutPage) and `/contact` (ContactPage) pages, added to the sitemap, footer and `llms.txt`. `createWebPageJsonLd` takes a `pageType`. `content-dates.ts` dates them 2026-10-08, which moved the static sitemap lastmod.
+- `next.config.mjs` 308s `/esim`, `/blog`, `/blog/:slug`, `/how-esim-works` and `/esim-compatible-devices` to the existing hubs and guides rather than adding duplicate pages.
+- `docs/brand-outreach-kit.md`: fixed brand facts, where to get mentions, anchor text, keyword order, and no eSIM2Me targeting.
+- Checked on a temporary dev server (:3005): /about and /contact return 200 with the right H1 and schema, and all 5 redirects return 308.
+- Not done (other repos): the mobile app has 299 `eSim2you` strings and the backend emails have 63.
+
 ## Verification
 `pnpm exec vitest run` passes. `tsc` shows only stale `.next/types` errors for a removed bulk-profit route, which this change didn't cause.
 

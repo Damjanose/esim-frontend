@@ -6,7 +6,7 @@ describe("LegalDocumentPage restyle (spec 8B: off the retired tokens)", () => {
   const source = readFileSync("src/app/LegalDocumentPage.tsx", "utf8");
 
   it("keeps its slim header, logo, title, date and sections", () => {
-    expect(source).toContain('alt="eSim2you app logo"');
+    expect(source).toContain('alt="eSIM2you app logo"');
     expect(source).toContain('src="/app-logo.png"');
     expect(source).toContain("{landingContent.brand}");
     expect(source).toContain("{document.title}");

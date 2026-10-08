@@ -10,7 +10,7 @@ import { SiteFooter } from "../SiteFooter";
 import { TripPlanDocument } from "./TripPlanDocument";
 import { TripPlanHome } from "./TripPlanHome";
 
-const TITLE = "AI Trip Planner: Day-by-Day Itineraries | eSim2you";
+const TITLE = "AI Trip Planner: Day-by-Day Itineraries | eSIM2you";
 const DESCRIPTION =
   "Tell us where you're going and for how long. Get a day-by-day travel itinerary with timed stops, transport tips and practical notes, then download it as a PDF.";
 
@@ -94,7 +94,7 @@ export default async function TripPlanPage() {
             ))}
           </ol>
           <p className="mt-6 text-body-sm text-onSurfaceVariant">
-            Plans are shared with the eSim2you app: sign in with the same account and they show up in both.
+            Plans are shared with the eSIM2you app: sign in with the same account and they show up in both.
           </p>
         </div>
       </section>

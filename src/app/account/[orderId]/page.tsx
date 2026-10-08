@@ -37,7 +37,7 @@ import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
 
 export const metadata: Metadata = createMetadata({
   path: "/account",
-  title: "eSIM details | eSim2you",
+  title: "eSIM details | eSIM2you",
   description: "Install your eSIM and track your remaining data.",
   indexable: false
 });

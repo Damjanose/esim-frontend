@@ -77,7 +77,7 @@ export function DeleteAccountCard() {
           {confirming ? (
             <>
               <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">
-                This removes your eSim2you account and the account data we store. Purchased
+                This removes your eSIM2you account and the account data we store. Purchased
                 eSIM service records may be retained where required for payment, fraud
                 prevention, tax, or provider obligations. Any eSIM you have already installed
                 keeps working until its data runs out.

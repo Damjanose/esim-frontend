@@ -1,5 +1,5 @@
 /**
- * Verification files that let the eSim2you mobile app open package links
+ * Verification files that let the eSIM2you mobile app open package links
  * directly (iOS universal links, Android App Links):
  * - `https://esim.uplisoft.com/pkg/{id}`: what the app shares. Without the app
  *   installed it lands on a "get the app" page (`src/app/pkg/[id]`).

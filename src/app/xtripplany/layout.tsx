@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xtripplany",
-  title: "Trip plans | eSim2you",
-  description: "Private eSim2you trip plan settings.",
+  title: "Trip plans | eSIM2you",
+  description: "Private eSIM2you trip plan settings.",
   indexable: false
 });
 

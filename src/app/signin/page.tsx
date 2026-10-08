@@ -7,8 +7,8 @@ import { SignInForm } from "./SignInForm";
 
 export const metadata: Metadata = createMetadata({
   path: "/signin",
-  title: "Sign in | eSim2you",
-  description: "Sign in to buy eSIM plans and manage your data on eSim2you.",
+  title: "Sign in | eSIM2you",
+  description: "Sign in to buy eSIM plans and manage your data on eSIM2you.",
   indexable: false
 });
 

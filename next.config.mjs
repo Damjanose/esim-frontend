@@ -65,6 +65,17 @@ const nextConfig = {
         destination: "/travel",
         permanent: true,
       },
+      // Guessable brand URLs (from the brand SEO plan) point at the pages that
+      // already cover them, instead of duplicate pages that would compete.
+      { source: "/esim", destination: "/destinations", permanent: true },
+      { source: "/blog", destination: "/travel", permanent: true },
+      { source: "/blog/:slug", destination: "/travel/:slug", permanent: true },
+      { source: "/how-esim-works", destination: "/travel/what-is-an-esim", permanent: true },
+      {
+        source: "/esim-compatible-devices",
+        destination: "/travel/esim-compatible-phones",
+        permanent: true,
+      },
     ];
   },
 };

@@ -4,7 +4,7 @@ import { landingContent } from "./landing";
 
 describe("landingContent", () => {
   it("contains the core sections needed for a public eSIM landing page", () => {
-    expect(landingContent.brand).toBe("eSim2you");
+    expect(landingContent.brand).toBe("eSIM2you");
     expect(landingContent.destinations).toHaveLength(5);
     expect(
       landingContent.destinations.every((destination) =>
@@ -63,7 +63,7 @@ describe("landingContent", () => {
     // The homepage no longer renders flags itself (the old phone mockups were replaced by
     // a screenshot); its remaining images must carry descriptive alt text.
     expect(pageSource).toContain(
-      'alt="eSim2you app screens: destination list, United Kingdom plans and billing details"',
+      'alt="eSIM2you app screens: destination list, United Kingdom plans and billing details"',
     );
     expect(pageSource).not.toMatch(/alt=""/);
     // Browse flags render inside PhotoTile (Trending, rails) and CountryRow (All destinations).
@@ -78,10 +78,10 @@ describe("landingContent", () => {
     // rather than extracted into named icon components.
     // The accessible name must contain the visible text ("Download on the App Store",
     // "Get it on Google Play") for WCAG label-in-name / Lighthouse label-content-name-mismatch.
-    expect(pageSource).toContain('aria-label="Download on the App Store, eSim2you"');
-    expect(pageSource).toContain('aria-label="Get it on Google Play, eSim2you"');
-    expect(pageSource).toMatch(/aria-label="Download on the App Store, eSim2you"[\s\S]*?<svg/);
-    expect(pageSource).toMatch(/aria-label="Get it on Google Play, eSim2you"[\s\S]*?<svg/);
+    expect(pageSource).toContain('aria-label="Download on the App Store, eSIM2you"');
+    expect(pageSource).toContain('aria-label="Get it on Google Play, eSIM2you"');
+    expect(pageSource).toMatch(/aria-label="Download on the App Store, eSIM2you"[\s\S]*?<svg/);
+    expect(pageSource).toMatch(/aria-label="Get it on Google Play, eSIM2you"[\s\S]*?<svg/);
   });
 
   it("organizes footer links without duplicate footer download actions", () => {
@@ -93,8 +93,8 @@ describe("landingContent", () => {
     expect(footerSource).toContain("Company");
     expect(footerSource).toContain("Explore");
     expect(footerSource).toContain("Resources");
-    expect(footerSource).not.toContain('aria-label="Download eSim2you from the footer on the App Store"');
-    expect(footerSource).not.toContain('aria-label="Download eSim2you from the footer on Google Play"');
+    expect(footerSource).not.toContain('aria-label="Download eSIM2you from the footer on the App Store"');
+    expect(footerSource).not.toContain('aria-label="Download eSIM2you from the footer on Google Play"');
   });
 
   it("keeps footer resources styled like the other footer link columns and repeats the app name naturally", () => {
@@ -104,8 +104,8 @@ describe("landingContent", () => {
     expect(footerSource).not.toContain("function FooterResourceLinks");
     expect(footerSource).not.toContain("rounded-lg border border-white/10 bg-white/5");
     // One brand sentence; the two filler lines were dropped to shorten the phone footer.
-    expect(footerSource).toContain("eSim2you helps travelers");
-    expect(footerSource).not.toContain("eSim2you travel data guides");
+    expect(footerSource).toContain("eSIM2you helps travelers");
+    expect(footerSource).not.toContain("eSIM2you travel data guides");
   });
 
   it("uses app logo assets for favicon, header, and footer branding", () => {
@@ -129,7 +129,7 @@ describe("landingContent", () => {
     // Globe2 is legitimately reused elsewhere (language selector, "Global Coverage"
     // benefit icons) now that the logo itself is a real image — only the brand-mark
     // link itself must never fall back to an icon instead of the logo image.
-    const homeLinkMatch = navSource.match(/<a[^>]*aria-label="eSim2you home"[\s\S]*?<\/a>/);
+    const homeLinkMatch = navSource.match(/<a[^>]*aria-label="eSIM2you home"[\s\S]*?<\/a>/);
     expect(homeLinkMatch).not.toBeNull();
     expect(homeLinkMatch![0]).not.toContain("Globe2");
     expect(homeLinkMatch![0]).toContain("<Image");

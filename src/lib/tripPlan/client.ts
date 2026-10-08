@@ -14,7 +14,7 @@ export type TripPlanResult<T> =
   | { ok: true; data: T }
   | { ok: false; status: number; message: string; code?: string };
 
-const NETWORK_MESSAGE = "We could not reach eSim2you. Check your connection and try again.";
+const NETWORK_MESSAGE = "We could not reach eSIM2you. Check your connection and try again.";
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<TripPlanResult<T>> {
   let response: Response;

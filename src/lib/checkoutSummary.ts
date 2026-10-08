@@ -29,7 +29,7 @@ export type CheckoutStreak = { discountPct: number; finalCustomerPriceCents: num
 export type CheckoutPriceLine = { kind: "plan" | "discount" | "partner" | "streak"; label: string; value: string };
 
 /** Shown once per viewport: in section 02 below lg, in the order summary at lg+. */
-export const PAYMENT_TRUST_NOTE = "Payments are handled by Pokpay — eSim2you never sees your card details.";
+export const PAYMENT_TRUST_NOTE = "Payments are handled by Pokpay — eSIM2you never sees your card details.";
 
 function toCents(amount: number): number {
   return Math.round(amount * 100);

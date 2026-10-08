@@ -4,7 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
-| 2026-10-08 | [brand domain hardening](./2026-10-08_brand-domain-hardening.md) | Canonical host centralized in site-host.ts (env-switchable), esim2you.com and other alias hosts 308 to it, alternateName + store sameAs in JSON-LD, domain-move runbook |
+| 2026-10-08 | [brand domain hardening](./2026-10-08_brand-domain-hardening.md) | Canonical host centralized in site-host.ts (env-switchable), esim2you.com and other alias hosts 308 to it, alternateName + store sameAs in JSON-LD, domain-move runbook; brand normalized to eSIM2you (test-enforced), /about + /contact entity pages, guessable-URL 308s, brand outreach kit |
 | 2026-10-08 | [GSC indexing cleanup](./2026-10-08_gsc-indexing-cleanup.md) | Noindex-only for private HTML (robots.txt trimmed, X-Robots-Tag), nofollow on checkout/signin/account links, real 308 for known ?country=, no canonical on 404s, lowercase slug 308, data-driven related links, per-page sitemap lastmod |
 | 2026-10-02 | [web reviews](./2026-10-02_web-reviews.md) | Signed-in buyers can leave a review from the homepage, checkout success and order page; signed-out users write first and sign in at Send with the draft kept |
 | 2026-10-02 | [AI assistant on web](./2026-10-02_ai-assistant-web.md) | Floating bottom-right AI assistant (port of the app's AssistantBubble): local replies first, AI via new `/bff/assistant/chat`, buttons route to /destinations filters, /trip-plan?destination=, top-up, support |

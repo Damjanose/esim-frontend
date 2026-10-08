@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xpartnersy",
-  title: "Partners | eSim2you",
-  description: "Private eSim2you affiliate/partner-program admin surface.",
+  title: "Partners | eSIM2you",
+  description: "Private eSIM2you affiliate/partner-program admin surface.",
   indexable: false
 });
 

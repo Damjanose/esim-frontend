@@ -25,8 +25,8 @@ describe("SeoContentPage restyle (spec 8B: same structure, new styling)", () => 
   it("keeps both app CTAs with the Play button as the page's one gradient", () => {
     expect(source.match(/<LinkButton/g)).toHaveLength(2);
     expect(source.match(/variant="tint"/g)).toHaveLength(1);
-    expect(source).toContain('aria-label="Download eSim2you on the App Store"');
-    expect(source).toContain('aria-label="Download eSim2you on Google Play"');
+    expect(source).toContain('aria-label="Download eSIM2you on the App Store"');
+    expect(source).toContain('aria-label="Download eSIM2you on Google Play"');
   });
 
   it("uses the shared content cards, a Related sidebar that stacks on phones, and the shared FAQ", () => {

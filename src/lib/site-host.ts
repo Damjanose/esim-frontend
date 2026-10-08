@@ -1,7 +1,7 @@
 /**
  * The one public host the site is indexed and linked under.
  *
- * The brand is eSim2you but the site lives on esim.uplisoft.com, so visitors
+ * The brand is eSIM2you but the site lives on esim.uplisoft.com, so visitors
  * who type or search the brand land on unrelated domains (esim2you.com is a
  * registrar placeholder, esim2me.com is a competitor). Moving to a brand
  * domain is a config change: point its DNS at the server, then set

@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xsupport",
-  title: "Support Inbox | eSim2you",
-  description: "Private eSim2you support-chat admin surface.",
+  title: "Support Inbox | eSIM2you",
+  description: "Private eSIM2you support-chat admin surface.",
   indexable: false
 });
 

@@ -15,7 +15,7 @@ export function LegalDocumentPage({ document }: LegalDocumentPageProps) {
         <nav className={`mx-auto flex h-16 max-w-3xl items-center justify-between lg:h-20 ${CONTENT_GUTTER}`}>
           <Link className="flex min-h-11 items-center gap-3 font-display text-lg font-bold text-brandInk" href="/">
             <img
-              alt="eSim2you app logo"
+              alt="eSIM2you app logo"
               className="h-9 w-9 rounded-lg"
               src="/app-logo.png"
             />

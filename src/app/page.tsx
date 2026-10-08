@@ -34,7 +34,7 @@ const installationSteps = [
 
 export const metadata: Metadata = createMetadata({
   path: "/",
-  title: "eSim2you | Travel Data for 200+ Destinations",
+  title: "eSIM2you | Travel Data for 200+ Destinations",
   description:
     "Buy a digital eSIM for 200+ destinations with instant activation and high-speed data. No physical SIM or roaming fees — set up in minutes before you travel."
 });
@@ -174,7 +174,7 @@ function HowItWorks() {
           1080); a 17:12 box with object-cover crops the empty top and bottom. */}
       <div className="relative mx-auto mt-6 aspect-[17/12] w-full max-w-[360px] sm:mt-10 sm:max-w-[452px]">
         <Image
-          alt="eSim2you app screens: destination list, United Kingdom plans and billing details"
+          alt="eSIM2you app screens: destination list, United Kingdom plans and billing details"
           className="object-cover"
           fill
           sizes="(min-width: 640px) 452px, 360px"
@@ -249,7 +249,7 @@ function HeroAppBadges() {
       <div className="mt-3 grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2 lg:mt-0 lg:flex lg:items-center lg:gap-3">
         <span className="hidden text-sm text-white/75 lg:mr-1 lg:block">Or get the app</span>
         <a
-          aria-label="Download on the App Store, eSim2you"
+          aria-label="Download on the App Store, eSIM2you"
           className="flex h-[52px] min-w-0 items-center gap-2 rounded-[14px] border border-white/25 bg-white/[0.08] px-3 text-white transition duration-300 hover:border-white/45 hover:bg-white/15 min-[400px]:gap-2.5 min-[400px]:px-3.5 sm:px-4"
           href="https://apps.apple.com/app/id6768258284"
         >
@@ -273,7 +273,7 @@ function HeroAppBadges() {
         </a>
 
         <a
-          aria-label="Get it on Google Play, eSim2you"
+          aria-label="Get it on Google Play, eSIM2you"
           className="flex h-[52px] min-w-0 items-center gap-2 rounded-[14px] border border-white/25 bg-white/[0.08] px-3 text-white transition duration-300 hover:border-white/45 hover:bg-white/15 min-[400px]:gap-2.5 min-[400px]:px-3.5 sm:px-4"
           href="https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
         >

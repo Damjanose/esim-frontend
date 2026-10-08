@@ -15,7 +15,7 @@ type EsimCountry = { code: string; name: string; geography: string };
 
 export const metadata: Metadata = createMetadata({
   path: "/checkout",
-  title: "Checkout | eSim2you",
+  title: "Checkout | eSIM2you",
   description: "Review your eSIM plan and pay securely.",
   indexable: false
 });

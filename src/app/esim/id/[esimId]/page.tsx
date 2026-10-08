@@ -8,7 +8,7 @@ import { OpenEsimAppActions } from "./OpenEsimAppActions";
 export const metadata: Metadata = createMetadata({
   path: "/esim/id",
   title: "Shared eSIM",
-  description: "View a shared eSIM, or open it in the eSim2you app.",
+  description: "View a shared eSIM, or open it in the eSIM2you app.",
   indexable: false
 });
 
@@ -83,12 +83,12 @@ export default async function SharedEsimPage({
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface px-4 py-12 text-onSurface">
       <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-lg">
-        <Image src="/logo-icon.png" alt="eSim2you" width={72} height={72} className="mx-auto" priority />
+        <Image src="/logo-icon.png" alt="eSIM2you" width={72} height={72} className="mx-auto" priority />
         {esim ? (
           <>
             <h1 className="mt-5 text-2xl font-bold">Someone shared an eSIM with you</h1>
             <p className="mt-2 text-sm text-onSurface/70">
-              Open it in the eSim2you app, or get your own with the same coverage.
+              Open it in the eSIM2you app, or get your own with the same coverage.
             </p>
             <dl className="mt-6 rounded-2xl bg-surface px-4 py-2 text-left">
               {rows.map((row) => (

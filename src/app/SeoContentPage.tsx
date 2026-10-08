@@ -75,7 +75,7 @@ export function SeoContentPageView({
               {/* US is the first market (owner priority US > UK > rest of Europe), so the App Store link is
                   this page's one gradient primary and Google Play is flat. */}
               <LinkButton
-                aria-label="Download eSim2you on the App Store"
+                aria-label="Download eSIM2you on the App Store"
                 href={landingContent.appLinks.ios.href}
                 size="lg"
               >
@@ -83,7 +83,7 @@ export function SeoContentPageView({
                 <ArrowRight aria-hidden="true" size={18} />
               </LinkButton>
               <LinkButton
-                aria-label="Download eSim2you on Google Play"
+                aria-label="Download eSIM2you on Google Play"
                 href={landingContent.appLinks.android.href}
                 size="lg"
                 tone="brand"

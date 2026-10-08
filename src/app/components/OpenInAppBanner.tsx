@@ -6,7 +6,7 @@ import { appSchemeUrlForPackage, detectMobilePlatform, sharedPackageIdFromLocati
 import { LinkButton } from "@/app/components/Button";
 
 /**
- * "Open in the eSim2you app" for a shared package link that ended up on the web.
+ * "Open in the eSIM2you app" for a shared package link that ended up on the web.
  *
  * With the app installed, universal / App Links normally open the app before the
  * browser ever loads — this banner covers the cases where they don't (Instagram
@@ -29,7 +29,7 @@ export function OpenInAppBanner() {
 
   return (
     <div className="fixed inset-x-3 bottom-3 z-50 flex items-center gap-3 rounded-2xl bg-brandInk px-4 py-3 text-white shadow-lg">
-      <p className="flex-1 text-sm font-semibold">Have the eSim2you app?</p>
+      <p className="flex-1 text-sm font-semibold">Have the eSIM2you app?</p>
       <LinkButton href={appSchemeUrlForPackage(packageId)} size="sm" surface="dark">
         Open in app
       </LinkButton>

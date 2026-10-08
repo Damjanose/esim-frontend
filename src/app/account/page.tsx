@@ -28,7 +28,7 @@ import { EsimListRow } from "./EsimListRow";
 
 export const metadata: Metadata = createMetadata({
   path: "/account",
-  title: "My eSIMs | eSim2you",
+  title: "My eSIMs | eSIM2you",
   description: "View your eSIM plans, data usage, and installation details.",
   indexable: false
 });

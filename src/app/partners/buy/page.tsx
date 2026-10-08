@@ -13,7 +13,7 @@ import { PackagePicker } from "./PackagePicker";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/buy",
-  title: "Buy with your partner wallet | eSim2you",
+  title: "Buy with your partner wallet | eSIM2you",
   description: "Buy an eSIM package at your partner price, for yourself or as a gift.",
   indexable: false
 });
@@ -65,7 +65,7 @@ export default async function PartnerBuyPage() {
                 You haven&apos;t applied yet
               </p>
               <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-                Apply to the eSim2you partner program to start earning commission and buying at
+                Apply to the eSIM2you partner program to start earning commission and buying at
                 your partner price.
               </p>
               <LinkButton className="mt-7" href="/partners/request">

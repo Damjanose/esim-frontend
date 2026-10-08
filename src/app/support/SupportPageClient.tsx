@@ -89,7 +89,7 @@ const supportCategories: SupportCategory[] = [
       "Fix common no-data problems by checking the active eSIM line, data roaming, network selection, and destination coverage.",
     icon: Signal,
     guidance: [
-      "Set mobile data to the eSim2you line after arriving.",
+      "Set mobile data to the eSIM2you line after arriving.",
       "Turn on data roaming for the eSIM line.",
       "Restart the phone and try manual network selection if automatic selection stalls.",
     ],
@@ -111,7 +111,7 @@ const supportCategories: SupportCategory[] = [
       "Pay securely during checkout. If a purchase does not complete or you need a refund review, contact support with your order details.",
     icon: CreditCard,
     guidance: [
-      "Complete the secure checkout, then return to eSim2you.",
+      "Complete the secure checkout, then return to eSIM2you.",
       "If checkout is not complete, reopen the payment step and try again.",
       "For refund review, send the order details and whether the eSIM was installed or used.",
     ],
@@ -132,9 +132,9 @@ const supportCategories: SupportCategory[] = [
 const faqs: FaqItem[] = [
   {
     category: "Getting started",
-    question: "What does eSim2you sell?",
+    question: "What does eSIM2you sell?",
     answer:
-      "eSim2you sells prepaid travel data plans for compatible eSIM devices. Choose a destination in the marketplace, pay securely, then manage installation from your account.",
+      "eSIM2you sells prepaid travel data plans for compatible eSIM devices. Choose a destination in the marketplace, pay securely, then manage installation from your account.",
   },
   {
     category: "Account",
@@ -146,7 +146,7 @@ const faqs: FaqItem[] = [
     category: "Payment",
     question: "How does checkout work?",
     answer:
-      "When you buy a plan or an available top-up, complete the secure checkout and return to eSim2you. Your purchase is confirmed against your account after payment.",
+      "When you buy a plan or an available top-up, complete the secure checkout and return to eSIM2you. Your purchase is confirmed against your account after payment.",
   },
   {
     category: "Installation",
@@ -315,7 +315,7 @@ function SupportHero({
           />
 
           <span className={CONTENT_EYEBROW}>
-            eSim2you Help Center
+            eSIM2you Help Center
           </span>
         </div>
 
@@ -398,7 +398,7 @@ function SupportCategories({
 
         <p className="max-w-md text-body-md text-onSurfaceVariant">
           These topics mirror current website flows, so the guidance matches
-          what you can do in eSim2you today.
+          what you can do in eSIM2you today.
         </p>
       </div>
 
@@ -599,7 +599,7 @@ function QuickHelp() {
       icon: Globe2,
       title: "Browse destinations",
         description:
-        "Compare available destination plans before you buy on the eSim2you website.",
+        "Compare available destination plans before you buy on the eSIM2you website.",
       label: "Browse plans",
       href: "/destinations",
     },

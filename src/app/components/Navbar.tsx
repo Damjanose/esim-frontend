@@ -57,12 +57,12 @@ export function Navbar() {
           className="relative mx-auto flex h-14 max-w-[1240px] items-center justify-between gap-4 rounded-full border border-outline/60 bg-surface/90 pl-4 pr-2 shadow-brandCard backdrop-blur-md transition-colors duration-300 group-data-[tone=dark]:border-white/15 group-data-[tone=dark]:bg-brandInk/55 group-data-[tone=dark]:shadow-[0_16px_40px_rgba(2,6,20,0.25)] lg:h-16 lg:justify-start lg:gap-5 lg:pl-5"
         >
           <a
-            aria-label="eSim2you home"
+            aria-label="eSIM2you home"
             className="flex min-h-11 shrink-0 items-center gap-2.5"
             href="/"
           >
             <Image
-              alt="eSim2you app logo"
+              alt="eSIM2you app logo"
               className="h-9 w-9 object-contain lg:h-10 lg:w-10"
               height={40}
               src="/logo-icon.png"

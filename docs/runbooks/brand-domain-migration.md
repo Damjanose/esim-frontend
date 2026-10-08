@@ -2,7 +2,7 @@
 
 ## Why
 
-The brand is **eSim2you**, but the site lives on `esim.uplisoft.com`. As of 2026-10-08:
+The brand is **eSIM2you**, but the site lives on `esim.uplisoft.com`. As of 2026-10-08:
 
 - Typing "esim2you" in an address bar autocompletes to `esim2you.com`, a STRATO "domain reserved" placeholder we don't control.
 - Searching "esim2you" can surface `www.esim2me.com`, a competing eSIM shop with a near-identical name.
@@ -18,7 +18,10 @@ Code can't stop a browser from opening someone else's domain. The real fix is to
 ## B. Brand signals that help right now (no domain needed)
 
 The code side shipped on 2026-10-08:
-- WebSite and Organization JSON-LD carry `alternateName` (eSim2you / esim2you / eSIM 2 You / eSIM to you), which Google's site-name system reads.
+- WebSite and Organization JSON-LD carry `alternateName: ["esim2you"]` (the lowercase form people type), which Google's site-name system reads. The Organization node also has `description` and a `contactPoint`.
+- The brand is spelled **eSIM2you** everywhere on the site, and a test (`seo.test.ts` "brand spelling") fails on any variant.
+- `/about` (AboutPage) and `/contact` (ContactPage) pages tie the brand to the Organization and are linked from the footer.
+- Off-site mentions: follow `docs/brand-outreach-kit.md`.
 - Organization `sameAs` lists Instagram, Facebook, the App Store and Google Play.
 
 Still manual:
@@ -26,7 +29,7 @@ Still manual:
 - [ ] **Bing Webmaster**: verify with its own method (`NEXT_PUBLIC_BING_SITE_VERIFICATION`), not the GSC import. The GSC import is why IndexNow returns 403 (see `scripts/ping-indexnow.mjs`).
 - [ ] **App Store Connect / Play Console**: set the marketing or website URL to the site. Google uses store listings as entity evidence.
 - [ ] **Instagram / Facebook bios**: link the site.
-- [ ] **One spelling everywhere**: titles use "eSIM2you", the app and copy use "eSim2you". "eSIM2you" sits one letter from "eSIM2Me", so settle on one and use it in titles, store listings and socials.
+- [ ] **One spelling off-site too**: the website is now "eSIM2you" everywhere. Make the App Store and Play listing names, the mobile app's display name and strings (velocity-eSim i18n), and the social profile names match.
 - [ ] **Google Business Profile** (if eligible): it gives the brand a knowledge panel that outranks look-alikes.
 - [ ] **Branded ads**: a small Google Ads campaign on the exact keyword "esim2you". It's cheap because nobody else bids on it, and it puts us above esim2me for that query.
 

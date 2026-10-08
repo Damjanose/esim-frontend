@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xloginy",
-  title: "Admin | eSim2you",
-  description: "Private eSim2you admin surface.",
+  title: "Admin | eSIM2you",
+  description: "Private eSIM2you admin surface.",
   indexable: false
 });
 

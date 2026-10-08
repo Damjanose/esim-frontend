@@ -19,7 +19,7 @@ import { WalletPanel } from "./WalletPanel";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/dashboard",
-  title: "Partner dashboard | eSim2you",
+  title: "Partner dashboard | eSIM2you",
   description: "Track your promo code, referrals, and commission balance.",
   indexable: false
 });
@@ -112,7 +112,7 @@ export default async function PartnerDashboardPage() {
                 You haven&apos;t applied yet
               </p>
               <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-                Apply to the eSim2you partner program to start earning commission on referred
+                Apply to the eSIM2you partner program to start earning commission on referred
                 bookings.
               </p>
               <LinkButton className="mt-7" href="/partners/request">

@@ -74,9 +74,9 @@ describe("homepage marketing blocks", () => {
   });
 
   it("gives each store badge an accessible name that contains its visible text", () => {
-    expect(page).toContain('aria-label="Download on the App Store, eSim2you"');
+    expect(page).toContain('aria-label="Download on the App Store, eSIM2you"');
     expect(page).toContain("Download on the");
-    expect(page).toContain('aria-label="Get it on Google Play, eSim2you"');
+    expect(page).toContain('aria-label="Get it on Google Play, eSIM2you"');
     expect(page).toContain("Get it on");
     // No micro text below 12px in the store badges.
     expect(fn("HeroAppBadges")).not.toContain("text-[10px]");

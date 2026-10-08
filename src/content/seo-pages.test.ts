@@ -89,7 +89,7 @@ describe("SEO content pages", () => {
       expect(page.faqs.length).toBeGreaterThanOrEqual(2);
       expect(seoPageByPath[page.path]).toBe(page);
       expect(`${page.title} ${page.description} ${page.heading} ${page.intro}`)
-        .not.toContain("Buy a eSim2you");
+        .not.toContain("Buy a eSIM2you");
     }
   });
 

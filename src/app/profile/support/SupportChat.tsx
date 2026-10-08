@@ -179,7 +179,7 @@ export function SupportChat() {
             <MessageCircle aria-hidden="true" size={18} />
           </span>
           <div>
-            <p className="text-sm font-black text-brandInk">eSim2you support</p>
+            <p className="text-sm font-black text-brandInk">eSIM2you support</p>
             <p className="text-xs text-onSurfaceVariant">We usually reply within one business day.</p>
           </div>
         </div>

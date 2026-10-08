@@ -188,7 +188,7 @@ export function ReviewComposer({ heading, subheading, airaloOrderId, onlyWhenWri
         </div>
       ) : phase.kind === "already-sent" ? (
         <p className="text-sm text-onSurfaceVariant" id="review-heading">
-          Thanks, your review is {phase.status === "approved" ? "live on eSim2you.com" : "waiting for a quick check"}.
+          Thanks, your review is {phase.status === "approved" ? "live on eSIM2you.com" : "waiting for a quick check"}.
         </p>
       ) : phase.kind === "limit-reached" ? (
         <p className="text-sm text-onSurfaceVariant" id="review-heading">
@@ -277,7 +277,7 @@ export function ReviewComposer({ heading, subheading, airaloOrderId, onlyWhenWri
 
               <label className="mt-4 flex min-h-11 items-center gap-3 text-sm text-onSurface">
                 <input checked={consent} className="h-5 w-5 accent-brandBlue" onChange={(event) => setConsent(event.target.checked)} type="checkbox" />
-                Show my review on eSim2you.com
+                Show my review on eSIM2you.com
               </label>
             </>
           ) : null}

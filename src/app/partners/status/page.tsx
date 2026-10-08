@@ -12,8 +12,8 @@ import { partnerShellItems } from "../partnerShellItems";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/status",
-  title: "Partner status | eSim2you",
-  description: "Check the status of your eSim2you partner request.",
+  title: "Partner status | eSIM2you",
+  description: "Check the status of your eSIM2you partner request.",
   indexable: false
 });
 
@@ -108,7 +108,7 @@ export default async function PartnerStatusPage() {
                 You haven&apos;t applied yet
               </p>
               <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-                Apply to the eSim2you partner program to start earning commission on referred
+                Apply to the eSIM2you partner program to start earning commission on referred
                 bookings.
               </p>
               <LinkButton className="mt-7" href="/partners/request">

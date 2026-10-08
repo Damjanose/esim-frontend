@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xnotificationy",
-  title: "Push Notifications | eSim2you",
-  description: "Private eSim2you broadcast notification admin surface.",
+  title: "Push Notifications | eSIM2you",
+  description: "Private eSIM2you broadcast notification admin surface.",
   indexable: false
 });
 

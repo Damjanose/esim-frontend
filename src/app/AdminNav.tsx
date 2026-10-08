@@ -45,7 +45,7 @@ export function AdminNav() {
   return (
     <nav className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-6 border-b border-mist bg-gradient-to-r from-midnight to-ink px-6 py-0">
       <Link aria-label="Home" className="shrink-0" href="/" title="Home">
-        <img alt="eSim2you app logo" className="h-8 w-8 rounded-[10px] object-contain shadow-glow" src="/logo-icon.png" />
+        <img alt="eSIM2you app logo" className="h-8 w-8 rounded-[10px] object-contain shadow-glow" src="/logo-icon.png" />
       </Link>
 
       <div className="flex flex-1 items-center gap-1 overflow-x-auto">

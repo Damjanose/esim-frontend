@@ -7,7 +7,7 @@ import { SiteFooter } from "../../SiteFooter";
 
 export const metadata: Metadata = createMetadata({
   path: "/checkout/failed",
-  title: "Payment problem | eSim2you",
+  title: "Payment problem | eSIM2you",
   description: "We could not complete your eSIM purchase.",
   indexable: false
 });

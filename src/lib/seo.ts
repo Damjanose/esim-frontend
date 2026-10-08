@@ -7,11 +7,17 @@ import { siteUrl } from "@/lib/site-host";
 
 export { siteUrl };
 export const siteName = "eSIM2you";
-// How people actually type the brand. Google's site-name system reads
-// WebSite.alternateName, and without it a search for "esim2you" gets
-// "did you mean" corrected toward the similarly named eSIM2Me.
-export const siteAlternateNames = ["eSim2you", "esim2you", "eSIM 2 You", "eSIM to you"];
+// The brand is spelled "eSIM2you" everywhere. The only alternate is the
+// lowercase form people type into search, which Google's site-name system
+// reads from WebSite.alternateName. Without it a search for "esim2you" gets
+// "did you mean" corrected toward the similarly named eSIM2Me. Don't add
+// spaced or reworded variants: they dilute the one spelling.
+export const siteAlternateNames = ["esim2you"];
 export const supportEmail = "esim2you@uplisoft.com";
+// The one-sentence brand description: reuse it verbatim in schema, the About
+// page and outreach copy (docs/brand-outreach-kit.md) so every mention matches.
+export const brandDescription =
+  "eSIM2you is a travel eSIM provider offering prepaid mobile data plans in 200+ destinations, bought and installed from the eSIM2you app or website.";
 // Bump this whenever public/og/esim2you-og.png changes so link-preview
 // crawlers (iMessage, WhatsApp, Slack, Facebook, LinkedIn, X) fetch the
 // new image instead of serving a stale cached copy of the old URL.
@@ -20,7 +26,7 @@ export const ogImage = {
   url: `${siteUrl}/og/esim2you-og.png?v=${ogImageVersion}`,
   width: 1200,
   height: 630,
-  alt: "eSim2you: easy setup, instant connection. Travel eSIM for 200+ destinations."
+  alt: "eSIM2you: easy setup, instant connection. Travel eSIM for 200+ destinations."
 };
 export const appLogoUrl = `${siteUrl}/app-logo.png`;
 
@@ -127,18 +133,36 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/trip-plan",
     url: `${siteUrl}/trip-plan`,
-    title: "AI Trip Planner: Day-by-Day Itineraries | eSim2you",
+    title: "AI Trip Planner: Day-by-Day Itineraries | eSIM2you",
     description:
       "Tell us where you're going and for how long. Get a day-by-day travel itinerary with timed stops, transport tips and practical notes, then download it as a PDF.",
     changeFrequency: "monthly",
     priority: 0.7
   },
   {
+    path: "/about",
+    url: `${siteUrl}/about`,
+    title: "About eSIM2you | Travel eSIM Data for 200+ Destinations",
+    description:
+      "eSIM2you is a travel eSIM provider: prepaid mobile data in 200+ destinations, bought and installed from the eSIM2you app or website.",
+    changeFrequency: "monthly",
+    priority: 0.6
+  },
+  {
+    path: "/contact",
+    url: `${siteUrl}/contact`,
+    title: "Contact eSIM2you | Support Email and Chat",
+    description:
+      "Contact eSIM2you by email or in-app chat for help with eSIM setup, orders, top-ups and refunds, or to partner with us.",
+    changeFrequency: "monthly",
+    priority: 0.5
+  },
+  {
     path: "/support",
     url: `${siteUrl}/support`,
     title: "Support Center | eSIM2you",
     description:
-      "Get help with eSim2you app sign-in, Pokpay checkout, QR or manual eSIM setup, remaining data, top-ups, refunds, and connection troubleshooting.",
+      "Get help with eSIM2you app sign-in, Pokpay checkout, QR or manual eSIM setup, remaining data, top-ups, refunds, and connection troubleshooting.",
     changeFrequency: "monthly",
     priority: 0.6
   },
@@ -250,6 +274,14 @@ export function createLandingJsonLd(reviews: SiteReview[] = siteReviews) {
         url: `${siteUrl}/`,
         email: supportEmail,
         logo: appLogoUrl,
+        description: brandDescription,
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          email: supportEmail,
+          url: `${siteUrl}/contact`,
+          availableLanguage: ["en"]
+        },
         sameAs: [
           socialLinks.instagram,
           socialLinks.facebook,
@@ -302,12 +334,14 @@ export function createWebPageJsonLd({
   path,
   name,
   description,
-  breadcrumbName
+  breadcrumbName,
+  pageType = "WebPage"
 }: {
-  path: "/policy" | "/support" | "/terms" | "/trip-plan";
+  path: "/about" | "/contact" | "/policy" | "/support" | "/terms" | "/trip-plan";
   name: string;
   description: string;
   breadcrumbName: string;
+  pageType?: "WebPage" | "AboutPage" | "ContactPage";
 }) {
   const url = absoluteUrl(path);
 
@@ -315,12 +349,15 @@ export function createWebPageJsonLd({
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "WebPage",
+        "@type": pageType,
         "@id": `${url}#webpage`,
         url,
         name,
         description,
         isPartOf: { "@id": `${siteUrl}/#website` },
+        // About and Contact pages describe the brand itself: tie them to the
+        // Organization node so Google reads them as the entity's own pages.
+        ...(pageType === "WebPage" ? {} : { about: { "@id": `${siteUrl}/#organization` } }),
         inLanguage: "en"
       },
       {

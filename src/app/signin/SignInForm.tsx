@@ -113,7 +113,7 @@ export function SignInForm() {
             ? "Sign in to continue your purchase"
             : isReview
               ? "Sign in to post your review"
-              : "Sign in to eSim2you"
+              : "Sign in to eSIM2you"
           : "Enter your code"}
       </h1>
 

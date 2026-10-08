@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createMetadata({
   path: "/xtestimonialsy",
-  title: "Testimonials | eSim2you",
-  description: "Private eSim2you testimonial moderation.",
+  title: "Testimonials | eSIM2you",
+  description: "Private eSIM2you testimonial moderation.",
   indexable: false
 });
 

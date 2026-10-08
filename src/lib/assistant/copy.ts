@@ -6,7 +6,7 @@
  * only where it names an app-only screen.
  */
 const COPY: Record<string, string> = {
-  "assistant.title": "eSim2you AI",
+  "assistant.title": "eSIM2you AI",
   "assistant.open": "Open AI assistant",
   "assistant.close": "Close",
   "assistant.placeholder": "Say hi or ask about your trip…",
@@ -25,16 +25,16 @@ const COPY: Record<string, string> = {
   "assistant.subtitle.profile": "Tips for your account",
 
   "assistant.greeting.marketplace":
-    "Hello, I'm the eSim2you AI assistant 👋 Tell me where and how long you're travelling, and I'll filter the plans for you.",
+    "Hello, I'm the eSIM2you AI assistant 👋 Tell me where and how long you're travelling, and I'll filter the plans for you.",
   "assistant.greeting.marketplaceGuest":
-    "Hello, I'm the eSim2you AI assistant 👋 I can help you find the right eSIM. Create a free account to buy plans, track your eSIMs and plan trips.",
+    "Hello, I'm the eSIM2you AI assistant 👋 I can help you find the right eSIM. Create a free account to buy plans, track your eSIMs and plan trips.",
   "assistant.greeting.esims":
-    "Hello, I'm the eSim2you AI assistant 👋 Want to top up, or shall I suggest where to go next?",
+    "Hello, I'm the eSIM2you AI assistant 👋 Want to top up, or shall I suggest where to go next?",
   "assistant.greeting.esimsEmpty":
-    "Hello, I'm the eSim2you AI assistant 👋 No eSIMs yet. Tell me where you're dreaming of going.",
-  "assistant.greeting.profile": "Hello, I'm the eSim2you AI assistant 👋 Here are a few things I can help with.",
+    "Hello, I'm the eSIM2you AI assistant 👋 No eSIMs yet. Tell me where you're dreaming of going.",
+  "assistant.greeting.profile": "Hello, I'm the eSIM2you AI assistant 👋 Here are a few things I can help with.",
   "assistant.greeting.profileLive":
-    "Hello, I'm the eSim2you AI assistant 👋 Your eSIM is ready. Let's plan your trip!",
+    "Hello, I'm the eSIM2you AI assistant 👋 Your eSIM is ready. Let's plan your trip!",
 
   "assistant.error.rate_limited": "You're sending messages quickly. Try again in a few minutes.",
   "assistant.error.unavailable": "The assistant isn't available right now.",

@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   createContentPageJsonLd,
@@ -97,8 +98,8 @@ describe("SEO route contract", () => {
   it("marks hidden app/admin pages as noindex and noarchive", () => {
     const metadata = createMetadata({
       path: "/xloginy",
-      title: "Admin | eSim2you",
-      description: "Private eSim2you admin surface.",
+      title: "Admin | eSIM2you",
+      description: "Private eSIM2you admin surface.",
       indexable: false
     });
 
@@ -118,7 +119,7 @@ describe("SEO route contract", () => {
     const schema = createWebPageJsonLd({
       path: "/terms",
       name: "Terms of Service",
-      description: "Terms of Service for eSim2you travelers and app users.",
+      description: "Terms of Service for eSIM2you travelers and app users.",
       breadcrumbName: "Terms"
     });
 
@@ -179,7 +180,8 @@ describe("SEO route contract", () => {
     // Without alternateName, a search for "esim2you" is corrected toward eSIM2Me.
     expect(website).toMatchObject({ alternateName: expect.arrayContaining(["esim2you"]) });
     expect(organization).toMatchObject({
-      alternateName: expect.arrayContaining(["eSim2you", "esim2you"]),
+      name: "eSIM2you",
+      alternateName: ["esim2you"],
       sameAs: expect.arrayContaining([
         "https://www.instagram.com/esim2you",
         "https://apps.apple.com/app/id6768258284",
@@ -263,7 +265,7 @@ describe("SEO route contract", () => {
     const schema = createContentPageJsonLd({
       path: "/destinations",
       name: "Travel eSIM Destinations",
-      description: "Browse eSim2you travel data destinations.",
+      description: "Browse eSIM2you travel data destinations.",
       breadcrumbName: "Destinations"
     });
 
@@ -326,5 +328,52 @@ describe("SEO route contract", () => {
     expect(compareSlug).not.toMatch(/offer: offer/);
     expect(compareSlug).toContain("article: { dateModified: contentUpdatedAt(page.path) }");
     expect(travelSlug).toContain("<SeoContentPageView asArticle");
+  });
+
+  it("publishes /about and /contact as brand pages tied to the Organization", () => {
+    const paths = indexableRoutes.map((route) => route.path);
+    expect(paths).toEqual(expect.arrayContaining(["/about", "/contact"]));
+
+    const about = createWebPageJsonLd({
+      path: "/about",
+      name: "About eSIM2you",
+      description: "About",
+      breadcrumbName: "About",
+      pageType: "AboutPage"
+    })["@graph"][0];
+    expect(about).toMatchObject({
+      "@type": "AboutPage",
+      about: { "@id": "https://esim.uplisoft.com/#organization" }
+    });
+
+    const plain = createWebPageJsonLd({
+      path: "/terms",
+      name: "Terms",
+      description: "Terms",
+      breadcrumbName: "Terms"
+    })["@graph"][0];
+    expect(plain["@type"]).toBe("WebPage");
+    expect(plain).not.toHaveProperty("about");
+  });
+});
+
+describe("brand spelling", () => {
+  // One spelling everywhere (titles, H1s, schema, footer, alt text), so Google
+  // sees a single entity name instead of variants close to "eSIM2Me".
+  const offVariants = /eSim2you|ESIM2you(?!\/61593159061406)|eSIM2You|eSIM 2 You|Esim2you/;
+
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir).flatMap((name) => {
+      const path = join(dir, name);
+      if (statSync(path).isDirectory()) return sourceFiles(path);
+      return /\.(tsx?|txt|json)$/.test(name) && !/\.test\.tsx?$/.test(name) ? [path] : [];
+    });
+  }
+
+  it("spells the brand eSIM2you in every public source file", () => {
+    const offenders = [...sourceFiles("src"), ...sourceFiles("public")].filter((file) =>
+      offVariants.test(readFileSync(file, "utf8"))
+    );
+    expect(offenders).toEqual([]);
   });
 });

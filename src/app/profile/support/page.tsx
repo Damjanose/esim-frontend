@@ -11,8 +11,8 @@ import { SupportChat } from "./SupportChat";
 
 export const metadata: Metadata = createMetadata({
   path: "/profile/support",
-  title: "Chat with support | eSim2you",
-  description: "Message the eSim2you support team about your eSIM, order, or payment.",
+  title: "Chat with support | eSIM2you",
+  description: "Message the eSIM2you support team about your eSIM, order, or payment.",
   indexable: false
 });
 
@@ -38,7 +38,7 @@ export default function SupportChatPage() {
               Chat with support
             </h1>
             <p className="mt-1 px-1 text-sm text-onSurfaceVariant">
-              The same conversation you see in the eSim2you app.
+              The same conversation you see in the eSIM2you app.
             </p>
 
             <SupportChat />

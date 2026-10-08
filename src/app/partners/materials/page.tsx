@@ -16,7 +16,7 @@ import { QrCodeCard } from "../dashboard/QrCodeCard";
 
 export const metadata: Metadata = createMetadata({
   path: "/partners/materials",
-  title: "Promo materials | eSim2you",
+  title: "Promo materials | eSIM2you",
   description: "Download promo templates and share your QR code and referral link.",
   indexable: false
 });
@@ -135,7 +135,7 @@ export default async function PartnerMaterialsPage() {
                 You haven&apos;t applied yet
               </p>
               <p className="mt-2 max-w-[380px] text-sm text-onSurfaceVariant">
-                Apply to the eSim2you partner program to start earning commission on referred
+                Apply to the eSIM2you partner program to start earning commission on referred
                 bookings.
               </p>
               <LinkButton className="mt-7" href="/partners/request">

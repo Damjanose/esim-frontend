@@ -224,7 +224,7 @@ export function CardStep({
       </div>
 
       <p className="mt-4 text-center text-xs text-onSurfaceVariant">
-        Your card is encrypted on this device before it is sent. eSim2you never sees your card details.
+        Your card is encrypted on this device before it is sent. eSIM2you never sees your card details.
       </p>
     </div>
   );

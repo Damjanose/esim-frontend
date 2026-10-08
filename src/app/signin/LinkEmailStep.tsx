@@ -104,7 +104,7 @@ export function LinkEmailStep({
 
       <p className="mt-2 text-center text-sm leading-6 text-onSurfaceVariant">
         {step === "email"
-          ? "Almost there. Tell us the email address for your eSim2you account and we'll send a 6-digit code to confirm it."
+          ? "Almost there. Tell us the email address for your eSIM2you account and we'll send a 6-digit code to confirm it."
           : `We sent a 6-digit code to ${email}.`}
       </p>
 
