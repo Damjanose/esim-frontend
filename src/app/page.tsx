@@ -34,9 +34,9 @@ const installationSteps = [
 
 export const metadata: Metadata = createMetadata({
   path: "/",
-  title: "eSIM2you | Travel Data for 200+ Destinations",
+  title: "eSIM2you: Travel eSIMs for 200+ Destinations",
   description:
-    "Buy a digital eSIM for 200+ destinations with instant activation and high-speed data. No physical SIM or roaming fees — set up in minutes before you travel."
+    "Stay connected abroad with eSIM2you. Compare prepaid travel eSIM data plans for 200+ destinations, install before you fly and skip roaming fees."
 });
 
 export default async function Home() {
@@ -121,12 +121,12 @@ function Hero() {
           <div className="relative mx-auto grid max-w-[1240px] gap-10 px-5 pb-8 pt-[184px] sm:pt-[240px] md:px-8 md:pt-[300px] lg:px-12 lg:pb-14 lg:pt-[148px]">
             <div className="min-w-0 max-w-[760px]">
               <h1 className="font-display text-[30px] font-black leading-[1.05] tracking-[-0.04em] text-white text-balance sm:text-[48px] lg:text-[60px] xl:text-[68px]">
-                Your phone works the minute you land.
+                eSIM2you: travel eSIMs for 200+ destinations
               </h1>
 
               <p className="mt-3 max-w-[520px] text-sm leading-6 text-white/80 sm:mt-4 sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
-                Data plans for 200+ countries. Install the eSIM before you go
-                and skip the roaming bill.
+                Your phone works the minute you land. Install the eSIM before
+                you go and skip the roaming bill.
               </p>
 
               <div className="mt-5 flex w-full max-w-[620px] items-start gap-2.5 text-onSurface sm:mt-6 lg:mt-8">

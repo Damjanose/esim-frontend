@@ -33,7 +33,7 @@ const bingSiteVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 // they would stamp the homepage canonical (and index, follow) onto every 404.
 const { alternates: _alternates, robots: _robots, ...siteDefaults } = createMetadata({
   path: "/",
-  title: "eSIM2you | Travel Data for 200+ Destinations",
+  title: "eSIM2you: Travel eSIMs for 200+ Destinations",
   description:
     "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
 });

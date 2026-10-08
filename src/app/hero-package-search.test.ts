@@ -77,7 +77,9 @@ describe("HeroPackageSearch", () => {
       pageSource.indexOf("function HowItWorks()"),
     );
 
-    // One-colour H1, no eyebrow pill, no fake "Your eSIM" preview card, no chips.
+    // One-colour, brand-led H1 (branded search + entity: the H1 names the
+    // brand and what it sells), no eyebrow pill, no fake preview card, no chips.
+    expect(hero).toContain("eSIM2you: travel eSIMs for 200+ destinations");
     expect(hero).toContain("Your phone works the minute you land.");
     expect(hero).not.toContain("text-brandTeal");
     expect(hero).not.toContain("eSIM preview");
