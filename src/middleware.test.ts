@@ -52,6 +52,18 @@ describe("middleware redirects behind a reverse proxy", () => {
     expect(response.headers.get("location")).toBe("https://esim.uplisoft.com/");
   });
 
+  it.each(["esim2you.com", "www.esim2you.com"])(
+    "folds the brand domain %s into the canonical host, keeping path and query",
+    (host) => {
+      const response = middleware(
+        proxied("/esim/usa?days=7", { host, "x-forwarded-host": host, "x-forwarded-proto": "http" })
+      );
+
+      expect(response.status).toBe(308);
+      expect(response.headers.get("location")).toBe("https://esim.uplisoft.com/esim/usa?days=7");
+    }
+  );
+
   it("upgrades a proxied plain-http request to https on the canonical host", () => {
     const response = middleware(proxied("/support", { "x-forwarded-proto": "http" }));
 

@@ -8,7 +8,8 @@
 // directly, so the pinged URLs always match exactly what's actually being
 // served and this script needs no TypeScript build step.
 
-const SITE_URL = "https://esim.uplisoft.com";
+// Same override as src/lib/site-host.ts, so a domain move pings the new host.
+const SITE_URL = `https://${process.env.NEXT_PUBLIC_SITE_HOST?.trim() || "esim.uplisoft.com"}`;
 const INDEXNOW_KEY = "f0cff59a140c9ed46080afdc578bf9f7";
 // Yandex accepts this host's key file. api.indexnow.org is Bing's gateway and
 // returns 403 UserForbiddedToAccessSite when the Bing Webmaster property was
@@ -75,7 +76,7 @@ async function main() {
     console.error(
       "Bing refused this IndexNow key. The key file is already public at " +
         `${SITE_URL}/${INDEXNOW_KEY}.txt. In Bing Webmaster Tools, remove the ` +
-        "Google Search Console import for esim.uplisoft.com and verify the site " +
+        `Google Search Console import for ${new URL(SITE_URL).host} and verify the site ` +
         "with Bing's own XML file, then run pnpm run indexnow again."
     );
   }

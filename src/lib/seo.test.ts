@@ -171,6 +171,23 @@ describe("SEO route contract", () => {
     expect(softwareApplication).not.toHaveProperty("aggregateRating");
   });
 
+  it("names the brand spellings and app listings on Organization and WebSite schema", () => {
+    const graph = createLandingJsonLd()["@graph"];
+    const organization = graph.find((entry) => entry["@type"] === "Organization");
+    const website = graph.find((entry) => entry["@type"] === "WebSite");
+
+    // Without alternateName, a search for "esim2you" is corrected toward eSIM2Me.
+    expect(website).toMatchObject({ alternateName: expect.arrayContaining(["esim2you"]) });
+    expect(organization).toMatchObject({
+      alternateName: expect.arrayContaining(["eSim2you", "esim2you"]),
+      sameAs: expect.arrayContaining([
+        "https://www.instagram.com/esim2you",
+        "https://apps.apple.com/app/id6768258284",
+        "https://play.google.com/store/apps/details?id=com.uplisoft.velocityesim"
+      ])
+    });
+  });
+
   it("does not turn homepage testimonials into review schema", () => {
     const home = readFileSync("src/app/page.tsx", "utf8");
     expect(home).toContain("<JsonLd data={createLandingJsonLd()} />");

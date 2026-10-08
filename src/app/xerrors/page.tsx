@@ -5,6 +5,7 @@ import { RefreshCw, LogOut } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
+import { siteUrl } from "@/lib/site-host";
 
 type ErrorEvent = {
   id: string;
@@ -95,7 +96,7 @@ function requestBodyForCurl(error: ErrorEvent) {
 
 function buildSafeCurl(error: ErrorEvent) {
   const lines = [
-    `curl -X ${error.method} "https://esim.uplisoft.com${error.path}"`,
+    `curl -X ${error.method} "${siteUrl}${error.path}"`,
     `  -H "Content-Type: application/json"`,
     `  -H "${authorizationHeaderForCurl(error)}"`
   ];

@@ -4,9 +4,7 @@ import { getPublicOrigin } from "@/lib/public-origin";
 import { isNoindexPath, noindexHeaderValue } from "@/lib/robots-policy";
 import { guardedRedirect } from "@/lib/route-guard";
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/session";
-
-const canonicalHost = "esim.uplisoft.com";
-const wwwHost = `www.${canonicalHost}`;
+import { aliasHosts, canonicalHost } from "@/lib/site-host";
 
 // Public content slugs are lowercase; /esim/Japan should land on /esim/japan
 // instead of a 404. /esim/id/<esimId> is a private id and keeps its case.
@@ -28,7 +26,10 @@ export function middleware(request: NextRequest) {
   );
   let shouldRedirect = false;
 
-  if (url.hostname === wwwHost) {
+  // www, the old host after a domain move, and brand domains (esim2you.com)
+  // all fold into one host, so search engines only ever index one copy.
+  if (aliasHosts.includes(url.hostname)) {
+    url.protocol = "https:";
     url.hostname = canonicalHost;
     url.port = "";
     shouldRedirect = true;
@@ -91,6 +92,8 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|og/|bff/|images/|lottie/|manifest\\.json|logo-icon\\.png|app-logo\\.png).*)"
+    // .well-known stays out: Apple and Android fetch app-link files on the
+    // exact host they verify and reject a redirect.
+    "/((?!_next/static|_next/image|favicon.ico|og/|bff/|images/|lottie/|\\.well-known/|manifest\\.json|logo-icon\\.png|app-logo\\.png).*)"
   ]
 };

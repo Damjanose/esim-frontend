@@ -3,9 +3,14 @@ import { comparePages } from "@/content/compare-pages";
 import { landingContent } from "@/content/landing";
 import { publicSeoPages, type SeoPageFaq } from "@/content/seo-pages";
 import { siteReviewStats, siteReviews, type SiteReview, type SiteReviewStats } from "@/content/reviews";
+import { siteUrl } from "@/lib/site-host";
 
-export const siteUrl = "https://esim.uplisoft.com";
+export { siteUrl };
 export const siteName = "eSIM2you";
+// How people actually type the brand. Google's site-name system reads
+// WebSite.alternateName, and without it a search for "esim2you" gets
+// "did you mean" corrected toward the similarly named eSIM2Me.
+export const siteAlternateNames = ["eSim2you", "esim2you", "eSIM 2 You", "eSIM to you"];
 export const supportEmail = "esim2you@uplisoft.com";
 // Bump this whenever public/og/esim2you-og.png changes so link-preview
 // crawlers (iMessage, WhatsApp, Slack, Facebook, LinkedIn, X) fetch the
@@ -241,16 +246,23 @@ export function createLandingJsonLd(reviews: SiteReview[] = siteReviews) {
         "@type": "Organization",
         "@id": `${siteUrl}/#organization`,
         name: siteName,
+        alternateName: siteAlternateNames,
         url: `${siteUrl}/`,
         email: supportEmail,
         logo: appLogoUrl,
-        sameAs: [socialLinks.instagram, socialLinks.facebook]
+        sameAs: [
+          socialLinks.instagram,
+          socialLinks.facebook,
+          landingContent.appLinks.ios.href,
+          landingContent.appLinks.android.href
+        ]
       },
       {
         "@type": "WebSite",
         "@id": `${siteUrl}/#website`,
         url: `${siteUrl}/`,
         name: siteName,
+        alternateName: siteAlternateNames,
         publisher: { "@id": `${siteUrl}/#organization` },
         inLanguage: "en"
       },

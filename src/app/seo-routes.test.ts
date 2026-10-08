@@ -113,8 +113,9 @@ describe("Next SEO routes", () => {
 
     const middlewareSource = readFileSync("src/middleware.ts", "utf8");
 
-    expect(middlewareSource).toContain('const canonicalHost = "esim.uplisoft.com"');
-    expect(middlewareSource).toContain('const wwwHost = `www.${canonicalHost}`');
+    // Host values live in src/lib/site-host.ts (covered by site-host.test.ts).
+    expect(middlewareSource).toContain('from "@/lib/site-host"');
+    expect(middlewareSource).toContain("aliasHosts.includes(url.hostname)");
     expect(middlewareSource).toContain("getPublicOrigin(request)");
     expect(middlewareSource).toContain('url.protocol = "https:"');
     expect(middlewareSource).toContain('url.pathname.replace(/\\/+$/, "")');
