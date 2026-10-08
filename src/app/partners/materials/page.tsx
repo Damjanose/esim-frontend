@@ -96,12 +96,13 @@ export default async function PartnerMaterialsPage() {
   const result = await fetchForPage<Partner>("/partners/me", "/partners/materials");
 
   let referralLink: string | null = null;
+  let origin: string | null = null;
   if (result.ok && result.data.promoCode) {
     // getPublicOrigin reads x-forwarded-host/-proto off a Request, which route
     // handlers get for free but a Server Component doesn't — headers() gives
     // the same forwarded headers, so a throwaway Request just carries them.
     const requestHeaders = await headers();
-    const origin = getPublicOrigin(new Request("http://placeholder", { headers: requestHeaders }));
+    origin = getPublicOrigin(new Request("http://placeholder", { headers: requestHeaders }));
     referralLink = `${origin}/?promo=${encodeURIComponent(result.data.promoCode)}`;
   }
 
@@ -149,7 +150,7 @@ export default async function PartnerMaterialsPage() {
               <p className="mt-1 text-sm text-error">{result.message}</p>
             </div>
           ) : (
-            <MaterialsContent partner={result.data} referralLink={referralLink} />
+            <MaterialsContent origin={origin} partner={result.data} referralLink={referralLink} />
           )}
         </AccountShell>
       </div>
@@ -159,7 +160,15 @@ export default async function PartnerMaterialsPage() {
   );
 }
 
-function MaterialsContent({ partner, referralLink }: { partner: Partner; referralLink: string | null }) {
+function MaterialsContent({
+  origin,
+  partner,
+  referralLink
+}: {
+  origin: string | null;
+  partner: Partner;
+  referralLink: string | null;
+}) {
   return (
     <div className="mt-6 space-y-4 lg:mt-8 lg:space-y-5">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-5">
@@ -190,6 +199,8 @@ function MaterialsContent({ partner, referralLink }: { partner: Partner; referra
         {referralLink ? <QrCodeCard label="Scan to open your referral link" value={referralLink} /> : null}
       </div>
 
+      {referralLink && origin ? <WebsiteLinkCard origin={origin} referralLink={referralLink} /> : null}
+
       <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
         <h2 className="font-display text-xl font-black text-brandInk">Templates</h2>
         <p className="mt-2 text-sm text-onSurfaceVariant">
@@ -202,6 +213,34 @@ function MaterialsContent({ partner, referralLink }: { partner: Partner; referra
             <MaterialCard key={material.href} material={material} />
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Referral links pay commission, so Google treats them as paid links: they must
+// carry rel=sponsored (https://developers.google.com/search/docs/crawling-indexing/qualify-outbound-links).
+// They still bring visitors and brand mentions, so keep the attribute in both snippets.
+function WebsiteLinkCard({ origin, referralLink }: { origin: string; referralLink: string }) {
+  const textSnippet = `<a href="${referralLink}" rel="sponsored">eSIM2you travel eSIM</a>`;
+  const badgeSnippet = `<a href="${referralLink}" rel="sponsored"><img src="${origin}/badges/esim2you-badge.svg" alt="Get your travel eSIM with eSIM2you" width="220" height="56"></a>`;
+
+  return (
+    <div className="rounded-[18px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6">
+      <h2 className="font-display text-xl font-black text-brandInk">Link from your website</h2>
+      <p className="mt-2 text-sm text-onSurfaceVariant">
+        Have a blog, travel site or booking page? Paste one of these into its HTML. Both use your referral link, so
+        bookings through them count toward your commission.
+      </p>
+
+      <div className="mt-5 flex items-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element -- previewing the exact file partners embed */}
+        <img alt="Get your travel eSIM with eSIM2you" height={56} src="/badges/esim2you-badge.svg" width={220} />
+      </div>
+
+      <div className="mt-5 grid gap-3">
+        <CopyField label="Badge (HTML)" value={badgeSnippet} />
+        <CopyField label="Text link (HTML)" value={textSnippet} />
       </div>
     </div>
   );

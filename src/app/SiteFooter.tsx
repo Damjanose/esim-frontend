@@ -25,6 +25,7 @@ const footerGuideLabels: Record<string, string> = {
 const footerExploreLinks = [
   { label: "Browse all eSIM destinations", href: "/destinations" },
   { label: "Compare travel eSIMs", href: "/compare" },
+  { label: "Travel eSIM price index", href: "/esim-price-index" },
   { label: "Travel eSIM guides", href: "/travel" },
   { label: "AI trip planner", href: "/trip-plan" },
   ...useCasePages.map((page) => ({
@@ -40,6 +41,7 @@ const footerCompanyLinks = [
   { label: "About eSIM2you", href: "/about" },
   { label: "eSIM2you support", href: "/support" },
   { label: "Contact eSIM2you", href: "/contact" },
+  { label: "eSIM2you press kit", href: "/press" },
   { label: "Partner with eSIM2you", href: "/partners/request" },
   { label: "eSIM2you privacy policy", href: "/policy" },
   { label: "eSIM2you terms", href: "/terms" }

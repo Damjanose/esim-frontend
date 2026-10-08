@@ -24,6 +24,9 @@ const byPath: Record<string, string> = {
   // Brand pages launched.
   "/about": "2026-10-08",
   "/contact": "2026-10-08",
+  // Link-earning pages launched.
+  "/esim-price-index": "2026-10-08",
+  "/press": "2026-10-08",
   // Intros now name eSIM2you.
   "/esim/netherlands": "2026-10-08",
   "/esim/austria": "2026-10-08",

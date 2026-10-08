@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getBackendApiUrl } from "./backend";
-import { backendCountryCode } from "./esim-routes";
+import { backendCountryCode, destinationDisplay } from "./esim-routes";
 
 export type DestinationOffer = {
   lowPrice: number;
@@ -61,12 +61,26 @@ type CoverageIndex = Record<string, string[]>;
 /** Code -> the first flag image its packages carry. */
 type FlagIndex = Record<string, string>;
 
+/** The plan with the lowest price per GB, among plans with a known, finite data size. */
+export type BestPerGbPlan = {
+  pricePerGb: number;
+  priceNumeric: number;
+  dataLabel: string;
+  durationLabel: string;
+};
+type BestPerGbIndex = Record<string, BestPerGbPlan>;
+
 type DestinationCatalog = {
   offers: OfferIndex;
   plans: PlanIndex;
   coverage: CoverageIndex;
   flags: FlagIndex;
+  bestPerGb: BestPerGbIndex;
+  /** ISO time the backend catalog was fetched. */
+  fetchedAt: string;
 };
+
+const UNLIMITED_GB = 999;
 
 const OFFER_CURRENCY = "EUR";
 const MAX_PLANS_PER_DESTINATION = 12;
@@ -76,6 +90,7 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
   const plansByCode = new Map<string, DestinationPlanRow[]>();
   const coverageByCode = new Map<string, Set<string>>();
   const flags: FlagIndex = {};
+  const bestPerGb: BestPerGbIndex = {};
 
   for (const pkg of packages) {
     const code = pkg.countryCode?.trim().toLowerCase();
@@ -106,6 +121,18 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
         ? { hasDiscount: true as const, retailPrice: pkg.retailPrice }
         : {})
     };
+
+    if (row.dataNumericGb > 0 && row.dataNumericGb < UNLIMITED_GB) {
+      const pricePerGb = row.priceNumeric / row.dataNumericGb;
+      if (!bestPerGb[code] || pricePerGb < bestPerGb[code].pricePerGb) {
+        bestPerGb[code] = {
+          pricePerGb,
+          priceNumeric: row.priceNumeric,
+          dataLabel: row.dataLabel,
+          durationLabel: row.durationLabel
+        };
+      }
+    }
 
     const flagUri = pkg.flagUri?.trim();
     if (flagUri && !flags[code]) flags[code] = flagUri;
@@ -156,7 +183,11 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
     }
   }
 
-  return { offers, plans, coverage, flags };
+  return { offers, plans, coverage, flags, bestPerGb, fetchedAt: new Date().toISOString() };
+}
+
+function emptyCatalog(): DestinationCatalog {
+  return { offers: {}, plans: {}, coverage: {}, flags: {}, bestPerGb: {}, fetchedAt: new Date().toISOString() };
 }
 
 async function loadCatalog(): Promise<DestinationCatalog> {
@@ -167,13 +198,13 @@ async function loadCatalog(): Promise<DestinationCatalog> {
     });
 
     if (!response.ok) {
-      return { offers: {}, plans: {}, coverage: {}, flags: {} };
+      return emptyCatalog();
     }
 
     const payload = (await response.json()) as PackagesResponse;
     return catalogFromPackages(payload.data?.packages ?? payload.packages ?? []);
   } catch {
-    return { offers: {}, plans: {}, coverage: {}, flags: {} };
+    return emptyCatalog();
   }
 }
 
@@ -219,4 +250,53 @@ export async function getGlobalOffer(): Promise<DestinationOffer | null> {
     currency: OFFER_CURRENCY,
     offerCount: offers.reduce((sum, offer) => sum + offer.offerCount, 0)
   };
+}
+
+export type PriceIndexRow = {
+  slug: string;
+  name: string;
+  path: string;
+  fromPrice: number;
+  planCount: number;
+  bestPerGb: BestPerGbPlan | null;
+};
+
+/**
+ * One row per /esim/[slug] page with live plans, for the public price index.
+ * Pages that reuse another page's backend region (Balkans uses Europe plans)
+ * are skipped so the same plans aren't listed twice.
+ */
+export async function getPriceIndex(): Promise<{ rows: PriceIndexRow[]; updatedAt: string }> {
+  const catalog = await getCachedCatalog();
+  const seenCodes = new Set<string>();
+  const slugs = Object.keys(destinationDisplay).sort((a, b) => {
+    // Visit slugs that ARE their backend code first, so they win the dedupe.
+    const aOwn = backendCountryCode(a) === a ? 0 : 1;
+    const bOwn = backendCountryCode(b) === b ? 0 : 1;
+    return aOwn - bOwn;
+  });
+
+  const rows: PriceIndexRow[] = [];
+  for (const slug of slugs) {
+    const code = backendCountryCode(slug);
+    const offer = catalog.offers[code];
+    if (!offer || seenCodes.has(code)) continue;
+    seenCodes.add(code);
+    rows.push({
+      slug,
+      name: destinationDisplay[slug].countryName,
+      path: `/esim/${slug}`,
+      fromPrice: offer.lowPrice,
+      planCount: offer.offerCount,
+      // Older cached catalogs predate bestPerGb.
+      bestPerGb: catalog.bestPerGb?.[code] ?? null
+    });
+  }
+
+  rows.sort((a, b) => a.name.localeCompare(b.name));
+  return { rows, updatedAt: catalog.fetchedAt ?? new Date().toISOString() };
+}
+
+export async function getPriceIndexRows(): Promise<PriceIndexRow[]> {
+  return (await getPriceIndex()).rows;
 }

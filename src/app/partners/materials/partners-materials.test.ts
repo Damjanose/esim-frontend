@@ -105,6 +105,15 @@ describe("partner materials page", () => {
     expect(materialsPage).not.toMatch(/%/);
     expect(materialsPage).not.toMatch(/commissionRateBps|commissionPercent|discountPercent/i);
   });
+  it("offers website link snippets that use the referral link and are marked rel=sponsored", () => {
+    expect(materialsPage).toContain("function WebsiteLinkCard");
+    expect(materialsPage).toContain('<CopyField label="Badge (HTML)"');
+    expect(materialsPage).toContain('<CopyField label="Text link (HTML)"');
+    // Commissioned links must be qualified as paid links for Google.
+    expect(materialsPage.match(/rel="sponsored"/g)?.length).toBe(2);
+    expect(materialsPage).toContain("/badges/esim2you-badge.svg");
+    expect(existsSync("public/badges/esim2you-badge.svg")).toBe(true);
+  });
 });
 
 describe("public/partner-materials README", () => {

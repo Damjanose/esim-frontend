@@ -18,6 +18,9 @@ Use this kit for directory listings, guest posts, press, partner pages and socia
 | Instagram | https://www.instagram.com/esim2you |
 | Facebook | https://www.facebook.com/people/ESIM2you/61593159061406/ |
 | Logo | https://esim.uplisoft.com/app-logo.png |
+| Press kit | https://esim.uplisoft.com/press |
+| Price data | https://esim.uplisoft.com/esim-price-index (CSV: /esim-price-index.csv, CC BY 4.0) |
+| Product Hunt | https://www.producthunt.com/products/esim2you |
 
 The one-liner is also `brandDescription` in `src/lib/seo.ts` and appears in the Organization schema. If you change it, change both.
 
@@ -29,6 +32,27 @@ The one-liner is also `brandDescription` in `src/lib/seo.ts` and appears in the 
 4. **Travel blogs and Albanian travel sites**: guest posts on staying online in Albania, the Balkans or the US, linking to the matching `/esim/<country>` page.
 5. **Partners**: the partner program (`/partners/request`) already gives creators a promo code. Ask them to link with "eSIM2you" in the anchor.
 6. **Press**: a short launch or press release on Albanian tech and travel news, using the one-liner.
+
+## Link-earning assets on the site
+
+Backlinks come from giving other sites a reason to cite us. Point every pitch at one of these:
+
+- **`/esim-price-index`**: starting price and lowest price per GB for every destination page, from the live catalog (refreshed hourly), with a CSV download and a CC BY 4.0 "credit us with a link" box. This is the main hook for journalists and bloggers ("data per GB costs 3x more in X than in Y"). Before a pitch, open the page and quote the current numbers. Never quote numbers that aren't on the page.
+- **`/press`**: boilerplate, key facts, logo downloads, ready-made link snippets with the correct anchor, media contact. Link it in every press or blogger email.
+- **Partner badge** (`/partners/materials`, "Link from your website"): an HTML badge or text link carrying the partner's referral code. These are commissioned links, so the snippets carry `rel="sponsored"`, which Google requires for paid and affiliate links. They bring traffic and brand mentions, not PageRank. Never ask partners to remove the attribute.
+
+## Link-building playbook (weekly)
+
+Aim for **2–4 real referring domains per month**. A few relevant editorial links beat dozens of directory links.
+
+1. **Data pitches (highest value).** Each month, take one finding from `/esim-price-index` (cheapest or priciest data per GB, a US vs UK vs Europe comparison) and pitch it to 10 travel writers or newsletters. Use journalist-request platforms (Qwoted, Featured.com, Help a Reporter / HARO successors, SourceBottle) and answer travel-connectivity and roaming questions with a quote plus a link to the index.
+2. **Listicle inclusion.** Search "best eSIM for USA/UK/Europe", "best travel eSIM 2026", "Airalo alternatives". For every article that doesn't list us, send the factual-update email in `docs/ai-search-outreach.md`. Many of these are affiliate sites, so a partner-program invite (commission + sponsored link) is a fair offer to include.
+3. **Travel creators via the partner program.** Invite bloggers and YouTubers in the US, UK and Europe markets to `/partners/request`. Their review posts (an editorial link) usually link the homepage or a country page, and the badge adds a sponsored link.
+4. **Profiles and directories (one-time, brand signal).** AlternativeTo (as an alternative to Airalo, Holafly and Nomad), Crunchbase, F6S, LinkedIn company page, Trustpilot, G2 if a category fits. Add every live profile to `brandProfileLinks` in `src/lib/seo.ts` so it joins Organization `sameAs`.
+5. **Community answers.** Reddit (r/travel, r/digitalnomad, r/solotravel, r/eSIMs) and travel Stack Exchange: answer setup or "which eSIM" questions with real help first. Link a guide only when it answers the question. These links are nofollow, but they drive brand mentions that AI search reads.
+6. **Unlinked mentions.** Monthly, search `"eSIM2you" -site:uplisoft.com`. Ask any page that names us without a link to add one.
+
+Never buy links, join link exchanges or PBNs, or mass-submit to directories. Never ask for anchors like "best eSIM for Albania". Log every live link (URL, date, anchor, follow/sponsored) in the outreach tracker.
 
 ## Anchor text
 

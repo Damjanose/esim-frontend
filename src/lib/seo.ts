@@ -34,6 +34,12 @@ export const socialLinks = {
   instagram: "https://www.instagram.com/esim2you",
   facebook: "https://www.facebook.com/people/ESIM2you/61593159061406/"
 };
+// Third-party profiles that describe eSIM2you. They go in Organization sameAs
+// so Google and AI search tie mentions on those sites to this entity. Only list
+// profiles that exist and use this exact name and website.
+export const brandProfileLinks = {
+  productHunt: "https://www.producthunt.com/products/esim2you"
+};
 
 export const privateRoutePrefixes = [
   "/api",
@@ -138,6 +144,24 @@ export const indexableRoutes: IndexableRoute[] = [
       "Tell us where you're going and for how long. Get a day-by-day travel itinerary with timed stops, transport tips and practical notes, then download it as a PDF.",
     changeFrequency: "monthly",
     priority: 0.7
+  },
+  {
+    path: "/esim-price-index",
+    url: `${siteUrl}/esim-price-index`,
+    title: "Travel eSIM Price Index: Cost per GB by Country | eSIM2you",
+    description:
+      "What a prepaid travel eSIM costs in each destination: starting price and lowest price per GB from live eSIM2you plans, updated hourly. Free to cite and download as CSV.",
+    changeFrequency: "monthly",
+    priority: 0.7
+  },
+  {
+    path: "/press",
+    url: `${siteUrl}/press`,
+    title: "eSIM2you Press Kit: Logos, Facts and Media Contact",
+    description:
+      "eSIM2you press kit for journalists, bloggers and partners: company description, key facts, logo downloads, linking guidance and media contact.",
+    changeFrequency: "monthly",
+    priority: 0.5
   },
   {
     path: "/about",
@@ -294,6 +318,7 @@ export function createLandingJsonLd(reviews: SiteReview[] = siteReviews) {
         sameAs: [
           socialLinks.instagram,
           socialLinks.facebook,
+          brandProfileLinks.productHunt,
           landingContent.appLinks.ios.href,
           landingContent.appLinks.android.href
         ]
@@ -346,7 +371,7 @@ export function createWebPageJsonLd({
   breadcrumbName,
   pageType = "WebPage"
 }: {
-  path: "/about" | "/contact" | "/policy" | "/support" | "/terms" | "/trip-plan";
+  path: "/about" | "/contact" | "/esim-price-index" | "/policy" | "/press" | "/support" | "/terms" | "/trip-plan";
   name: string;
   description: string;
   breadcrumbName: string;
@@ -388,6 +413,43 @@ export function createWebPageJsonLd({
         ]
       }
     ]
+  };
+}
+
+/**
+ * Dataset node for the public price index. Only emit it when the table it
+ * describes is on the page (there are live rows to show).
+ */
+export function createPriceIndexDatasetJsonLd({
+  description,
+  dateModified
+}: {
+  description: string;
+  dateModified: string;
+}) {
+  const url = absoluteUrl("/esim-price-index");
+  return {
+    "@type": "Dataset",
+    "@id": `${url}#dataset`,
+    name: "eSIM2you Travel eSIM Price Index",
+    description,
+    url,
+    creator: { "@id": `${siteUrl}/#organization` },
+    publisher: { "@id": `${siteUrl}/#organization` },
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    isAccessibleForFree: true,
+    dateModified,
+    keywords: ["travel eSIM prices", "eSIM cost per GB", "mobile data prices abroad"],
+    variableMeasured: [
+      "Starting price of a travel eSIM plan (EUR)",
+      "Lowest price per GB of a travel eSIM plan (EUR)",
+      "Number of plans available"
+    ],
+    distribution: {
+      "@type": "DataDownload",
+      encodingFormat: "text/csv",
+      contentUrl: absoluteUrl("/esim-price-index.csv")
+    }
   };
 }
 

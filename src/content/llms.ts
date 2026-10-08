@@ -20,6 +20,7 @@ eSIM2you is a mobile app (iOS and Android) and website (${siteUrl}) for buying a
 - [UK eSIM plans](${siteUrl}/esim/uk): live UK plans, pricing, and setup guidance
 - [Europe eSIM plans](${siteUrl}/esim/europe): live Europe multi-country plans, pricing, and setup guidance
 - [Support](${siteUrl}/support): setup help, troubleshooting, refunds, top-ups
+- [Travel eSIM price index](${siteUrl}/esim-price-index): starting price and lowest price per GB by destination from live plans, CSV download, free to cite (CC BY 4.0)
 
 Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Portugal, Switzerland, Turkey, Japan. Full list: ${siteUrl}/destinations
 
@@ -42,6 +43,8 @@ Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Po
 
 - About eSIM2you: ${siteUrl}/about
 - Contact eSIM2you: ${siteUrl}/contact
+- Press kit: ${siteUrl}/press
+- Product Hunt: https://www.producthunt.com/products/esim2you
 - Support email: esim2you@uplisoft.com
 - Instagram: https://www.instagram.com/esim2you
 - Facebook: https://www.facebook.com/people/ESIM2you/61593159061406/

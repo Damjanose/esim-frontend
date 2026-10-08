@@ -9,7 +9,8 @@ import {
   getDestinationCoverage,
   getDestinationFlag,
   getDestinationOffer,
-  getDestinationPlanRows
+  getDestinationPlanRows,
+  getPriceIndexRows
 } from "./destinationPricing";
 
 function packagesResponse(packages: unknown[]) {
@@ -231,5 +232,42 @@ describe("getDestinationCoverage", () => {
     );
 
     await expect(getDestinationCoverage("japan")).resolves.toEqual([]);
+  });
+});
+
+describe("getPriceIndexRows", () => {
+  it("reports each destination's starting price and best price per GB, skipping unlimited and unsized plans", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        packagesResponse([
+          { countryCode: "japan", priceNumeric: 4.5, dataNumericGb: 1, durationDays: 7, dataLabel: "1 GB", durationLabel: "7 days" },
+          { countryCode: "japan", priceNumeric: 20, dataNumericGb: 10, durationDays: 30, dataLabel: "10 GB", durationLabel: "30 days" },
+          { countryCode: "japan", priceNumeric: 30, dataNumericGb: 999, durationDays: 10, dataLabel: "Unlimited" },
+          { countryCode: "japan", priceNumeric: 2, dataNumericGb: 0 },
+          { countryCode: "united-states", priceNumeric: 5, dataNumericGb: 1, durationDays: 7, dataLabel: "1 GB", durationLabel: "7 days" },
+          { countryCode: "nowhere", priceNumeric: 1, dataNumericGb: 1 }
+        ])
+      )
+    );
+
+    const rows = await getPriceIndexRows();
+
+    expect(rows.map((row) => row.slug)).toEqual(["japan", "usa"]);
+    expect(rows[0]).toMatchObject({
+      slug: "japan",
+      name: "Japan",
+      path: "/esim/japan",
+      fromPrice: 2,
+      planCount: 4,
+      bestPerGb: { pricePerGb: 2, priceNumeric: 20, dataLabel: "10 GB", durationLabel: "30 days" }
+    });
+    expect(rows[1].bestPerGb).toMatchObject({ pricePerGb: 5 });
+  });
+
+  it("returns an empty list when the backend is down", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 503 })));
+
+    expect(await getPriceIndexRows()).toEqual([]);
   });
 });
