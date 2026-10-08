@@ -145,6 +145,11 @@ export const landingContent = {
   ] satisfies Benefit[],
   faqs: [
     {
+      question: "What is eSIM2you?",
+      answer:
+        "eSIM2you is a travel eSIM provider. It sells prepaid mobile data plans for 200+ destinations on this website and in the eSIM2you app for iOS and Android, and you install the eSIM with a QR code or manual setup before your trip."
+    },
+    {
       question: "What is an eSIM?",
       answer:
         "An eSIM is a digital SIM profile installed on supported phones. It gives you mobile data without a physical SIM card."

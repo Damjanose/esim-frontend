@@ -10,6 +10,7 @@ import { PlanBuyLink, PlanDataDisc, PlanPrice, PlanTags } from "./components/Pla
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import { priorityDestinationEnhancements, type SeoContentPage } from "@/content/seo-pages";
+import { destinationAnswerFaq } from "@/lib/destination-answer";
 import { destinationDisplay, destinationH1 } from "@/lib/esim-routes";
 import { destinationGuideLinks, relatedDestinationLinks } from "@/lib/internal-links";
 import {
@@ -70,6 +71,10 @@ export function EsimDestinationPageView({
   const guideLinks = destinationGuideLinks(page);
   const lowestPriced = plans[0];
   const coverageNote = destinationDisplay[page.slug]?.coverageNote;
+  // Answer-first: the generated "Does eSIM2you work in X?" leads the visible
+  // FAQ and the FAQPage schema (both read `faqs`), only when plans are live.
+  const answerFaq = destinationAnswerFaq({ countryName, plans, offer });
+  const faqs = answerFaq ? [answerFaq, ...page.faqs] : page.faqs;
   const sections = [
     ...page.sections,
     ...(priorityDestinationEnhancements[page.slug] ?? [])
@@ -84,7 +89,7 @@ export function EsimDestinationPageView({
           description: page.description,
           breadcrumbName: countryName,
           parent: { name: "Destinations", path: "/destinations" },
-          faqs: page.faqs,
+          faqs,
           offer
         })}
       />
@@ -404,7 +409,7 @@ export function EsimDestinationPageView({
               Quick answers before you travel.
             </h2>
             <div className="mt-8 space-y-3">
-              {page.faqs.map((faq) => (
+              {faqs.map((faq) => (
                 <details className="group rounded-[16px] border border-outline/70 bg-surface px-5 py-2" key={faq.question}>
                   <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-2 font-display font-black text-brandInk">
                     {faq.question}

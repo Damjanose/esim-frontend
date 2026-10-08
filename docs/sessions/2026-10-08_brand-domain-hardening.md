@@ -26,3 +26,10 @@ Typing or searching "esim2you" landed people on `esim2you.com` (a STRATO "domain
 ## Open / owner actions
 - Buy or claim `esim2you.com` (or a fallback), then follow part C of the runbook.
 - Set the GSC and Bing verification env vars, link the site from the store listings and social bios, and settle on one brand spelling (eSIM2you vs eSim2you).
+
+## Round 3: answer-first copy (same day)
+- Homepage H1 is brand-led ("eSIM2you: travel eSIMs for 200+ destinations"), and the old headline became the subtext. The title and description were updated in page.tsx, layout.tsx and indexableRoutes (f271, commit 09a0ca2).
+- `src/lib/destination-answer.ts`: every /esim page with live plans now leads its FAQ and its FAQPage schema with "Does eSIM2you work in <country>?". The answer is built only from the rendered plans (count, from-price, validity range). There are no carrier claims, because `network` is a speed label with a "4G/5G" fallback (f272).
+- The homepage FAQ now opens with "What is eSIM2you?".
+- Checked on a temporary dev server against the prod catalog: /esim/albania reads "12 … plans … from €4.00, valid 3 to 30 days".
+- Still open: the backend email brand pass, and the domain cutover once esim2you.com DNS (STRATO nameservers) points at the server.
