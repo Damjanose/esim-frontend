@@ -1,3 +1,4 @@
+import { publicSeoPages } from "@/content/seo-pages";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -383,6 +384,13 @@ describe("brand spelling", () => {
       return /\.(tsx?|txt|json)$/.test(name) && !/\.test\.tsx?$/.test(name) ? [path] : [];
     });
   }
+
+  it("names eSIM2you in every destination intro", () => {
+    const unbranded = publicSeoPages
+      .filter((page) => page.kind === "destination" && !page.intro.includes("eSIM2you"))
+      .map((page) => page.slug);
+    expect(unbranded).toEqual([]);
+  });
 
   it("spells the brand eSIM2you in every public source file", () => {
     const offenders = [...sourceFiles("src"), ...sourceFiles("public")].filter((file) =>

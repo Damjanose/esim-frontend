@@ -1126,7 +1126,7 @@ const additionalDestinationPages = [
     description: "Compare live Netherlands travel eSIM plans for Amsterdam, Rotterdam, and trips across the country.",
     eyebrow: "Netherlands travel eSIM",
     heading: "Travel data for the Netherlands, ready before arrival.",
-    intro: "Prepare a Netherlands eSIM for maps, train schedules, translation, messaging, and city travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Amsterdam or at your next stop.",
+    intro: "Prepare an eSIM2you Netherlands eSIM for maps, train schedules, translation, messaging, and city travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Amsterdam or at your next stop.",
     sections: [
       { title: "Useful for city and rail travel", body: "Use mobile data for transit apps, museum reservations, navigation, and booking changes while traveling between Amsterdam, Rotterdam, Utrecht, and smaller towns." },
       { title: "Check the live plan details", body: "Compare the current data, validity, network, and price rows for your trip. Hotspot availability depends on the package." },
@@ -1150,7 +1150,7 @@ const additionalDestinationPages = [
     description: "Compare live Austria travel eSIM plans for Vienna, Salzburg, Innsbruck, and Alpine trips.",
     eyebrow: "Austria travel eSIM",
     heading: "Mobile data for Austria, installed before your trip.",
-    intro: "Use an Austria eSIM for maps, rail travel, translation, reservations, and messages across Vienna, Salzburg, Innsbruck, and the Alps. Have travel data installed before your trip, then activate the profile when you arrive.",
+    intro: "Use an eSIM2you Austria eSIM for maps, rail travel, translation, reservations, and messages across Vienna, Salzburg, Innsbruck, and the Alps. Have travel data installed before your trip, then activate the profile when you arrive.",
     sections: [
       { title: "From city breaks to Alpine routes", body: "Travel data helps with train updates, hiking directions, weather, accommodation messages, and bookings when hotel Wi-Fi is unavailable." },
       { title: "Compare plans for your itinerary", body: "Review live data size, validity, network, and price before choosing. Coverage and hotspot use depend on the selected package." },
@@ -1174,7 +1174,7 @@ const additionalDestinationPages = [
     description: "Compare live regional eSIM data plans for a Balkans itinerary across Albania, Greece, and nearby countries.",
     eyebrow: "Balkans regional eSIM",
     heading: "One travel data plan for a multi-country Balkans route.",
-    intro: "One Balkans eSIM can simplify a multi-country route by keeping your connectivity plan digital. Check the countries covered by each live package before buying because regional coverage varies by plan.",
+    intro: "One eSIM2you Balkans eSIM can simplify a multi-country route by keeping your connectivity plan digital. Check the countries covered by each live package before buying because regional coverage varies by plan.",
     sections: [
       { title: "Built for border-crossing itineraries", body: "Use mobile data for maps, ferry and bus schedules, translation, bookings, and messages while moving between Albania, Greece, Montenegro, Croatia, and nearby destinations." },
       { title: "Confirm every included country", body: "Regional packages differ. Review the package coverage list, validity, data, network, and hotspot terms for the exact route." },
@@ -1198,7 +1198,7 @@ const additionalDestinationPages = [
     description: "Compare live regional eSIM plans for Middle East travel, with coverage and validity shown per package.",
     eyebrow: "Middle East regional eSIM",
     heading: "Plan mobile data across a Middle East itinerary.",
-    intro: "A regional Middle East eSIM can help travelers prepare mobile data across a multi-country itinerary before departure. Coverage is package-specific, so review the included countries and network details before buying.",
+    intro: "A regional eSIM2you Middle East eSIM can help travelers prepare mobile data across a multi-country itinerary before departure. Coverage is package-specific, so review the included countries and network details before buying.",
     sections: [
       { title: "Useful for arrival and city travel", body: "Use data for airport transfers, maps, translation, reservations, messaging, and ride apps while traveling between covered destinations." },
       { title: "Coverage is package-specific", body: "Check the live package country list, data amount, validity, network, and hotspot policy rather than assuming every regional plan is identical." },
@@ -1222,7 +1222,7 @@ const additionalDestinationPages = [
     description: "Compare live Africa regional eSIM data plans and review covered countries before your trip.",
     eyebrow: "Africa regional eSIM",
     heading: "Stay prepared for a multi-country Africa trip.",
-    intro: "Stay prepared for an Africa trip with a regional eSIM and a digital data option across covered countries. Check the live package coverage, network, data, and validity for your route before purchase.",
+    intro: "Stay prepared for an Africa trip with a regional eSIM2you eSIM and a digital data option across covered countries. Check the live package coverage, network, data, and validity for your route before purchase.",
     sections: [
       { title: "For airports, transfers, and safaris", body: "Mobile data can help with maps, driver coordination, reservations, translation, and messages during city, safari, and multi-stop itineraries." },
       { title: "Review coverage before buying", body: "Regional plans vary by country and network. Use the package country list and live plan table as the source of truth." },
@@ -1246,7 +1246,7 @@ const additionalDestinationPages = [
     description: "Compare live South America regional eSIM plans for multi-country travel and review coverage before purchase.",
     eyebrow: "South America regional eSIM",
     heading: "Prepare mobile data for a South America itinerary.",
-    intro: "Prepare a South America eSIM to simplify connectivity planning across covered countries. Review the exact country list, data, validity, network, and hotspot terms for your trip.",
+    intro: "Prepare an eSIM2you South America eSIM to simplify connectivity planning across covered countries. Review the exact country list, data, validity, network, and hotspot terms for your trip.",
     sections: [
       { title: "Useful between cities and borders", body: "Use mobile data for maps, long-distance transport, translation, hotel messages, and bookings during a multi-country route." },
       { title: "Choose by route and duration", body: "Compare live plan rows against the countries and number of travel days on your itinerary. Regional packages are not interchangeable." },
@@ -1270,7 +1270,7 @@ const additionalDestinationPages = [
     description: "Compare live Ireland travel eSIM plans for Dublin, Cork, Galway, and road trips across the country.",
     eyebrow: "Ireland travel eSIM",
     heading: "Travel data for Ireland, ready before arrival.",
-    intro: "Prepare an Ireland eSIM for maps, transit apps, translation, messaging, and city travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Dublin or at your next stop.",
+    intro: "Prepare an eSIM2you Ireland eSIM for maps, transit apps, translation, messaging, and city travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Dublin or at your next stop.",
     sections: [
       { title: "Useful for city and countryside travel", body: "Use mobile data for navigation, ride apps, reservations, and booking changes while traveling between Dublin, Cork, Galway, and rural routes like the Wild Atlantic Way." },
       { title: "Check the live plan details", body: "Compare the current data, validity, network, and price rows for your trip. Hotspot availability depends on the package." },
@@ -1294,7 +1294,7 @@ const additionalDestinationPages = [
     description: "Compare live Croatia travel eSIM plans for Zagreb, Split, Dubrovnik, and island-hopping trips.",
     eyebrow: "Croatia travel eSIM",
     heading: "Travel data for Croatia, ready before arrival.",
-    intro: "Prepare a Croatia eSIM for maps, ferry schedules, translation, messaging, and coastal travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Zagreb, Split, or Dubrovnik.",
+    intro: "Prepare an eSIM2you Croatia eSIM for maps, ferry schedules, translation, messaging, and coastal travel before you arrive. Install on Wi-Fi so your travel data is ready on arrival in Zagreb, Split, or Dubrovnik.",
     sections: [
       { title: "Useful for coastal and island travel", body: "Use mobile data for ferry timetables, maps, reservations, and messages while moving along the Adriatic coast and between islands." },
       { title: "Check the live plan details", body: "Compare the current data, validity, network, and price rows for your trip. Network and hotspot support depend on the package." },

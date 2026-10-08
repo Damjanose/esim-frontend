@@ -39,3 +39,4 @@ Typing or searching "esim2you" landed people on `esim2you.com` (a STRATO "domain
 - `/llms.txt` is now generated from `siteUrl`: `src/content/llms.ts` serves it through a force-static route, and `public/llms.txt` was deleted. The runbook no longer needs a `sed` step.
 - The runbook's mobile step now points to `EXPO_PUBLIC_SITE_HOST` in velocity-eSim.
 - Verified on a dev server (:3005): `/llms.txt` returns 200 as text/plain, and the `/esim/italy` title and og:title end in "| eSIM2you". 893 tests pass.
+- The 8 destination intros that didn't name the brand (Netherlands, Austria, Balkans, Middle East, Africa, South America, Ireland, Croatia) now say "eSIM2you <place> eSIM", and their lastmod moved to 2026-10-08. A test (`seo.test.ts`) requires every destination intro to name eSIM2you.

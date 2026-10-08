@@ -23,7 +23,16 @@ const byPath: Record<string, string> = {
   "/support": "2026-10-02",
   // Brand pages launched.
   "/about": "2026-10-08",
-  "/contact": "2026-10-08"
+  "/contact": "2026-10-08",
+  // Intros now name eSIM2you.
+  "/esim/netherlands": "2026-10-08",
+  "/esim/austria": "2026-10-08",
+  "/esim/balkans": "2026-10-08",
+  "/esim/middle-east": "2026-10-08",
+  "/esim/africa": "2026-10-08",
+  "/esim/south-america": "2026-10-08",
+  "/esim/ireland": "2026-10-08",
+  "/esim/croatia": "2026-10-08"
 };
 
 const byPrefix: Array<[prefix: string, date: string]> = [
