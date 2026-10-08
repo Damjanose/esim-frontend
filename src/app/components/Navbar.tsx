@@ -17,6 +17,11 @@ const navItems = [
     href: "/trip-plan"
   },
   {
+    label: "Flight search",
+    href: "/flights",
+    wideOnly: true
+  },
+  {
     label: "Travel guides",
     href: "/travel"
   },

@@ -28,6 +28,7 @@ const footerExploreLinks = [
   { label: "Travel eSIM price index", href: "/esim-price-index" },
   { label: "Travel eSIM guides", href: "/travel" },
   { label: "AI trip planner", href: "/trip-plan" },
+  { label: "Flight search", href: "/flights" },
   ...useCasePages.map((page) => ({
     label: footerUseCaseLabels[page.slug] ?? page.heading,
     href: page.path

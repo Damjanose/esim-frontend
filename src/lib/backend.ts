@@ -41,7 +41,28 @@ export type BackendRequest = {
    * through undici's own fetch with an Agent whose header/body timeouts match.
    */
   timeoutMs?: number;
+  /**
+   * The visitor's IP, forwarded as X-Client-IP (with the shared X-BFF-Key, without
+   * which the backend ignores it) so per-IP rate limits see the visitor and not
+   * this server. Only set it for public endpoints.
+   */
+  clientIp?: string;
 };
+
+/**
+ * The visitor's IP for a BFF request. Production sits behind Cloudflare, which sets
+ * CF-Connecting-IP. Otherwise nginx appends the peer address to X-Forwarded-For, so
+ * the LAST entry is the one a client can't forge; X-Real-IP wins when set.
+ */
+export function getClientIp(request: Request): string | undefined {
+  const cf = request.headers.get("cf-connecting-ip")?.trim();
+  if (cf) return cf;
+  const real = request.headers.get("x-real-ip")?.trim();
+  if (real) return real;
+  const forwarded = request.headers.get("x-forwarded-for");
+  const last = forwarded?.split(",").pop()?.trim();
+  return last || undefined;
+}
 
 const longAgents = new Map<number, Agent>();
 
@@ -70,7 +91,7 @@ const UNREACHABLE_MESSAGE = "We could not reach the eSIM service. Please try aga
 
 export async function backendFetch<T>(
   path: string,
-  { method = "GET", body, token, next, timeoutMs }: BackendRequest = {}
+  { method = "GET", body, token, next, timeoutMs, clientIp }: BackendRequest = {}
 ): Promise<BackendResult<T>> {
   const headers = new Headers({ Accept: "application/json" });
   if (body !== undefined) {
@@ -78,6 +99,11 @@ export async function backendFetch<T>(
   }
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
+  }
+  const bffKey = process.env.BFF_SHARED_SECRET?.trim();
+  if (clientIp && bffKey) {
+    headers.set("X-Client-IP", clientIp);
+    headers.set("X-BFF-Key", bffKey);
   }
 
   let response: Response;

@@ -26,5 +26,8 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 - Public destination SEO canonicals are `/esim/[slug]` (not `/destinations/[slug]`). `/destinations` remains the interactive catalog. Sitemap is a generated index of static/esim/travel/compare segments.
 - This repo currently has no `docs/architecture/` or `docs/decisions/` folder (see this repo's `CLAUDE.md`) — significant structural decisions live in session docs until one is warranted
 
+## Flight search
+`/flights` (public, in sitemap) is a form + results over `/bff/flights/{countries,airports,search}` (`proxyFlights()` in `src/lib/flightsBff.ts`). Results are cached partner fares; "View deal" links are `rel="sponsored"` and nothing is purchased here. `backendFetch({ clientIp })` forwards the visitor IP so the backend's per-IP rate limit works. See f276.
+
 ## Known gaps
 - No `docs/overview.md` existed for this repo until 2026-09-02 — it was omitted from the root `CLAUDE.md`'s repo list and had no session docs for 21 commits before 2026-08-19 (see `docs/sessions/INDEX.md` and `feedAI/MAINTAIN.md` history). Keep this file current the same way the other two repos' overviews are kept current.

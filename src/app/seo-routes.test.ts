@@ -37,7 +37,7 @@ describe("Next SEO routes", () => {
       expect(indexXml).toContain(`https://esim.uplisoft.com/sitemaps/${id}.xml`);
     }
     expect(indexXml).toMatch(
-      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-10-08T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-10-09T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
       /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-10-08T00:00:00\.000Z<\/lastmod>/

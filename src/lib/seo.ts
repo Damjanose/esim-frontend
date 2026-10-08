@@ -146,6 +146,15 @@ export const indexableRoutes: IndexableRoute[] = [
     priority: 0.7
   },
   {
+    path: "/flights",
+    url: `${siteUrl}/flights`,
+    title: "Flight Search: Compare Recent Fares | eSIM2you",
+    description:
+      "Search one-way and round-trip flights by country and airport. See fares other travellers found recently, then book on the partner site.",
+    changeFrequency: "monthly",
+    priority: 0.6
+  },
+  {
     path: "/esim-price-index",
     url: `${siteUrl}/esim-price-index`,
     title: "Travel eSIM Price Index: Cost per GB by Country | eSIM2you",
@@ -371,7 +380,7 @@ export function createWebPageJsonLd({
   breadcrumbName,
   pageType = "WebPage"
 }: {
-  path: "/about" | "/contact" | "/esim-price-index" | "/policy" | "/press" | "/support" | "/terms" | "/trip-plan";
+  path: "/about" | "/contact" | "/esim-price-index" | "/flights" | "/policy" | "/press" | "/support" | "/terms" | "/trip-plan";
   name: string;
   description: string;
   breadcrumbName: string;

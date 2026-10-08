@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-09 | [flight search](./2026-10-09_flight-search.md) | Public /flights search over new /bff/flights/* (countries, airports, search), affiliate sponsored deal links with Google Flights/Skyscanner fallbacks, visitor IP forwarded to the backend rate limit (f276) |
 | 2026-10-08 | [backlink assets](./2026-10-08_backlink-assets.md) | Live /esim-price-index (price per GB by destination, CSV, Dataset schema, CC BY 4.0), /press kit, rel=sponsored partner website badge, Product Hunt in sameAs, link-building playbook in brand-outreach-kit.md |
 | 2026-10-08 | [brand domain hardening](./2026-10-08_brand-domain-hardening.md) | Canonical host centralized in site-host.ts (env-switchable), esim2you.com and other alias hosts 308 to it, alternateName + store sameAs in JSON-LD, domain-move runbook; brand normalized to eSIM2you (test-enforced), /about + /contact entity pages, guessable-URL 308s, brand outreach kit; brandedTitle on every page, generated /llms.txt |
 | 2026-10-08 | [GSC indexing cleanup](./2026-10-08_gsc-indexing-cleanup.md) | Noindex-only for private HTML (robots.txt trimmed, X-Robots-Tag), nofollow on checkout/signin/account links, real 308 for known ?country=, no canonical on 404s, lowercase slug 308, data-driven related links, per-page sitemap lastmod |

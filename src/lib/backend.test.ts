@@ -18,6 +18,7 @@ import {
   backendFetchBinary,
   backendFetchFormData,
   getBackendApiUrl,
+  getClientIp,
   getBackendOrigin
 } from "./backend";
 
@@ -272,5 +273,34 @@ describe("backendFetch timeoutMs", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.status).toBe(502);
+  });
+});
+
+describe("client IP forwarding", () => {
+  it("sends X-Client-IP with the BFF key only when a clientIp and secret are set", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+    process.env.BFF_SHARED_SECRET = "s3cret";
+
+    await backendFetch("/flights/countries", { clientIp: "203.0.113.9" });
+    await backendFetch("/flights/countries");
+    delete process.env.BFF_SHARED_SECRET;
+    await backendFetch("/flights/countries", { clientIp: "203.0.113.9" });
+
+    const calls = fetchMock.mock.calls as unknown as Array<[string, RequestInit]>;
+    const header = (i: number, name: string) => (calls[i][1].headers as Headers).get(name);
+    expect(header(0, "x-client-ip")).toBe("203.0.113.9");
+    expect(header(0, "x-bff-key")).toBe("s3cret");
+    expect(header(1, "x-client-ip")).toBeNull();
+    expect(header(2, "x-client-ip")).toBeNull();
+    expect(header(2, "x-bff-key")).toBeNull();
+  });
+
+  it("reads the visitor IP from CF-Connecting-IP, X-Real-IP, else the last X-Forwarded-For entry", () => {
+    const req = (headers: Record<string, string>) => new Request("http://x.test", { headers });
+    expect(getClientIp(req({ "cf-connecting-ip": "192.0.2.4", "x-real-ip": "198.51.100.1" }))).toBe("192.0.2.4");
+    expect(getClientIp(req({ "x-real-ip": "198.51.100.1", "x-forwarded-for": "1.1.1.1" }))).toBe("198.51.100.1");
+    expect(getClientIp(req({ "x-forwarded-for": "6.6.6.6, 203.0.113.9" }))).toBe("203.0.113.9");
+    expect(getClientIp(req({}))).toBeUndefined();
   });
 });

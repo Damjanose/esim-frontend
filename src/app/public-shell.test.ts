@@ -12,7 +12,7 @@ describe("public navigation shell", () => {
     expect(navbar).not.toContain('href="#download-app"');
     // Only real pages: no links that just scroll the homepage.
     expect(navbar).not.toMatch(/href: "\/#/);
-    for (const href of ["/trip-plan", "/travel", "/compare", "/use-cases", "/support"]) {
+    for (const href of ["/trip-plan", "/flights", "/travel", "/compare", "/use-cases", "/support"]) {
       expect(navbar).toContain(`href: "${href}"`);
     }
   });
