@@ -33,3 +33,9 @@ Typing or searching "esim2you" landed people on `esim2you.com` (a STRATO "domain
 - The homepage FAQ now opens with "What is eSIM2you?".
 - Checked on a temporary dev server against the prod catalog: /esim/albania reads "12 … plans … from €4.00, valid 3 to 30 days".
 - Still open: the backend email brand pass, and the domain cutover once esim2you.com DNS (STRATO nameservers) points at the server.
+
+## Round 3: brand in titles, generated llms.txt
+- `createMetadata` → `brandedTitle()` appends " | eSIM2you" to any title that lacks the brand. That covers 21 of the 29 destination pages plus guides, so "eSIM2you Italy" style searches match the right page. Page titles in content stay unsuffixed.
+- `/llms.txt` is now generated from `siteUrl`: `src/content/llms.ts` serves it through a force-static route, and `public/llms.txt` was deleted. The runbook no longer needs a `sed` step.
+- The runbook's mobile step now points to `EXPO_PUBLIC_SITE_HOST` in velocity-eSim.
+- Verified on a dev server (:3005): `/llms.txt` returns 200 as text/plain, and the `/esim/italy` title and og:title end in "| eSIM2you". 893 tests pass.

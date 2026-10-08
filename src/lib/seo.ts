@@ -189,9 +189,17 @@ export function absoluteUrl(path: string) {
   return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+/**
+ * Every page title names the brand, so "eSIM2you Italy"-style searches match
+ * the right page. Titles that already say eSIM2you are left alone.
+ */
+export function brandedTitle(title: string): string {
+  return title.includes(siteName) ? title : `${title} | ${siteName}`;
+}
+
 export function createMetadata({
   path,
-  title,
+  title: pageTitle,
   description,
   indexable = true
 }: {
@@ -201,6 +209,7 @@ export function createMetadata({
   indexable?: boolean;
 }): Metadata {
   const url = absoluteUrl(path);
+  const title = brandedTitle(pageTitle);
 
   return {
     title,

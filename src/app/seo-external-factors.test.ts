@@ -1,3 +1,4 @@
+import { llmsTxt } from "@/content/llms";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { publicSeoPages } from "@/content/seo-pages";
@@ -75,7 +76,7 @@ describe("SEO external factors", () => {
   });
 
   it("keeps the AI content map on canonical travel and destination URLs", () => {
-    const llms = readFileSync("public/llms.txt", "utf8");
+    const llms = llmsTxt;
 
     expect(llms).toContain("https://esim.uplisoft.com/esim/usa");
     expect(llms).toContain("https://esim.uplisoft.com/travel/what-is-an-esim");

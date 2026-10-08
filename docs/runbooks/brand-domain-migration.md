@@ -45,8 +45,8 @@ Do these in order, all on the same day.
 ### Web (this repo)
 4. In `.env.production`, set `NEXT_PUBLIC_SITE_HOST=<new>`. The old host becomes an alias and 308s every page to the new one. `.well-known/*` is never redirected, so app-link verification keeps working on both hosts.
 5. Update `PUBLIC_FRONTEND_URL` and `PUBLIC_HEALTH_URL` in `update.sh` (leave `PUBLIC_API_URL` as-is, or move it too once the backend is reachable on the new host).
-6. Replace the host in the static files: `sed -i '' 's#esim.uplisoft.com#<new>#g' public/llms.txt`, and regenerate `public/images/qr-esim-uplisoft.svg`.
-7. Update tests that assert the literal host (`grep -rln esim.uplisoft.com src | grep test`), then run `pnpm test`.
+6. Regenerate `public/images/qr-esim-uplisoft.svg` for the new host. `/llms.txt` is generated from `siteUrl` (`src/content/llms.ts`), so it needs no edit.
+7. Update the tests that assert the literal host (`grep -rln esim.uplisoft.com src | grep test`), then run `pnpm test`.
 8. Deploy with `update.sh`. It pings IndexNow with the new host.
 
 ### Third parties
@@ -54,7 +54,7 @@ Do these in order, all on the same day.
 10. Apple Services ID (`com.uplisoft.velocityesim.web`): add the domain and return URL `https://<new>/signin`.
 11. Pokpay: add the new return and callback URLs to the merchant allowlist.
 12. Backend: add the new origin to CORS and to any `PUBLIC_SITE_ORIGIN` / email link base, so that receipt and OTP emails link to the new host.
-13. Mobile (velocity-eSim): change the share base URL and add the new domain to iOS associated domains and Android intent filters in the next release. Old links keep working through the 308.
+13. Mobile (velocity-eSim): build with `EXPO_PUBLIC_SITE_HOST=<new>`. Share and site links switch to it, `app.config.ts` adds it to the Android App Links (applied by the release build's prebuild) and to the iOS associated domains. Also add `applinks:<new>` to `ios/VelocityeSIM/*.entitlements` by hand, because ios/ is committed and not regenerated. Links on the old host keep opening the app. Ship this build only after the new host serves the AASA and assetlinks files: Android 11 and older drop App Links for every host if any one fails verification.
 
 ### Search engines
 14. Search Console: verify the new property, then on the **old** property use Settings → Change of address → new property. Submit the new sitemap.

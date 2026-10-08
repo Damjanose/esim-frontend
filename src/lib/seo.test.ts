@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  brandedTitle,
   createContentPageJsonLd,
   createLandingJsonLd,
   createMetadata,
@@ -354,6 +355,19 @@ describe("SEO route contract", () => {
     })["@graph"][0];
     expect(plain["@type"]).toBe("WebPage");
     expect(plain).not.toHaveProperty("about");
+  });
+});
+
+describe("branded titles", () => {
+  it("appends the brand to titles that lack it, once", () => {
+    expect(brandedTitle("eSIM for Italy | Travel Data for Rome, Milan, and More")).toBe(
+      "eSIM for Italy | Travel Data for Rome, Milan, and More | eSIM2you"
+    );
+    expect(brandedTitle("Support Center | eSIM2you")).toBe("Support Center | eSIM2you");
+    expect(createMetadata({ path: "/esim/italy", title: "eSIM for Italy", description: "d" })).toMatchObject({
+      title: "eSIM for Italy | eSIM2you",
+      openGraph: { title: "eSIM for Italy | eSIM2you", siteName: "eSIM2you" }
+    });
   });
 });
 
