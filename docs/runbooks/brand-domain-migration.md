@@ -9,6 +9,8 @@ The brand is **eSIM2you**, but the site lives on `esim.uplisoft.com`. As of 2026
 
 Code can't stop a browser from opening someone else's domain. The real fix is to own the brand domain (part A). Part B lists what we can do before that, and part C is the move itself.
 
+> **Status 2026-10-08:** no brand domain. `esim2you.com` (and `.net`) belong to someone else, so the site stays on `esim.uplisoft.com`. Do part B now, with `https://esim.uplisoft.com/` as the official URL everywhere. Parts A and C wait until a domain is actually bought. Names that looked free by WHOIS that day: `getesim2you.com`, `esim2you.io`, `esim2you.co`. `esim2you.eu` and `.app` were unclear, so check at a registrar.
+
 ## A. Get the domain (owner action)
 
 1. Check who holds `esim2you.com` (WHOIS, or ask STRATO). If it's ours, go to part C. If it isn't, make an offer through the registrar or a broker.

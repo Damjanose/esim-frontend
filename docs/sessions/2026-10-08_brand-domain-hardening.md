@@ -32,7 +32,10 @@ Typing or searching "esim2you" landed people on `esim2you.com` (a STRATO "domain
 - `src/lib/destination-answer.ts`: every /esim page with live plans now leads its FAQ and its FAQPage schema with "Does eSIM2you work in <country>?". The answer is built only from the rendered plans (count, from-price, validity range). There are no carrier claims, because `network` is a speed label with a "4G/5G" fallback (f272).
 - The homepage FAQ now opens with "What is eSIM2you?".
 - Checked on a temporary dev server against the prod catalog: /esim/albania reads "12 … plans … from €4.00, valid 3 to 30 days".
-- Still open: the backend email brand pass, and the domain cutover once esim2you.com DNS (STRATO nameservers) points at the server.
+- Backend email brand pass was done separately (backend f124f80).
+
+## Decision: no brand domain for now
+`esim2you.com` is **not ours**: a third party registered it on 2025-12-27 through InterNetX and it's parked on STRATO nameservers. `esim2you.net` is also taken. The owner chose to stay on `esim.uplisoft.com` (option 3). Use that URL everywhere: Search Console, store listings, social bios and outreach. Never name `esim2you.com` in copy; the mobile review consent did, and that was fixed (mobile f503). Keep `esim2you.com` in `BRAND_ALIAS_HOSTS`, because it only takes effect if the domain is ever bought. The runbook's part C applies only once a domain is actually owned.
 
 ## Round 3: brand in titles, generated llms.txt
 - `createMetadata` → `brandedTitle()` appends " | eSIM2you" to any title that lacks the brand. That covers 21 of the 29 destination pages plus guides, so "eSIM2you Italy" style searches match the right page. Page titles in content stay unsuffixed.
