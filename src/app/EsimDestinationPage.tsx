@@ -9,12 +9,9 @@ import { CollapsedCountryBar } from "./components/CollapsedCountryBar";
 import { PlanBuyLink, PlanDataDisc, PlanPrice, PlanTags } from "./components/PlanRow";
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
-import {
-  destinationPages,
-  priorityDestinationEnhancements,
-  type SeoContentPage
-} from "@/content/seo-pages";
+import { priorityDestinationEnhancements, type SeoContentPage } from "@/content/seo-pages";
 import { destinationDisplay, destinationH1 } from "@/lib/esim-routes";
+import { destinationGuideLinks, relatedDestinationLinks } from "@/lib/internal-links";
 import {
   createContentPageJsonLd,
   type DestinationOfferInput
@@ -24,18 +21,6 @@ import type { DestinationMedia } from "@/lib/destinationMedia";
 import { isOptimizableImageUrl } from "./destinations/countryImageCache";
 import { convertEurToGbp, formatGbp } from "@/lib/exchangeRate";
 import { hasBestValueTag, planDurationText, planRowTags } from "@/lib/planRow";
-
-function relatedDestinationLinks(slug: string) {
-  const related = destinationDisplay[slug]?.relatedSlugs ?? [];
-  return related
-    .map((relatedSlug) => {
-      const page = destinationPages.find((entry) => entry.slug === relatedSlug);
-      const name = destinationDisplay[relatedSlug]?.countryName;
-      if (!page || !name) return null;
-      return { href: page.path, label: `${name} eSIM plans` };
-    })
-    .filter((link): link is { href: string; label: string } => link !== null);
-}
 
 function trustPoints(offer?: DestinationOfferInput) {
   return [
@@ -82,6 +67,7 @@ export function EsimDestinationPageView({
   const h1Lead = accentStart > 0 ? h1.slice(0, accentStart) : h1;
   const h1Accent = accentStart > 0 ? h1.slice(accentStart) : "";
   const neighborLinks = relatedDestinationLinks(page.slug);
+  const guideLinks = destinationGuideLinks(page);
   const lowestPriced = plans[0];
   const coverageNote = destinationDisplay[page.slug]?.coverageNote;
   const sections = [
@@ -395,7 +381,7 @@ export function EsimDestinationPageView({
               <div className="rounded-[20px] border border-outline/70 bg-surfaceBright p-5 sm:p-6">
                 <h2 className="font-display text-title-sm font-black text-brandInk sm:text-xl">Guides</h2>
                 <div className="mt-4 grid gap-2">
-                  {page.relatedLinks.map((link) => (
+                  {guideLinks.map((link) => (
                     <Link
                       className="flex min-h-11 items-center justify-between gap-3 rounded-[14px] border border-outline/70 bg-surface px-4 py-2.5 text-sm font-bold text-brandInk transition hover:border-brandBlue/50"
                       href={link.href}

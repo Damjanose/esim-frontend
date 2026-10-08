@@ -1,5 +1,6 @@
 import { ChevronRight, Globe2 } from "lucide-react";
 import Link from "next/link";
+import { crawlRel } from "@/lib/robots-policy";
 
 type CountryRowProps = {
   href: string;
@@ -16,6 +17,7 @@ export function CountryRow({ href, country, flagUri, planCount, fromPrice }: Cou
     <Link
       className="group flex min-h-[60px] items-center gap-3 rounded-[16px] border border-outline/70 bg-surface px-3.5 py-2.5 transition hover:border-brandBlue/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue"
       href={href}
+      rel={crawlRel(href)}
     >
       {flagUri ? (
         <img

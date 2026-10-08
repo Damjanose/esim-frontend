@@ -19,7 +19,8 @@ import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import type { SeoContentPage } from "@/content/seo-pages";
 import { createContentPageJsonLd, type DestinationOfferInput } from "@/lib/seo";
-import { seoContentUpdatedAt } from "@/lib/esim-routes";
+import { contentUpdatedAt } from "@/lib/content-dates";
+import { relatedGuideLinks } from "@/lib/internal-links";
 
 export function SeoContentPageView({
   page,
@@ -47,7 +48,7 @@ export function SeoContentPageView({
           parent,
           faqs: page.faqs,
           offer,
-          article: asArticle ? { dateModified: seoContentUpdatedAt } : undefined
+          article: asArticle ? { dateModified: contentUpdatedAt(page.path) } : undefined
         })}
       />
       <Navbar />
@@ -116,7 +117,7 @@ export function SeoContentPageView({
             <aside className={`h-fit ${CONTENT_ASIDE}`}>
               <h2 className="font-display text-title-sm font-black text-brandInk sm:text-xl">Related pages</h2>
               <div className="mt-4 grid gap-2">
-                {page.relatedLinks.map((link) => (
+                {relatedGuideLinks(page).map((link) => (
                   <a className={CONTENT_ROW_LINK} href={link.href} key={link.href}>
                     {link.label}
                     <ArrowRight aria-hidden="true" className="shrink-0 text-brandBlue" size={16} />

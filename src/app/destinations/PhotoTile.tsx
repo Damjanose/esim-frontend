@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { isOptimizableImageUrl } from "./countryImageCache";
+import { crawlRel } from "@/lib/robots-policy";
 import { useLazyCountryImage } from "./useLazyCountryImage";
 
 export type PhotoTileSize = "trending" | "rail";
@@ -55,6 +56,7 @@ export function PhotoTile({ href, country, countryCode, flagUri, detail, size }:
       className={`group relative block overflow-hidden rounded-[16px] bg-gradient-to-br from-brandBlue via-[#0E86C0] to-brandTeal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brandBlue ${PHOTO_TILE_BOX[size]}`}
       href={href}
       ref={tileRef}
+      rel={crawlRel(href)}
     >
       {photoUrl ? (
         <Image

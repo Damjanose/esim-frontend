@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { crawlRel } from "@/lib/robots-policy";
 import { usePathname } from "next/navigation";
 import { DockIcon } from "./dockIcons";
 import { DOCK_ITEMS, activeDockItem, isDockVisible } from "./dockNav";
@@ -67,6 +68,7 @@ export function BottomDock() {
                   isActive ? "-translate-y-0.5 scale-[1.08] text-brandBlue" : "text-dockMuted"
                 ].join(" ")}
                 href={item.href}
+                rel={crawlRel(item.href)}
               >
                 <DockIcon id={item.id} size={22} />
                 <span className="whitespace-nowrap">{item.label}</span>

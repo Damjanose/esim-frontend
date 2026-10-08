@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { landingContent } from "@/content/landing";
 import { guidePages, useCasePages } from "@/content/seo-pages";
+import { crawlRel } from "@/lib/robots-policy";
 import { socialLinks } from "@/lib/seo";
 import { Facebook, Instagram } from "lucide-react";
 import { PrivacyChoicesLink } from "./ConsentManager";
@@ -119,7 +120,7 @@ function FooterLinkColumn({
       <h2 className="font-display text-sm font-black text-brandInk">{title}</h2>
       <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-2 sm:mt-4 sm:grid sm:gap-3">
         {links.map((link) => (
-          <a className="text-sm font-medium text-onSurfaceVariant transition hover:text-brandBlue" href={link.href} key={link.href}>
+          <a className="text-sm font-medium text-onSurfaceVariant transition hover:text-brandBlue" href={link.href} key={link.href} rel={crawlRel(link.href)}>
             {link.label}
           </a>
         ))}

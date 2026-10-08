@@ -307,7 +307,7 @@ describe("SEO route contract", () => {
 
     expect(compareHub).not.toContain("offer:");
     expect(compareSlug).not.toMatch(/offer: offer/);
-    expect(compareSlug).toContain("article: { dateModified: seoContentUpdatedAt }");
+    expect(compareSlug).toContain("article: { dateModified: contentUpdatedAt(page.path) }");
     expect(travelSlug).toContain("<SeoContentPageView asArticle");
   });
 });

@@ -8,6 +8,7 @@ import {
   type PlanRowPlan,
   type PlanRowTag,
 } from "@/lib/planRow";
+import { crawlRel } from "@/lib/robots-policy";
 import { formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
 import { LinkButton } from "./Button";
 
@@ -86,6 +87,7 @@ export function PlanBuyLink({ href, primary, planTitle }: { href: string; primar
       aria-label={`Buy now: ${planTitle}`}
       className="whitespace-nowrap"
       href={href}
+      rel={crawlRel(href)}
       size="md"
       variant={primary ? "lit" : "tint"}
     >

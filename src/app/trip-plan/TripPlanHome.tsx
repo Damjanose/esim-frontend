@@ -60,7 +60,7 @@ export function TripPlanHome({ countries }: { countries: string[] }) {
           Use the same email, Google or Apple account as the eSim2you app. Plans you make on one show up on the
           other.
         </p>
-        <LinkButton className="mt-5" href="/signin?next=%2Ftrip-plan" size="lg">
+        <LinkButton className="mt-5" href="/signin?next=%2Ftrip-plan" rel="nofollow" size="lg">
           <LogIn aria-hidden="true" size={18} />
           Sign in to start
         </LinkButton>

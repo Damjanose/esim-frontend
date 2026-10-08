@@ -10,6 +10,7 @@ import {
   normalizeDestinationValue,
   type HeroPackageOption,
 } from "@/services/packages";
+import { destinationBrowseHref } from "@/lib/esim-routes";
 import {
   HeroSearchDialog,
   rememberRecentDestination,
@@ -139,9 +140,7 @@ export function HeroPackageSearch() {
     setSelectedCountry(country);
     setNavigating(true);
 
-    router.push(
-      `/destinations?country=${encodeURIComponent(country.countryCode)}`,
-    );
+    router.push(destinationBrowseHref(country.countryCode));
   }
 
   return (

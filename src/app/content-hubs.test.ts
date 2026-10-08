@@ -33,7 +33,7 @@ describe("/compare/[slug] restyle (spec 8B)", () => {
 
   it("keeps the Article JSON-LD, breadcrumb, table semantics and links", () => {
     expect(source).toContain('parent: { name: "Compare", path: "/compare" },');
-    expect(source).toContain("article: { dateModified: seoContentUpdatedAt }");
+    expect(source).toContain("article: { dateModified: contentUpdatedAt(page.path) }");
     expect(source).toContain('aria-label="Breadcrumb"');
     expect(source).toContain('scope="col"');
     expect(source).toContain('scope="row"');

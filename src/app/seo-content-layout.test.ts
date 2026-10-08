@@ -16,7 +16,7 @@ describe("SeoContentPage restyle (spec 8B: same structure, new styling)", () => 
         "          parent,",
         "          faqs: page.faqs,",
         "          offer,",
-        "          article: asArticle ? { dateModified: seoContentUpdatedAt } : undefined",
+        "          article: asArticle ? { dateModified: contentUpdatedAt(page.path) } : undefined",
         "        })}"
       ].join("\n")
     );

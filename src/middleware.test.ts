@@ -77,3 +77,65 @@ describe("middleware redirects behind a reverse proxy", () => {
     );
   });
 });
+
+describe("middleware indexing signals", () => {
+  it("308s a known ?country= view to its /esim page, keeping the plan filters", () => {
+    const response = middleware(proxied("/destinations?country=albania&daysMin=7"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://esim.uplisoft.com/esim/albania?daysMin=7");
+  });
+
+  it("308s backend country codes to the public /esim slug", () => {
+    const response = middleware(proxied("/destinations?country=united-states"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://esim.uplisoft.com/esim/usa");
+  });
+
+  it("keeps the live plan view for countries without an /esim page, as noindex", () => {
+    const response = middleware(proxied("/destinations?country=kenya"));
+
+    expect(response.headers.get("location")).toBeNull();
+    expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+  });
+
+  it("leaves the /destinations hub indexable", () => {
+    const response = middleware(proxied("/destinations"));
+
+    expect(response.headers.get("x-robots-tag")).toBeNull();
+  });
+
+  it("308s uppercase content slugs to lowercase instead of a 404", () => {
+    const response = middleware(proxied("/esim/Japan"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://esim.uplisoft.com/esim/japan");
+    expect(middleware(proxied("/travel/How-To-Install-eSIM")).headers.get("location")).toBe(
+      "https://esim.uplisoft.com/travel/how-to-install-esim"
+    );
+  });
+
+  it("does not lowercase private eSIM ids", () => {
+    const response = middleware(proxied("/esim/id/AbC123"));
+
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("sends X-Robots-Tag on private pages and on their sign-in redirects", () => {
+    expect(middleware(proxied("/checkout?package=x")).headers.get("x-robots-tag")).toBe(
+      "noindex, nofollow"
+    );
+    expect(middleware(proxied("/signin")).headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    expect(middleware(proxied("/profile")).headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    expect(middleware(proxied("/partners/request")).headers.get("x-robots-tag")).toBe(
+      "noindex, nofollow"
+    );
+  });
+
+  it("does not send X-Robots-Tag on public content", () => {
+    for (const path of ["/", "/esim/japan", "/travel/how-to-install-esim", "/trip-plan"]) {
+      expect(middleware(proxied(path)).headers.get("x-robots-tag")).toBeNull();
+    }
+  });
+});

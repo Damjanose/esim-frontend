@@ -29,14 +29,18 @@ const geist = Geist({
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const bingSiteVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
+// Defaults only. Canonical and robots are left to each page: inherited here
+// they would stamp the homepage canonical (and index, follow) onto every 404.
+const { alternates: _alternates, robots: _robots, ...siteDefaults } = createMetadata({
+  path: "/",
+  title: "eSIM2you | Travel Data for 200+ Destinations",
+  description:
+    "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  ...createMetadata({
-    path: "/",
-    title: "eSIM2you | Travel Data for 200+ Destinations",
-    description:
-      "Buy a digital SIM for 200+ destinations, install it in minutes, and skip surprise roaming fees."
-  }),
+  ...siteDefaults,
   icons: {
     icon: [{ url: "/favicon.png", sizes: "48x48", type: "image/png" }],
     apple: [{ url: "/app-logo.png", sizes: "1024x1024", type: "image/png" }]

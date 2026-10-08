@@ -1,16 +1,17 @@
 import type { MetadataRoute } from "next";
-import { privateRoutePrefixes, siteUrl } from "@/lib/seo";
+import { robotsDisallowPaths } from "@/lib/robots-policy";
+import { siteUrl } from "@/lib/seo";
 
-// Obfuscated admin routes (/x*) stay out of robots.txt: listing them here would
-// publish the hidden paths. Their layouts already emit noindex meta instead.
-const robotsDisallow = privateRoutePrefixes.filter((prefix) => !prefix.startsWith("/x"));
-
+// Private HTML routes (/checkout, /signin, /profile, /account, ...) are left
+// out on purpose: they send noindex, and a Disallow would hide that from
+// Google. Obfuscated admin routes (/x*) stay out too, since listing them would
+// publish the hidden paths; their layouts emit noindex meta instead.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: robotsDisallow
+      disallow: [...robotsDisallowPaths]
     },
     sitemap: `${siteUrl}/sitemap.xml`
   };

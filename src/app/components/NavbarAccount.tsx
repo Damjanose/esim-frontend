@@ -36,6 +36,7 @@ export function NavbarAccount() {
       <a
         className="hidden h-11 items-center rounded-full border border-outline px-4 text-sm font-semibold text-brandInk transition hover:border-brandBlue/40 hover:text-brandBlue group-data-[tone=dark]:border-white/25 group-data-[tone=dark]:text-white group-data-[tone=dark]:hover:border-white/50 lg:flex"
         href="/signin"
+        rel="nofollow"
       >
         Sign in
       </a>
@@ -47,6 +48,7 @@ export function NavbarAccount() {
       aria-label="Your profile"
       className="hidden h-11 w-11 place-items-center rounded-full border border-outline text-brandInk transition hover:border-brandBlue/40 hover:text-brandBlue group-data-[tone=dark]:border-white/25 group-data-[tone=dark]:text-white group-data-[tone=dark]:hover:border-white/50 lg:grid"
       href="/profile"
+      rel="nofollow"
     >
       <UserRound aria-hidden="true" size={19} />
     </a>

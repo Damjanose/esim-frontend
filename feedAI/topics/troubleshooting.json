@@ -339,6 +339,18 @@
       "root_cause": "matchFAQ ran before localReplyFor and matched single words anywhere; matchesPreset matched any message starting with the preset word.",
       "fix": "localReplyFor before matchFAQ, phrase-only FAQ keywords, single-word presets (f256); assistant.test.ts locks all three.",
       "date": "2026-10-02"
+    },
+    {
+      "symptom": "GSC lists /destinations?country=albania as 'Excluded by noindex' although the code permanentRedirects known countries to /esim/<slug>.",
+      "root_cause": "src/app/destinations/loading.tsx makes the route stream; a permanentRedirect during streaming is sent as 200 + <meta http-equiv=refresh>, so crawlers see the noindex page.",
+      "fix": "Redirect in middleware (real 308) before the page renders (f265). Don't rely on page-level redirect() under a loading.tsx for SEO redirects.",
+      "date": "2026-10-08"
+    },
+    {
+      "symptom": "404 pages (/esim/doesnotexist) emit <link rel=canonical href=https://esim.uplisoft.com> plus both 'noindex' and 'index, follow' robots metas.",
+      "root_cause": "Root layout spread createMetadata({path:'/'}) including alternates and robots, which every page without its own metadata (including not-found) inherited.",
+      "fix": "Strip alternates/robots from the layout defaults (f266).",
+      "date": "2026-10-08"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

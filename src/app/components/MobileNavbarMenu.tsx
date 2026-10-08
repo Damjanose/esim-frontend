@@ -65,6 +65,7 @@ export function MobileNavbarMenu({ navItems }: { navItems: readonly NavItem[] })
               className="flex items-center gap-2 rounded-[14px] px-4 py-3 text-sm font-semibold text-brandInk transition hover:bg-surfaceBright"
               href="/partners/request"
               onClick={close}
+              rel="nofollow"
             >
               <Handshake aria-hidden="true" className="text-brandBlue" size={17} />
               Partner with us

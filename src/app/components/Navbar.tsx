@@ -94,6 +94,7 @@ export function Navbar() {
             <a
               className="hidden h-11 items-center gap-2 rounded-full px-3 text-sm font-semibold text-onSurfaceVariant transition hover:text-brandBlue group-data-[tone=dark]:text-white/80 group-data-[tone=dark]:hover:text-white 2xl:flex"
               href="/partners/request"
+              rel="nofollow"
             >
               <Handshake aria-hidden="true" size={17} />
               Partners

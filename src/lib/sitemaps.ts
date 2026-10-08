@@ -1,21 +1,21 @@
 import type { MetadataRoute } from "next";
 import { policyDocument, termsDocument } from "@/content/legal";
-import { seoContentUpdatedAt } from "@/lib/esim-routes";
+import { contentUpdatedAt } from "@/lib/content-dates";
 import { indexableRoutes, siteUrl } from "@/lib/seo";
 
 export const sitemapSegmentIds = ["static", "esim", "travel", "compare"] as const;
 export type SitemapSegmentId = (typeof sitemapSegmentIds)[number];
 
-function legalLastModified(lastUpdated: string): Date {
+function legalLastModified(path: string, lastUpdated: string): Date {
   const parsed = Date.parse(`${lastUpdated} 00:00:00 GMT`);
-  if (Number.isNaN(parsed)) return seoContentUpdatedAt;
+  if (Number.isNaN(parsed)) return contentUpdatedAt(path);
   return new Date(parsed);
 }
 
 function lastModifiedForPath(path: string): Date {
-  if (path === "/policy") return legalLastModified(policyDocument.lastUpdated);
-  if (path === "/terms") return legalLastModified(termsDocument.lastUpdated);
-  return seoContentUpdatedAt;
+  if (path === "/policy") return legalLastModified(path, policyDocument.lastUpdated);
+  if (path === "/terms") return legalLastModified(path, termsDocument.lastUpdated);
+  return contentUpdatedAt(path);
 }
 
 function toSitemapEntry(route: (typeof indexableRoutes)[number]): MetadataRoute.Sitemap[number] {

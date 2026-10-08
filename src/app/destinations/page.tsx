@@ -55,10 +55,12 @@ export async function generateMetadata({
   const countryCode = firstValue(resolved.country) ?? "";
   const hasSelectedCountry = countryCode.trim().length > 0;
 
-  return createMetadata({
+  const metadata = createMetadata({
     ...destinationsMeta,
     indexable: !hasSelectedCountry,
   });
+  // A noindex country view must not also point its canonical at /destinations.
+  return hasSelectedCountry ? { ...metadata, alternates: undefined } : metadata;
 }
 
 export default async function DestinationsPage({

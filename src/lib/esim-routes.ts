@@ -68,11 +68,11 @@ export type DestinationDisplay = {
 };
 
 export const destinationDisplay: Record<string, DestinationDisplay> = {
-  albania: { countryName: "Albania", relatedSlugs: ["greece", "italy", "europe"] },
-  turkey: { countryName: "Turkey", relatedSlugs: ["greece", "europe"] },
-  italy: { countryName: "Italy", relatedSlugs: ["greece", "france", "europe"] },
-  greece: { countryName: "Greece", relatedSlugs: ["italy", "albania", "europe"] },
-  germany: { countryName: "Germany", relatedSlugs: ["france", "switzerland", "europe"] },
+  albania: { countryName: "Albania", relatedSlugs: ["greece", "italy", "croatia", "balkans", "europe"] },
+  turkey: { countryName: "Turkey", relatedSlugs: ["greece", "middle-east", "europe"] },
+  italy: { countryName: "Italy", relatedSlugs: ["greece", "france", "croatia", "europe"] },
+  greece: { countryName: "Greece", relatedSlugs: ["italy", "albania", "turkey", "europe"] },
+  germany: { countryName: "Germany", relatedSlugs: ["france", "netherlands", "switzerland", "austria", "europe"] },
   france: { countryName: "France", relatedSlugs: ["uk", "germany", "europe"] },
   spain: { countryName: "Spain", relatedSlugs: ["portugal", "italy", "europe"] },
   usa: { countryName: "USA", relatedSlugs: ["canada", "mexico", "north-america"] },
@@ -80,20 +80,20 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
   japan: { countryName: "Japan", relatedSlugs: ["asia", "thailand"] },
   europe: {
     countryName: "Europe",
-    relatedSlugs: ["albania", "france", "germany", "greece", "italy", "spain", "uk", "balkans"]
+    relatedSlugs: ["albania", "croatia", "france", "germany", "greece", "italy", "spain", "uk", "balkans"]
   },
   portugal: { countryName: "Portugal", relatedSlugs: ["spain", "europe"] },
   switzerland: { countryName: "Switzerland", relatedSlugs: ["germany", "france", "europe"] },
   thailand: { countryName: "Thailand", relatedSlugs: ["asia", "indonesia", "japan"] },
   uae: { countryName: "UAE", relatedSlugs: ["asia"] },
-  mexico: { countryName: "Mexico", relatedSlugs: ["usa", "north-america"] },
+  mexico: { countryName: "Mexico", relatedSlugs: ["usa", "south-america", "north-america"] },
   canada: { countryName: "Canada", relatedSlugs: ["usa", "north-america"] },
   australia: { countryName: "Australia", relatedSlugs: ["indonesia", "asia"] },
   indonesia: { countryName: "Indonesia", relatedSlugs: ["thailand", "asia", "australia"] },
   asia: { countryName: "Asia", relatedSlugs: ["japan", "thailand", "indonesia", "uae"] },
-  "north-america": { countryName: "North America", relatedSlugs: ["usa", "canada", "mexico"] },
+  "north-america": { countryName: "North America", relatedSlugs: ["usa", "canada", "mexico", "south-america"] },
   netherlands: { countryName: "Netherlands", relatedSlugs: ["germany", "france", "europe"] },
-  austria: { countryName: "Austria", relatedSlugs: ["germany", "switzerland", "europe"] },
+  austria: { countryName: "Austria", relatedSlugs: ["germany", "switzerland", "croatia", "europe"] },
   ireland: { countryName: "Ireland", relatedSlugs: ["uk", "france", "europe"] },
   croatia: { countryName: "Croatia", relatedSlugs: ["balkans", "italy", "europe"] },
   balkans: {
@@ -104,13 +104,13 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
   },
   "middle-east": {
     countryName: "Middle East",
-    relatedSlugs: ["uae", "asia", "europe"],
+    relatedSlugs: ["uae", "turkey", "africa", "asia", "europe"],
     coverageNote: "These Middle East and North Africa plans cover the countries below."
   },
   africa: { countryName: "Africa", relatedSlugs: ["europe", "asia"] },
   "south-america": {
     countryName: "South America",
-    relatedSlugs: ["usa", "north-america"],
+    relatedSlugs: ["mexico", "usa", "north-america", "africa"],
     coverageNote: "These Latin America plans cover the South and Central American countries listed below."
   }
 };
@@ -119,5 +119,3 @@ export function destinationH1(slug: string) {
   const name = destinationDisplay[slug]?.countryName;
   return name ? `eSIM for ${name}` : null;
 }
-
-export const seoContentUpdatedAt = new Date("2026-09-12T00:00:00.000Z");

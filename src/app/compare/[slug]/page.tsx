@@ -15,7 +15,7 @@ import {
 import { SiteFooter } from "../../SiteFooter";
 import { comparePages } from "@/content/compare-pages";
 import { createContentPageJsonLd, createMetadata } from "@/lib/seo";
-import { seoContentUpdatedAt } from "@/lib/esim-routes";
+import { contentUpdatedAt } from "@/lib/content-dates";
 import { getGlobalOffer } from "@/lib/destinationPricing";
 import { convertEurToGbp, formatGbp, getGbpRate } from "@/lib/exchangeRate";
 
@@ -58,7 +58,7 @@ export default async function ComparePage({ params }: PageProps) {
           parent: { name: "Compare", path: "/compare" },
           faqs: page.faqs,
           // Editorial comparison, not a product page: no Product/Offer markup here.
-          article: { dateModified: seoContentUpdatedAt }
+          article: { dateModified: contentUpdatedAt(page.path) }
         })}
       />
       <Navbar />

@@ -18,8 +18,12 @@ describe("Next SEO routes", () => {
       expect.arrayContaining(["/checkout", "/signin", "/profile", "/xpricing", "/xversion", "/xactivityy", "/xpartnersy", "/xnotificationy"])
     );
     const disallow = (rules.rules as { disallow: string[] }).disallow;
-    expect(disallow).toEqual(expect.arrayContaining(["/api", "/bff", "/checkout", "/signin", "/profile"]));
-    expect(disallow.some((rule) => rule.endsWith("/"))).toBe(false);
+    expect(disallow).toEqual(["/api", "/admin", "/auth", "/bff", "/cdn-cgi/"]);
+    // Noindex HTML routes stay crawlable so Google can read their noindex.
+    for (const route of ["/checkout", "/signin", "/profile", "/account", "/billing", "/dashboard"]) {
+      expect(disallow).not.toContain(route);
+    }
+    expect(disallow.filter((rule) => rule.endsWith("/"))).toEqual(["/cdn-cgi/"]);
     // Obfuscated admin paths must not be published in robots.txt.
     expect(disallow.some((rule) => rule.startsWith("/x"))).toBe(false);
   });
@@ -33,10 +37,13 @@ describe("Next SEO routes", () => {
       expect(indexXml).toContain(`https://esim.uplisoft.com/sitemaps/${id}.xml`);
     }
     expect(indexXml).toMatch(
-      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-09-25T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-10-02T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
-      /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-09-12T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-09-27T00:00:00\.000Z<\/lastmod>/
+    );
+    expect(indexXml).toMatch(
+      /sitemaps\/travel\.xml<\/loc>\s*<lastmod>2026-09-12T00:00:00\.000Z<\/lastmod>/
     );
 
     const esim = sitemapEntriesFor("esim");
