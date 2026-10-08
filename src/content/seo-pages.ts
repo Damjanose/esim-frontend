@@ -3,6 +3,12 @@ import { landingContent } from "./landing";
 export type SeoPageSection = {
   title: string;
   body: string;
+  /** Optional comparison table under the body; the first column is the row header. */
+  table?: {
+    caption: string;
+    columns: string[];
+    rows: string[][];
+  };
 };
 
 export type SeoPageFaq = {
@@ -1455,21 +1461,67 @@ export const guidePages = [
       "This guide explains how travelers can get internet abroad through roaming, public Wi-Fi, local SIM cards, portable hotspots, or eSIM data. eSIM2you focuses on the digital eSIM option so mobile internet can be prepared before departure and planned without guesswork.",
     sections: [
       {
+        title: "What are the options for internet abroad?",
+        body:
+          "There are five common ways to get internet abroad: a travel eSIM, roaming on your home plan, a local SIM card, a rented pocket Wi-Fi hotspot, or public Wi-Fi. They differ most in when you set them up, how the price works, and whether your phone is online the moment you land.",
+        table: {
+          caption: "Ways to get internet abroad compared by setup, price, phone number, and arrival connectivity",
+          columns: ["Option", "Setup", "How the price works", "Keeps your number", "Online when you land"],
+          rows: [
+            ["Travel eSIM", "Bought and installed online before you fly", "Fixed prepaid price per plan", "Yes, on a dual-SIM phone", "Yes, once you turn on its data line"],
+            ["Roaming", "Nothing to install; roaming must be enabled", "Your carrier's daily pass or per-MB rates", "Yes", "Yes"],
+            ["Local SIM card", "Bought in a shop or airport after landing, sometimes with ID", "Local prepaid price", "Only if your phone has a second SIM slot", "No, only after you buy one"],
+            ["Pocket Wi-Fi", "Rented device you collect, charge, and return", "Daily rental fee", "Yes", "Yes, if the device is charged"],
+            ["Public Wi-Fi", "Join each network as you find it", "Usually free", "Yes, for apps that run over Wi-Fi", "Only where a network exists"]
+          ]
+        }
+      },
+      {
+        title: "Is roaming or a travel eSIM cheaper?",
+        body:
+          "It depends on your carrier and trip length. Roaming is usually charged per day or per megabyte, so the cost grows with every day abroad, while a travel eSIM is one prepaid price for a set amount of data and days. To compare, look up your carrier's daily roaming price, multiply it by the number of days you are away, and compare that with the plan price on the destination page."
+      },
+      {
+        title: "How much data do you need abroad?",
+        body:
+          "As a rough guide, maps, messaging, and email use little data, while video and video calls use the most. Netflix estimates about 1 GB per hour for standard-definition video and up to 3 GB per hour in HD. A traveler who mostly uses maps, WhatsApp, and booking apps often fits a 1–3 GB plan for a week; someone who streams, posts videos, or works from the phone should pick a larger or unlimited plan."
+      },
+      {
         title: "Public Wi-Fi is not enough for every trip",
         body:
-          "Wi-Fi can help at hotels and cafes, but mobile data is useful for directions, rides, tickets, and urgent messages while moving."
+          "Wi-Fi can help at hotels and cafes, but mobile data is useful for directions, rides, tickets, and urgent messages while moving. Open networks are also less private, so avoid banking or entering passwords on public Wi-Fi without a VPN."
       },
       {
         title: "eSIM data keeps setup digital",
         body:
-          "With a compatible device, a travel eSIM can be installed without finding a local shop or changing your physical SIM card."
+          "With a compatible, carrier-unlocked phone, a travel eSIM installs from a QR code or in the app, with no shop visit and no swapping your physical SIM card. Install it on reliable Wi-Fi before you leave, then switch mobile data to the eSIM when you arrive."
+      },
+      {
+        title: "How to avoid roaming charges",
+        body:
+          "If you use a travel eSIM, turn off data roaming on your home SIM so it cannot use data abroad. You can keep the home line on for calls and texts, but your carrier may charge roaming rates for them. WhatsApp, iMessage, and FaceTime keep working with your usual number over the eSIM's data."
       }
     ],
     faqs: [
       {
         question: "What is the easiest way to get mobile data abroad?",
         answer:
-          "For many compatible phones, a travel eSIM is one of the easiest options because it can be bought and installed digitally."
+          "For many compatible phones, a travel eSIM is one of the easiest options because it can be bought and installed digitally before you leave, so your phone is online when you land."
+      },
+      {
+        question: "How do I avoid roaming charges abroad?",
+        answer:
+          "Turn off data roaming on your home SIM and use a travel eSIM or Wi-Fi for data. Calls and texts on your home line may still be charged by your carrier."
+      },
+      {
+        question: "Can I use WhatsApp abroad without roaming?",
+        answer:
+          "Yes. WhatsApp runs over mobile data or Wi-Fi, so it keeps working with your usual number on a travel eSIM's data line while roaming stays off on your home SIM."
+      },
+      {
+        question: "Does a travel eSIM give me a local phone number?",
+        answer:
+          "Most travel eSIM plans are data-only and do not include a phone number. Some plans include minutes and texts; the plan row on each destination page shows when they do."
       },
       {
         question: "Should I still use Wi-Fi while traveling?",
@@ -1479,6 +1531,7 @@ export const guidePages = [
     ],
     relatedLinks: [
       { label: "Compare eSIM with roaming", href: "/travel/esim-vs-roaming" },
+      { label: "Which phones support eSIM?", href: "/travel/esim-compatible-phones" },
       { label: "Travel eSIM setup steps", href: "/travel/how-to-install-esim" },
       { label: "Browse every eSIM destination", href: "/destinations" }
     ]

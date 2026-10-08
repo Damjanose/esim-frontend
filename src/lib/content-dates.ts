@@ -32,7 +32,9 @@ const byPath: Record<string, string> = {
   "/esim/africa": "2026-10-08",
   "/esim/south-america": "2026-10-08",
   "/esim/ireland": "2026-10-08",
-  "/esim/croatia": "2026-10-08"
+  "/esim/croatia": "2026-10-08",
+  // Options table, data, roaming and WhatsApp sections, new FAQs.
+  "/travel/internet-abroad": "2026-10-08"
 };
 
 const byPrefix: Array<[prefix: string, date: string]> = [

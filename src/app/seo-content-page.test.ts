@@ -2,6 +2,21 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("SEO content page template", () => {
+  it("shows a visible updated date and byline on editorial guides", () => {
+    const source = readFileSync("src/app/SeoContentPage.tsx", "utf8");
+
+    expect(source).toContain("<time dateTime={updatedAt.toISOString()}>");
+    expect(source).toContain("By the eSIM2you team");
+  });
+
+  it("renders an optional comparison table inside a guide section", () => {
+    const source = readFileSync("src/app/SeoContentPage.tsx", "utf8");
+
+    expect(source).toContain("section.table ?");
+    expect(source).toContain('<th className="px-3 py-2" scope="col"');
+    expect(source).toContain('scope="row"');
+  });
+
   it("renders the shared site footer on guide, destination, and use-case pages", () => {
     const source = readFileSync("src/app/SeoContentPage.tsx", "utf8");
 
@@ -24,6 +39,19 @@ describe("SEO content page template", () => {
     expect(source).toContain("Plans from €");
     expect(source).toContain("Buy from €");
     expect(source).toContain("are the cheapest on the market");
+  });
+
+  it("shows USD/GBP estimates and the before-you-buy checks on every destination page", () => {
+    const source = readFileSync("src/app/EsimDestinationPage.tsx", "utf8");
+    const route = readFileSync("src/app/esim/[slug]/page.tsx", "utf8");
+
+    // Every destination, not just /esim/uk: US and UK are the first markets.
+    expect(route).toContain("getDisplayRates()");
+    expect(route).not.toContain('page.slug === "uk"');
+    expect(source).toContain("formatEstimateRange(offer.lowPrice, offer.highPrice, rates)");
+    expect(source).toContain("You&apos;re charged in EUR at checkout.");
+    expect(source).toContain("destinationBuyingChecks(countryName)");
+    expect(source).toContain('id="before-you-buy"');
   });
 
   it("uses the app country hero and plan-row cards for the destination hero and plan section", () => {

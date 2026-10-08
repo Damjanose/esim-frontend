@@ -37,6 +37,8 @@ export function SeoContentPageView({
   /** Editorial guides get Article markup; marketing landing pages don't. */
   asArticle?: boolean;
 }) {
+  const updatedAt = contentUpdatedAt(page.path);
+
   return (
     <main className="min-h-screen overflow-x-clip bg-surface text-onSurface">
       <JsonLd
@@ -48,7 +50,7 @@ export function SeoContentPageView({
           parent,
           faqs: page.faqs,
           offer,
-          article: asArticle ? { dateModified: contentUpdatedAt(page.path) } : undefined
+          article: asArticle ? { dateModified: updatedAt } : undefined
         })}
       />
       <Navbar />
@@ -62,6 +64,16 @@ export function SeoContentPageView({
             </a>
             <p className={`mt-6 ${CONTENT_EYEBROW}`}>{page.eyebrow}</p>
             <h1 className={`mt-3 max-w-4xl ${CONTENT_H1}`}>{page.heading}</h1>
+            {asArticle ? (
+              // Same date as Article dateModified and the sitemap lastmod (content-dates.ts).
+              <p className="mt-3 text-sm font-semibold text-onSurfaceVariant">
+                Updated{" "}
+                <time dateTime={updatedAt.toISOString()}>
+                  {updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}
+                </time>{" "}
+                · By the eSIM2you team
+              </p>
+            ) : null}
             {offer ? (
               <p className="mt-5 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-brandBlue/20 bg-brandBlue/5 px-4 py-2 text-sm font-black text-brandBlue">
                 eSIM plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)} ·{" "}
@@ -108,6 +120,36 @@ export function SeoContentPageView({
                     <div className="min-w-0">
                       <h2 className="font-display text-headline-md font-black text-brandInk">{section.title}</h2>
                       <p className="mt-2 leading-7 text-onSurfaceVariant">{section.body}</p>
+                      {section.table ? (
+                        <div aria-label={section.table.caption} className="mt-4 overflow-x-auto" role="region" tabIndex={0}>
+                          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+                            <caption className="sr-only">{section.table.caption}</caption>
+                            <thead>
+                              <tr className="border-b border-outline/70 text-label-caps uppercase text-onSurfaceVariant">
+                                {section.table.columns.map((column) => (
+                                  <th className="px-3 py-2" scope="col" key={column}>
+                                    {column}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {section.table.rows.map(([rowHeader, ...cells]) => (
+                                <tr className="border-b border-outline/40 last:border-0" key={rowHeader}>
+                                  <th className="px-3 py-2 font-bold text-brandInk" scope="row">
+                                    {rowHeader}
+                                  </th>
+                                  {cells.map((cell, index) => (
+                                    <td className="px-3 py-2 text-onSurfaceVariant" key={index}>
+                                      {cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </section>

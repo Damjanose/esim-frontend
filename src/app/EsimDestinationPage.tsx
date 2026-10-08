@@ -20,7 +20,8 @@ import {
 import type { DestinationPlanRow } from "@/lib/destinationPricing";
 import type { DestinationMedia } from "@/lib/destinationMedia";
 import { isOptimizableImageUrl } from "./destinations/countryImageCache";
-import { convertEurToGbp, formatGbp } from "@/lib/exchangeRate";
+import { formatEstimateRange, type DisplayRates } from "@/lib/exchangeRate";
+import { destinationBuyingChecks } from "@/content/destination-buying";
 import { hasBestValueTag, planDurationText, planRowTags } from "@/lib/planRow";
 
 function trustPoints(offer?: DestinationOfferInput) {
@@ -46,7 +47,7 @@ export function EsimDestinationPageView({
   offer,
   plans,
   coverage = [],
-  gbpRate,
+  rates,
   flagUri,
   heroImage
 }: {
@@ -55,7 +56,8 @@ export function EsimDestinationPageView({
   plans: DestinationPlanRow[];
   /** Countries every plan covers; only set for regional destinations. */
   coverage?: string[];
-  gbpRate?: number;
+  /** EUR -> USD/GBP for the display estimate next to the EUR range. */
+  rates?: DisplayRates;
   /** The destination's flag image, when the catalog has one. */
   flagUri?: string;
   /** The country's photo; without it the banner uses the generic mountain photo. */
@@ -75,6 +77,8 @@ export function EsimDestinationPageView({
   // FAQ and the FAQPage schema (both read `faqs`), only when plans are live.
   const answerFaq = destinationAnswerFaq({ countryName, plans, offer });
   const faqs = answerFaq ? [answerFaq, ...page.faqs] : page.faqs;
+  const estimate = offer && rates ? formatEstimateRange(offer.lowPrice, offer.highPrice, rates) : null;
+  const buyingChecks = destinationBuyingChecks(countryName);
   const sections = [
     ...page.sections,
     ...(priorityDestinationEnhancements[page.slug] ?? [])
@@ -136,17 +140,13 @@ export function EsimDestinationPageView({
           {offer ? (
             <p className="mt-5 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-surface/20 bg-surface/10 px-4 py-2 text-sm font-black text-surface backdrop-blur">
               Plans from €{offer.lowPrice.toFixed(2)} to €{offer.highPrice.toFixed(2)}
-              {gbpRate
-                ? ` (~${formatGbp(convertEurToGbp(offer.lowPrice, gbpRate))}–${formatGbp(
-                    convertEurToGbp(offer.highPrice, gbpRate)
-                  )})`
-                : ""}
+              {estimate ? ` (${estimate})` : ""}
               {offer.offerCount > 0 ? ` · ${offer.offerCount} plans` : ""}
             </p>
           ) : null}
-          {offer && gbpRate ? (
+          {estimate ? (
             <p className="mt-2 text-xs font-semibold text-surface/60">
-              Approximate GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
+              Approximate USD/GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
             </p>
           ) : null}
           <p className="mt-5 max-w-3xl text-base leading-7 text-surface/75 sm:text-lg sm:leading-8">{page.intro}</p>
@@ -362,6 +362,29 @@ export function EsimDestinationPageView({
                   </Link>
                   .
                 </p>
+              </section>
+              <section className="rounded-[20px] border border-outline/70 bg-surface p-5 sm:p-7" id="before-you-buy">
+                <h2 className="font-display text-headline-md font-black text-brandInk">
+                  Before you buy an eSIM for {countryName}
+                </h2>
+                <dl className="mt-4 space-y-5">
+                  {buyingChecks.map((check) => (
+                    <div key={check.question}>
+                      <dt className="font-display text-title-sm font-black text-brandInk">{check.question}</dt>
+                      <dd className="mt-1 leading-7 text-onSurfaceVariant">
+                        {check.answer}
+                        {check.link ? (
+                          <>
+                            {" "}
+                            <Link className="font-bold text-brandBlue" href={check.link.href}>
+                              {check.link.label}
+                            </Link>
+                          </>
+                        ) : null}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </section>
             </div>
 

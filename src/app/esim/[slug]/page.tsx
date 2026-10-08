@@ -11,7 +11,7 @@ import {
 } from "@/lib/destinationPricing";
 import { getDestinationMedia } from "@/lib/destinationMedia";
 import { destinationDisplay } from "@/lib/esim-routes";
-import { getGbpRate } from "@/lib/exchangeRate";
+import { getDisplayRates } from "@/lib/exchangeRate";
 
 export const revalidate = 3600;
 
@@ -49,11 +49,11 @@ export default async function EsimDestinationPage({ params }: PageProps) {
   }
 
   const countryName = destinationDisplay[page.slug]?.countryName ?? page.eyebrow;
-  const [offer, plans, coverage, gbpRate, flagUri, media] = await Promise.all([
+  const [offer, plans, coverage, rates, flagUri, media] = await Promise.all([
     getDestinationOffer(page.slug),
     getDestinationPlanRows(page.slug),
     getDestinationCoverage(page.slug),
-    page.slug === "uk" ? getGbpRate() : Promise.resolve(null),
+    getDisplayRates(),
     getDestinationFlag(page.slug),
     getDestinationMedia(page.slug, countryName)
   ]);
@@ -68,7 +68,7 @@ export default async function EsimDestinationPage({ params }: PageProps) {
       page={page}
       plans={plans}
       coverage={coverage}
-      gbpRate={gbpRate ?? undefined}
+      rates={rates}
       flagUri={flagUri ?? undefined}
       heroImage={heroImage}
     />

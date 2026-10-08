@@ -4,7 +4,14 @@ vi.mock("next/cache", () => ({
   unstable_cache: <T extends (...args: never[]) => unknown>(fn: T) => fn
 }));
 
-import { convertEurToGbp, formatGbp, getGbpRate } from "./exchangeRate";
+import {
+  convertEurToGbp,
+  formatEstimateRange,
+  formatGbp,
+  formatUsd,
+  getDisplayRates,
+  getGbpRate
+} from "./exchangeRate";
 
 function currenciesResponse(currencies: unknown[]) {
   return new Response(JSON.stringify({ status: "success", data: { base: "EUR", currencies } }), {
@@ -87,5 +94,65 @@ describe("convertEurToGbp", () => {
 describe("formatGbp", () => {
   it("formats an amount with a pound sign and two decimals", () => {
     expect(formatGbp(8.6)).toBe("£8.60");
+  });
+});
+
+describe("getDisplayRates", () => {
+  it("returns USD and GBP from one /currencies call", async () => {
+    const fetchMock = vi.fn(async () =>
+      currenciesResponse([
+        { code: "USD", rateToEur: 1.08, updatedAt: "2026-10-08T02:00:00.000Z" },
+        { code: "GBP", rateToEur: 0.86, updatedAt: "2026-10-08T02:00:00.000Z" },
+        { code: "AED", rateToEur: 4.1, updatedAt: "2026-10-08T02:00:00.000Z" }
+      ])
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getDisplayRates()).resolves.toEqual({ usd: 1.08, gbp: 0.86 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns nulls on a backend outage", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 500 })));
+
+    await expect(getDisplayRates()).resolves.toEqual({ usd: null, gbp: null });
+  });
+
+  it("ignores non-positive rates", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        currenciesResponse([
+          { code: "USD", rateToEur: 0, updatedAt: "2026-10-08T02:00:00.000Z" },
+          { code: "GBP", rateToEur: 0.86, updatedAt: "2026-10-08T02:00:00.000Z" }
+        ])
+      )
+    );
+
+    await expect(getDisplayRates()).resolves.toEqual({ usd: null, gbp: 0.86 });
+  });
+});
+
+describe("formatUsd", () => {
+  it("formats an amount with a dollar sign and two decimals", () => {
+    expect(formatUsd(4.32)).toBe("$4.32");
+  });
+});
+
+describe("formatEstimateRange", () => {
+  it("shows USD first (US is the first market), then GBP", () => {
+    expect(formatEstimateRange(4, 17.5, { usd: 1.08, gbp: 0.86 })).toBe("~$4.32–$18.90 · ~£3.44–£15.05");
+  });
+
+  it("shows only the currencies it has a rate for", () => {
+    expect(formatEstimateRange(4, 17.5, { usd: null, gbp: 0.86 })).toBe("~£3.44–£15.05");
+  });
+
+  it("collapses a single-price range", () => {
+    expect(formatEstimateRange(4, 4, { usd: 1.08, gbp: null })).toBe("~$4.32");
+  });
+
+  it("returns null without any rate", () => {
+    expect(formatEstimateRange(4, 17.5, { usd: null, gbp: null })).toBeNull();
   });
 });

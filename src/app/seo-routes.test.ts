@@ -43,7 +43,7 @@ describe("Next SEO routes", () => {
       /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-10-08T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
-      /sitemaps\/travel\.xml<\/loc>\s*<lastmod>2026-09-12T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/travel\.xml<\/loc>\s*<lastmod>2026-10-08T00:00:00\.000Z<\/lastmod>/
     );
 
     const esim = sitemapEntriesFor("esim");
