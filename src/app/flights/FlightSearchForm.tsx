@@ -188,7 +188,7 @@ export function FlightSearchForm() {
     const base = state.kind === "done" || state.kind === "error" ? state.form : form;
     const next = withDepartDate(base, date);
     if (searching || flightFormError(next, today || todayIso())) return;
-    setForm(next);
+    setForm((current) => ({ ...current, departDate: next.departDate, returnDate: next.returnDate }));
     await runSearch(next);
   };
 

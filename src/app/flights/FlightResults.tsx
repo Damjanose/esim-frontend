@@ -6,6 +6,9 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 import flightLoaderAnimation from "@/../public/lottie/Flight-loader.json";
 import {
   dayDiffLabel,
+  dropPastOffers,
+  isPastDay,
+  tripNights,
   formatDuration,
   formatFlightDate,
   formatFlightTime,
@@ -18,6 +21,7 @@ import {
   type FlightOffer,
   type FlightSearchResult
 } from "@/lib/flightSearch";
+import { todayIso } from "@/lib/tripPlan/logic";
 
 export type SearchState =
   | { kind: "idle" }
@@ -93,10 +97,14 @@ function Leg({ label, at, stops }: { label: string; at: string; stops: number | 
 function DateStrip({
   strip,
   selected,
+  today,
+  nights,
   onPick
 }: {
   strip: NonNullable<FlightSearchResult["dateStrip"]>;
   selected: string;
+  today: string;
+  nights: number | null;
   onPick?: (date: string) => void;
 }) {
   const days = strip.slice(0, 7);
@@ -104,11 +112,13 @@ function DateStrip({
   const priced = days.filter((d) => d.price != null);
   const cheapest = priced.length > 1 ? Math.min(...priced.map((d) => d.price as number)) : null;
   return (
-    <div aria-label="Prices by departure day" className="mt-6 max-w-full overflow-x-auto pb-1" role="group">
+    <div className="mt-6 max-w-full">
+    <div aria-label="Prices by departure day" className="max-w-full overflow-x-auto pb-1" role="group">
       <ul className="flex w-max gap-2">
         {days.map((day) => {
           const active = day.date === selected;
           const isCheapest = cheapest != null && day.price === cheapest;
+          const past = isPastDay(day.date, today);
           return (
             <li key={day.date}>
               <button
@@ -116,9 +126,11 @@ function DateStrip({
                 className={`flex h-[60px] min-w-[104px] flex-col items-center justify-center rounded-2xl border px-3 text-center transition ${
                   active
                     ? "border-brandBlue bg-brandBlue text-white"
-                    : "border-outline bg-surface text-brandInk hover:border-brandBlue/50"
+                    : past
+                      ? "border-outline bg-surface text-brandInk opacity-40"
+                      : "border-outline bg-surface text-brandInk hover:border-brandBlue/50"
                 }`}
-                disabled={active || !onPick}
+                disabled={active || past || !onPick}
                 onClick={() => onPick?.(day.date)}
                 type="button"
               >
@@ -136,6 +148,12 @@ function DateStrip({
           );
         })}
       </ul>
+    </div>
+    {nights != null ? (
+      <p className="mt-2 text-body-sm text-onSurfaceVariant">
+        Prices for a {nights}-night trip
+      </p>
+    ) : null}
     </div>
   );
 }
@@ -204,9 +222,18 @@ export function FlightResults({
   state: SearchState;
   onPickDate?: (date: string) => void;
 }) {
+  const today = todayIso();
   const strip =
     state.kind === "done" && state.result.dateStrip && state.result.dateStrip.length > 0 ? (
-      <DateStrip onPick={onPickDate} selected={state.form.departDate} strip={state.result.dateStrip} />
+      <DateStrip
+        nights={
+          state.form.tripType === "round-trip" ? tripNights(state.form.departDate, state.form.returnDate) : null
+        }
+        onPick={onPickDate}
+        selected={state.form.departDate}
+        strip={state.result.dateStrip}
+        today={today}
+      />
     ) : null;
   return (
     <>
@@ -242,7 +269,7 @@ function ResultsBody({ state }: { state: SearchState }) {
   const { result, form } = state;
   const links = result.fallbackLinks.length > 0 ? result.fallbackLinks : localFallbackLinks(form);
 
-  const nearby = result.nearbyOffers ?? [];
+  const nearby = dropPastOffers(result.nearbyOffers ?? [], todayIso());
   if (result.offers.length === 0 && nearby.length > 0) {
     return (
       <section aria-live="polite" className="mt-6">

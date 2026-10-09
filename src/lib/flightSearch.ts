@@ -158,6 +158,25 @@ export function withDepartDate(form: FlightForm, departDate: string): FlightForm
   return { ...form, departDate, returnDate: shiftDate(form.returnDate, days) };
 }
 
+/** True when the YYYY-MM-DD date is before `today` (also YYYY-MM-DD). Unparseable dates are not past. */
+export function isPastDay(date: string, today: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && /^\d{4}-\d{2}-\d{2}$/.test(today) && date < today;
+}
+
+/** Offers departing before `today` (by the date part of departAt). */
+export function dropPastOffers<T extends { departAt: string }>(offers: T[], today: string): T[] {
+  return offers.filter((o) => !isPastDay(o.departAt.slice(0, 10), today));
+}
+
+/** Whole nights between two YYYY-MM-DD dates, or null when unparseable or not positive. */
+export function tripNights(departDate: string, returnDate: string): number | null {
+  const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(departDate);
+  const b = /^(\d{4})-(\d{2})-(\d{2})$/.exec(returnDate);
+  if (!a || !b) return null;
+  const n = Math.round((Date.UTC(+b[1], +b[2] - 1, +b[3]) - Date.UTC(+a[1], +a[2] - 1, +a[3])) / 86_400_000);
+  return n > 0 ? n : null;
+}
+
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 /** "Wed 28 Oct" from YYYY-MM-DD. "" when unparseable. */

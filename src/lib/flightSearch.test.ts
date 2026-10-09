@@ -9,6 +9,9 @@ import {
   dayDiffLabel,
   formatStripDay,
   isOtherAirport,
+  isPastDay,
+  dropPastOffers,
+  tripNights,
   shiftDate,
   withDepartDate,
   type FlightForm,
@@ -139,5 +142,23 @@ describe("isOtherAirport", () => {
   it("is true when either side differs", () => {
     expect(isOtherAirport(offer, { origin: "TIA", destination: "BGY" })).toBe(true);
     expect(isOtherAirport(offer, { origin: "FCO", destination: "MXP" })).toBe(true);
+  });
+});
+
+describe("isPastDay / dropPastOffers / tripNights", () => {
+  it("flags only days before today", () => {
+    expect(isPastDay("2026-10-08", "2026-10-09")).toBe(true);
+    expect(isPastDay("2026-10-09", "2026-10-09")).toBe(false);
+    expect(isPastDay("2026-10-10", "2026-10-09")).toBe(false);
+    expect(isPastDay("garbage", "2026-10-09")).toBe(false);
+  });
+  it("drops offers departing before today", () => {
+    const offers = [{ departAt: "2026-10-08T10:00:00" }, { departAt: "2026-10-09T10:00:00" }];
+    expect(dropPastOffers(offers, "2026-10-09")).toEqual([offers[1]]);
+  });
+  it("counts nights", () => {
+    expect(tripNights("2026-10-10", "2026-10-17")).toBe(7);
+    expect(tripNights("2026-10-10", "2026-10-10")).toBeNull();
+    expect(tripNights("x", "2026-10-10")).toBeNull();
   });
 });
