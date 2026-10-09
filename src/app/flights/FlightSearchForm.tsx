@@ -8,6 +8,7 @@ import {
   EMPTY_FLIGHT_FORM,
   buildSearchQuery,
   flightFormError,
+  withDepartDate,
   type FlightAirport,
   type FlightCountry,
   type FlightForm,
@@ -157,26 +158,38 @@ export function FlightSearchForm() {
   const error = today ? flightFormError(form, today) : "Loading";
   const searching = state.kind === "loading";
 
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (flightFormError(form, today || todayIso()) || searching) return;
+  const runSearch = async (searchForm: FlightForm) => {
     setFormError(null);
 
     const seq = ++searchSeq.current;
     setState({ kind: "loading" });
-    const result = await getJson<FlightSearchResult>(`/bff/flights/search?${buildSearchQuery(form)}`);
+    const result = await getJson<FlightSearchResult>(`/bff/flights/search?${buildSearchQuery(searchForm)}`);
     if (seq !== searchSeq.current) return;
 
     if (result.ok) {
-      setState({ kind: "done", result: result.data, form });
+      setState({ kind: "done", result: result.data, form: searchForm });
     } else {
       setState({
         kind: "error",
         status: result.status,
         message: result.message,
-        form
+        form: searchForm
       });
     }
+  };
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (flightFormError(form, today || todayIso()) || searching) return;
+    await runSearch(form);
+  };
+
+  const pickDate = async (date: string) => {
+    const base = state.kind === "done" || state.kind === "error" ? state.form : form;
+    const next = withDepartDate(base, date);
+    if (searching || flightFormError(next, today || todayIso())) return;
+    setForm(next);
+    await runSearch(next);
   };
 
   const tripButton = (value: FlightForm["tripType"], label: string) => (
@@ -296,7 +309,7 @@ export function FlightSearchForm() {
         </div>
       </form>
 
-      <FlightResults state={state} />
+      <FlightResults onPickDate={pickDate} state={state} />
     </div>
   );
 }

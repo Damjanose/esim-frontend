@@ -37,6 +37,10 @@ export type FlightFallbackLink = { provider: "google" | "skyscanner"; url: strin
 export type FlightSearchResult = {
   offers: FlightOffer[];
   fallbackLinks: FlightFallbackLink[];
+  /** Only when `offers` is empty: one cheapest offer per nearby departure date, closest first. */
+  nearbyOffers?: FlightOffer[];
+  /** Cheapest fare per day around the departure date (price null = no fare found). */
+  dateStrip?: Array<{ date: string; price: number | null; currency: string }>;
   pricesAreCached: true;
   upstreamError?: boolean;
 };
@@ -115,4 +119,60 @@ export function formatPrice(price: number, currency: string): string {
   } catch {
     return `${price} ${currency}`;
   }
+}
+
+/** "2 days earlier" / "3 days later" / "Same day" for an offer's departure vs the chosen YYYY-MM-DD date. */
+export function dayDiffLabel(chosenDate: string, departAt: string): string {
+  const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(chosenDate);
+  const b = /^(\d{4})-(\d{2})-(\d{2})/.exec(departAt ?? "");
+  if (!a || !b) return "";
+  const days = Math.round(
+    (Date.UTC(+b[1], +b[2] - 1, +b[3]) - Date.UTC(+a[1], +a[2] - 1, +a[3])) / 86_400_000
+  );
+  if (days === 0) return "Same day";
+  const n = Math.abs(days);
+  return `${n} ${n === 1 ? "day" : "days"} ${days < 0 ? "earlier" : "later"}`;
+}
+
+/** "5 Nov" from an ISO date or datetime, read as written. "" when unparseable. */
+export function formatFlightDate(iso: string | null | undefined): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? "");
+  const month = match ? MONTHS[Number(match[2]) - 1] : undefined;
+  return match && month ? `${Number(match[3])} ${month}` : "";
+}
+
+/** Adds whole days to a YYYY-MM-DD date (UTC math). Returns the input when unparseable. */
+export function shiftDate(iso: string, days: number): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!m) return iso;
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] + days)).toISOString().slice(0, 10);
+}
+
+/** New departure date; a round trip's return date moves by the same number of days (trip length kept). */
+export function withDepartDate(form: FlightForm, departDate: string): FlightForm {
+  if (form.tripType !== "round-trip" || !form.returnDate || !form.departDate) return { ...form, departDate };
+  const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(form.departDate);
+  const b = /^(\d{4})-(\d{2})-(\d{2})$/.exec(departDate);
+  if (!a || !b) return { ...form, departDate };
+  const days = Math.round((Date.UTC(+b[1], +b[2] - 1, +b[3]) - Date.UTC(+a[1], +a[2] - 1, +a[3])) / 86_400_000);
+  return { ...form, departDate, returnDate: shiftDate(form.returnDate, days) };
+}
+
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** "Wed 28 Oct" from YYYY-MM-DD. "" when unparseable. */
+export function formatStripDay(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  const month = m ? MONTHS[Number(m[2]) - 1] : undefined;
+  if (!m || !month) return "";
+  const weekday = WEEKDAYS[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()];
+  return `${weekday} ${Number(m[3])} ${month}`;
+}
+
+/** True when the offer uses a different airport than the user picked (same-city alternative). */
+export function isOtherAirport(
+  offer: Pick<FlightOffer, "origin" | "destination">,
+  picked: Pick<FlightForm, "origin" | "destination">
+): boolean {
+  return offer.origin !== picked.origin || offer.destination !== picked.destination;
 }

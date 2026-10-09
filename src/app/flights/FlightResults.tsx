@@ -5,10 +5,14 @@ import Lottie from "lottie-react";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import flightLoaderAnimation from "@/../public/lottie/Flight-loader.json";
 import {
+  dayDiffLabel,
   formatDuration,
+  formatFlightDate,
   formatFlightTime,
   formatPrice,
   formatStops,
+  formatStripDay,
+  isOtherAirport,
   type FlightFallbackLink,
   type FlightForm,
   type FlightOffer,
@@ -86,12 +90,75 @@ function Leg({ label, at, stops }: { label: string; at: string; stops: number | 
   );
 }
 
-function OfferCard({ offer }: { offer: FlightOffer }) {
+function DateStrip({
+  strip,
+  selected,
+  onPick
+}: {
+  strip: NonNullable<FlightSearchResult["dateStrip"]>;
+  selected: string;
+  onPick?: (date: string) => void;
+}) {
+  const days = strip.slice(0, 7);
+  if (days.length === 0) return null;
+  const priced = days.filter((d) => d.price != null);
+  const cheapest = priced.length > 1 ? Math.min(...priced.map((d) => d.price as number)) : null;
+  return (
+    <div aria-label="Prices by departure day" className="mt-6 max-w-full overflow-x-auto pb-1" role="group">
+      <ul className="flex w-max gap-2">
+        {days.map((day) => {
+          const active = day.date === selected;
+          const isCheapest = cheapest != null && day.price === cheapest;
+          return (
+            <li key={day.date}>
+              <button
+                aria-pressed={active}
+                className={`flex h-[60px] min-w-[104px] flex-col items-center justify-center rounded-2xl border px-3 text-center transition ${
+                  active
+                    ? "border-brandBlue bg-brandBlue text-white"
+                    : "border-outline bg-surface text-brandInk hover:border-brandBlue/50"
+                }`}
+                disabled={active || !onPick}
+                onClick={() => onPick?.(day.date)}
+                type="button"
+              >
+                <span className="text-body-sm font-semibold">{formatStripDay(day.date)}</span>
+                <span
+                  className={`text-body-sm font-bold ${
+                    active ? "text-white" : isCheapest ? "text-emerald-600" : "text-onSurfaceVariant"
+                  }`}
+                >
+                  {day.price == null ? "—" : formatPrice(day.price, day.currency)}
+                  {isCheapest ? <span className="sr-only"> (cheapest day)</span> : null}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function OfferCard({
+  offer,
+  dayLabel,
+  picked
+}: {
+  offer: FlightOffer;
+  dayLabel?: string;
+  picked?: Pick<FlightForm, "origin" | "destination">;
+}) {
   const duration = formatDuration(offer.durationMin);
   return (
     <li className="rounded-[20px] border border-outline/70 bg-surface p-5 shadow-brandCard sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
+          {dayLabel ? (
+            <p className="mb-1 text-body-sm font-semibold text-brandBlue">
+              {formatFlightDate(offer.departAt)} · {dayLabel}
+            </p>
+          ) : null}
           <p className="font-display text-headline-md font-black text-brandInk">
             {formatPrice(offer.price, offer.currency)}
           </p>
@@ -99,6 +166,12 @@ function OfferCard({ offer }: { offer: FlightOffer }) {
             {offer.airline}
             {offer.flightNumber ? ` ${offer.flightNumber}` : ""} · {offer.origin} <ArrowRight aria-label="to" className="inline" size={13} /> {offer.destination}
           </p>
+          {picked && isOtherAirport(offer, picked) ? (
+            <p className="mt-1.5 inline-block rounded-full bg-brandBlue/10 px-2.5 py-0.5 text-body-sm font-semibold text-brandBlue">
+              {offer.destination !== picked.destination ? `Lands at ${offer.destination}` : `Departs from ${offer.origin}`}
+              {" · other airport"}
+            </p>
+          ) : null}
         </div>
         <a
           className="inline-flex h-11 items-center gap-2 rounded-full bg-brandBlue px-5 text-sm font-bold text-white transition hover:opacity-90"
@@ -124,7 +197,26 @@ function OfferCard({ offer }: { offer: FlightOffer }) {
   );
 }
 
-export function FlightResults({ state }: { state: SearchState }) {
+export function FlightResults({
+  state,
+  onPickDate
+}: {
+  state: SearchState;
+  onPickDate?: (date: string) => void;
+}) {
+  const strip =
+    state.kind === "done" && state.result.dateStrip && state.result.dateStrip.length > 0 ? (
+      <DateStrip onPick={onPickDate} selected={state.form.departDate} strip={state.result.dateStrip} />
+    ) : null;
+  return (
+    <>
+      {strip}
+      <ResultsBody state={state} />
+    </>
+  );
+}
+
+function ResultsBody({ state }: { state: SearchState }) {
   if (state.kind === "idle") return null;
   if (state.kind === "loading") return <Loading />;
 
@@ -150,6 +242,35 @@ export function FlightResults({ state }: { state: SearchState }) {
   const { result, form } = state;
   const links = result.fallbackLinks.length > 0 ? result.fallbackLinks : localFallbackLinks(form);
 
+  const nearby = result.nearbyOffers ?? [];
+  if (result.offers.length === 0 && nearby.length > 0) {
+    return (
+      <section aria-live="polite" className="mt-6">
+        <h2 className="font-display text-title-sm font-black text-brandInk">
+          No fares on {formatFlightDate(form.departDate)} — cheapest nearby dates
+        </h2>
+        <ul className="mt-4 grid gap-4">
+          {nearby.map((offer, index) => (
+            <OfferCard
+              dayLabel={dayDiffLabel(form.departDate, offer.departAt)}
+              key={`${offer.bookingUrl}-${index}`}
+              offer={offer}
+              picked={form}
+            />
+          ))}
+        </ul>
+        <p className="mt-5 text-body-sm text-onSurfaceVariant">
+          Prices were found recently by other travellers and can change. The final price is shown on the partner site
+          when you book. You don&apos;t buy anything on eSIM2you, and we may earn a commission if you book.
+        </p>
+        <p className="mt-3 text-body-sm text-onSurfaceVariant">Want your exact date? Compare live fares:</p>
+        <div className="scale-95 origin-left">
+          <FallbackLinks links={links} />
+        </div>
+      </section>
+    );
+  }
+
   if (result.offers.length === 0) {
     return (
       <div aria-live="polite" className={notice}>
@@ -173,7 +294,7 @@ export function FlightResults({ state }: { state: SearchState }) {
       </h2>
       <ul className="mt-4 grid gap-4">
         {result.offers.map((offer, index) => (
-          <OfferCard key={`${offer.bookingUrl}-${index}`} offer={offer} />
+          <OfferCard key={`${offer.bookingUrl}-${index}`} offer={offer} picked={form} />
         ))}
       </ul>
       <p className="mt-5 text-body-sm text-onSurfaceVariant">
