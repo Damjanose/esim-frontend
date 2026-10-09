@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  airlineLabel,
   buildSearchQuery,
   canSearch,
   flightFormError,
@@ -160,5 +161,16 @@ describe("isPastDay / dropPastOffers / tripNights", () => {
     expect(tripNights("2026-10-10", "2026-10-17")).toBe(7);
     expect(tripNights("2026-10-10", "2026-10-10")).toBeNull();
     expect(tripNights("x", "2026-10-10")).toBeNull();
+  });
+});
+
+describe("airlineLabel", () => {
+  it("prefixes the airline name to the code and flight number", () => {
+    expect(airlineLabel({ airline: "W9", airlineName: "Wizz Air UK", flightNumber: "5460" })).toBe("Wizz Air UK · W9 5460");
+  });
+  it("falls back to the code when the name is unknown or missing", () => {
+    expect(airlineLabel({ airline: "W9", airlineName: null, flightNumber: "5460" })).toBe("W9 5460");
+    expect(airlineLabel({ airline: "W9", flightNumber: null })).toBe("W9");
+    expect(airlineLabel({ airline: "", airlineName: "Wizz Air", flightNumber: null })).toBe("Wizz Air");
   });
 });

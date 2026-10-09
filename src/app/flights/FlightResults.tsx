@@ -5,6 +5,7 @@ import Lottie from "lottie-react";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import flightLoaderAnimation from "@/../public/lottie/Flight-loader.json";
 import {
+  airlineLabel,
   dayDiffLabel,
   dropPastOffers,
   isPastDay,
@@ -216,8 +217,7 @@ function OfferCard({
             {formatPrice(offer.price, offer.currency)}
           </p>
           <p className="mt-0.5 text-body-sm text-onSurfaceVariant">
-            {offer.airline}
-            {offer.flightNumber ? ` ${offer.flightNumber}` : ""} · {offer.origin} <ArrowRight aria-label="to" className="inline" size={13} /> {offer.destination}
+            {airlineLabel(offer)} · {offer.origin} <ArrowRight aria-label="to" className="inline" size={13} /> {offer.destination}
           </p>
           {picked && isOtherAirport(offer, picked) ? (
             <p className="mt-1.5 inline-block rounded-full bg-brandBlue/10 px-2.5 py-0.5 text-body-sm font-semibold text-brandBlue">
@@ -226,15 +226,18 @@ function OfferCard({
             </p>
           ) : null}
         </div>
-        <a
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-brandBlue px-5 text-sm font-bold text-white transition hover:opacity-90"
-          href={offer.bookingUrl}
-          rel="noopener noreferrer sponsored"
-          target="_blank"
-        >
-          View deal
-          <ExternalLink aria-hidden="true" size={15} />
-        </a>
+        <div className="flex flex-col items-start gap-1.5 sm:items-end">
+          <a
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-brandBlue px-5 text-sm font-bold text-white transition hover:opacity-90"
+            href={offer.bookingUrl}
+            rel="noopener noreferrer sponsored"
+            target="_blank"
+          >
+            View deal
+            <ExternalLink aria-hidden="true" size={15} />
+          </a>
+          {offer.agency ? <p className="text-body-sm text-onSurfaceVariant">Sold by {offer.agency}</p> : null}
+        </div>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4 border-t border-outline/70 pt-4 sm:grid-cols-4">
         <Leg at={offer.departAt} label="Departs" stops={offer.transfers} />
@@ -309,7 +312,9 @@ function ResultsBody({ state }: { state: SearchState }) {
     return (
       <section aria-live="polite" className="mt-6">
         <h2 className="font-display text-title-sm font-black text-brandInk">
-          No fares on {formatFlightDate(form.departDate)} — cheapest nearby dates
+          {form.tripType === "round-trip"
+            ? "No fares for these exact dates — closest trips we found"
+            : `No fares on ${formatFlightDate(form.departDate)} — cheapest nearby dates`}
         </h2>
         <ul className="mt-4 grid gap-4">
           {nearby.map((offer, index) => (

@@ -31,3 +31,8 @@ Ryanair Group, easyJet, Wizz Air and Pegasus don't sell through Aviasales, so th
 - Ryanair link format verified: its server echoes route and dates into the redirect. The Wizz Air path resolves. The easyJet deeplink parameters are unverified because easyJet's bot protection blocks curl, so click it once by hand.
 - Pegasus has no public deep-link format, so its button opens flypgs.com/en with nothing prefilled.
 - These links earn no commission. Revenue on these airlines would come from joining Skyscanner's affiliate program through Impact.
+
+## Follow-up: airline names, agencies, round-trip fallback heading
+
+- Offer cards show `airlineLabel(offer)` ("Wizz Air UK · W9 5460") and "Sold by {agency}" under View deal (both optional fields). Round-trip nearby heading is now "No fares for these exact dates — closest trips we found", since the backend fallback can return the depart day with another return (backend f265). Fact f278.
+- Verified headless (Playwright, 1280px round trip TIA→LTN 23–31 Oct and 390px one-way): 4 fallback trips with names/agencies, one-way card, airline pill row wraps 2×2 at phone width, no console errors.

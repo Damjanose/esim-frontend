@@ -21,6 +21,10 @@ export type FlightOffer = {
   price: number;
   currency: string;
   airline: string;
+  /** Full airline name (absent from older backends, null when unknown). */
+  airlineName?: string | null;
+  /** Agency selling the fare, e.g. "Kiwi.com" (absent from older backends). */
+  agency?: string | null;
   flightNumber: string | null;
   origin: string;
   destination: string;
@@ -125,6 +129,13 @@ export function formatPrice(price: number, currency: string): string {
 }
 
 /** "2 days earlier" / "3 days later" / "Same day" for an offer's departure vs the chosen YYYY-MM-DD date. */
+/** "Wizz Air UK · W9 5460", or just the code + flight number when the name is unknown. */
+export function airlineLabel(offer: Pick<FlightOffer, "airline" | "airlineName" | "flightNumber">): string {
+  const code = [offer.airline, offer.flightNumber].filter(Boolean).join(" ");
+  const name = offer.airlineName?.trim();
+  return name && code ? `${name} · ${code}` : name || code;
+}
+
 export function dayDiffLabel(chosenDate: string, departAt: string): string {
   const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(chosenDate);
   const b = /^(\d{4})-(\d{2})-(\d{2})/.exec(departAt ?? "");
