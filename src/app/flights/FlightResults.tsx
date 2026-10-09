@@ -16,6 +16,7 @@ import {
   formatStops,
   formatStripDay,
   isOtherAirport,
+  type FlightAirlineLink,
   type FlightFallbackLink,
   type FlightForm,
   type FlightOffer,
@@ -66,6 +67,40 @@ function FallbackLinks({ links }: { links: FlightFallbackLink[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+const AIRLINE_LABEL: Record<FlightAirlineLink["provider"], string> = {
+  ryanair: "Ryanair",
+  easyjet: "easyJet",
+  wizzair: "Wizz Air",
+  pegasus: "Pegasus"
+};
+
+/** Airlines that don't sell through our fare source, so their fares are never in the list above. */
+function AirlineLinks({ links }: { links: FlightAirlineLink[] | undefined }) {
+  if (!links || links.length === 0) return null;
+  return (
+    <>
+      <p className="mt-5 text-body-sm text-onSurfaceVariant">
+        Fares from these low-cost airlines aren&apos;t in our results. Check them on the airline&apos;s site:
+      </p>
+      <ul className="mt-3 flex flex-wrap gap-3">
+        {links.map((link) => (
+          <li key={link.provider}>
+            <a
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-outline bg-surface px-5 text-sm font-bold text-brandBlue transition hover:border-brandBlue/50"
+              href={link.url}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {AIRLINE_LABEL[link.provider]}
+              <ExternalLink aria-hidden="true" size={15} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -294,6 +329,7 @@ function ResultsBody({ state }: { state: SearchState }) {
         <div className="scale-95 origin-left">
           <FallbackLinks links={links} />
         </div>
+        <AirlineLinks links={result.airlineLinks} />
       </section>
     );
   }
@@ -310,6 +346,7 @@ function ResultsBody({ state }: { state: SearchState }) {
             : "Nobody has searched this route and date recently. Try nearby dates or another airport, or check a partner site for live fares."}
         </p>
         <FallbackLinks links={links} />
+        <AirlineLinks links={result.airlineLinks} />
       </div>
     );
   }
@@ -330,6 +367,7 @@ function ResultsBody({ state }: { state: SearchState }) {
       </p>
       <p className="mt-3 text-body-sm text-onSurfaceVariant">Not what you wanted? Compare live fares:</p>
       <FallbackLinks links={links} />
+      <AirlineLinks links={result.airlineLinks} />
     </section>
   );
 }

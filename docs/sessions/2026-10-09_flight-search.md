@@ -23,3 +23,11 @@ New cross-repo feature: a public flight search whose results are affiliate deal-
 - Nearby dates: when `offers` is empty and `nearbyOffers` has items, FlightResults shows them under "No fares on {date} — cheapest nearby dates" (date + "N days earlier/later" via `dayDiffLabel`), with the Google/Skyscanner links below.
 - Option A client (v3): `dateStrip` type; `DateStrip` in `FlightResults.tsx` (up to 7 chips, searched day filled, cheapest day green, "—" when no price; scrolls inside its own `overflow-x-auto` box). Picking a day calls `onPickDate` -> `FlightSearchForm.pickDate` -> `withDepartDate` (return date shifted by the same days, trip length kept) -> `runSearch`. Offer cards show `isOtherAirport` badge ("Lands at MXP · other airport"). Helpers `shiftDate`, `withDepartDate`, `formatStripDay`, `isOtherAirport` tested. Not visually checked in a browser at phone width (layout is contained by design).
 - Review fixes: strip chips before local today are disabled and muted (`isPastDay`); nearby offers departing before today are dropped (`dropPastOffers`); `pickDate` searches with the shifted submitted form but merges only departDate/returnDate into the live form (unsubmitted edits kept); round-trip strip shows "Prices for a N-night trip" (`tripNights`). Helpers tested in `flightSearch.test.ts`.
+
+## Follow-up: low-cost airline links
+
+Ryanair Group, easyJet, Wizz Air and Pegasus don't sell through Aviasales, so their fares can never appear in Travelpayouts results. The backend search response now carries `airlineLinks`, which are direct search links on each airline's own site. An airline is included only when both airports are in countries it roughly serves (`E-SIM backend/src/services/flightAirlineLinks.ts`). Web `/flights` and the mobile Flight search screen render them as a separate "Fares from these low-cost airlines aren't in our results" row.
+
+- Ryanair link format verified: its server echoes route and dates into the redirect. The Wizz Air path resolves. The easyJet deeplink parameters are unverified because easyJet's bot protection blocks curl, so click it once by hand.
+- Pegasus has no public deep-link format, so its button opens flypgs.com/en with nothing prefilled.
+- These links earn no commission. Revenue on these airlines would come from joining Skyscanner's affiliate program through Impact.

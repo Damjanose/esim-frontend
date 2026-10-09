@@ -33,10 +33,13 @@ export type FlightOffer = {
 };
 
 export type FlightFallbackLink = { provider: "google" | "skyscanner"; url: string };
+export type FlightAirlineLink = { provider: "ryanair" | "easyjet" | "wizzair" | "pegasus"; url: string };
 
 export type FlightSearchResult = {
   offers: FlightOffer[];
   fallbackLinks: FlightFallbackLink[];
+  /** Low-cost airlines that never appear in `offers` (absent from older backends). */
+  airlineLinks?: FlightAirlineLink[];
   /** Only when `offers` is empty: one cheapest offer per nearby departure date, closest first. */
   nearbyOffers?: FlightOffer[];
   /** Cheapest fare per day around the departure date (price null = no fare found). */
