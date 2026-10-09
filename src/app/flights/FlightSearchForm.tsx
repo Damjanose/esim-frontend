@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { ArrowLeftRight, Search } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ArrowUpDown, Search } from "lucide-react";
 import { Button } from "@/app/components/Button";
-import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 import {
   EMPTY_FLIGHT_FORM,
   buildSearchQuery,
@@ -15,7 +14,9 @@ import {
   type FlightSearchResult
 } from "@/lib/flightSearch";
 import { todayIso } from "@/lib/tripPlan/logic";
+import { DatePicker } from "./DatePicker";
 import { FlightResults, type SearchState } from "./FlightResults";
+import { PlacePicker } from "./PlacePicker";
 
 type Envelope<T> = { status?: string; data?: T; error?: string };
 
@@ -32,75 +33,10 @@ async function getJson<T>(url: string): Promise<{ ok: true; data: T } | { ok: fa
   }
 }
 
-/** One side of the trip: a country select, then an airport select for that country. */
-function Endpoint({
-  label,
-  countries,
-  country,
-  onCountry,
-  airport,
-  onAirport,
-  airports,
-  loading
-}: {
-  label: string;
-  countries: FlightCountry[];
-  country: string;
-  onCountry: (code: string) => void;
-  airport: string;
-  onAirport: (iata: string) => void;
-  airports: FlightAirport[];
-  loading: boolean;
-}) {
-  const id = useId();
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <div>
-        <label className={FIELD_LABEL_CLASSES} htmlFor={`${id}-country`}>
-          {label} country
-        </label>
-        <select
-          className={FIELD_INPUT_CLASSES}
-          id={`${id}-country`}
-          onChange={(event) => onCountry(event.target.value)}
-          value={country}
-        >
-          <option value="">Select country</option>
-          {countries.map((item) => (
-            <option key={item.code} value={item.code}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className={FIELD_LABEL_CLASSES} htmlFor={`${id}-airport`}>
-          {label} airport
-        </label>
-        <select
-          className={FIELD_INPUT_CLASSES}
-          disabled={!country || loading}
-          id={`${id}-airport`}
-          onChange={(event) => onAirport(event.target.value)}
-          value={airport}
-        >
-          <option value="">{loading ? "Loading airports..." : "Select airport"}</option>
-          {airports.map((item) => (
-            <option key={item.iata} value={item.iata}>
-              {item.city} - {item.name} ({item.iata})
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
-}
-
 type Side = { country: string; airports: FlightAirport[]; loading: boolean };
 const EMPTY_SIDE: Side = { country: "", airports: [], loading: false };
 
 export function FlightSearchForm() {
-  const ids = useId();
   const [form, setForm] = useState<FlightForm>(EMPTY_FLIGHT_FORM);
   const [countries, setCountries] = useState<FlightCountry[]>([]);
   const [countriesError, setCountriesError] = useState<string | null>(null);
@@ -109,6 +45,7 @@ export function FlightSearchForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [state, setState] = useState<SearchState>({ kind: "idle" });
   const [today, setToday] = useState("");
+  const [swapTurns, setSwapTurns] = useState(0);
   // Guards against an older response landing after a newer search or country change.
   const searchSeq = useRef(0);
   const airportSeq = useRef({ from: 0, to: 0 });
@@ -149,6 +86,7 @@ export function FlightSearchForm() {
   };
 
   const swap = () => {
+    setSwapTurns((turns) => turns + 1);
     airportSeq.current = { from: airportSeq.current.to, to: airportSeq.current.from };
     setFrom(to);
     setTo(from);
@@ -192,21 +130,6 @@ export function FlightSearchForm() {
     await runSearch(next);
   };
 
-  const tripButton = (value: FlightForm["tripType"], label: string) => (
-    <button
-      aria-pressed={form.tripType === value}
-      className={`h-10 rounded-full px-4 text-sm font-bold transition ${
-        form.tripType === value
-          ? "bg-brandBlue text-white"
-          : "border border-outline bg-surface text-onSurfaceVariant hover:text-brandInk"
-      }`}
-      onClick={() => set("tripType", value)}
-      type="button"
-    >
-      {label}
-    </button>
-  );
-
   return (
     <div>
       <form
@@ -214,78 +137,66 @@ export function FlightSearchForm() {
         noValidate
         onSubmit={submit}
       >
-        <div aria-label="Trip type" className="flex gap-2" role="group">
-          {tripButton("round-trip", "Round trip")}
-          {tripButton("one-way", "One way")}
-        </div>
-
-        <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-end">
-          <Endpoint
+        <div className="relative grid rounded-[18px] bg-brandBlue/[0.045] sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <PlacePicker
             airport={form.origin}
             airports={from.airports}
             countries={countries}
             country={from.country}
             label="From"
-            loading={from.loading}
+            loadingAirports={from.loading}
             onAirport={(iata) => set("origin", iata)}
             onCountry={(code) => pickCountry("from", code)}
+            title="Flying from"
           />
-          <button
-            aria-label="Swap from and to"
-            className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-outline bg-surface text-brandBlue transition hover:border-brandBlue/50"
-            onClick={swap}
-            type="button"
-          >
-            <ArrowLeftRight aria-hidden="true" className="rotate-90 lg:rotate-0" size={18} />
-          </button>
-          <Endpoint
+          {/* Perforation: dashed tear line with notches cut into the ticket's edges, swap seated on it. */}
+          <div className="relative flex h-11 items-center justify-center sm:h-auto sm:w-11">
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-5 top-1/2 border-t border-dashed border-brandBlue/25 sm:inset-x-auto sm:inset-y-5 sm:left-1/2 sm:top-auto sm:border-l sm:border-t-0"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute -left-[11px] top-1/2 h-[22px] w-[22px] -translate-y-1/2 rounded-full bg-surface sm:left-1/2 sm:top-[-11px] sm:-translate-x-1/2 sm:translate-y-0"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute -right-[11px] top-1/2 h-[22px] w-[22px] -translate-y-1/2 rounded-full bg-surface sm:bottom-[-11px] sm:left-1/2 sm:right-auto sm:top-auto sm:-translate-x-1/2 sm:translate-y-0"
+            />
+            <button
+              aria-label="Swap from and to"
+              className="relative grid h-10 w-10 place-items-center rounded-full border border-brandBlue/20 bg-surface text-brandBlue transition hover:border-brandBlue/50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brandBlue/20"
+              onClick={swap}
+              type="button"
+            >
+              <ArrowUpDown
+                aria-hidden="true"
+                className="transition-[rotate] duration-300 ease-out motion-reduce:transition-none sm:-rotate-90"
+                size={18}
+                style={{ rotate: `${swapTurns * 180}deg` }}
+              />
+            </button>
+          </div>
+          <PlacePicker
             airport={form.destination}
             airports={to.airports}
             countries={countries}
             country={to.country}
             label="To"
-            loading={to.loading}
+            loadingAirports={to.loading}
             onAirport={(iata) => set("destination", iata)}
             onCountry={(code) => pickCountry("to", code)}
+            title="Flying to"
           />
         </div>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className={FIELD_LABEL_CLASSES} htmlFor={`${ids}-depart`}>
-              Departure
-            </label>
-            <input
-              className={FIELD_INPUT_CLASSES}
-              id={`${ids}-depart`}
-              min={today || undefined}
-              onChange={(event) => {
-                const value = event.target.value;
-                setForm((current) => ({
-                  ...current,
-                  departDate: value,
-                  returnDate: current.returnDate && value && current.returnDate < value ? value : current.returnDate
-                }));
-              }}
-              type="date"
-              value={form.departDate}
-            />
-          </div>
-          {form.tripType === "round-trip" ? (
-            <div>
-              <label className={FIELD_LABEL_CLASSES} htmlFor={`${ids}-return`}>
-                Return
-              </label>
-              <input
-                className={FIELD_INPUT_CLASSES}
-                id={`${ids}-return`}
-                min={form.departDate || today || undefined}
-                onChange={(event) => set("returnDate", event.target.value)}
-                type="date"
-                value={form.returnDate}
-              />
-            </div>
-          ) : null}
+        <div className="mt-3">
+          <DatePicker
+            form={form}
+            onDates={(dates) => setForm((current) => ({ ...current, ...dates }))}
+            onTripType={(tripType) => set("tripType", tripType)}
+            today={today}
+          />
         </div>
 
         {countriesError ? (
