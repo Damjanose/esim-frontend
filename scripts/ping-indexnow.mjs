@@ -60,15 +60,24 @@ async function pingIndexNow(endpoint, urlList) {
   return { endpoint, status: response.status, body };
 }
 
+async function tryPingIndexNow(endpoint, urlList) {
+  // A network error on one engine must not skip the others.
+  try {
+    return await pingIndexNow(endpoint, urlList);
+  } catch (error) {
+    return { endpoint, status: 0, body: String(error?.cause ?? error) };
+  }
+}
+
 async function main() {
   const urlList = await collectSitemapUrls();
   console.log(`Pinging IndexNow with ${urlList.length} URLs...`);
 
   const results = [];
   for (const endpoint of INDEXNOW_ENDPOINTS) {
-    const result = await pingIndexNow(endpoint, urlList);
+    const result = await tryPingIndexNow(endpoint, urlList);
     results.push(result);
-    console.log(`${endpoint} -> ${result.status}`);
+    console.log(`${endpoint} -> ${result.status || result.body}`);
   }
 
   const bingRefusal = results.find((result) => result.body.includes("UserForbiddedToAccessSite"));
