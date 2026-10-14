@@ -29,6 +29,27 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // HSTS, X-Frame-Options and nosniff come from the proxy in front of
+        // Next; these are the ones it doesn't send. The CSP only covers
+        // directives that can't break scripts/styles (a script-src policy would
+        // need per-request nonces, which turns off static rendering and ISR).
+        // Pokpay checkout is a redirect, not an iframe, so payment=() is safe.
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests",
+          },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
+          },
+        ],
+      },
+      {
         source: "/images/:path*",
         headers: [
           {
