@@ -24,6 +24,13 @@ const nextConfig = {
         hostname: "flagcdn.com",
         pathname: "/**",
       },
+      {
+        // Country flags (flagUri) from the backend catalog. Proxying them keeps
+        // Airalo's __cf_bm cookie off our pages and sizes them to the display.
+        protocol: "https",
+        hostname: "cdn-revamp.airalo.com",
+        pathname: "/**",
+      },
     ],
   },
   async headers() {

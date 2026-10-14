@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { isOptimizableImageUrl } from "./countryImageCache";
 import { crawlRel } from "@/lib/robots-policy";
 import { useLazyCountryImage } from "./useLazyCountryImage";
+import { FlagImage } from "../components/FlagImage";
 
 export type PhotoTileSize = "trending" | "rail";
 
@@ -80,12 +81,11 @@ export function PhotoTile({ href, country, countryCode, flagUri, detail, size }:
       />
 
       {flagUri ? (
-        <img
+        <FlagImage
           alt={`${country} flag`}
           className={`absolute left-2 top-2 rounded-full border border-surface/80 object-cover ${badge}`}
-          decoding="async"
-          loading="lazy"
           src={flagUri}
+          width={24}
         />
       ) : (
         <span

@@ -100,6 +100,7 @@ describe("countryImageCache", () => {
     expect(isOptimizableImageUrl("https://thumb.wikimedia.org/x.jpg")).toBe(true);
     expect(isOptimizableImageUrl("https://images.unsplash.com/photo-1")).toBe(true);
     expect(isOptimizableImageUrl("https://flagcdn.com/w80/jp.png")).toBe(true);
+    expect(isOptimizableImageUrl("https://cdn-revamp.airalo.com/images/flag.png")).toBe(true);
 
     expect(isOptimizableImageUrl("http://upload.wikimedia.org/x.jpg")).toBe(false);
     expect(isOptimizableImageUrl("https://a.b.wikimedia.org/x.jpg")).toBe(false);

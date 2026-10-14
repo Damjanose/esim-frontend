@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-14 | [homepage perf](./2026-10-14_homepage-perf.md) | Lottie wizard intro lazy-loaded and Geist not preloaded (homepage First Load JS 228->144 KB), Airalo flags through next/image (FlagImage, no third-party cookie), descriptive cookie-banner link (f283-f285) |
 | 2026-10-14 | [GEO answer-first](./2026-10-14_geo-answer-first.md) | GEO re-audit (~63/100), 'Does eSIM2you work in X?' answer moved into the /esim hero, /esim/united-states and similar names 308 to the real slug (f281-f282) |
 | 2026-10-14 | [security headers](./2026-10-14_security-headers.md) | CSP (frame-ancestors/base-uri/object-src/upgrade-insecure-requests), Referrer-Policy and Permissions-Policy added in next.config.mjs after a technical SEO audit (f280) |
 | 2026-10-09 | [flight search](./2026-10-09_flight-search.md) | Public /flights search over new /bff/flights/* (countries, airports, search), affiliate sponsored deal links with Google Flights/Skyscanner fallbacks, visitor IP forwarded to the backend rate limit (f276) |

@@ -155,7 +155,7 @@ function ConsentDialog({ hasExistingChoice }: { hasExistingChoice: boolean }) {
               <p className={`mt-0.5 max-w-2xl text-[11px] leading-4 md:mt-0 ${firstVisit ? "text-white/70" : "text-onSurfaceVariant"}`} id="cookie-consent-description">
                 We use optional cookies for analytics and advertising. Accept or reject them, or customize your choices.{" "}
                 <Link className={`font-bold underline decoration-brandBlue/40 underline-offset-2 hover:text-brandBlue ${firstVisit ? "text-white" : "text-onSurface"}`} href="/policy">
-                  Learn more
+                  Read our privacy policy
                 </Link>
               </p>
             </div>

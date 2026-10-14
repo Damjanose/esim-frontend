@@ -28,6 +28,7 @@ import { PlanFilterBar } from "./PlanFilterBar";
 import { PlansSidebar } from "./PlansSidebar";
 import { EmptyFilterState, ErrorState, MissingDestinationState, PlansLoading } from "./PlansStates";
 import { useCountryHeroImage } from "./useCountryHeroImage";
+import { FlagImage } from "../components/FlagImage";
 
 type DestinationPlansProps = {
   countryCode: string;
@@ -243,10 +244,11 @@ export function DestinationPlans({ countryCode, searchFilters }: DestinationPlan
           {selectedCountry ? (
             <span className="inline-flex h-9 items-center gap-2 rounded-full border border-surface/25 bg-surface/10 pl-1 pr-3 backdrop-blur">
               {selectedCountry.flagUri ? (
-                <img
+                <FlagImage
                   alt={`${selectedCountry.country} flag`}
                   className="h-7 w-7 rounded-full border border-surface/20 object-cover"
                   src={selectedCountry.flagUri}
+                  width={28}
                 />
               ) : (
                 <span className="grid h-7 w-7 place-items-center">

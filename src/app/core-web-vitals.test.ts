@@ -53,6 +53,41 @@ describe("Core Web Vitals performance contract", () => {
   });
 
 
+  it("keeps the homepage's first load free of fonts and Lottie it doesn't paint", async () => {
+    const layout = await readFile(join(process.cwd(), "src/app/layout.tsx"), "utf8");
+    const browse = await readFile(join(process.cwd(), "src/app/destinations/DestinationBrowse.tsx"), "utf8");
+
+    // Geist (font-mono) is only used in the wizard and admin pages; preloading it
+    // at high priority competed with the LCP hero image on every page.
+    expect(layout).toMatch(/Geist\(\{[^}]*preload: false/);
+    // lottie-web (~76 KB gzip) only plays once the wizard intro opens.
+    expect(browse).not.toContain('import { WizardWelcomeIntro } from "./WizardWelcomeIntro"');
+    expect(browse).toContain('import("./WizardWelcomeIntro")');
+  });
+
+  it("serves Airalo flag images through next/image (no third-party cookie, sized to display)", async () => {
+    const config = await readFile(join(process.cwd(), "next.config.mjs"), "utf8");
+    expect(config).toContain('hostname: "cdn-revamp.airalo.com"');
+
+    for (const file of [
+      "src/app/destinations/CountryRow.tsx",
+      "src/app/destinations/DestinationPlans.tsx",
+      "src/app/EsimDestinationPage.tsx",
+      "src/app/components/CollapsedCountryBar.tsx",
+      "src/app/components/EsimFlag.tsx",
+      "src/app/HeroSearchDialog.tsx",
+      "src/app/HeroPackageSearch.tsx",
+      "src/app/destinations/PhotoTile.tsx",
+      "src/app/destinations/HelpMeChooseWizard.tsx",
+      "src/app/checkout/OrderSummary.tsx",
+      "src/app/pkg/[id]/page.tsx"
+    ]) {
+      const source = await readFile(join(process.cwd(), file), "utf8");
+      expect(source, file).toContain("<FlagImage");
+      expect(source, file).not.toMatch(/<img[^>]*src=\{[^}]*flagUri/);
+    }
+  });
+
   it("serves the footer logo through next/image at its display size", async () => {
     const source = await readFile(join(process.cwd(), "src/app/SiteFooter.tsx"), "utf8");
 

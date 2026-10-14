@@ -4,6 +4,7 @@ import { ChevronLeft, Globe2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { COUNTRY_BANNER_ID } from "./CountryBanner";
+import { FlagImage } from "./FlagImage";
 
 /** The bar is h-14. The banner counts as gone once its bottom slides under the bar. */
 const BAR_HEIGHT_PX = 56;
@@ -55,10 +56,12 @@ export function CollapsedCountryBar({ country, flagUri, fromPrice }: CollapsedCo
         </Link>
 
         {flagUri ? (
-          <img
+          <FlagImage
             alt={`${country} flag`}
             className="h-5 w-7 shrink-0 rounded-[4px] border border-outline/60 object-cover"
+            height={20}
             src={flagUri}
+            width={28}
           />
         ) : (
           <Globe2 aria-hidden="true" className="shrink-0 text-brandBlue" size={18} />

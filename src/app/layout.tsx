@@ -20,10 +20,13 @@ const inter = Inter({
   variable: "--font-sans"
 });
 
+// Not preloaded: font-mono is only used in the plan wizard and admin pages, and
+// a high-priority preload competed with the homepage hero image (LCP).
 const geist = Geist({
   subsets: ["latin"],
   weight: ["500", "600"],
-  variable: "--font-mono"
+  variable: "--font-mono",
+  preload: false
 });
 
 const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;

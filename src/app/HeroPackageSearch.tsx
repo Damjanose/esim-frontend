@@ -16,6 +16,7 @@ import {
   rememberRecentDestination,
   type CountryOption,
 } from "./HeroSearchDialog";
+import { FlagImage } from "./components/FlagImage";
 
 function getCountryOptions(
   packages: readonly HeroPackageOption[],
@@ -162,10 +163,11 @@ export function HeroPackageSearch() {
         type="button"
       >
         {selectedCountry?.flagUri ? (
-          <img
+          <FlagImage
             alt=""
             className="h-7 w-7 shrink-0 rounded-full border border-outline object-cover"
             src={selectedCountry.flagUri}
+            width={28}
           />
         ) : (
           <Search aria-hidden="true" className="shrink-0 text-brandBlue" size={20} />

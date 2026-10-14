@@ -23,6 +23,7 @@ import { isOptimizableImageUrl } from "./destinations/countryImageCache";
 import { formatEstimateRange, type DisplayRates } from "@/lib/exchangeRate";
 import { destinationBuyingChecks } from "@/content/destination-buying";
 import { hasBestValueTag, planDurationText, planRowTags } from "@/lib/planRow";
+import { FlagImage } from "./components/FlagImage";
 
 function trustPoints(offer?: DestinationOfferInput) {
   return [
@@ -125,10 +126,11 @@ export function EsimDestinationPageView({
         >
           <div className="mt-6 flex items-center gap-3">
             {flagUri ? (
-              <img
+              <FlagImage
                 alt={`${countryName} flag`}
                 className="h-8 w-8 shrink-0 rounded-full border border-surface/30 object-cover"
                 src={flagUri}
+                width={32}
               />
             ) : null}
             <p className="text-label-caps uppercase text-brandTeal">{page.eyebrow}</p>

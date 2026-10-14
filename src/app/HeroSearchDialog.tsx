@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { ChevronRight, Clock3, Globe2, Search, X } from "lucide-react";
 import { normalizeDestinationValue } from "@/services/packages";
+import { FlagImage } from "./components/FlagImage";
 
 export type CountryOption = {
   country: string;
@@ -240,10 +241,11 @@ export function HeroSearchDialog({
           type="button"
         >
           {country.flagUri ? (
-            <img
+            <FlagImage
               alt=""
               className="h-9 w-9 shrink-0 rounded-full border border-outline/60 object-cover"
               src={country.flagUri}
+              width={36}
             />
           ) : (
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandBlue/10 text-brandBlue">

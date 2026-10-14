@@ -6,6 +6,7 @@ import Lottie from "lottie-react";
 import searchPackageAnimation from "@/../public/lottie/search-package.json";
 import { Button } from "../components/Button";
 import { BoardingPassStepper } from "./BoardingPassStepperCard";
+import { FlagImage } from "../components/FlagImage";
 
 type CountryOption = {
   country: string;
@@ -260,10 +261,11 @@ export function HelpMeChooseWizard({
                       type="button"
                     >
                       {country.flagUri ? (
-                        <img
+                        <FlagImage
                           alt=""
                           className="h-8 w-8 rounded-full border border-outline object-cover"
                           src={country.flagUri}
+                          width={32}
                         />
                       ) : null}
                       {country.country}

@@ -30,7 +30,7 @@ describe("DestinationBrowse error handling and wizard auto-open wiring", () => {
       "utf8",
     );
 
-    expect(source).toContain("import { WizardWelcomeIntro }");
+    expect(source).toContain('import("./WizardWelcomeIntro")');
     expect(source).toContain("WELCOME_MIN_DELAY_MS");
     expect(source).toContain("if (!showWelcome || !welcomeMinDelayDone || loading) return;");
     expect(source).toContain("if (!loadError) setWizardOpen(true);");

@@ -15,6 +15,7 @@ import { planDurationText, planRowTags, planVoiceSmsDetail } from "@/lib/planRow
 import type { HeroPackageOption } from "@/services/packages";
 import { PlanDataDisc, PlanTags } from "@/app/components/PlanRow";
 import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
+import { FlagImage } from "../components/FlagImage";
 
 /**
  * ISO 3166-1 alpha-2 -> flag emoji, via the regional-indicator-symbol trick
@@ -96,10 +97,9 @@ export function OrderSummary({
 
         <div className="flex items-center gap-3">
           {plan.flagUri && !flagFailed ? (
-            <img
+            <FlagImage
               alt=""
               className="h-11 w-11 shrink-0 rounded-full border border-outline/60 object-cover"
-              height={44}
               onError={() => setFlagFailed(true)}
               src={plan.flagUri}
               width={44}

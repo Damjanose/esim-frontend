@@ -27,7 +27,12 @@ import type { WizardResult } from "./HelpMeChooseWizard";
 import { PhotoTile } from "./PhotoTile";
 import { onPlanWizardRequest } from "./planWizardOpener";
 import { TileCarousel } from "./TileCarousel";
-import { WizardWelcomeIntro } from "./WizardWelcomeIntro";
+// Loaded on demand like the wizard: the intro's Lottie player (~76 KB gzip)
+// used to ship in the homepage's first load, competing with the hero image.
+const WizardWelcomeIntro = dynamic(
+  () => import("./WizardWelcomeIntro").then((module) => module.WizardWelcomeIntro),
+  { ssr: false },
+);
 
 const HelpMeChooseWizard = dynamic(
   () => import("./HelpMeChooseWizard").then((module) => module.HelpMeChooseWizard),

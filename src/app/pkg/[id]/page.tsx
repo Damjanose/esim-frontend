@@ -8,6 +8,7 @@ import { Navbar } from "../../components/Navbar";
 import { PlanRow } from "../../components/PlanRow";
 import { SiteFooter } from "../../SiteFooter";
 import { OpenAppActions } from "./OpenAppActions";
+import { FlagImage } from "@/app/components/FlagImage";
 
 function safeDecode(value: string) {
   try {
@@ -62,7 +63,7 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
           <>
             <div className="mt-4 flex items-center gap-4">
               {plan.flagUri ? (
-                <img alt="" className="h-12 w-12 shrink-0 rounded-full object-cover" src={plan.flagUri} />
+                <FlagImage alt="" className="h-12 w-12 shrink-0 rounded-full object-cover" src={plan.flagUri} width={48} />
               ) : (
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-outline bg-mist text-brandBlue">
                   <Globe2 size={22} />

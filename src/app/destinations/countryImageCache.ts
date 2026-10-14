@@ -101,7 +101,12 @@ export const peekCountryImage = browserCountryImages.peek;
  * subdomain label). next/image throws on any other host, so a photo from
  * anywhere else is rendered with `unoptimized` instead.
  */
-const NEXT_IMAGE_HOSTS = [/^images\.unsplash\.com$/, /^[^.]+\.wikimedia\.org$/, /^flagcdn\.com$/];
+const NEXT_IMAGE_HOSTS = [
+  /^images\.unsplash\.com$/,
+  /^[^.]+\.wikimedia\.org$/,
+  /^flagcdn\.com$/,
+  /^cdn-revamp\.airalo\.com$/
+];
 
 export function isOptimizableImageUrl(value: string): boolean {
   try {

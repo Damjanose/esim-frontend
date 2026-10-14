@@ -146,4 +146,11 @@ describe("public navigation shell", () => {
     expect(footer).toContain("flex flex-wrap gap-x-4 gap-y-2 sm:mt-4 sm:grid sm:gap-3");
     expect(css).toContain("body:has([data-bottom-dock]) footer[aria-label=\"Footer\"]");
   });
+
+  it("gives the cookie banner's policy link descriptive text (Lighthouse link-text)", () => {
+    const consent = readFileSync("src/app/ConsentManager.tsx", "utf8");
+
+    expect(consent).toContain("Read our privacy policy");
+    expect(consent).not.toMatch(/href="\/policy">\s*Learn more/);
+  });
 });
