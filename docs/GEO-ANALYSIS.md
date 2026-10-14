@@ -3,6 +3,8 @@
 Re-audit: **2026-10-14**. Previous audit: 2026-10-08 (~55/100), kept at the bottom of this file.
 
 > **Status 2026-10-14:** Shipped: change 2 (answer shown in the /esim hero, f281) and the /esim country-name 308s (f282). Still open: changes 1, 3, 4 (needs backend operator and hotspot fields) and 5.
+>
+> **Re-check 2026-10-14 (after deploy), ~65/100.** The answer block is live and sits at ~6% page depth on /esim/usa, /uk, /italy, /japan and /europe (it was ~80%), so citability goes from 15 to 17. Nothing else has changed: guides are still ~320–350 words with the nav and footer included, the price index has no key-findings lead or USD/GBP, inner pages still have no Organization node (SCHEMA-REPORT.md finding 1), robots.txt and llms.txt are unchanged, and there are no new off-site mentions. Perf commit e0ed504 isn't deployed yet.
 
 Method: fetched live pages as a crawler would (raw HTML, no JS), counted words inside `<main>` (this count still includes the nav and footer, so the unique copy is lower), and checked where key answers sit on the page. Ran web searches for the brand and for "best eSIM for USA from UK". Platform visibility in ChatGPT, Perplexity and Google AI Overviews/AI Mode was **not measured with a tool**, so readiness is qualitative.
 
