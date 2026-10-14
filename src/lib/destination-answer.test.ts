@@ -73,12 +73,16 @@ describe("destinationAnswerFaq", () => {
     expect(destinationAnswerFaq({ countryName: "Albania", plans: [plan()] })).toBeNull();
   });
 
-  it("leads both the visible FAQ and the FAQPage schema on /esim pages", () => {
+  it("is the first answer on /esim pages: shown in the hero, kept in the FAQPage schema, not repeated in the FAQ list", () => {
     const source = readFileSync(join(process.cwd(), "src/app/EsimDestinationPage.tsx"), "utf8");
 
     expect(source).toContain("const answerFaq = destinationAnswerFaq({ countryName, plans, offer });");
     expect(source).toContain("          faqs,\n");
-    expect(source).toContain("{faqs.map((faq) => (");
-    expect(source).not.toContain("page.faqs.map");
+    expect(source).toContain('data-answer-first=""');
+    // The hero answer comes before the intro and the plan table.
+    expect(source.indexOf("{answerFaq.answer}")).toBeGreaterThan(-1);
+    expect(source.indexOf("{answerFaq.answer}")).toBeLessThan(source.indexOf("{page.intro}"));
+    expect(source).toContain("{page.faqs.map((faq) => (");
+    expect(source).not.toContain("{faqs.map((faq) => (");
   });
 });

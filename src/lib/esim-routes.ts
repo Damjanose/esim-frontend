@@ -19,6 +19,8 @@ const EXTRA_QUERY_ALIASES: Record<string, string> = {
   gb: "uk",
   "united-kingdom": "uk",
   "great-britain": "uk",
+  britain: "uk",
+  england: "uk",
   "united-arab-emirates": "uae"
 };
 
@@ -53,6 +55,20 @@ export function esimSlugFromCountryQuery(country: string): string | null {
 export function esimPathForCountryQuery(country: string): string | null {
   const slug = esimSlugFromCountryQuery(country);
   return slug ? `/esim/${slug}` : null;
+}
+
+/**
+ * `/esim/united-states` → `/esim/usa`: people and AI agents guess the full
+ * country name, so known aliases get a redirect instead of a 404. Real slugs,
+ * unknown names and the private `/esim/id/*` paths return null.
+ */
+export function esimAliasPath(pathname: string): string | null {
+  const match = /^\/esim\/([^/]+)$/.exec(pathname);
+  if (!match || match[1] === "id" || match[1] in destinationDisplay) {
+    return null;
+  }
+  const slug = esimSlugFromCountryQuery(match[1]);
+  return slug && slug !== match[1] ? `/esim/${slug}` : null;
 }
 
 /** Browse/chip links: canonical `/esim/[slug]` when a content page exists. */

@@ -73,8 +73,9 @@ export function EsimDestinationPageView({
   const guideLinks = destinationGuideLinks(page);
   const lowestPriced = plans[0];
   const coverageNote = destinationDisplay[page.slug]?.coverageNote;
-  // Answer-first: the generated "Does eSIM2you work in X?" leads the visible
-  // FAQ and the FAQPage schema (both read `faqs`), only when plans are live.
+  // Answer-first: the generated "Does eSIM2you work in X?" is shown in the hero
+  // (AI answers mostly quote a page's opening) and leads the FAQPage schema.
+  // The visible FAQ list skips it so the page doesn't say it twice.
   const answerFaq = destinationAnswerFaq({ countryName, plans, offer });
   const faqs = answerFaq ? [answerFaq, ...page.faqs] : page.faqs;
   const estimate = offer && rates ? formatEstimateRange(offer.lowPrice, offer.highPrice, rates) : null;
@@ -148,6 +149,15 @@ export function EsimDestinationPageView({
             <p className="mt-2 text-xs font-semibold text-surface/60">
               Approximate USD/GBP conversion, updated daily. You&apos;re charged in EUR at checkout.
             </p>
+          ) : null}
+          {answerFaq ? (
+            <div
+              className="mt-5 max-w-3xl rounded-[16px] border border-surface/20 bg-surface/10 px-4 py-3 backdrop-blur"
+              data-answer-first=""
+            >
+              <h2 className="font-display text-base font-black text-surface">{answerFaq.question}</h2>
+              <p className="mt-1 text-base leading-7 text-surface/90">{answerFaq.answer}</p>
+            </div>
           ) : null}
           <p className="mt-5 max-w-3xl text-base leading-7 text-surface/75 sm:text-lg sm:leading-8">{page.intro}</p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -432,7 +442,7 @@ export function EsimDestinationPageView({
               Quick answers before you travel.
             </h2>
             <div className="mt-8 space-y-3">
-              {faqs.map((faq) => (
+              {page.faqs.map((faq) => (
                 <details className="group rounded-[16px] border border-outline/70 bg-surface px-5 py-2" key={faq.question}>
                   <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-2 font-display font-black text-brandInk">
                     {faq.question}

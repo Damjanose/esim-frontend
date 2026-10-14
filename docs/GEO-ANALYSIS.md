@@ -1,16 +1,100 @@
 # GEO / AI-search analysis: esim.uplisoft.com
 
-> **Status 2026-10-08 (after this audit):**
-> - Fix 5 (brand spelling, branded titles, homepage H1) was already in the repo, just not deployed.
-> - Shipped in this session:
->   - USD/GBP estimates on every /esim page.
->   - A "Before you buy" block (phone support, number/WhatsApp, hotspot, top-up, refund) on every /esim page.
->   - A visible updated date and byline on guides.
->   - /travel/internet-abroad rewritten with a comparison table (f274).
-> - Still open:
->   - Off-site footprint (see docs/brand-outreach-kit.md).
->   - Per-country network names and hotspot data: needs the backend to pass the Airalo operator fields through /packages.
->   - Rewriting the other thin guides.
+Re-audit: **2026-10-14**. Previous audit: 2026-10-08 (~55/100), kept at the bottom of this file.
+
+> **Status 2026-10-14:** Shipped: change 2 (answer shown in the /esim hero, f281) and the /esim country-name 308s (f282). Still open: changes 1, 3, 4 (needs backend operator and hotspot fields) and 5.
+
+Method: fetched live pages as a crawler would (raw HTML, no JS), counted words inside `<main>` (this count still includes the nav and footer, so the unique copy is lower), and checked where key answers sit on the page. Ran web searches for the brand and for "best eSIM for USA from UK". Platform visibility in ChatGPT, Perplexity and Google AI Overviews/AI Mode was **not measured with a tool**, so readiness is qualitative.
+
+## GEO readiness: ~63/100 (was ~55)
+
+| Area | Weight | Was | Now | Notes |
+|---|---|---|---|---|
+| Citability | 25 | 12 | 15 | /esim pages: EUR+USD+GBP ranges, plan table with validity and 4G/5G, "Before you buy" block. /esim-price-index is real original data (€0.28–€4.20/GB, median €0.47/GB, dated). But the best answer block ("Does eSIM2you work in the USA? Yes… 27 plans, from €4.00, valid 3 to 30 days") sits in the FAQ at ~80% page depth. 20 guide/compare/use-case pages still have 280–470 words including chrome, roughly 150–250 unique. |
+| Structure | 20 | 15 | 16 | One H1, question H2s, tables on /esim, compare and the index. Guides have no tables. |
+| Multi-modal | 15 | 6 | 6 | Destination photos and homepage app screenshots only. No video, no setup screenshots in guides, no chart on the price index. |
+| Authority / brand | 20 | 5 | 8 | Visible "Updated … · By the eSIM2you team" on guides. /about, /contact and /press exist, and a brand search now returns the homepage. Still no Reddit, YouTube, Trustpilot, Wikipedia/Wikidata, LinkedIn or eSIM-comparison-site presence, and no third-party review anywhere. |
+| Technical access | 20 | 17 | 18 | SSR (590 words on homepage without JS), 69/69 sitemap URLs 200 with self-canonicals, valid JSON-LD in server HTML, IndexNow pinged on deploy, real 404s. |
+
+## AI crawler access
+
+robots.txt has only a `*` group (`Allow: /`, disallow /api /admin /auth /bff /cdn-cgi/), so every bot below falls through to it.
+
+Search and citation crawlers:
+- Googlebot (Google Search, AI Overviews, AI Mode): allowed
+- OAI-SearchBot (ChatGPT Search citations): allowed
+- Claude-SearchBot (Claude search citations): allowed
+- PerplexityBot (Perplexity index): allowed
+- Applebot (Siri, Spotlight, Safari): allowed
+
+Training crawlers (a licensing choice that doesn't affect visibility):
+- GPTBot (OpenAI training): allowed
+- ClaudeBot (Anthropic training): allowed
+- Google-Extended (Gemini/Vertex training and grounding): allowed
+- CCBot (Common Crawl): allowed
+- Applebot-Extended (Apple Intelligence training): allowed
+
+Nothing blocks AI search. No change is needed.
+
+## llms.txt
+
+Present, valid per Lighthouse, 2.9 KB, generated from `src/content/llms.ts`. Google says it neither helps nor hurts. Leave it as is.
+
+## Brand mentions (web search, 2026-10-14)
+
+- "eSIM2you" now returns esim.uplisoft.com as a result (on 10-08 the research index had no pages).
+- Product Hunt: listed, 0 upvotes, 1 comment (hunted.space mirror).
+- No Reddit, YouTube, Trustpilot, Wikipedia, LinkedIn or review-site results.
+- **Name collisions:** eSIM2Me (Trustpilot 3.8–4.2), esim2go.org, and a RedteaGO promo code "ESIM2YOU". An AI answer can blend these with us.
+- **appsapk.com hosts an "eSim2you APK"** that claims to be the official build. If it isn't ours, it's a brand-trust and security risk, so report it and ask them to take it down.
+- "Best eSIM for USA from UK" results are vendor roundups (Jetpac, Roamless, Saily-leaning Unusual Nomad, mybestsim) plus kiwitaxi. We're in none of them.
+
+## Top 5 changes, highest impact first
+
+1. **Earn third-party mentions and reviews.** This is still the biggest gap: AI answers about "best eSIM for X" are assembled from roundups, Reddit and review sites, and we aren't on any of them.
+   - Prompt for App Store and Play reviews after a successful install.
+   - Claim a Trustpilot page.
+   - List on eSIMDB and esims.io.
+   - Pitch mybestsim, Unusual Nomad and kiwitaxi for their USA/UK roundups, leading with the price index.
+   - Post 3–5 short YouTube setup videos.
+   - Playbook: docs/brand-outreach-kit.md.
+   - *How you'd know it failed:* in 60 days a brand search still shows only our own pages and Product Hunt.
+2. **Move the "Does eSIM2you work in X?" answer to the top of every /esim page**, right under the price line.
+   - It's the most quotable passage on the page but sits in the FAQ at ~80% depth. About 44% of AI citations come from the first 30% of a page (SE Ranking).
+   - Keep the FAQ entry and the FAQPage JSON-LD as they are.
+   - *How you'd know it failed:* AI answers still quote competitors' "does X work in USA" wording.
+3. **Rewrite the thin pages, US and UK first.** Do `/travel/best-esim-usa-travel`, `/travel/best-esim-uk-travel`, `/travel/best-esim-europe-travel`, `/compare/airalo-vs-esim2you` and `/compare/holafly-vs-esim2you` first.
+   - Use the same shape as `/travel/internet-abroad`: 800–1,200 words, question H2s, a table, and specific numbers from our live plans and the price index.
+   - Answer the questions the USA roundups answer: coverage across states, hotspot and throttling, calls/SMS plans, and UK carriers' US roaming costs.
+4. **Give a concrete hotspot and network answer per plan.**
+   - The Network column shows "4G/5G" and never names a carrier (AT&T, T-Mobile, Vodafone…).
+   - The hotspot answer says "depends… ask support", and every roundup treats hotspot as a deciding factor.
+   - This needs the backend to pass Airalo's operator and tethering fields through `/packages` (still open from 10-08).
+5. **Make the price index easy to cite.**
+   - Add a "Key findings" lead with 3–4 dated, self-contained sentences, e.g. "In October 2026 the median best price for travel eSIM data across 28 destinations was €0.47/GB (~$0.53)".
+   - Add USD and GBP alongside EUR, since US and UK are the priority markets.
+   - Add a simple chart.
+   - This is our only original data, and original data is what earns "highly cited" links.
+
+Smaller: `/esim/united-states`, `/esim/united-kingdom` and `/esim/great-britain` return 404. Add 308s to `/esim/usa` and `/esim/uk`, because people and agents guess those slugs.
+
+## Schema
+
+The current set is valid and server-rendered: Organization (with sameAs for Instagram, Facebook, Product Hunt and both stores), WebSite, SoftwareApplication, Product/AggregateOffer, Article, BreadcrumbList, Dataset on the index, and FAQPage. FAQPage no longer gets a Google rich result (retired May 2026). It's harmless, so leave it.
+
+To add:
+- LinkedIn and YouTube in `sameAs` once those profiles exist.
+- `aggregateRating` only from real store ratings, never from testimonials.
+
+## Passages to rewrite
+
+- **/travel/what-is-an-esim** (about 150 unique words). The opening "This guide explains what an eSIM is: …" is a meta-sentence. Start with the definition instead: "An eSIM is a digital SIM profile stored on your phone's chip. A travel eSIM adds a second, data-only line, so you can buy mobile data for your destination before you fly and keep your usual number on your home SIM." Then add sections with numbers: how many phones support eSIM, setup time, typical price per GB (link the index), and eSIM vs physical SIM vs roaming as a table.
+- **/esim/usa intro**: "eSIM2you helps travelers visiting the United States set up mobile internet…" is generic. Replace it with the facts the FAQ already has: "eSIM2you sells 27 prepaid USA eSIM plans from €4.00 (~$4.49), 1 GB to unlimited, valid 3–30 days, on 4G/5G. Some include US calls and SMS. Install before you fly, turn the data line on when you land."
+- **Hotspot answer in "Before you buy"**: replace "depends on the plan… ask support" with a per-plan yes/no once the backend exposes it (change 4).
+
+---
+
+# Previous audit (2026-10-08)
 
 Date: 2026-10-08. Method: fetched the live pages as a crawler (raw HTML, no JS), ran web searches on brand and priority-market queries, and compared our page wording with Airalo's Italy page and the "best eSIM for Italy / USA" results. Platform visibility (ChatGPT, Perplexity, Google AI Overviews) was **not measured with a tool**, so readiness below is qualitative.
 

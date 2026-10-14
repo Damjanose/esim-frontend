@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-14 | [GEO answer-first](./2026-10-14_geo-answer-first.md) | GEO re-audit (~63/100), 'Does eSIM2you work in X?' answer moved into the /esim hero, /esim/united-states and similar names 308 to the real slug (f281-f282) |
 | 2026-10-14 | [security headers](./2026-10-14_security-headers.md) | CSP (frame-ancestors/base-uri/object-src/upgrade-insecure-requests), Referrer-Policy and Permissions-Policy added in next.config.mjs after a technical SEO audit (f280) |
 | 2026-10-09 | [flight search](./2026-10-09_flight-search.md) | Public /flights search over new /bff/flights/* (countries, airports, search), affiliate sponsored deal links with Google Flights/Skyscanner fallbacks, visitor IP forwarded to the backend rate limit (f276) |
 | 2026-10-08 | [backlink assets](./2026-10-08_backlink-assets.md) | Live /esim-price-index (price per GB by destination, CSV, Dataset schema, CC BY 4.0), /press kit, rel=sponsored partner website badge, Product Hunt in sameAs, link-building playbook in brand-outreach-kit.md |

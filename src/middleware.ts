@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { esimPathForCountryQuery } from "@/lib/esim-routes";
+import { esimAliasPath, esimPathForCountryQuery } from "@/lib/esim-routes";
 import { getPublicOrigin } from "@/lib/public-origin";
 import { isNoindexPath, noindexHeaderValue } from "@/lib/robots-policy";
 import { guardedRedirect } from "@/lib/route-guard";
@@ -48,6 +48,13 @@ export function middleware(request: NextRequest) {
 
   if (lowercaseSlugPath.test(url.pathname) && url.pathname !== url.pathname.toLowerCase()) {
     url.pathname = url.pathname.toLowerCase();
+    shouldRedirect = true;
+  }
+
+  // After lowercasing, so /esim/United-States reaches /esim/usa in one hop.
+  const aliasPath = esimAliasPath(url.pathname);
+  if (aliasPath) {
+    url.pathname = aliasPath;
     shouldRedirect = true;
   }
 

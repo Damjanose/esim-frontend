@@ -5,6 +5,7 @@ import {
   destinationBrowseHref,
   destinationDisplay,
   destinationH1,
+  esimAliasPath,
   esimPathForCountryQuery,
   esimSlugFromCountryQuery
 } from "./esim-routes";
@@ -16,6 +17,20 @@ describe("esim URL mapping", () => {
     expect(esimSlugFromCountryQuery("albania")).toBe("albania");
     expect(esimPathForCountryQuery("japan")).toBe("/esim/japan");
     expect(esimPathForCountryQuery("hungary")).toBeNull();
+  });
+
+  it("maps guessable /esim country names onto the real page, and leaves real or unknown slugs alone", () => {
+    expect(esimAliasPath("/esim/united-states")).toBe("/esim/usa");
+    expect(esimAliasPath("/esim/us")).toBe("/esim/usa");
+    expect(esimAliasPath("/esim/united-kingdom")).toBe("/esim/uk");
+    expect(esimAliasPath("/esim/great-britain")).toBe("/esim/uk");
+    expect(esimAliasPath("/esim/england")).toBe("/esim/uk");
+    expect(esimAliasPath("/esim/united-arab-emirates")).toBe("/esim/uae");
+    expect(esimAliasPath("/esim/usa")).toBeNull();
+    expect(esimAliasPath("/esim/japan")).toBeNull();
+    expect(esimAliasPath("/esim/hungary")).toBeNull();
+    expect(esimAliasPath("/esim/id/united-states")).toBeNull();
+    expect(esimAliasPath("/travel/united-states")).toBeNull();
   });
 
   it("uses canonical destination pages for browse links when they exist", () => {
