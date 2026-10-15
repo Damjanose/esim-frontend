@@ -6,6 +6,7 @@
 //   POST /bff/admin/partners/{email}/suspend
 //   POST /bff/admin/partners/{email}/cancel
 //   POST /bff/admin/partners/{email}/verify
+//   DELETE /bff/admin/partners/{email}
 //   GET/PUT /bff/admin/partners/packages/{packageId}/affiliate-config
 //   GET/PATCH /bff/admin/partners/hold-period
 //   GET  /bff/admin/partners/review-queue
@@ -604,6 +605,32 @@ export default function AdminPartnersPage() {
     }
   }
 
+  async function deletePartner(email: string) {
+    setPartnerActionEmail(email);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(`/bff/admin/partners/${encodeURIComponent(email)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = (await response.json()) as PartnerActionPayload;
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success") {
+        throw new Error(payload.message ?? "Could not delete partner");
+      }
+      setNotice(`${email}: deleted. They can apply again for a new promo code.`);
+      await loadPartners();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete partner");
+    } finally {
+      setPartnerActionEmail(null);
+    }
+  }
+
   const draftPreview = useMemo(() => {
     if (!affiliateBase || !affiliateDraft) return null;
     const normalPriceCents = affiliateBase.preview.worstCase.normalPriceCents;
@@ -955,6 +982,22 @@ export default function AdminPartnersPage() {
                                 </button>
                               </>
                             )}
+                            <button
+                              className="h-8 rounded-lg border border-red-300 bg-red-50 px-2.5 text-[11px] font-black text-red-700 transition hover:border-red-500 disabled:opacity-50"
+                              disabled={partnerActionEmail === partner.userEmail}
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    `Delete the partner request from ${partner.userEmail}? Their promo code stops working and they can apply again for a new one.`
+                                  )
+                                ) {
+                                  void deletePartner(partner.userEmail);
+                                }
+                              }}
+                              type="button"
+                            >
+                              Delete
+                            </button>
                           </div>
                         </td>
                       </tr>
