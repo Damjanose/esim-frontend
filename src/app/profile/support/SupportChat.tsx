@@ -257,6 +257,7 @@ export function SupportChat() {
                     />
                   ))}
                   <p className={`mt-1 text-[10px] ${mine ? "text-white/75" : "text-onSurfaceVariant"}`}>
+                    {message.editedAt ? "Edited · " : ""}
                     {formatTime(message.createdAt)}
                   </p>
                 </div>

@@ -360,6 +360,17 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
       });
     });
 
+    // Edits and deletes made from the mobile admin inbox.
+    socket.on("support:message_updated", (payload: { threadId?: string; message?: SupportMessage }) => {
+      const updated = payload.message;
+      if (!updated || payload.threadId !== selectedIdRef.current) return;
+      setMessages((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+    });
+    socket.on("support:message_deleted", (payload: { threadId?: string; messageId?: string }) => {
+      if (!payload.messageId || payload.threadId !== selectedIdRef.current) return;
+      setMessages((current) => current.filter((item) => item.id !== payload.messageId));
+    });
+
     socket.on(
       "support:message",
       (payload: { threadId?: string; message?: SupportMessage }) => {
@@ -708,6 +719,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                           </div>
                         ))}
                         <p className={`mt-1 text-[10px] font-semibold ${fromAdmin ? "text-aqua/70" : "text-muted"}`}>
+                          {message.editedAt ? "Edited · " : ""}
                           {formatDate(message.createdAt)}
                         </p>
                       </div>

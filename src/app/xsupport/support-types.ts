@@ -13,6 +13,8 @@ export type SupportMessage = {
   senderEmail: string;
   body: string | null;
   createdAt: string;
+  /** Set when the admin edited the reply's text. */
+  editedAt?: string | null;
   attachments: SupportAttachment[];
 };
 
