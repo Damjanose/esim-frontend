@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, CheckCircle2, ImagePlus, RefreshCw, Send, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ImageOff, ImagePlus, RefreshCw, Send, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getPublicSocketUrl } from "@/lib/support-socket";
 import {
@@ -50,10 +50,12 @@ function AuthedImage({
   onOpen?: (src: string) => void;
 }) {
   const [src, setSrc] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
+    setFailed(false);
 
     void (async () => {
       try {
@@ -61,12 +63,16 @@ function AuthedImage({
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store"
         });
-        if (!response.ok || cancelled) return;
+        if (cancelled) return;
+        if (!response.ok) {
+          setFailed(true);
+          return;
+        }
         const blob = await response.blob();
         objectUrl = URL.createObjectURL(blob);
         if (!cancelled) setSrc(objectUrl);
       } catch {
-        // Leave the placeholder visible.
+        if (!cancelled) setFailed(true);
       }
     })();
 
@@ -75,6 +81,15 @@ function AuthedImage({
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [attachmentId, token]);
+
+  if (failed) {
+    return (
+      <div className="flex h-24 w-36 flex-col items-center justify-center gap-1 rounded-xl bg-cloud text-xs font-semibold text-muted">
+        <ImageOff aria-hidden="true" size={18} />
+        Photo unavailable
+      </div>
+    );
+  }
 
   if (!src) {
     return <div className="h-36 w-36 animate-pulse rounded-xl bg-cloud" />;

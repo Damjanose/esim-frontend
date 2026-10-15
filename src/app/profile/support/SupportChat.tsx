@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
-import { CheckCircle2, ImagePlus, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { CheckCircle2, ImageOff, ImagePlus, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { Button } from "@/app/components/Button";
 import type { UserSupportThreadPayload } from "@/app/bff/user/support/thread/route";
 import type { SupportMessage } from "@/app/xsupport/support-types";
@@ -41,6 +41,35 @@ function formatTime(iso: string): string {
  * thread per account: the backend creates it on the first message, and once it is
  * solved the next message starts a new one. Polls through the BFF while visible.
  */
+/** A chat photo; a failed load (e.g. the server lost the file) shows "Photo unavailable". */
+function SupportPhoto({ src, onOpen }: { src: string; onOpen: (src: string) => void }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <span className="mt-2 flex h-24 w-40 flex-col items-center justify-center gap-1 rounded-[12px] bg-black/10 text-xs">
+        <ImageOff aria-hidden="true" size={18} />
+        Photo unavailable
+      </span>
+    );
+  }
+  return (
+    <button
+      aria-label="Open photo"
+      className="mt-2 block overflow-hidden rounded-[12px]"
+      onClick={() => onOpen(src)}
+      type="button"
+    >
+      <img
+        alt="Support attachment"
+        className="max-h-60 w-auto object-cover"
+        loading="lazy"
+        onError={() => setFailed(true)}
+        src={src}
+      />
+    </button>
+  );
+}
+
 export function SupportChat() {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [threadOpen, setThreadOpen] = useState(false);
@@ -220,20 +249,13 @@ export function SupportChat() {
                   }`}
                 >
                   {message.body ? <p className="whitespace-pre-wrap break-words text-sm">{message.body}</p> : null}
-                  {message.attachments.map((attachment) => {
-                    const src = `/bff/user/support/attachments/${encodeURIComponent(attachment.id)}`;
-                    return (
-                      <button
-                        aria-label="Open photo"
-                        className="mt-2 block overflow-hidden rounded-[12px]"
-                        key={attachment.id}
-                        onClick={() => setLightbox(src)}
-                        type="button"
-                      >
-                        <img alt="Support attachment" className="max-h-60 w-auto object-cover" loading="lazy" src={src} />
-                      </button>
-                    );
-                  })}
+                  {message.attachments.map((attachment) => (
+                    <SupportPhoto
+                      key={attachment.id}
+                      onOpen={setLightbox}
+                      src={`/bff/user/support/attachments/${encodeURIComponent(attachment.id)}`}
+                    />
+                  ))}
                   <p className={`mt-1 text-[10px] ${mine ? "text-white/75" : "text-onSurfaceVariant"}`}>
                     {formatTime(message.createdAt)}
                   </p>
