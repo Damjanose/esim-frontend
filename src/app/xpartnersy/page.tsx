@@ -951,15 +951,9 @@ export default function AdminPartnersPage() {
                                 Suspend
                               </button>
                             ) : (
+                              // No Approve here: the backend only approves PendingApproval rows,
+                              // so it would 409 for an already-approved (Pending) or closed partner.
                               <>
-                                <button
-                                  className="h-8 rounded-lg bg-gradient-to-r from-midnight to-ink px-2.5 text-[11px] font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
-                                  disabled={partnerActionEmail === partner.userEmail}
-                                  onClick={() => void runPartnerAction(partner.userEmail, "approve")}
-                                  type="button"
-                                >
-                                  Approve
-                                </button>
                                 <button
                                   className="h-8 rounded-lg border border-line px-2.5 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
                                   disabled={partnerActionEmail === partner.userEmail}

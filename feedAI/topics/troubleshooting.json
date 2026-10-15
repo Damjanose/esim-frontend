@@ -357,6 +357,15 @@
       "root_cause": "The backend had lost the photo files (attachment route returned 500); AuthedImage ignored non-OK responses and the user chat used a bare <img>.",
       "fix": "AuthedImage tracks failure and renders 'Photo unavailable'; the user chat uses a local SupportPhoto with onError. The backend now keeps photos in Postgres.",
       "date": "2026-10-15"
+    },
+    {
+      "symptom": "/xpartnersy shows 'Partner <email> is not in PendingApproval status (current: Pending)' after clicking Approve.",
+      "root_cause": "The fallback action group (any status other than PendingApproval/Active) rendered an Approve button, but backend approvePartnerRequest only accepts PendingApproval, so it always 409'd for already-approved or closed partners.",
+      "fix": "Removed Approve from the fallback group; Approve/Reject render only for PendingApproval.",
+      "facts": [
+        "f291"
+      ],
+      "source": "src/app/xpartnersy/page.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
