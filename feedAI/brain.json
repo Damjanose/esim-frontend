@@ -57,7 +57,7 @@
   ],
   "phase": {
     "current": "Mobile-parity layout redesign COMPLETE (2026-10-01/02, spec docs/superpowers/specs/2026-10-01-web-ui-mobile-polish-design.md, facts f207-f228). Open follow-ups: compress public/images/app-store.png (4.6 MB); order page H1 shows raw package id; legal pages have no Navbar/dock; /compare table not keyboard-scrollable; manual iOS keyboard + Pay bar check and one real purchase.",
-    "next": "Partner/affiliate program (Phase 9), checkout promo codes, Google Ads conversion tracking, and consent-gated optional tracking are documented (f092-f095, f117). Verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); brain.json's note_latest history needs a trim pass (see sync.note_latest).",
+    "next": "WIP: GSC re-check due 2026-10-21+ (docs/WIP-gsc-recheck.md: 5 discovered-not-indexed eSIM pages, baseline 13 clicks / 769 impr / pos 43.7). Partner/affiliate program (Phase 9), checkout promo codes, Google Ads conversion tracking, and consent-gated optional tracking are documented (f092-f095, f117). Verify Google/Apple social sign-in end-to-end with real provider credentials in prod; web-only Apple accounts still lack revoke-on-delete support (f031); brain.json's note_latest history needs a trim pass (see sync.note_latest).",
     "order": [
       "landing + SEO content pages",
       "hero/destination package search",
