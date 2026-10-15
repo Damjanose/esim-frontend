@@ -1,12 +1,13 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, CheckCheck, CheckCircle2, ImageOff, ImagePlus, RefreshCw, Send, X } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, CheckCircle2, ImageOff, ImagePlus, RefreshCw, Send, Smartphone, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getPublicSocketUrl } from "@/lib/support-socket";
 import {
   adminReceiptState,
   applyMessagePreviewToThreads,
+  formatSupportDevice,
   nextAdminTypingEmit,
   previewFromSupportMessage,
   shouldAlertAdminOfIncomingMessage,
@@ -119,6 +120,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [selectedThread, setSelectedThread] = useState<SupportThread | null>(null);
+  const selectedDevice = selectedThread ? formatSupportDevice(selectedThread) : null;
   const [draft, setDraft] = useState("");
   const [search, setSearch] = useState("");
   const [isLoadingList, setIsLoadingList] = useState(false);
@@ -675,6 +677,15 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                   <p className="text-[11px] font-bold uppercase tracking-wide text-muted">
                     {selectedThread?.status ?? tab}
                   </p>
+                  {selectedDevice ? (
+                    <span
+                      className="inline-flex max-w-full items-center gap-1 rounded-full border border-cyan/40 bg-cyan/10 px-2.5 py-0.5 text-xs font-bold text-midnight"
+                      title="Traveler's phone (only visible to admins)"
+                    >
+                      <Smartphone aria-hidden="true" size={12} />
+                      <span className="truncate">{selectedDevice}</span>
+                    </span>
+                  ) : null}
                 </div>
                 {selectedThread?.status !== "solved" ? (
                   <button

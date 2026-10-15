@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   adminReceiptState,
   applyMessagePreviewToThreads,
+  formatSupportDevice,
   nextAdminTypingEmit,
   previewFromSupportMessage,
   shouldAlertAdminOfIncomingMessage,
@@ -89,5 +90,14 @@ describe("support live inbox helpers", () => {
     expect(adminReceiptState("2026-10-15T08:00:00Z", null)).toBe("sent");
     expect(adminReceiptState("2026-10-15T08:00:00Z", "2026-10-15T08:05:00Z")).toBe("seen");
     expect(adminReceiptState("2026-10-15T08:10:00Z", "2026-10-15T08:05:00Z")).toBe("sent");
+  });
+
+  it("formats the traveler's phone for the admin highlight", () => {
+    expect(formatSupportDevice({ deviceModel: "Apple iPhone 15 Pro", deviceOs: "iOS 18.2" })).toBe(
+      "Apple iPhone 15 Pro · iOS 18.2"
+    );
+    expect(formatSupportDevice({ deviceModel: "Google Pixel 8", deviceOs: null })).toBe("Google Pixel 8");
+    expect(formatSupportDevice({ deviceModel: null, deviceOs: "iOS 18" })).toBeNull();
+    expect(formatSupportDevice({})).toBeNull();
   });
 });

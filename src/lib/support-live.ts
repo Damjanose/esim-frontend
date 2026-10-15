@@ -90,3 +90,9 @@ export function adminReceiptState(messageCreatedAt: string, userReadAt: string |
   if (!userReadAt) return "sent";
   return new Date(userReadAt).getTime() >= new Date(messageCreatedAt).getTime() ? "seen" : "sent";
 }
+
+/** "Apple iPhone 15 Pro · iOS 18.2" for the admin-only device highlight; null hides it. */
+export function formatSupportDevice(thread: { deviceModel?: string | null; deviceOs?: string | null }): string | null {
+  if (!thread.deviceModel) return null;
+  return thread.deviceOs ? `${thread.deviceModel} · ${thread.deviceOs}` : thread.deviceModel;
+}
