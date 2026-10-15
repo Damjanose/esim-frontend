@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  adminReceiptState,
   applyMessagePreviewToThreads,
   nextAdminTypingEmit,
   previewFromSupportMessage,
@@ -82,5 +83,11 @@ describe("support live inbox helpers", () => {
     expect(nextAdminTypingEmit({ hasDraft: true, currentlyEmitting: false })).toBe("start");
     expect(nextAdminTypingEmit({ hasDraft: true, currentlyEmitting: true })).toBeNull();
     expect(nextAdminTypingEmit({ hasDraft: false, currentlyEmitting: true })).toBe("stop");
+  });
+
+  it("shows seen only when the traveler read after the admin reply", () => {
+    expect(adminReceiptState("2026-10-15T08:00:00Z", null)).toBe("sent");
+    expect(adminReceiptState("2026-10-15T08:00:00Z", "2026-10-15T08:05:00Z")).toBe("seen");
+    expect(adminReceiptState("2026-10-15T08:10:00Z", "2026-10-15T08:05:00Z")).toBe("sent");
   });
 });

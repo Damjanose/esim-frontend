@@ -81,3 +81,12 @@ export function nextAdminTypingEmit(input: {
   if (!input.hasDraft && input.currentlyEmitting) return "stop";
   return null;
 }
+
+/**
+ * Admin-only read receipt for an admin reply: "seen" once the traveler had the chat open
+ * at or after the reply was sent.
+ */
+export function adminReceiptState(messageCreatedAt: string, userReadAt: string | null | undefined): "sent" | "seen" {
+  if (!userReadAt) return "sent";
+  return new Date(userReadAt).getTime() >= new Date(messageCreatedAt).getTime() ? "seen" : "sent";
+}

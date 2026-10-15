@@ -132,6 +132,28 @@ export function SupportChat() {
     if (list) list.scrollTop = list.scrollHeight;
   }, [lastMessageId]);
 
+  // Read receipt for the admin inbox only; the traveler sees no receipts. Sent once per
+  // newest message while the tab is visible, and again when the tab comes back.
+  const reportedReadRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!threadOpen || !lastMessageId) return;
+    const report = () => {
+      if (document.visibilityState !== "visible" || reportedReadRef.current === lastMessageId) return;
+      reportedReadRef.current = lastMessageId;
+      void fetch("/bff/user/support/thread/read", { method: "POST" }).catch(() => {
+        reportedReadRef.current = null;
+      });
+    };
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      reportedReadRef.current = null;
+      report();
+    };
+    report();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [lastMessageId, threadOpen]);
+
   async function send(event?: FormEvent) {
     event?.preventDefault();
     if (sending) return;

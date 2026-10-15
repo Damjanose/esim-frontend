@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, CheckCircle2, ImageOff, ImagePlus, RefreshCw, Send, X } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, CheckCircle2, ImageOff, ImagePlus, RefreshCw, Send, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getPublicSocketUrl } from "@/lib/support-socket";
 import {
+  adminReceiptState,
   applyMessagePreviewToThreads,
   nextAdminTypingEmit,
   previewFromSupportMessage,
@@ -718,9 +719,20 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                             />
                           </div>
                         ))}
-                        <p className={`mt-1 text-[10px] font-semibold ${fromAdmin ? "text-aqua/70" : "text-muted"}`}>
+                        <p
+                          className={`mt-1 flex items-center justify-end gap-1 text-[10px] font-semibold ${
+                            fromAdmin ? "text-aqua/70" : "text-muted"
+                          }`}
+                        >
                           {message.editedAt ? "Edited · " : ""}
                           {formatDate(message.createdAt)}
+                          {fromAdmin ? (
+                            adminReceiptState(message.createdAt, selectedThread?.userReadAt) === "seen" ? (
+                              <CheckCheck aria-label="Seen" className="text-aqua" size={14} />
+                            ) : (
+                              <Check aria-label="Sent" size={14} />
+                            )
+                          ) : null}
                         </p>
                       </div>
                     </div>

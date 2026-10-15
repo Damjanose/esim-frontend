@@ -27,6 +27,8 @@ export type SupportThread = {
   solvedAt: string | null;
   solvedBy: "user" | "admin" | null;
   createdAt: string;
+  /** When the traveler last had the chat open (admin-only read receipts). */
+  userReadAt?: string | null;
 };
 
 export type AdminJsonPayload<T> = {
