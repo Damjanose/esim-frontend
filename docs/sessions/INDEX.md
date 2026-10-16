@@ -112,3 +112,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-10-15 | [support-photo-unavailable](2026-10-15_support-photo-unavailable.md) | Support photos show Photo unavailable on load failure in /xsupport and /profile/support |
 | 2026-10-15 | [support-message-edit-delete](2026-10-15_support-message-edit-delete.md) | Web support chats show Edited; /xsupport applies live edits/deletes from the mobile admin |
 | 2026-10-15 | [support-read-receipts](2026-10-15_support-read-receipts.md) | Admin-only read receipts: traveler web chat reports read, /xsupport shows sent/seen ticks |
+| 2026-10-16 | [install-attempt-report](2026-10-16_install-attempt-report.md) | Account order page reports install attempts (Install on this iPhone, activation code copy) through a new BFF route |

@@ -2,13 +2,24 @@
 
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { reportInstallAttempt } from "./installAttempt";
 
-export function CopyField({ label, value }: { label: string; value: string }) {
+export function CopyField({
+  label,
+  value,
+  installAttemptOrderId
+}: {
+  label: string;
+  value: string;
+  /** Set on the activation code: copying it counts as an install attempt. */
+  installAttemptOrderId?: number;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(value);
+      if (installAttemptOrderId !== undefined) reportInstallAttempt(installAttemptOrderId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

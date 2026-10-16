@@ -9,7 +9,6 @@ import {
   Info,
   LifeBuoy,
   QrCode,
-  Smartphone,
   WifiOff
 } from "lucide-react";
 import { describePackage, esimStatusLine, lifecycleBadge, usageMeter } from "@/lib/accountEsims";
@@ -31,6 +30,7 @@ import { UsageRingCard } from "../../components/UsageRing";
 import { SiteFooter } from "../../SiteFooter";
 import { accountShellItems } from "../accountShellItems";
 import { CopyField } from "./CopyField";
+import { InstallOnIphoneLink } from "./InstallOnIphoneLink";
 import { OrderReviewCard } from "./OrderReviewCard";
 import { PurchaseConversion } from "./PurchaseConversion";
 import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
@@ -275,7 +275,7 @@ export default async function OrderDetailPage({
                   <p className="text-sm text-onSurfaceVariant">
                     Install manually with this activation code:
                   </p>
-                  <CopyField label="Activation code" value={qr.code} />
+                  <CopyField installAttemptOrderId={order.id} label="Activation code" value={qr.code} />
                 </div>
               ) : (
                 <div className="mt-5 flex items-start gap-3 rounded-[14px] border border-outline/60 bg-surfaceBright px-5 py-4">
@@ -297,10 +297,7 @@ export default async function OrderDetailPage({
               ) : null}
 
               {sim?.direct_apple_installation_url ? (
-                <LinkButton className="mt-4 w-full" href={sim.direct_apple_installation_url} variant="tint">
-                  <Smartphone aria-hidden="true" size={16} />
-                  Install on this iPhone
-                </LinkButton>
+                <InstallOnIphoneLink href={sim.direct_apple_installation_url} orderId={order.id} />
               ) : null}
 
               {!instructionsAvailable ? (
