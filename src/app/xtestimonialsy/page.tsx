@@ -13,6 +13,7 @@ type TestimonialRow = {
   rating: number;
   body: string;
   status: "pending" | "approved" | "rejected" | string;
+  updatedAt: string;
 };
 
 type ListPayload = {
@@ -29,9 +30,10 @@ export default function AdminTestimonialsPage() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  /** Resolves true when the list loaded; on failure it has already set the error. */
   const load = useCallback(
-    async (nextToken = token) => {
-      if (!nextToken) return;
+    async (nextToken = token): Promise<boolean> => {
+      if (!nextToken) return false;
       setIsLoading(true);
       setError("");
       try {
@@ -48,9 +50,11 @@ export default function AdminTestimonialsPage() {
           throw new Error(payload.message ?? "Could not load testimonials");
         }
         setRows(payload.data?.testimonials ?? []);
+        return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not load testimonials");
         setRows([]);
+        return false;
       } finally {
         setIsLoading(false);
       }
@@ -64,6 +68,8 @@ export default function AdminTestimonialsPage() {
 
   async function decide(id: string, status: "approved" | "rejected") {
     if (!token) return;
+    const target = rows.find((row) => row.id === id);
+    if (!target) return;
     setBusyId(id);
     setError("");
     try {
@@ -73,17 +79,25 @@ export default function AdminTestimonialsPage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, updatedAt: target.updatedAt })
       });
-      const payload = (await response.json()) as { status?: string; message?: string };
+      const payload = (await response.json()) as {
+        status?: string;
+        message?: string;
+        data?: { testimonial?: TestimonialRow };
+      };
       if (response.status === 401) {
         handleUnauthorized();
         throw new Error("Session expired. Sign in again.");
       }
+      if (response.status === 409) {
+        if (await load(token)) setError("This review changed since you loaded it. Reloaded.");
+        return;
+      }
       if (!response.ok || payload.status !== "success") {
         throw new Error(payload.message ?? "Could not update testimonial");
       }
-      setRows((current) => current.map((row) => (row.id === id ? { ...row, status } : row)));
+      setRows((current) => current.map((row) => (row.id === id ? { ...row, status, ...payload.data?.testimonial } : row)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update testimonial");
     } finally {

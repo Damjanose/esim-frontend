@@ -114,3 +114,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-10-15 | [support-read-receipts](2026-10-15_support-read-receipts.md) | Admin-only read receipts: traveler web chat reports read, /xsupport shows sent/seen ticks |
 | 2026-10-16 | [install-attempt-report](2026-10-16_install-attempt-report.md) | Account order page reports install attempts (Install on this iPhone, activation code copy) through a new BFF route |
 | 2026-10-17 | [review-copy-one-per-account](2026-10-17_review-copy-one-per-account.md) | Review composer copy matches one review per account and no longer names eSIM2you.com |
+| 2026-10-17 | [testimonial-edit-visibility](2026-10-17_testimonial-edit-visibility.md) | Admin testimonial decisions send updatedAt and reload on 409; composer no longer calls a hidden review live |

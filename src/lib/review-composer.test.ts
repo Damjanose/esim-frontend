@@ -54,6 +54,16 @@ describe("deriveReviewState", () => {
     });
   });
 
+  it("treats a hidden (no consent) review as already shared, not live or pending", () => {
+    for (const status of ["approved", "pending"]) {
+      const hidden = { ...review(status, "2026-09-30T00:00:00Z"), consentToPublish: false };
+      expect(deriveReviewState({ signedIn: true, testimonial: hidden, quota: quota(0) }, now)).toEqual({
+        kind: "limit-reached",
+        resetsAt: null
+      });
+    }
+  });
+
   it("lets a review older than the 90-day window be followed by a new one", () => {
     const old = review("approved", "2026-06-01T00:00:00Z");
     expect(deriveReviewState({ signedIn: true, testimonial: old, quota: quota(2) }, now)).toEqual({

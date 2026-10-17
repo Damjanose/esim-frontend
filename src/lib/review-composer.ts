@@ -26,6 +26,7 @@ export type MyReview = {
   displayName: string;
   status: string;
   createdAt: string;
+  consentToPublish?: boolean;
 };
 
 export type ReviewState =
@@ -43,7 +44,7 @@ export function deriveReviewState(
   if (!input.signedIn) return { kind: "signed-out" };
 
   const latest = input.testimonial;
-  if (latest && (latest.status === "pending" || latest.status === "approved")) {
+  if (latest && latest.consentToPublish !== false && (latest.status === "pending" || latest.status === "approved")) {
     const sentAt = new Date(latest.createdAt).getTime();
     if (Number.isFinite(sentAt) && now.getTime() - sentAt < WINDOW_MS) {
       return { kind: "already-sent", status: latest.status };
