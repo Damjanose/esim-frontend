@@ -11,6 +11,7 @@ import {
   SUPPORT_POLL_MS,
   checkSupportComposer
 } from "@/lib/userSupportChat";
+import { supportQuoteSnippet } from "@/lib/support-live";
 
 const SIGN_IN_URL = `/signin?next=${encodeURIComponent("/profile/support")}`;
 
@@ -270,6 +271,19 @@ export function SupportChat() {
                       : "border border-outline/60 bg-surface text-brandInk"
                   }`}
                 >
+                  {message.replyTo ? (
+                    // Support replied to a specific message: show what they answered.
+                    <div
+                      className={`mb-1.5 rounded-[10px] border-l-2 px-2.5 py-1 text-xs ${
+                        mine ? "border-white bg-white/15" : "border-brandBlue bg-surfaceBright"
+                      }`}
+                    >
+                      <p className="truncate font-bold">{message.replyTo.senderKind === "user" ? "You" : "Support"}</p>
+                      <p className={`line-clamp-2 ${mine ? "text-white/85" : "text-onSurfaceVariant"}`}>
+                        {supportQuoteSnippet(message.replyTo)}
+                      </p>
+                    </div>
+                  ) : null}
                   {message.body ? <p className="whitespace-pre-wrap break-words text-sm">{message.body}</p> : null}
                   {message.attachments.map((attachment) => (
                     <SupportPhoto

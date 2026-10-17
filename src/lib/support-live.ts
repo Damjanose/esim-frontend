@@ -96,3 +96,50 @@ export function formatSupportDevice(thread: { deviceModel?: string | null; devic
   if (!thread.deviceModel) return null;
   return thread.deviceOs ? `${thread.deviceModel} · ${thread.deviceOs}` : thread.deviceModel;
 }
+
+type QuotedMessage = {
+  id: string;
+  body: string | null;
+  attachments?: unknown[];
+  replyTo?: { id: string; body: string | null; hasPhoto: boolean } | null;
+};
+
+/** `support:message_updated`: swap in the edited message and refresh replies quoting it. */
+export function applyEditedSupportMessage<T extends QuotedMessage>(list: T[], updated: T): T[] {
+  return list.map((item) => {
+    if (item.id === updated.id) return updated;
+    if (item.replyTo?.id !== updated.id) return item;
+    return {
+      ...item,
+      replyTo: { ...item.replyTo, body: updated.body, hasPhoto: (updated.attachments?.length ?? 0) > 0 }
+    };
+  });
+}
+
+/** `support:message_deleted`: drop it; replies to it lose their quote (the backend clears replyToId). */
+export function applyDeletedSupportMessage<T extends QuotedMessage>(list: T[], messageId: string): T[] {
+  return list
+    .filter((item) => item.id !== messageId)
+    .map((item) => (item.replyTo?.id === messageId ? { ...item, replyTo: null } : item));
+}
+
+/** One-line text for a reply quote: the body, else "Photo". */
+export function supportQuoteSnippet(quote: { body: string | null; hasPhoto: boolean }): string {
+  const text = quote.body?.replace(/\s+/g, " ").trim() ?? "";
+  return text || (quote.hasPhoto ? "Photo" : "");
+}
+
+/** Drag distance (px) a bubble must travel toward the middle before letting go replies. */
+export const SUPPORT_REPLY_DRAG_TRIGGER = 56;
+const SUPPORT_REPLY_DRAG_MAX = 80;
+
+/**
+ * Pointer drag -> bubble offset for swipe-to-reply. Admin bubbles (right side) move left,
+ * traveler bubbles (left side) move right; dragging the other way does nothing.
+ */
+export function supportReplyDragOffset(deltaX: number, fromAdmin: boolean): number {
+  const toward = fromAdmin ? -deltaX : deltaX;
+  if (toward <= 0) return 0;
+  const capped = Math.min(toward, SUPPORT_REPLY_DRAG_MAX);
+  return fromAdmin ? -capped : capped;
+}

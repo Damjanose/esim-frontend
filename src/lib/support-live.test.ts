@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   adminReceiptState,
+  applyDeletedSupportMessage,
+  applyEditedSupportMessage,
+  supportQuoteSnippet,
+  supportReplyDragOffset,
   applyMessagePreviewToThreads,
   formatSupportDevice,
   nextAdminTypingEmit,
@@ -99,5 +103,37 @@ describe("support live inbox helpers", () => {
     expect(formatSupportDevice({ deviceModel: "Google Pixel 8", deviceOs: null })).toBe("Google Pixel 8");
     expect(formatSupportDevice({ deviceModel: null, deviceOs: "iOS 18" })).toBeNull();
     expect(formatSupportDevice({})).toBeNull();
+  });
+});
+
+describe("support reply helpers", () => {
+  const list = [
+    { id: "q", body: "Original", attachments: [] },
+    { id: "r", body: "Answer", attachments: [], replyTo: { id: "q", body: "Original", hasPhoto: false } }
+  ];
+
+  it("refreshes the quote when the quoted message is edited", () => {
+    const next = applyEditedSupportMessage(list, { id: "q", body: "Fixed", attachments: [] });
+    expect(next[0].body).toBe("Fixed");
+    expect(next[1].replyTo?.body).toBe("Fixed");
+  });
+
+  it("clears the quote when the quoted message is deleted", () => {
+    const next = applyDeletedSupportMessage(list, "q");
+    expect(next.map((m) => m.id)).toEqual(["r"]);
+    expect(next[0].replyTo).toBeNull();
+  });
+
+  it("only drags toward the middle: admin bubbles left, traveler bubbles right", () => {
+    expect(supportReplyDragOffset(-30, true)).toBe(-30);
+    expect(supportReplyDragOffset(30, true)).toBe(0);
+    expect(supportReplyDragOffset(30, false)).toBe(30);
+    expect(supportReplyDragOffset(-30, false)).toBe(0);
+    expect(supportReplyDragOffset(500, false)).toBe(80);
+  });
+
+  it("falls back to Photo for a photo-only quote", () => {
+    expect(supportQuoteSnippet({ body: " a\n b ", hasPhoto: false })).toBe("a b");
+    expect(supportQuoteSnippet({ body: null, hasPhoto: true })).toBe("Photo");
   });
 });

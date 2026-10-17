@@ -15,7 +15,16 @@ export type SupportMessage = {
   createdAt: string;
   /** Set when the admin edited the reply's text. */
   editedAt?: string | null;
+  /** The earlier message this one replies to, as it is now; null when deleted or not a reply. */
+  replyTo?: SupportReplyQuote | null;
   attachments: SupportAttachment[];
+};
+
+export type SupportReplyQuote = {
+  id: string;
+  senderKind: "user" | "admin";
+  body: string | null;
+  hasPhoto: boolean;
 };
 
 export type SupportThread = {

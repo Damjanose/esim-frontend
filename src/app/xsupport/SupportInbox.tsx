@@ -1,18 +1,35 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Check, CheckCheck, CheckCircle2, ImageOff, ImagePlus, RefreshCw, Send, Smartphone, X } from "lucide-react";
+import { FormEvent, type PointerEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCheck,
+  CheckCircle2,
+  ImageOff,
+  ImagePlus,
+  RefreshCw,
+  Reply,
+  Send,
+  Smartphone,
+  X
+} from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getPublicSocketUrl } from "@/lib/support-socket";
 import {
   adminReceiptState,
+  applyDeletedSupportMessage,
+  applyEditedSupportMessage,
   applyMessagePreviewToThreads,
   formatSupportDevice,
   nextAdminTypingEmit,
   previewFromSupportMessage,
   shouldAlertAdminOfIncomingMessage,
   supportLiveThreadId,
+  supportQuoteSnippet,
+  supportReplyDragOffset,
   supportSocketMessageForThread,
+  SUPPORT_REPLY_DRAG_TRIGGER,
   SUPPORT_TYPING_IDLE_MS
 } from "@/lib/support-live";
 import type {
@@ -108,6 +125,99 @@ function AuthedImage({
   );
 }
 
+/**
+ * Swipe-to-reply, same gesture as the mobile inbox: drag your own (admin) bubble left or
+ * the traveler's bubble right, past the trigger, and let go. Works with touch and mouse;
+ * vertical drags are left to page scrolling.
+ */
+function SwipeToReply({
+  fromAdmin,
+  enabled,
+  onReply,
+  children
+}: {
+  fromAdmin: boolean;
+  enabled: boolean;
+  onReply: () => void;
+  children: ReactNode;
+}) {
+  const [offset, setOffset] = useState(0);
+  const drag = useRef<{ pointerId: number; startX: number; startY: number; active: boolean } | null>(null);
+  // A drag that ends over a photo must not also open the lightbox.
+  const suppressClick = useRef(false);
+
+  function reset() {
+    drag.current = null;
+    setOffset(0);
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (!enabled || event.button !== 0) return;
+    suppressClick.current = false;
+    drag.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, active: false };
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const current = drag.current;
+    if (!current || current.pointerId !== event.pointerId) return;
+    const dx = event.clientX - current.startX;
+    const dy = event.clientY - current.startY;
+    if (!current.active) {
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+        drag.current = null;
+        return;
+      }
+      if (Math.abs(dx) < 8 || supportReplyDragOffset(dx, fromAdmin) === 0) return;
+      current.active = true;
+      suppressClick.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      window.getSelection()?.removeAllRanges();
+    }
+    setOffset(supportReplyDragOffset(dx, fromAdmin));
+  }
+
+  function onPointerUp(event: PointerEvent<HTMLDivElement>) {
+    const current = drag.current;
+    if (!current || current.pointerId !== event.pointerId) return;
+    if (current.active && Math.abs(offset) >= SUPPORT_REPLY_DRAG_TRIGGER) onReply();
+    reset();
+  }
+
+  const dragging = offset !== 0;
+  const progress = Math.min(Math.abs(offset) / SUPPORT_REPLY_DRAG_TRIGGER, 1);
+  return (
+    <div
+      className={`relative touch-pan-y ${dragging ? "select-none" : ""}`}
+      onClickCapture={(event) => {
+        if (!suppressClick.current) return;
+        suppressClick.current = false;
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      onPointerCancel={reset}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+    >
+      <span
+        aria-hidden="true"
+        className={`absolute top-1/2 grid h-8 w-8 place-items-center rounded-full bg-white text-midnight shadow-sm ${
+          fromAdmin ? "right-1" : "left-1"
+        }`}
+        style={{ opacity: progress, transform: `translateY(-50%) scale(${0.6 + progress * 0.4})` }}
+      >
+        <Reply size={16} />
+      </span>
+      <div
+        className={`relative ${dragging ? "" : "transition-transform duration-150"}`}
+        style={{ transform: `translateX(${offset}px)` }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 type SupportInboxProps = {
   token: string;
   handleUnauthorized: () => void;
@@ -131,7 +241,10 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
   const [notice, setNotice] = useState("");
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  // Swipe (or the hover Reply button) on a bubble: the next message sent quotes it.
+  const [replyTarget, setReplyTarget] = useState<SupportMessage | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const selectedIdRef = useRef<string | null>(null);
   const tabRef = useRef<SupportThreadStatus>(tab);
@@ -254,6 +367,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         emitTyping(false, previousId);
       }
       setSelectedId(threadId);
+      if (previousId !== threadId) setReplyTarget(null);
       setIsLoadingThread(true);
       setError("");
       try {
@@ -367,11 +481,13 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     socket.on("support:message_updated", (payload: { threadId?: string; message?: SupportMessage }) => {
       const updated = payload.message;
       if (!updated || payload.threadId !== selectedIdRef.current) return;
-      setMessages((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      setMessages((current) => applyEditedSupportMessage(current, updated));
     });
     socket.on("support:message_deleted", (payload: { threadId?: string; messageId?: string }) => {
-      if (!payload.messageId || payload.threadId !== selectedIdRef.current) return;
-      setMessages((current) => current.filter((item) => item.id !== payload.messageId));
+      const messageId = payload.messageId;
+      if (!messageId || payload.threadId !== selectedIdRef.current) return;
+      setMessages((current) => applyDeletedSupportMessage(current, messageId));
+      setReplyTarget((current) => (current?.id === messageId ? null : current));
     });
 
     socket.on(
@@ -480,7 +596,8 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify({
           body: text || null,
-          attachmentIds
+          attachmentIds,
+          ...(replyTarget ? { replyToId: replyTarget.id } : {})
         })
       });
       handleAuthStatus(response.status);
@@ -497,6 +614,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
       );
       setDraft("");
       setPendingFile(null);
+      setReplyTarget(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send the message");
@@ -531,12 +649,23 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         setSelectedId(null);
         setMessages([]);
       }
+      setReplyTarget(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not mark the issue as solved");
     } finally {
       setIsSolving(false);
     }
   }
+
+  function startReply(message: SupportMessage) {
+    setReplyTarget(message);
+    textareaRef.current?.focus();
+  }
+
+  const canReply = Boolean(selectedId) && selectedThread?.status !== "solved";
+  // Quotes name the admin as "You" and the traveler by email.
+  const quoteAuthor = (senderKind: SupportMessage["senderKind"]) =>
+    senderKind === "admin" ? "You" : (selectedThread?.userEmail ?? "Traveler");
 
   return (
     <>
@@ -567,6 +696,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                     setSelectedId(null);
                     setSelectedThread(null);
                     setMessages([]);
+                    setReplyTarget(null);
                     setNotice("");
                   }}
                   type="button"
@@ -668,6 +798,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                        threadRequestRef.current += 1;
                       socketRef.current?.emit("support:leave", { threadId: selectedId });
                       setSelectedId(null);
+                      setReplyTarget(null);
                     }}
                     type="button"
                   >
@@ -708,44 +839,78 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                 ) : null}
                 {messages.map((message) => {
                   const fromAdmin = message.senderKind === "admin";
+                  const replyButton = canReply ? (
+                    <button
+                      aria-label="Reply to this message"
+                      className="shrink-0 self-center rounded-lg p-1.5 text-muted opacity-0 transition hover:bg-white hover:text-midnight focus-visible:opacity-100 group-hover:opacity-100"
+                      onClick={() => startReply(message)}
+                      title="Reply"
+                      type="button"
+                    >
+                      <Reply aria-hidden="true" size={14} />
+                    </button>
+                  ) : null;
                   return (
-                    <div className={`flex ${fromAdmin ? "justify-end" : "justify-start"}`} key={message.id}>
-                      <div
-                        className={`max-w-[75%] rounded-2xl px-3.5 py-2.5 shadow-sm ${
-                          fromAdmin
-                            ? "bg-gradient-to-r from-midnight to-ink text-aqua"
-                            : "border border-line bg-white text-midnight"
-                        }`}
-                      >
-                        {message.body ? (
-                          <p className="whitespace-pre-wrap text-sm font-semibold">{message.body}</p>
-                        ) : null}
-                        {(message.attachments ?? []).map((attachment) => (
-                          <div className="mt-2" key={attachment.id}>
-                            <AuthedImage
-                              alt="Support attachment"
-                              attachmentId={attachment.id}
-                              onOpen={setLightbox}
-                              token={token}
-                            />
+                    <div
+                      className={`group flex items-start gap-1 ${fromAdmin ? "justify-end" : "justify-start"}`}
+                      key={message.id}
+                    >
+                      {fromAdmin ? replyButton : null}
+                      <div className="max-w-[75%]">
+                        <SwipeToReply enabled={canReply} fromAdmin={fromAdmin} onReply={() => startReply(message)}>
+                          <div
+                            className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${
+                              fromAdmin
+                                ? "bg-gradient-to-r from-midnight to-ink text-aqua"
+                                : "border border-line bg-white text-midnight"
+                            } ${replyTarget?.id === message.id ? "ring-2 ring-cyan/60" : ""}`}
+                          >
+                            {message.replyTo ? (
+                              <div
+                                className={`mb-1.5 rounded-lg border-l-2 px-2.5 py-1 text-xs ${
+                                  fromAdmin ? "border-aqua bg-white/10" : "border-cyan bg-cloud"
+                                }`}
+                              >
+                                <p className={`truncate font-black ${fromAdmin ? "text-aqua" : "text-midnight"}`}>
+                                  {quoteAuthor(message.replyTo.senderKind)}
+                                </p>
+                                <p className={`line-clamp-2 font-semibold ${fromAdmin ? "text-aqua/80" : "text-muted"}`}>
+                                  {supportQuoteSnippet(message.replyTo)}
+                                </p>
+                              </div>
+                            ) : null}
+                            {message.body ? (
+                              <p className="whitespace-pre-wrap text-sm font-semibold">{message.body}</p>
+                            ) : null}
+                            {(message.attachments ?? []).map((attachment) => (
+                              <div className="mt-2" key={attachment.id}>
+                                <AuthedImage
+                                  alt="Support attachment"
+                                  attachmentId={attachment.id}
+                                  onOpen={setLightbox}
+                                  token={token}
+                                />
+                              </div>
+                            ))}
+                            <p
+                              className={`mt-1 flex items-center justify-end gap-1 text-[10px] font-semibold ${
+                                fromAdmin ? "text-aqua/70" : "text-muted"
+                              }`}
+                            >
+                              {message.editedAt ? "Edited · " : ""}
+                              {formatDate(message.createdAt)}
+                              {fromAdmin ? (
+                                adminReceiptState(message.createdAt, selectedThread?.userReadAt) === "seen" ? (
+                                  <CheckCheck aria-label="Seen" className="text-aqua" size={14} />
+                                ) : (
+                                  <Check aria-label="Sent" size={14} />
+                                )
+                              ) : null}
+                            </p>
                           </div>
-                        ))}
-                        <p
-                          className={`mt-1 flex items-center justify-end gap-1 text-[10px] font-semibold ${
-                            fromAdmin ? "text-aqua/70" : "text-muted"
-                          }`}
-                        >
-                          {message.editedAt ? "Edited · " : ""}
-                          {formatDate(message.createdAt)}
-                          {fromAdmin ? (
-                            adminReceiptState(message.createdAt, selectedThread?.userReadAt) === "seen" ? (
-                              <CheckCheck aria-label="Seen" className="text-aqua" size={14} />
-                            ) : (
-                              <Check aria-label="Sent" size={14} />
-                            )
-                          ) : null}
-                        </p>
+                        </SwipeToReply>
                       </div>
+                      {fromAdmin ? null : replyButton}
                     </div>
                   );
                 })}
@@ -758,6 +923,30 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                 </p>
               ) : (
                 <form className="border-t border-line p-4" onSubmit={(event) => void sendMessage(event)}>
+                  {replyTarget ? (
+                    <div className="mb-2 flex items-center gap-2 rounded-lg bg-cloud px-3 py-1.5 text-xs">
+                      <Reply aria-hidden="true" className="shrink-0 text-midnight" size={14} />
+                      <div className="min-w-0 flex-1 border-l-2 border-cyan pl-2">
+                        <p className="truncate font-black text-midnight">
+                          Replying to {quoteAuthor(replyTarget.senderKind)}
+                        </p>
+                        <p className="truncate font-semibold text-muted">
+                          {supportQuoteSnippet({
+                            body: replyTarget.body,
+                            hasPhoto: (replyTarget.attachments ?? []).length > 0
+                          })}
+                        </p>
+                      </div>
+                      <button
+                        aria-label="Cancel reply"
+                        className="text-muted hover:text-midnight"
+                        onClick={() => setReplyTarget(null)}
+                        type="button"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : null}
                   {pendingFile ? (
                     <p className="mb-2 flex items-center justify-between rounded-lg bg-cloud px-3 py-1.5 text-xs font-semibold text-midnight">
                       <span className="truncate">{pendingFile.name}</span>
@@ -776,6 +965,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                   ) : null}
                   <div className="flex items-end gap-2">
                     <textarea
+                      ref={textareaRef}
                       className="min-h-[44px] flex-1 resize-none rounded-xl border border-line px-3 py-2.5 text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/20"
                       onChange={(event) => {
                         const value = event.target.value;
@@ -783,6 +973,11 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                         bumpTyping(Boolean(value.trim()) || Boolean(pendingFile));
                       }}
                       onKeyDown={(event) => {
+                        if (event.key === "Escape" && replyTarget) {
+                          event.preventDefault();
+                          setReplyTarget(null);
+                          return;
+                        }
                         if (event.key === "Enter" && !event.shiftKey) {
                           event.preventDefault();
                           event.currentTarget.form?.requestSubmit();
