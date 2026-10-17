@@ -25,6 +25,8 @@ export type SupportReplyQuote = {
   senderKind: "user" | "admin";
   body: string | null;
   hasPhoto: boolean;
+  /** First photo of the quoted message, for the quote thumbnail. */
+  photoId?: string | null;
 };
 
 export type SupportThread = {

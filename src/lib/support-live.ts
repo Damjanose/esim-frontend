@@ -100,8 +100,8 @@ export function formatSupportDevice(thread: { deviceModel?: string | null; devic
 type QuotedMessage = {
   id: string;
   body: string | null;
-  attachments?: unknown[];
-  replyTo?: { id: string; body: string | null; hasPhoto: boolean } | null;
+  attachments?: { id: string }[];
+  replyTo?: { id: string; body: string | null; hasPhoto: boolean; photoId?: string | null } | null;
 };
 
 /** `support:message_updated`: swap in the edited message and refresh replies quoting it. */
@@ -109,10 +109,8 @@ export function applyEditedSupportMessage<T extends QuotedMessage>(list: T[], up
   return list.map((item) => {
     if (item.id === updated.id) return updated;
     if (item.replyTo?.id !== updated.id) return item;
-    return {
-      ...item,
-      replyTo: { ...item.replyTo, body: updated.body, hasPhoto: (updated.attachments?.length ?? 0) > 0 }
-    };
+    const photoId = updated.attachments?.[0]?.id ?? null;
+    return { ...item, replyTo: { ...item.replyTo, body: updated.body, hasPhoto: Boolean(photoId), photoId } };
   });
 }
 
@@ -121,6 +119,14 @@ export function applyDeletedSupportMessage<T extends QuotedMessage>(list: T[], m
   return list
     .filter((item) => item.id !== messageId)
     .map((item) => (item.replyTo?.id === messageId ? { ...item, replyTo: null } : item));
+}
+
+/** How long the original message stays highlighted after clicking its quote. */
+export const SUPPORT_QUOTE_FLASH_MS = 1_500;
+
+/** DOM id of a chat row, so a reply quote can scroll to the message it quotes. */
+export function supportMessageDomId(messageId: string): string {
+  return `support-msg-${messageId}`;
 }
 
 /** One-line text for a reply quote: the body, else "Photo". */
@@ -134,12 +140,12 @@ export const SUPPORT_REPLY_DRAG_TRIGGER = 56;
 const SUPPORT_REPLY_DRAG_MAX = 80;
 
 /**
- * Pointer drag -> bubble offset for swipe-to-reply. Admin bubbles (right side) move left,
- * traveler bubbles (left side) move right; dragging the other way does nothing.
+ * Pointer drag -> bubble offset for swipe-to-reply. Your own bubbles (right side) move left,
+ * the other person's (left side) move right; dragging the other way does nothing.
  */
-export function supportReplyDragOffset(deltaX: number, fromAdmin: boolean): number {
-  const toward = fromAdmin ? -deltaX : deltaX;
+export function supportReplyDragOffset(deltaX: number, mine: boolean): number {
+  const toward = mine ? -deltaX : deltaX;
   if (toward <= 0) return 0;
   const capped = Math.min(toward, SUPPORT_REPLY_DRAG_MAX);
-  return fromAdmin ? -capped : capped;
+  return mine ? -capped : capped;
 }

@@ -45,7 +45,7 @@ describe("/bff/user/support", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("forwards only body and attachmentIds when sending", async () => {
+  it("forwards only body, attachmentIds and replyToId when sending", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -53,13 +53,13 @@ describe("/bff/user/support", () => {
       new Request("http://localhost:3000/bff/user/support/messages", {
         method: "POST",
         headers: { cookie: signedIn, "content-type": "application/json" },
-        body: JSON.stringify({ body: "Hi", attachmentIds: ["a1"], userEmail: "spoof@example.com" })
+        body: JSON.stringify({ body: "Hi", attachmentIds: ["a1"], replyToId: "m1", userEmail: "spoof@example.com" })
       })
     );
 
     expect(response.status).toBe(200);
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toEqual({ body: "Hi", attachmentIds: ["a1"] });
+    expect(JSON.parse(String(init.body))).toEqual({ body: "Hi", attachmentIds: ["a1"], replyToId: "m1" });
   });
 
   it("passes backend validation errors through", async () => {

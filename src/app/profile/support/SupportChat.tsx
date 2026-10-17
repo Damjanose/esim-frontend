@@ -1,17 +1,18 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
-import { CheckCircle2, ImageOff, ImagePlus, Loader2, MessageCircle, Send, X } from "lucide-react";
+import { CheckCircle2, ImageOff, ImagePlus, Loader2, MessageCircle, Reply, Send, X } from "lucide-react";
 import { Button } from "@/app/components/Button";
 import type { UserSupportThreadPayload } from "@/app/bff/user/support/thread/route";
 import type { SupportMessage } from "@/app/xsupport/support-types";
+import { SwipeToReply } from "@/app/xsupport/SwipeToReply";
 import {
   SUPPORT_IMAGE_ACCEPT,
   SUPPORT_MAX_ATTACHMENTS,
   SUPPORT_POLL_MS,
   checkSupportComposer
 } from "@/lib/userSupportChat";
-import { supportQuoteSnippet } from "@/lib/support-live";
+import { SUPPORT_QUOTE_FLASH_MS, supportMessageDomId, supportQuoteSnippet } from "@/lib/support-live";
 
 const SIGN_IN_URL = `/signin?next=${encodeURIComponent("/profile/support")}`;
 
@@ -78,6 +79,9 @@ export function SupportChat() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  // Swipe (or the hover Reply button) on a bubble: the next message sent quotes it.
+  const [replyTarget, setReplyTarget] = useState<SupportMessage | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [sending, setSending] = useState(false);
   const [solving, setSolving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,6 +130,21 @@ export function SupportChat() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox]);
+
+  // Click on a reply quote: scroll to the quoted message and flash it, like WhatsApp.
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+  }, []);
+  function jumpToMessage(messageId: string) {
+    const row = document.getElementById(supportMessageDomId(messageId));
+    if (!row) return;
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightId(messageId);
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = setTimeout(() => setHighlightId(null), SUPPORT_QUOTE_FLASH_MS);
+  }
 
   const lastMessageId = messages[messages.length - 1]?.id;
   useEffect(() => {
@@ -181,11 +200,16 @@ export function SupportChat() {
       await callBff("/bff/user/support/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: check.body || null, attachmentIds })
+        body: JSON.stringify({
+          body: check.body || null,
+          attachmentIds,
+          ...(replyTarget ? { replyToId: replyTarget.id } : {})
+        })
       });
 
       setDraft("");
       setFiles([]);
+      setReplyTarget(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       await load();
     } catch (err) {
@@ -200,6 +224,7 @@ export function SupportChat() {
     setError(null);
     try {
       await callBff("/bff/user/support/thread/solved", { method: "POST" });
+      setReplyTarget(null);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not close the conversation. Please try again.");
@@ -208,7 +233,19 @@ export function SupportChat() {
     }
   }
 
+  function startReply(message: SupportMessage) {
+    setReplyTarget(message);
+    textareaRef.current?.focus();
+  }
+
+  const quoteAuthor = (senderKind: SupportMessage["senderKind"]) => (senderKind === "user" ? "You" : "Support");
+
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Escape" && replyTarget) {
+      event.preventDefault();
+      setReplyTarget(null);
+      return;
+    }
     // Enter sends, Shift+Enter adds a line (skip while an IME is composing).
     if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
       event.preventDefault();
@@ -262,41 +299,77 @@ export function SupportChat() {
         ) : (
           messages.map((message) => {
             const mine = message.senderKind === "user";
+            const replyButton = threadOpen ? (
+              <button
+                aria-label="Reply to this message"
+                className="shrink-0 self-center rounded-[10px] p-1.5 text-onSurfaceVariant opacity-0 transition hover:bg-surfaceBright hover:text-brandBlue focus-visible:opacity-100 group-hover:opacity-100"
+                onClick={() => startReply(message)}
+                title="Reply"
+                type="button"
+              >
+                <Reply aria-hidden="true" size={14} />
+              </button>
+            ) : null;
             return (
-              <div className={`flex ${mine ? "justify-end" : "justify-start"}`} key={message.id}>
-                <div
-                  className={`max-w-[85%] rounded-[16px] px-3.5 py-2.5 sm:max-w-[75%] ${
-                    mine
-                      ? "bg-gradient-to-r from-brandBlue to-brandTeal text-white"
-                      : "border border-outline/60 bg-surface text-brandInk"
-                  }`}
-                >
-                  {message.replyTo ? (
-                    // Support replied to a specific message: show what they answered.
+              <div
+                className={`group flex items-start gap-1 rounded-[16px] transition-colors duration-500 ${
+                  mine ? "justify-end" : "justify-start"
+                } ${highlightId === message.id ? "bg-brandBlue/10" : ""}`}
+                id={supportMessageDomId(message.id)}
+                key={message.id}
+              >
+                {mine ? replyButton : null}
+                <div className="max-w-[85%] sm:max-w-[75%]">
+                  <SwipeToReply enabled={threadOpen} mine={mine} onReply={() => startReply(message)}>
                     <div
-                      className={`mb-1.5 rounded-[10px] border-l-2 px-2.5 py-1 text-xs ${
-                        mine ? "border-white bg-white/15" : "border-brandBlue bg-surfaceBright"
-                      }`}
+                      className={`rounded-[16px] px-3.5 py-2.5 ${
+                        mine
+                          ? "bg-gradient-to-r from-brandBlue to-brandTeal text-white"
+                          : "border border-outline/60 bg-surface text-brandInk"
+                      } ${replyTarget?.id === message.id ? "ring-2 ring-brandBlue/40" : ""}`}
                     >
-                      <p className="truncate font-bold">{message.replyTo.senderKind === "user" ? "You" : "Support"}</p>
-                      <p className={`line-clamp-2 ${mine ? "text-white/85" : "text-onSurfaceVariant"}`}>
-                        {supportQuoteSnippet(message.replyTo)}
+                      {message.replyTo ? (
+                        <button
+                          className={`mb-1.5 flex w-full items-center gap-2 rounded-[10px] border-l-2 px-2.5 py-1 text-left text-xs transition hover:opacity-80 ${
+                            mine ? "border-white bg-white/15" : "border-brandBlue bg-surfaceBright"
+                          }`}
+                          onClick={() => {
+                            if (message.replyTo) jumpToMessage(message.replyTo.id);
+                          }}
+                          title="Show the original message"
+                          type="button"
+                        >
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-bold">{quoteAuthor(message.replyTo.senderKind)}</span>
+                            <span className={`line-clamp-2 ${mine ? "text-white/85" : "text-onSurfaceVariant"}`}>
+                              {supportQuoteSnippet(message.replyTo)}
+                            </span>
+                          </span>
+                          {message.replyTo.photoId ? (
+                            <img
+                              alt="Quoted photo"
+                              className="h-10 w-10 shrink-0 rounded-md object-cover"
+                              src={`/bff/user/support/attachments/${encodeURIComponent(message.replyTo.photoId)}`}
+                            />
+                          ) : null}
+                        </button>
+                      ) : null}
+                      {message.body ? <p className="whitespace-pre-wrap break-words text-sm">{message.body}</p> : null}
+                      {message.attachments.map((attachment) => (
+                        <SupportPhoto
+                          key={attachment.id}
+                          onOpen={setLightbox}
+                          src={`/bff/user/support/attachments/${encodeURIComponent(attachment.id)}`}
+                        />
+                      ))}
+                      <p className={`mt-1 text-[10px] ${mine ? "text-white/75" : "text-onSurfaceVariant"}`}>
+                        {message.editedAt ? "Edited · " : ""}
+                        {formatTime(message.createdAt)}
                       </p>
                     </div>
-                  ) : null}
-                  {message.body ? <p className="whitespace-pre-wrap break-words text-sm">{message.body}</p> : null}
-                  {message.attachments.map((attachment) => (
-                    <SupportPhoto
-                      key={attachment.id}
-                      onOpen={setLightbox}
-                      src={`/bff/user/support/attachments/${encodeURIComponent(attachment.id)}`}
-                    />
-                  ))}
-                  <p className={`mt-1 text-[10px] ${mine ? "text-white/75" : "text-onSurfaceVariant"}`}>
-                    {message.editedAt ? "Edited · " : ""}
-                    {formatTime(message.createdAt)}
-                  </p>
+                  </SwipeToReply>
                 </div>
+                {mine ? null : replyButton}
               </div>
             );
           })
@@ -304,6 +377,35 @@ export function SupportChat() {
       </div>
 
       <form className="border-t border-outline/60 p-3 sm:p-4" onSubmit={(event) => void send(event)}>
+        {replyTarget ? (
+          <div className="mb-2 flex items-center gap-2 rounded-[10px] bg-surfaceBright px-3 py-1.5 text-xs text-brandInk">
+            <Reply aria-hidden="true" className="shrink-0 text-brandBlue" size={14} />
+            <div className="min-w-0 flex-1 border-l-2 border-brandBlue pl-2">
+              <p className="truncate font-bold">Replying to {quoteAuthor(replyTarget.senderKind)}</p>
+              <p className="truncate text-onSurfaceVariant">
+                {supportQuoteSnippet({
+                  body: replyTarget.body,
+                  hasPhoto: (replyTarget.attachments ?? []).length > 0
+                })}
+              </p>
+            </div>
+            {replyTarget.attachments?.[0] ? (
+              <img
+                alt="Quoted photo"
+                className="h-10 w-10 shrink-0 rounded-md object-cover"
+                src={`/bff/user/support/attachments/${encodeURIComponent(replyTarget.attachments[0].id)}`}
+              />
+            ) : null}
+            <button
+              aria-label="Cancel reply"
+              className="text-onSurfaceVariant hover:text-brandInk"
+              onClick={() => setReplyTarget(null)}
+              type="button"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : null}
         {files.length > 0 ? (
           <ul className="mb-2 flex flex-wrap gap-2">
             {files.map((file, index) => (
@@ -351,6 +453,7 @@ export function SupportChat() {
             Message
           </label>
           <textarea
+            ref={textareaRef}
             className="max-h-36 min-h-11 flex-1 resize-none rounded-[12px] border border-outline bg-surface px-3 py-2.5 text-base text-brandInk outline-none transition placeholder:text-onSurfaceVariant/60 focus:border-brandBlue focus:ring-4 focus:ring-brandBlue/15 sm:text-sm"
             disabled={sending}
             id="support-chat-draft"

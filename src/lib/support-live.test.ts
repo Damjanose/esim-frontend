@@ -108,14 +108,20 @@ describe("support live inbox helpers", () => {
 
 describe("support reply helpers", () => {
   const list = [
-    { id: "q", body: "Original", attachments: [] },
-    { id: "r", body: "Answer", attachments: [], replyTo: { id: "q", body: "Original", hasPhoto: false } }
+    { id: "q", body: "Original", attachments: [] as { id: string }[] },
+    {
+      id: "r",
+      body: "Answer",
+      attachments: [] as { id: string }[],
+      replyTo: { id: "q", body: "Original", hasPhoto: false, photoId: null as string | null }
+    }
   ];
 
   it("refreshes the quote when the quoted message is edited", () => {
-    const next = applyEditedSupportMessage(list, { id: "q", body: "Fixed", attachments: [] });
+    const next = applyEditedSupportMessage(list, { id: "q", body: "Fixed", attachments: [{ id: "p1" }] });
     expect(next[0].body).toBe("Fixed");
     expect(next[1].replyTo?.body).toBe("Fixed");
+    expect(next[1].replyTo?.photoId).toBe("p1");
   });
 
   it("clears the quote when the quoted message is deleted", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, type PointerEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -26,10 +26,10 @@ import {
   previewFromSupportMessage,
   shouldAlertAdminOfIncomingMessage,
   supportLiveThreadId,
+  supportMessageDomId,
   supportQuoteSnippet,
-  supportReplyDragOffset,
   supportSocketMessageForThread,
-  SUPPORT_REPLY_DRAG_TRIGGER,
+  SUPPORT_QUOTE_FLASH_MS,
   SUPPORT_TYPING_IDLE_MS
 } from "@/lib/support-live";
 import type {
@@ -38,6 +38,7 @@ import type {
   SupportThread,
   SupportThreadStatus
 } from "./support-types";
+import { SwipeToReply } from "./SwipeToReply";
 
 const TABS: Array<{ id: SupportThreadStatus; label: string }> = [
   { id: "unread", label: "Unread" },
@@ -61,12 +62,15 @@ function AuthedImage({
   token,
   attachmentId,
   alt,
-  onOpen
+  onOpen,
+  thumb = false
 }: {
   token: string;
   attachmentId: string;
   alt: string;
   onOpen?: (src: string) => void;
+  /** Small square for a reply quote: no lightbox, quiet fallback. */
+  thumb?: boolean;
 }) {
   const [src, setSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -101,6 +105,17 @@ function AuthedImage({
     };
   }, [attachmentId, token]);
 
+  if (thumb) {
+    if (failed || !src) {
+      return (
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-cloud text-muted">
+          <ImageOff aria-hidden="true" size={14} />
+        </span>
+      );
+    }
+    return <img alt={alt} className="h-10 w-10 shrink-0 rounded-md object-cover" src={src} />;
+  }
+
   if (failed) {
     return (
       <div className="flex h-24 w-36 flex-col items-center justify-center gap-1 rounded-xl bg-cloud text-xs font-semibold text-muted">
@@ -122,99 +137,6 @@ function AuthedImage({
     >
       <img alt={alt} className="max-h-52 max-w-full object-cover" src={src} />
     </button>
-  );
-}
-
-/**
- * Swipe-to-reply, same gesture as the mobile inbox: drag your own (admin) bubble left or
- * the traveler's bubble right, past the trigger, and let go. Works with touch and mouse;
- * vertical drags are left to page scrolling.
- */
-function SwipeToReply({
-  fromAdmin,
-  enabled,
-  onReply,
-  children
-}: {
-  fromAdmin: boolean;
-  enabled: boolean;
-  onReply: () => void;
-  children: ReactNode;
-}) {
-  const [offset, setOffset] = useState(0);
-  const drag = useRef<{ pointerId: number; startX: number; startY: number; active: boolean } | null>(null);
-  // A drag that ends over a photo must not also open the lightbox.
-  const suppressClick = useRef(false);
-
-  function reset() {
-    drag.current = null;
-    setOffset(0);
-  }
-
-  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (!enabled || event.button !== 0) return;
-    suppressClick.current = false;
-    drag.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, active: false };
-  }
-
-  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
-    const current = drag.current;
-    if (!current || current.pointerId !== event.pointerId) return;
-    const dx = event.clientX - current.startX;
-    const dy = event.clientY - current.startY;
-    if (!current.active) {
-      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
-        drag.current = null;
-        return;
-      }
-      if (Math.abs(dx) < 8 || supportReplyDragOffset(dx, fromAdmin) === 0) return;
-      current.active = true;
-      suppressClick.current = true;
-      event.currentTarget.setPointerCapture(event.pointerId);
-      window.getSelection()?.removeAllRanges();
-    }
-    setOffset(supportReplyDragOffset(dx, fromAdmin));
-  }
-
-  function onPointerUp(event: PointerEvent<HTMLDivElement>) {
-    const current = drag.current;
-    if (!current || current.pointerId !== event.pointerId) return;
-    if (current.active && Math.abs(offset) >= SUPPORT_REPLY_DRAG_TRIGGER) onReply();
-    reset();
-  }
-
-  const dragging = offset !== 0;
-  const progress = Math.min(Math.abs(offset) / SUPPORT_REPLY_DRAG_TRIGGER, 1);
-  return (
-    <div
-      className={`relative touch-pan-y ${dragging ? "select-none" : ""}`}
-      onClickCapture={(event) => {
-        if (!suppressClick.current) return;
-        suppressClick.current = false;
-        event.preventDefault();
-        event.stopPropagation();
-      }}
-      onPointerCancel={reset}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-    >
-      <span
-        aria-hidden="true"
-        className={`absolute top-1/2 grid h-8 w-8 place-items-center rounded-full bg-white text-midnight shadow-sm ${
-          fromAdmin ? "right-1" : "left-1"
-        }`}
-        style={{ opacity: progress, transform: `translateY(-50%) scale(${0.6 + progress * 0.4})` }}
-      >
-        <Reply size={16} />
-      </span>
-      <div
-        className={`relative ${dragging ? "" : "transition-transform duration-150"}`}
-        style={{ transform: `translateX(${offset}px)` }}
-      >
-        {children}
-      </div>
-    </div>
   );
 }
 
@@ -657,6 +579,21 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
     }
   }
 
+  // Click on a reply quote: scroll to the quoted message and flash it, like WhatsApp.
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+  }, []);
+  function jumpToMessage(messageId: string) {
+    const row = document.getElementById(supportMessageDomId(messageId));
+    if (!row) return;
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightId(messageId);
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = setTimeout(() => setHighlightId(null), SUPPORT_QUOTE_FLASH_MS);
+  }
+
   function startReply(message: SupportMessage) {
     setReplyTarget(message);
     textareaRef.current?.focus();
@@ -852,12 +789,15 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                   ) : null;
                   return (
                     <div
-                      className={`group flex items-start gap-1 ${fromAdmin ? "justify-end" : "justify-start"}`}
+                      className={`group flex items-start gap-1 rounded-xl transition-colors duration-500 ${
+                        fromAdmin ? "justify-end" : "justify-start"
+                      } ${highlightId === message.id ? "bg-cyan/15" : ""}`}
+                      id={supportMessageDomId(message.id)}
                       key={message.id}
                     >
                       {fromAdmin ? replyButton : null}
                       <div className="max-w-[75%]">
-                        <SwipeToReply enabled={canReply} fromAdmin={fromAdmin} onReply={() => startReply(message)}>
+                        <SwipeToReply enabled={canReply} mine={fromAdmin} onReply={() => startReply(message)}>
                           <div
                             className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${
                               fromAdmin
@@ -866,18 +806,37 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                             } ${replyTarget?.id === message.id ? "ring-2 ring-cyan/60" : ""}`}
                           >
                             {message.replyTo ? (
-                              <div
-                                className={`mb-1.5 rounded-lg border-l-2 px-2.5 py-1 text-xs ${
+                              <button
+                                className={`mb-1.5 flex w-full items-center gap-2 rounded-lg border-l-2 px-2.5 py-1 text-left text-xs transition hover:opacity-80 ${
                                   fromAdmin ? "border-aqua bg-white/10" : "border-cyan bg-cloud"
                                 }`}
+                                onClick={() => {
+                                  if (message.replyTo) jumpToMessage(message.replyTo.id);
+                                }}
+                                title="Show the original message"
+                                type="button"
                               >
-                                <p className={`truncate font-black ${fromAdmin ? "text-aqua" : "text-midnight"}`}>
-                                  {quoteAuthor(message.replyTo.senderKind)}
-                                </p>
-                                <p className={`line-clamp-2 font-semibold ${fromAdmin ? "text-aqua/80" : "text-muted"}`}>
-                                  {supportQuoteSnippet(message.replyTo)}
-                                </p>
-                              </div>
+                                <span className="min-w-0 flex-1">
+                                  <span
+                                    className={`block truncate font-black ${fromAdmin ? "text-aqua" : "text-midnight"}`}
+                                  >
+                                    {quoteAuthor(message.replyTo.senderKind)}
+                                  </span>
+                                  <span
+                                    className={`line-clamp-2 font-semibold ${fromAdmin ? "text-aqua/80" : "text-muted"}`}
+                                  >
+                                    {supportQuoteSnippet(message.replyTo)}
+                                  </span>
+                                </span>
+                                {message.replyTo.photoId ? (
+                                  <AuthedImage
+                                    alt="Quoted photo"
+                                    attachmentId={message.replyTo.photoId}
+                                    thumb
+                                    token={token}
+                                  />
+                                ) : null}
+                              </button>
                             ) : null}
                             {message.body ? (
                               <p className="whitespace-pre-wrap text-sm font-semibold">{message.body}</p>
@@ -937,6 +896,14 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                           })}
                         </p>
                       </div>
+                      {replyTarget.attachments?.[0] ? (
+                        <AuthedImage
+                          alt="Quoted photo"
+                          attachmentId={replyTarget.attachments[0].id}
+                          thumb
+                          token={token}
+                        />
+                      ) : null}
                       <button
                         aria-label="Cancel reply"
                         className="text-muted hover:text-midnight"

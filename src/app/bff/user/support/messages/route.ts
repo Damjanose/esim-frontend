@@ -2,9 +2,9 @@ import { backendFetch } from "@/lib/backend";
 import { errorJson, readSessionTokens, successJson } from "@/lib/route-response";
 import { callWithSession } from "@/lib/with-session";
 
-/** Sends one traveler message (text and/or previously uploaded attachment ids). */
+/** Sends one traveler message (text and/or previously uploaded attachment ids, optionally a reply). */
 export async function POST(request: Request) {
-  let body: { body?: unknown; attachmentIds?: unknown };
+  let body: { body?: unknown; attachmentIds?: unknown; replyToId?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     backendFetch<unknown>("/support/messages", {
       method: "POST",
       token,
-      body: { body: body.body, attachmentIds: body.attachmentIds }
+      body: { body: body.body, attachmentIds: body.attachmentIds, replyToId: body.replyToId }
     })
   );
 
