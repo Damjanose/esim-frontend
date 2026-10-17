@@ -51,7 +51,7 @@ type Draft = {
 type NumberKey = "requiredDays" | "discountPct" | "rewardValidDays" | "maxClaimsPerUser";
 
 const NUMBER_FIELDS: Array<{ key: NumberKey; label: string; hint: string; max: number }> = [
-  { key: "requiredDays", label: "Streak days to unlock", hint: "Consecutive days with all 4 games done", max: 365 },
+  { key: "requiredDays", label: "Streak days to unlock", hint: "Consecutive days with all 3 games done", max: 365 },
   { key: "discountPct", label: "Discount %", hint: "Off one plan or top-up, stacks on a partner code", max: 90 },
   { key: "rewardValidDays", label: "Reward valid for (days)", hint: "From the moment it is claimed", max: 365 },
   { key: "maxClaimsPerUser", label: "Max claims per user", hint: "Within the campaign window", max: 1000 }
@@ -194,7 +194,7 @@ export default function AdminStreakPromoPage() {
               Games streak promo
             </h1>
             <p className="mt-1 max-w-2xl text-sm font-semibold text-muted">
-              Players who finish all 4 daily games for enough days in a row can claim a discount on their next plan or
+              Players who finish all 3 daily games for enough days in a row can claim a discount on their next plan or
               top-up. Missing a day resets their run.
             </p>
           </div>
