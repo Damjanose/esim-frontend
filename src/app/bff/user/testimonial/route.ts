@@ -4,7 +4,7 @@ import { callWithSession } from "@/lib/with-session";
 
 /**
  * The signed-in user's review (testimonial) and send quota. The backend owns
- * every rule (paid order, 2 per 90 days, lengths); this only proxies, and
+ * every rule (paid order, one review per account, lengths); this only proxies, and
  * passes its error `code` through so the composer can pick the right state.
  */
 function noStore<T extends Response>(response: T): T {

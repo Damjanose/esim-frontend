@@ -174,7 +174,7 @@ describe("DELETE /bff/user/account", () => {
 
 describe("GET /bff/user/testimonial", () => {
   it("returns the latest review and quota", async () => {
-    const data = { testimonial: null, quota: { limit: 2, windowDays: 90, remaining: 2, resetsAt: null } };
+    const data = { testimonial: null, quota: { limit: 1, windowDays: 0, remaining: 1, resetsAt: null } };
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ status: "success", data })));
 
     const response = await getTestimonial(
