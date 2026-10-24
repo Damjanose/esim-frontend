@@ -116,3 +116,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-10-17 | [review-copy-one-per-account](2026-10-17_review-copy-one-per-account.md) | Review composer copy matches one review per account and no longer names eSIM2you.com |
 | 2026-10-17 | [testimonial-edit-visibility](2026-10-17_testimonial-edit-visibility.md) | Admin testimonial decisions send updatedAt and reload on 409; composer no longer calls a hidden review live |
 | 2026-10-17 | [support-swipe-reply](2026-10-17_support-swipe-reply.md) | /xsupport swipe-to-reply (drag or hover Reply) with quoted replies in admin and traveler chats |
+| 2026-10-24 | [holo-blog](2026-10-24_holo-blog.md) | Holo blog pages /blog + /blog/[slug] (ISR, metadata, JSON-LD), signed /bff/blog/revalidate, async /sitemaps/blog.xml, old /blog -> /travel 308s removed (f299-f300) |
