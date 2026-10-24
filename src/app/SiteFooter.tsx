@@ -27,6 +27,7 @@ const footerExploreLinks = [
   { label: "Compare travel eSIMs", href: "/compare" },
   { label: "Travel eSIM price index", href: "/esim-price-index" },
   { label: "Travel eSIM guides", href: "/travel" },
+  { label: "eSIM2you blog", href: "/blog" },
   { label: "AI trip planner", href: "/trip-plan" },
   { label: "Flight search", href: "/flights" },
   ...useCasePages.map((page) => ({

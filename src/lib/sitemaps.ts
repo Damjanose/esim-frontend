@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { policyDocument, termsDocument } from "@/content/legal";
+import { blogPath, loadBlogPosts } from "@/lib/blog";
 import { contentUpdatedAt } from "@/lib/content-dates";
-import { indexableRoutes, siteUrl } from "@/lib/seo";
+import { absoluteUrl, indexableRoutes, siteUrl } from "@/lib/seo";
 
 export const sitemapSegmentIds = ["static", "esim", "travel", "compare"] as const;
 export type SitemapSegmentId = (typeof sitemapSegmentIds)[number];
@@ -52,4 +53,25 @@ export function allSitemapEntries(): MetadataRoute.Sitemap {
 
 export function sitemapIndexUrls() {
   return sitemapSegmentIds.map((id) => `${siteUrl}/sitemaps/${id}.xml`);
+}
+
+/**
+ * Holo blog posts come from the backend at request time, so they get their own
+ * async part file (/sitemaps/blog.xml) instead of joining the static segments.
+ */
+export const blogSitemapId = "blog";
+
+export async function blogSitemapEntries(): Promise<MetadataRoute.Sitemap> {
+  const posts = await loadBlogPosts({ all: true });
+  if (posts.length === 0) return [];
+  const newest = new Date(Math.max(...posts.map((post) => Date.parse(post.updatedAt))));
+  return [
+    { url: absoluteUrl("/blog"), lastModified: newest, changeFrequency: "weekly", priority: 0.6 },
+    ...posts.map((post) => ({
+      url: absoluteUrl(blogPath(post.slug)),
+      lastModified: new Date(post.updatedAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.6
+    }))
+  ];
 }
