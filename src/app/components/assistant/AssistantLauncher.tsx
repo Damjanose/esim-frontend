@@ -97,7 +97,7 @@ export function AssistantLauncher() {
           type="button"
         >
           <Image
-            alt=""
+            alt={t("assistant.title")}
             className="h-[88%] w-[88%] object-contain"
             height={64}
             src="/images/assistant-astronaut.png"

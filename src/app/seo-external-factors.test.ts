@@ -31,6 +31,7 @@ describe("SEO external factors", () => {
   it("uses descriptive alt text for public raster images", () => {
     const publicChromeSources = [
       readFileSync("src/app/components/Navbar.tsx", "utf8"),
+      readFileSync("src/app/components/assistant/AssistantLauncher.tsx", "utf8"),
       readFileSync("src/app/SiteFooter.tsx", "utf8"),
       readFileSync("src/app/LegalDocumentPage.tsx", "utf8"),
       readFileSync("src/app/page.tsx", "utf8")

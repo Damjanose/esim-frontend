@@ -366,6 +366,15 @@
         "f291"
       ],
       "source": "src/app/xpartnersy/page.tsx"
+    },
+    {
+      "symptom": "Bing Webmaster Tools flags the homepage for an <img> (height 64, /images/...) missing alt.",
+      "root_cause": "AssistantLauncher's astronaut Image had alt=\"\"; Bing treats an empty alt as missing.",
+      "fix": "alt={t(\"assistant.title\")} and AssistantLauncher.tsx added to the no-alt=\"\" SEO test.",
+      "facts": [
+        "f301"
+      ],
+      "source": "src/app/components/assistant/AssistantLauncher.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
