@@ -136,8 +136,8 @@ describe("esimCountLine", () => {
 describe("buyAgainHref", () => {
   it("links the destination page only while the package is still sold", () => {
     expect(buyAgainHref("mock-us-7days-1gb", catalog)).toBe("/esim/usa");
-    // Sold, but no content page: the browse fallback, as every browse link does.
-    expect(buyAgainHref("mock-xk-7days-1gb", catalog)).toBe("/destinations?country=kosovo");
+    // Catalog countries have a generated /esim page too.
+    expect(buyAgainHref("mock-xk-7days-1gb", catalog)).toBe("/esim/kosovo");
     expect(buyAgainHref("retired-pkg-30days-5gb", catalog)).toBeNull();
   });
 });

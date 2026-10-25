@@ -469,6 +469,13 @@ export type DestinationOfferInput = {
   offerCount: number;
 };
 
+/** A plan the page lists with its own Buy link; becomes one Offer. */
+export type OfferPlanInput = {
+  id: string;
+  title: string;
+  priceNumeric: number;
+};
+
 /**
  * Product + AggregateOffer node for a page with a real, visibly-rendered
  * "from $X" price. Only call this where that price is on the page — schema
@@ -478,12 +485,15 @@ export function createOfferProductJsonLd({
   url,
   name,
   description,
-  offer
+  offer,
+  plans = []
 }: {
   url: string;
   name: string;
   description: string;
   offer: DestinationOfferInput;
+  /** The plans listed on the page, each emitted as an Offer inside the AggregateOffer. */
+  plans?: OfferPlanInput[];
 }) {
   return {
     "@type": "Product",
@@ -499,7 +509,21 @@ export function createOfferProductJsonLd({
       lowPrice: offer.lowPrice.toFixed(2),
       highPrice: offer.highPrice.toFixed(2),
       offerCount: offer.offerCount,
-      availability: "https://schema.org/InStock"
+      availability: "https://schema.org/InStock",
+      ...(plans.length > 0
+        ? {
+            offers: plans.map((plan) => ({
+              "@type": "Offer",
+              name: plan.title,
+              sku: plan.id,
+              url: absoluteUrl(`/checkout?package=${encodeURIComponent(plan.id)}`),
+              price: plan.priceNumeric.toFixed(2),
+              priceCurrency: offer.currency,
+              availability: "https://schema.org/InStock",
+              seller: { "@id": `${siteUrl}/#organization` }
+            }))
+          }
+        : {})
     }
   };
 }
@@ -512,6 +536,7 @@ export function createContentPageJsonLd({
   parent,
   faqs = [],
   offer,
+  plans,
   article
 }: {
   path: string;
@@ -524,6 +549,7 @@ export function createContentPageJsonLd({
   };
   faqs?: SeoPageFaq[];
   offer?: DestinationOfferInput;
+  plans?: OfferPlanInput[];
   /**
    * Mark editorial pages (travel guides, comparisons) as an Article. There are no
    * per-guide authors or publish dates yet, so the Organization is the author and
@@ -590,7 +616,7 @@ export function createContentPageJsonLd({
   }
 
   if (offer) {
-    graph.push(createOfferProductJsonLd({ url, name, description, offer }));
+    graph.push(createOfferProductJsonLd({ url, name, description, offer, plans }));
   }
 
   if (article) {

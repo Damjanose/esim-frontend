@@ -1,4 +1,6 @@
+import { catalogDestinationGroups, catalogDestinations, type CatalogDestination } from "./catalog-destinations";
 import { landingContent } from "./landing";
+import { destinationDisplay } from "@/lib/esim-routes";
 
 export type SeoPageSection = {
   title: string;
@@ -240,7 +242,7 @@ const baseDestinationPages = [
     path: "/esim/turkey",
     title: "eSIM for Turkey | Travel Internet for Visitors",
     description:
-      "Get a eSIM2you for Turkey travel data and use mobile internet abroad for maps, messaging, bookings, and work trips.",
+      "Buy a prepaid travel eSIM for Turkey and use mobile internet abroad for maps, messaging, bookings, and work trips.",
     eyebrow: "Turkey travel eSIM",
     heading: "Travel internet for Turkey without a physical SIM stop.",
     intro:
@@ -650,7 +652,7 @@ const baseDestinationPages = [
     path: "/esim/uae",
     title: "eSIM for UAE | Travel Data for Dubai and Abu Dhabi",
     description:
-      "Get a eSIM2you for the UAE and use mobile internet in Dubai and Abu Dhabi without hunting for a local SIM after landing.",
+      "Buy a prepaid travel eSIM for the UAE and use mobile internet in Dubai and Abu Dhabi without hunting for a local SIM after landing.",
     eyebrow: "UAE travel eSIM",
     heading: "Mobile data for Dubai and Abu Dhabi, ready before you land.",
     intro:
@@ -773,7 +775,7 @@ const baseDestinationPages = [
     path: "/esim/australia",
     title: "eSIM for Australia | Travel Data for Sydney, Melbourne, and More",
     description:
-      "Get a eSIM2you for Australia travel data and stay connected in Sydney, Melbourne, and beyond without a local SIM stop.",
+      "Buy a prepaid travel eSIM for Australia and stay connected in Sydney, Melbourne, and beyond without a local SIM stop.",
     eyebrow: "Australia travel eSIM",
     heading: "Mobile internet for Australia, installed before your plane lands.",
     intro:
@@ -1318,9 +1320,86 @@ const additionalDestinationPages = [
   }
 ] satisfies SeoContentPage[];
 
-export const destinationPages = [
+const handWrittenDestinationPages = [
   ...baseDestinationPages.filter((page) => page.kind === "destination"),
   ...additionalDestinationPages
+] satisfies SeoContentPage[];
+
+const destinationNameBySlug = new Map<string, string>([
+  ...handWrittenDestinationPages.map((page) => [page.slug, page.eyebrow.replace(/ travel eSIM$/, "")] as const),
+  ...catalogDestinations.map((entry) => [entry.slug, entry.name] as const)
+]);
+
+function joinNames(names: string[]) {
+  return names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : (names[0] ?? "");
+}
+
+/**
+ * Generated /esim/<slug> page for a catalog country without a hand-written
+ * page. Copy stays true for every country; the country-specific FAQs are built
+ * from live plans at render time (src/lib/destination-plan-faqs.ts).
+ */
+function catalogDestinationPage(entry: CatalogDestination): SeoContentPage {
+  const place = entry.article ? `the ${entry.name}` : entry.name;
+  const group = catalogDestinationGroups[entry.group];
+  // Same neighbours, in the same order, as the page's "Related destinations".
+  const neighbours = (destinationDisplay[entry.slug]?.relatedSlugs ?? [])
+    .filter((slug) => slug !== group.hub && destinationNameBySlug.has(slug))
+    .map((slug) => destinationNameBySlug.get(slug) as string);
+
+  return {
+    kind: "destination",
+    slug: entry.slug,
+    path: `/esim/${entry.slug}`,
+    title: `eSIM for ${entry.name} | Prepaid Travel Data Plans`,
+    description: `Buy a prepaid travel eSIM for ${place}. Instant QR install, no roaming fees.`,
+    eyebrow: `${entry.name} travel eSIM`,
+    heading: `Prepaid mobile data for ${place}, ready before you land.`,
+    intro:
+      `eSIM2you sells prepaid travel eSIM data plans for ${place}. Buy a plan online or in the app, install the eSIM ` +
+      "over Wi-Fi before you leave, and turn its data line on when you arrive, so maps, messaging and bookings work " +
+      "without a local SIM card or roaming charges from your home carrier.",
+    sections: [
+      {
+        title: `Mobile data in ${place} without roaming`,
+        body:
+          `A ${entry.name} eSIM from eSIM2you is a data-only travel line. On a dual-SIM phone your usual number stays on ` +
+          "for calls and texts, while maps, ride-hailing, translation and messaging apps such as WhatsApp run on the travel data."
+      },
+      {
+        title: `Traveling around ${group.label}`,
+        body:
+          `Visiting more than one country in ${group.label}? ` +
+          (neighbours.length > 0 ? `eSIM2you also sells plans for ${joinNames(neighbours)}. ` : "") +
+          "Compare each destination's plans, or check the FAQ below to see whether one regional eSIM covers your whole route."
+      }
+    ],
+    faqs: [
+      {
+        question: `Can I install the ${entry.name} eSIM before I travel?`,
+        answer:
+          "Yes. Install it over stable Wi-Fi a day or two before you leave, keep its data line off, and switch it on " +
+          `when you land in ${place}. Validity is shown on each plan.`
+      },
+      {
+        question: `Can I buy a ${entry.name} eSIM after I arrive?`,
+        answer:
+          "Yes, as long as you have Wi-Fi or another data connection to download it. Installing before departure is easier, " +
+          "because the eSIM is then ready the moment you land."
+      }
+    ],
+    relatedLinks: [
+      { label: "How to install an eSIM", href: "/travel/how-to-install-esim" },
+      { label: "eSIM vs roaming", href: "/travel/esim-vs-roaming" }
+    ]
+  };
+}
+
+export const catalogDestinationSlugs = new Set(catalogDestinations.map((entry) => entry.slug));
+
+export const destinationPages = [
+  ...handWrittenDestinationPages,
+  ...catalogDestinations.map(catalogDestinationPage)
 ] satisfies SeoContentPage[];
 
 export const guidePages = [

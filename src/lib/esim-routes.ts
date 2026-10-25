@@ -1,3 +1,5 @@
+import { catalogDestinationGroups, catalogDestinations } from "@/content/catalog-destinations";
+
 /**
  * Backend `/packages` `countryCode` is a slugified country name
  * (`united-states`), not always the public `/esim/[slug]` (`usa`).
@@ -10,7 +12,10 @@ export const BACKEND_COUNTRY_CODE_BY_SLUG: Record<string, string> = {
   // Every backend `europe` plan covers all Balkan countries except Kosovo.
   balkans: "europe",
   "middle-east": "middle-east-and-north-africa",
-  "south-america": "latin-america"
+  "south-america": "latin-america",
+  ...Object.fromEntries(
+    catalogDestinations.flatMap((entry) => (entry.backendCode ? [[entry.slug, entry.backendCode]] : []))
+  )
 };
 
 const EXTRA_QUERY_ALIASES: Record<string, string> = {
@@ -83,7 +88,7 @@ export type DestinationDisplay = {
   coverageNote?: string;
 };
 
-export const destinationDisplay: Record<string, DestinationDisplay> = {
+const handWrittenDisplay: Record<string, DestinationDisplay> = {
   albania: { countryName: "Albania", relatedSlugs: ["greece", "italy", "croatia", "balkans", "europe"] },
   turkey: { countryName: "Turkey", relatedSlugs: ["greece", "middle-east", "europe"] },
   italy: { countryName: "Italy", relatedSlugs: ["greece", "france", "croatia", "europe"] },
@@ -129,6 +134,28 @@ export const destinationDisplay: Record<string, DestinationDisplay> = {
     relatedSlugs: ["mexico", "usa", "north-america", "africa"],
     coverageNote: "These Latin America plans cover the South and Central American countries listed below."
   }
+};
+
+const MAX_CATALOG_NEIGHBOURS = 4;
+
+/**
+ * Generated country pages: the next sub-region members after this one
+ * (wrapping), then the regional hub. Rotating instead of always taking the
+ * group's first members gives every member inbound links from its peers.
+ */
+const catalogDisplay: Record<string, DestinationDisplay> = Object.fromEntries(
+  catalogDestinations.map((entry) => {
+    const { members, hub } = catalogDestinationGroups[entry.group];
+    const start = members.indexOf(entry.slug);
+    const rotated = [...members.slice(start + 1), ...members.slice(0, Math.max(start, 0))];
+    const neighbours = rotated.filter((member) => member !== entry.slug).slice(0, MAX_CATALOG_NEIGHBOURS);
+    return [entry.slug, { countryName: entry.name, relatedSlugs: [...neighbours, hub] }];
+  })
+);
+
+export const destinationDisplay: Record<string, DestinationDisplay> = {
+  ...catalogDisplay,
+  ...handWrittenDisplay
 };
 
 export function destinationH1(slug: string) {

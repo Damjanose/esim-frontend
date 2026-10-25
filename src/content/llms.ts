@@ -1,4 +1,12 @@
+import { destinationDisplay } from "@/lib/esim-routes";
 import { siteUrl } from "@/lib/site-host";
+import { destinationPages } from "./seo-pages";
+
+const destinationLines = destinationPages
+  .map((page) => ({ name: destinationDisplay[page.slug]?.countryName ?? page.eyebrow, path: page.path }))
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map(({ name, path }) => `- [${name} eSIM](${siteUrl}${path})`)
+  .join("\n");
 
 /**
  * The llms.txt content map for AI crawlers, served at /llms.txt by
@@ -23,6 +31,12 @@ eSIM2you is a mobile app (iOS and Android) and website (${siteUrl}) for buying a
 - [Travel eSIM price index](${siteUrl}/esim-price-index): starting price and lowest price per GB by destination from live plans, CSV download, free to cite (CC BY 4.0)
 
 Popular destinations: USA, Europe, Germany, France, Italy, Spain, UK, Greece, Portugal, Switzerland, Turkey, Japan. Full list: ${siteUrl}/destinations
+
+## Destination eSIM pages
+
+Every page lists live plans and prices (EUR), install steps and a destination FAQ.
+
+${destinationLines}
 
 ## Guides
 

@@ -16,7 +16,9 @@ describe("esim URL mapping", () => {
     expect(esimSlugFromCountryQuery("usa")).toBe("usa");
     expect(esimSlugFromCountryQuery("albania")).toBe("albania");
     expect(esimPathForCountryQuery("japan")).toBe("/esim/japan");
-    expect(esimPathForCountryQuery("hungary")).toBeNull();
+    expect(esimPathForCountryQuery("hungary")).toBe("/esim/hungary");
+    expect(esimPathForCountryQuery("macedonia")).toBe("/esim/north-macedonia");
+    expect(esimPathForCountryQuery("oceania")).toBeNull();
   });
 
   it("maps guessable /esim country names onto the real page, and leaves real or unknown slugs alone", () => {
@@ -29,13 +31,15 @@ describe("esim URL mapping", () => {
     expect(esimAliasPath("/esim/usa")).toBeNull();
     expect(esimAliasPath("/esim/japan")).toBeNull();
     expect(esimAliasPath("/esim/hungary")).toBeNull();
+    expect(esimAliasPath("/esim/macedonia")).toBe("/esim/north-macedonia");
     expect(esimAliasPath("/esim/id/united-states")).toBeNull();
     expect(esimAliasPath("/travel/united-states")).toBeNull();
   });
 
   it("uses canonical destination pages for browse links when they exist", () => {
     expect(destinationBrowseHref("united-states")).toBe("/esim/usa");
-    expect(destinationBrowseHref("hungary")).toBe("/destinations?country=hungary");
+    expect(destinationBrowseHref("hungary")).toBe("/esim/hungary");
+    expect(destinationBrowseHref("oceania")).toBe("/destinations?country=oceania");
   });
 
   it("builds keyword H1s for destination pages", () => {

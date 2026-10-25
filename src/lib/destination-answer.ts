@@ -1,3 +1,4 @@
+import { catalogDestinations } from "@/content/catalog-destinations";
 import type { SeoPageFaq } from "@/content/seo-pages";
 import type { DestinationPlanRow } from "@/lib/destinationPricing";
 import type { DestinationOfferInput } from "@/lib/seo";
@@ -9,7 +10,20 @@ import type { DestinationOfferInput } from "@/lib/seo";
  * the page must never claim coverage it can't show.
  */
 // Destination names that read as "in the UK", not "in UK".
-const NAMES_WITH_ARTICLE = new Set(["Balkans", "Middle East", "Netherlands", "UAE", "UK", "USA"]);
+const NAMES_WITH_ARTICLE = new Set([
+  "Balkans",
+  "Middle East",
+  "Netherlands",
+  "UAE",
+  "UK",
+  "USA",
+  ...catalogDestinations.filter((entry) => entry.article).map((entry) => entry.name)
+]);
+
+/** "the UK", "the Bahamas", "France": the destination as it reads after "in". */
+export function destinationPlace(countryName: string) {
+  return NAMES_WITH_ARTICLE.has(countryName) ? `the ${countryName}` : countryName;
+}
 
 export function destinationAnswerFaq({
   countryName,
@@ -22,7 +36,7 @@ export function destinationAnswerFaq({
 }): SeoPageFaq | null {
   if (!offer || plans.length === 0) return null;
 
-  const place = NAMES_WITH_ARTICLE.has(countryName) ? `the ${countryName}` : countryName;
+  const place = destinationPlace(countryName);
 
   const count = offer.offerCount;
   const days = plans.map((plan) => plan.durationDays).filter((value) => value > 0);

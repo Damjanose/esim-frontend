@@ -1,4 +1,5 @@
 import { publicSeoPages, type SeoContentPage, type SeoPageLink } from "@/content/seo-pages";
+import { catalogDestinationGroups, catalogDestinations } from "@/content/catalog-destinations";
 import { destinationDisplay } from "@/lib/esim-routes";
 
 /**
@@ -34,8 +35,16 @@ const regionOf: Record<string, string> = {
   thailand: "asia",
   indonesia: "asia",
   australia: "asia",
-  uae: "middle-east"
+  uae: "middle-east",
+  ...Object.fromEntries(
+    catalogDestinations.map((entry) => [entry.slug, catalogDestinationGroups[entry.group].hub])
+  )
 };
+
+/** The regional hub an /esim country page belongs to, if any. */
+export function regionalHubOf(slug: string): string | undefined {
+  return regionOf[slug];
+}
 
 /** Buying guides for a whole region, linked from its hub and every member. */
 const regionGuide: Record<string, string> = {

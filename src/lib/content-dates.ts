@@ -29,22 +29,14 @@ const byPath: Record<string, string> = {
   // Link-earning pages launched.
   "/esim-price-index": "2026-10-08",
   "/press": "2026-10-08",
-  // Intros now name eSIM2you.
-  "/esim/netherlands": "2026-10-08",
-  "/esim/austria": "2026-10-08",
-  "/esim/balkans": "2026-10-08",
-  "/esim/middle-east": "2026-10-08",
-  "/esim/africa": "2026-10-08",
-  "/esim/south-america": "2026-10-08",
-  "/esim/ireland": "2026-10-08",
-  "/esim/croatia": "2026-10-08",
   // Options table, data, roaming and WhatsApp sections, new FAQs.
   "/travel/internet-abroad": "2026-10-08"
 };
 
 const byPrefix: Array<[prefix: string, date: string]> = [
-  // Keyword H1s and regional coverage lists (15aa5be, e372871).
-  ["/esim/", "2026-09-27"]
+  // Price-led meta descriptions and per-plan Offer schema on every page; 182
+  // catalog country pages launched.
+  ["/esim/", "2026-10-25"]
 ];
 
 export function contentUpdatedAt(path: string): Date {

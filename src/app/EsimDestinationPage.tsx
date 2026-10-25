@@ -96,7 +96,8 @@ export function EsimDestinationPageView({
           breadcrumbName: countryName,
           parent: { name: "Destinations", path: "/destinations" },
           faqs,
-          offer
+          offer,
+          plans
         })}
       />
       <Navbar />

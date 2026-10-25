@@ -116,7 +116,7 @@ describe("middleware indexing signals", () => {
   });
 
   it("keeps the live plan view for countries without an /esim page, as noindex", () => {
-    const response = middleware(proxied("/destinations?country=kenya"));
+    const response = middleware(proxied("/destinations?country=oceania"));
 
     expect(response.headers.get("location")).toBeNull();
     expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");

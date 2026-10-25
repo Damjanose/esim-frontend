@@ -301,6 +301,33 @@ describe("SEO route contract", () => {
     expect(product).not.toHaveProperty("review");
   });
 
+  it("lists each visible plan as a complete Offer inside the AggregateOffer", () => {
+    const product = createOfferProductJsonLd({
+      url: "https://esim.uplisoft.com/esim/kosovo",
+      name: "eSIM for Kosovo",
+      description: "Kosovo travel data",
+      offer: { lowPrice: 4.5, highPrice: 19, currency: "EUR", offerCount: 2 },
+      plans: [
+        { id: "kosovo 1gb", title: "1 GB - 7 days", priceNumeric: 4.5 },
+        { id: "kosovo-20gb", title: "20 GB - 30 days", priceNumeric: 19 }
+      ]
+    });
+
+    expect(product.offers.offers).toEqual([
+      {
+        "@type": "Offer",
+        name: "1 GB - 7 days",
+        sku: "kosovo 1gb",
+        url: "https://esim.uplisoft.com/checkout?package=kosovo%201gb",
+        price: "4.50",
+        priceCurrency: "EUR",
+        availability: "https://schema.org/InStock",
+        seller: { "@id": "https://esim.uplisoft.com/#organization" }
+      },
+      expect.objectContaining({ price: "19.00", sku: "kosovo-20gb" })
+    ]);
+  });
+
   it("marks editorial pages as an Article by the organization, without a Product", () => {
     const schema = createContentPageJsonLd({
       path: "/compare/airalo-vs-esim2you",

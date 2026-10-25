@@ -6,6 +6,7 @@ import {
   seoPageByPath,
   useCasePages
 } from "./seo-pages";
+import { catalogDestinations } from "./catalog-destinations";
 import { landingContent } from "./landing";
 
 const approvedExternalLinks = new Set([
@@ -16,7 +17,11 @@ const approvedExternalLinks = new Set([
 
 describe("SEO content pages", () => {
   it("defines the first global English destination, guide, and use-case pages", () => {
-    expect(destinationPages.map((page) => page.path)).toEqual([
+    const handWritten = destinationPages.slice(0, destinationPages.length - catalogDestinations.length);
+    expect(destinationPages.slice(handWritten.length).map((page) => page.path)).toEqual(
+      catalogDestinations.map((entry) => `/esim/${entry.slug}`)
+    );
+    expect(handWritten.map((page) => page.path)).toEqual([
       "/esim/usa",
       "/esim/europe",
       "/esim/japan",
@@ -77,7 +82,7 @@ describe("SEO content pages", () => {
 
     expect(new Set(paths).size).toBe(paths.length);
     expect(new Set(slugs).size).toBe(slugs.length);
-    expect(paths).toHaveLength(47);
+    expect(paths).toHaveLength(47 + catalogDestinations.length);
 
     for (const page of publicSeoPages) {
       expect(page.slug.trim().length).toBeGreaterThan(1);
@@ -91,6 +96,20 @@ describe("SEO content pages", () => {
       expect(`${page.title} ${page.description} ${page.heading} ${page.intro}`)
         .not.toContain("Buy a eSIM2you");
     }
+  });
+
+  it("generates catalog country pages with their own name, related links and no duplicate copy", () => {
+    const generated = destinationPages.slice(destinationPages.length - catalogDestinations.length);
+    for (const page of generated) {
+      const name = page.eyebrow.replace(/ travel eSIM$/, "");
+      expect(page.title).toBe(`eSIM for ${name} | Prepaid Travel Data Plans`);
+      expect(page.intro).toContain(name);
+      expect(page.sections[1].body, page.path).toMatch(/eSIM2you also sells plans for /);
+    }
+    expect(new Set(generated.map((page) => page.sections[1].body)).size).toBe(generated.length);
+    expect(seoPageByPath["/esim/czech-republic"].heading).toBe(
+      "Prepaid mobile data for the Czech Republic, ready before you land."
+    );
   });
 
   it("only links to known public pages, anchors, or approved app-store URLs", () => {
