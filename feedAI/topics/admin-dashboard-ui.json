@@ -57,10 +57,10 @@
     "formatting": "formatMoney uses Intl.NumberFormat with the purchase's own currency (paymentCurrency), amountCents/100; formatDate uses Intl.DateTimeFormat medium/short."
   },
   "xerrors_error_inbox": {
-    "file": "src/app/xerrors/page.tsx",
-    "data_source": "GET /bff/admin/errors (filterable by email/requestId/area/severity/unresolvedOnly) -> ErrorEvent[]; PATCH /bff/admin/errors/:id to set resolved/adminNotes; POST /bff/admin/errors/:id/repair to run the backend's repairAction",
+    "file": "src/app/xerrors/page.tsx (+ ErrorFiltersPanel.tsx, ErrorDetailPanel.tsx; helpers src/lib/xerrors-filters.ts, xerrors-report.ts)",
+    "data_source": "GET /bff/admin/errors (server-side filters in the URL, cursor pagination -> {errors,nextCursor,total}); GET /bff/admin/errors/stats (stat cards); GET /bff/admin/errors/:id (token, apiCalls, stack, clientContext); PATCH /:id; POST /:id/repair. See f310, f311, f315.",
     "layout": "master-detail: a filterable table on the left (time/severity/area/email/method+path/status/message/state), clicking a row selects it and shows full detail in a right-hand aside (request id, user, API path, provider info, related payment/package/ICCID, repair action, safe request body/query as pretty-printed JSON).",
-    "safe_curl_reconstruction": "buildSafeCurl() client-side rebuilds a copy-pasteable curl command from the error's method/path/safeRequestBody for reproducing the failing request — uses a hardcoded base URL 'https://esim.uplisoft.com' (f046), so this reconstructed curl always points at production regardless of which backend the admin actually meant to test against.",
+    "safe_curl_reconstruction": "RESOLVED (f309): buildBackendCurl targets `${siteUrl}/api` with the stored token and client headers; Copy full report builds markdown.",
     "actions": "Copy request id, Copy safe cURL (clipboard), Save admin notes, Mark resolved, and (only when the error has a repairAction) Run repair — a one-click trigger of the backend's idempotent provisioning retry (see E-SIM backend feedAI's admin.json 'repair_actions').",
     "note": "f171/f174: list uses realFailuresOnly; Copy email + replay cURL with authorizationHeader; displayBackendResponse reconstructs from message when backendResponse is null; no severity info/warning filter."
   },

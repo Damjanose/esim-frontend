@@ -1,52 +1,42 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { RefreshCw, LogOut } from "lucide-react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, ChevronRight, LogOut, RefreshCw } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
-import { siteUrl } from "@/lib/site-host";
+import { ErrorDetailPanel } from "./ErrorDetailPanel";
+import { ErrorFiltersPanel } from "./ErrorFiltersPanel";
+import {
+  filtersFromSearchParams,
+  filtersToBackendParams,
+  filtersToUrlParams,
+  type ErrorFilters
+} from "@/lib/xerrors-filters";
+import { describeEmailSource, type AdminErrorEvent } from "@/lib/xerrors-report";
 
-type ErrorEvent = {
-  id: string;
-  requestId: string;
-  userEmail: string | null;
-  method: string;
-  path: string;
-  statusCode: number;
-  severity: string;
-  area: string;
-  message: string;
-  internalCode: string | null;
-  authorizationHeader: string | null;
-  originalRequestBody: unknown;
-  safeRequestBody: unknown;
-  safeQuery: unknown;
-  providerName: string | null;
-  providerStatusCode: number | null;
-  providerMessage: string | null;
-  providerEndpoint: string | null;
-  relatedOrderId: string | null;
-  relatedPaymentReference: string | null;
-  relatedPackageId: string | null;
-  relatedIccid: string | null;
-  repairAction: string | null;
-  backendResponse: unknown;
-  resolvedAt: string | null;
-  resolvedBy: string | null;
-  adminNotes: string | null;
-  createdAt: string;
-  updatedAt: string;
+type ErrorStats = {
+  total: number;
+  unresolved: number;
+  critical: number;
+  payment: number;
+  byArea?: Record<string, number>;
+  byNoEmailReason?: Record<string, number>;
+  byPlatform?: Record<string, number>;
 };
 
-type ErrorListPayload = {
+type InboxPayload = {
   status?: string;
   data?: {
-    errors?: ErrorEvent[];
-    error?: ErrorEvent;
+    errors?: AdminErrorEvent[];
+    nextCursor?: string | null;
+    total?: number;
+    error?: AdminErrorEvent;
     repairResult?: unknown;
-  };
+  } & Partial<ErrorStats>;
   message?: string;
+  error?: string;
 };
 
 function formatDate(value: string | null) {
@@ -57,55 +47,11 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function stringifyJson(value: unknown) {
-  if (value == null) return "N/A";
-  return JSON.stringify(value, null, 2);
-}
-
-/** Prefer the stored JSON body; for older rows fall back to the message field. */
-function displayBackendResponse(error: Pick<ErrorEvent, "backendResponse" | "message" | "statusCode">) {
-  if (error.backendResponse != null) return stringifyJson(error.backendResponse);
-  if (error.message?.trim()) {
-    return stringifyJson({
-      status: "error",
-      message: error.message,
-      statusCode: error.statusCode,
-      _note: "Reconstructed from message — full response body was not stored for this event"
-    });
-  }
-  return "N/A";
-}
-
-function displaySeverity(error: Pick<ErrorEvent, "statusCode" | "severity">) {
+function displaySeverity(error: Pick<AdminErrorEvent, "statusCode" | "severity">) {
   if (error.statusCode === 404 || error.statusCode >= 500 || error.severity === "critical") {
     return "critical";
   }
   return error.severity === "warning" ? "warning" : "critical";
-}
-
-function authorizationHeaderForCurl(error: ErrorEvent) {
-  const raw = error.authorizationHeader?.trim();
-  if (!raw) return 'Authorization: Bearer <user-token>';
-  if (/^bearer\s+/i.test(raw)) return `Authorization: ${raw}`;
-  return `Authorization: Bearer ${raw}`;
-}
-
-function requestBodyForCurl(error: ErrorEvent) {
-  return error.originalRequestBody ?? error.safeRequestBody ?? null;
-}
-
-function buildSafeCurl(error: ErrorEvent) {
-  const lines = [
-    `curl -X ${error.method} "${siteUrl}${error.path}"`,
-    `  -H "Content-Type: application/json"`,
-    `  -H "${authorizationHeaderForCurl(error)}"`
-  ];
-  const body = requestBodyForCurl(error);
-  if (body != null && error.method !== "GET") {
-    // Prefer double-quoted JSON so single quotes inside values don't break the shell.
-    lines.push(`  --data ${JSON.stringify(JSON.stringify(body))}`);
-  }
-  return lines.join(" \\\n");
 }
 
 function severityBadgeClass(severity: string) {
@@ -127,107 +73,205 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-export default function AdminErrorInboxPage() {
+function Breakdown({ title, counts }: { title: string; counts?: Record<string, number> }) {
+  const entries = Object.entries(counts ?? {}).filter(([, count]) => count > 0);
+  if (entries.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-muted">
+      <span className="font-black uppercase tracking-wide">{title}</span>
+      {entries.map(([key, count]) => (
+        <span className="rounded-full border border-line bg-white px-2 py-0.5 text-midnight" key={key}>
+          {key} {count}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+const TH = "px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted";
+
+function EmailCell({ item }: { item: AdminErrorEvent }) {
+  if (item.userEmail) {
+    const source = describeEmailSource(item.userEmailSource);
+    return (
+      <>
+        <span className="break-all">{item.userEmail}</span>
+        {source.unverified ? (
+          <span className="ml-1 text-[10px] font-semibold italic text-muted" title={`Hint only (${item.userEmailSource})`}>
+            unverified
+          </span>
+        ) : null}
+      </>
+    );
+  }
+  return item.noEmailReason ? (
+    <span className="rounded-full border border-line bg-[#f8fdfe] px-2 py-0.5 text-[10px] font-bold text-muted">
+      {item.noEmailReason}
+    </span>
+  ) : (
+    <span className="text-muted">N/A</span>
+  );
+}
+
+function AdminErrorInbox() {
   const session = useAdminSession();
   const { token, handleUnauthorized } = session;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [errors, setErrors] = useState<ErrorEvent[]>([]);
-  const [selectedError, setSelectedError] = useState<ErrorEvent | null>(null);
-  const [filterEmail, setFilterEmail] = useState("");
-  const [filterRequestId, setFilterRequestId] = useState("");
-  const [filterArea, setFilterArea] = useState("");
-  const [filterUser, setFilterUser] = useState<"" | "signed-in" | "anonymous">("");
-  const [unresolvedOnly, setUnresolvedOnly] = useState(true);
-  const [adminNotes, setAdminNotes] = useState("");
+  const filters = useMemo(() => filtersFromSearchParams(new URLSearchParams(searchParams.toString())), [searchParams]);
+  const filterKey = filtersToUrlParams(filters).toString();
+
+  // Cursor stack belongs to one filter set; a different key means page 1 again.
+  const [cursorState, setCursorState] = useState<{ key: string; stack: string[] }>({ key: filterKey, stack: [] });
+  const stack = cursorState.key === filterKey ? cursorState.stack : [];
+  const cursor = stack.length > 0 ? stack[stack.length - 1] : undefined;
+
+  const [errors, setErrors] = useState<AdminErrorEvent[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [total, setTotal] = useState<number | null>(null);
+  const [stats, setStats] = useState<ErrorStats | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<AdminErrorEvent | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [reloadTick, setReloadTick] = useState(0);
 
-  const summary = useMemo(() => {
-    return {
-      unresolved: errors.filter((item) => !item.resolvedAt).length,
-      critical: errors.filter((item) => displaySeverity(item) === "critical").length,
-      payments: errors.filter((item) => item.area === "payments").length
-    };
-  }, [errors]);
+  const applyFilters = useCallback(
+    (next: ErrorFilters) => {
+      const query = filtersToUrlParams(next).toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router]
+  );
 
-  async function loadErrors(nextToken = token) {
-    if (!nextToken) return;
-    setIsLoading(true);
-    setError("");
-    setNotice("");
+  useEffect(() => {
+    if (!token) return;
+    const controller = new AbortController();
+    const headers = { Authorization: `Bearer ${token}` };
 
-    const params = new URLSearchParams();
-    if (filterEmail.trim()) params.set("email", filterEmail.trim());
-    if (filterRequestId.trim()) params.set("requestId", filterRequestId.trim());
-    if (filterArea) params.set("area", filterArea);
-    if (filterUser) params.set("hasEmail", String(filterUser === "signed-in"));
-    params.set("realFailuresOnly", "true");
-    params.set("unresolvedOnly", String(unresolvedOnly));
+    async function load() {
+      setIsLoading(true);
+      setError("");
+      try {
+        const listParams = filtersToBackendParams(filters, cursor);
+        const statsParams = filtersToBackendParams(filters, undefined, { forStats: true });
+        const [listResponse, statsResponse] = await Promise.all([
+          fetch(`/bff/admin/errors?${listParams.toString()}`, { headers, cache: "no-store", signal: controller.signal }),
+          fetch(`/bff/admin/errors/stats?${statsParams.toString()}`, { headers, cache: "no-store", signal: controller.signal })
+        ]);
 
-    try {
-      const response = await fetch(`/bff/admin/errors?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${nextToken}` },
-        cache: "no-store"
-      });
-      const payload = (await response.json()) as ErrorListPayload;
+        if (listResponse.status === 401 || statsResponse.status === 401) {
+          handleUnauthorized();
+          throw new Error("Session expired. Sign in again.");
+        }
+        const payload = (await listResponse.json()) as InboxPayload;
+        if (!listResponse.ok || payload.status !== "success") {
+          throw new Error(payload.message ?? payload.error ?? "Could not load errors");
+        }
 
-      if (response.status === 401) {
-        handleUnauthorized();
-        throw new Error("Session expired. Sign in again.");
+        const nextErrors = payload.data?.errors ?? [];
+        setErrors(nextErrors);
+        setNextCursor(payload.data?.nextCursor ?? null);
+        setTotal(typeof payload.data?.total === "number" ? payload.data.total : null);
+        setSelectedId((current) =>
+          current && nextErrors.some((item) => item.id === current) ? current : (nextErrors[0]?.id ?? null)
+        );
+
+        try {
+          const statsPayload = (await statsResponse.json()) as InboxPayload;
+          setStats(statsResponse.ok && statsPayload.status === "success" ? (statsPayload.data as ErrorStats) : null);
+        } catch {
+          setStats(null);
+        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setError(err instanceof Error ? err.message : "Could not load errors");
+        setErrors([]);
+        setNextCursor(null);
+        setTotal(null);
+        setStats(null);
+        setSelectedId(null);
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
       }
-
-      if (!response.ok || payload.status !== "success") {
-        throw new Error(payload.message ?? "Could not load errors");
-      }
-
-      const nextErrors = payload.data?.errors ?? [];
-      setErrors(nextErrors);
-      setSelectedError((current) => {
-        if (!current) return nextErrors[0] ?? null;
-        return nextErrors.find((item) => item.id === current.id) ?? nextErrors[0] ?? null;
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load errors");
-      setErrors([]);
-      setSelectedError(null);
-    } finally {
-      setIsLoading(false);
     }
+
+    void load();
+    return () => controller.abort();
+    // `filters` is derived from filterKey; depending on the key avoids refetching on identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, filterKey, cursor, reloadTick]);
+
+  // The list omits authorizationHeader (hasAuthorization only); the detail endpoint has it.
+  useEffect(() => {
+    if (!token || !selectedId) {
+      setDetail(null);
+      return;
+    }
+    const controller = new AbortController();
+    setIsLoadingDetail(true);
+    (async () => {
+      try {
+        const response = await fetch(`/bff/admin/errors/${encodeURIComponent(selectedId)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+          signal: controller.signal
+        });
+        if (response.status === 401) {
+          handleUnauthorized();
+          return;
+        }
+        const payload = (await response.json()) as InboxPayload;
+        const full = payload.data?.error ?? (payload.data as unknown as AdminErrorEvent | undefined);
+        if (response.ok && payload.status === "success" && full && full.id === selectedId) {
+          setDetail(full);
+        }
+      } catch {
+        // keep the list row; the cURL falls back to its placeholder
+      } finally {
+        if (!controller.signal.aborted) setIsLoadingDetail(false);
+      }
+    })();
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, selectedId, reloadTick]);
+
+  const selected = useMemo(() => {
+    const row = errors.find((item) => item.id === selectedId) ?? null;
+    if (!row) return null;
+    return detail && detail.id === row.id ? { ...row, ...detail } : row;
+  }, [errors, selectedId, detail]);
+
+  function mergeUpdated(updated: AdminErrorEvent) {
+    setErrors((current) => current.map((item) => (item.id === updated.id ? { ...item, ...updated, authorizationHeader: undefined } : item)));
+    setDetail((current) => (current && current.id === updated.id ? { ...current, ...updated } : current));
   }
 
-  useEffect(() => {
-    if (token) void loadErrors(token);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
-
-  useEffect(() => {
-    setAdminNotes(selectedError?.adminNotes ?? "");
-  }, [selectedError]);
-
   async function updateSelected(body: { resolved?: boolean; adminNotes?: string }) {
-    if (!selectedError) return;
+    if (!selected) return;
     setIsMutating(true);
     setError("");
     setNotice("");
     try {
-      const response = await fetch(`/bff/admin/errors/${selectedError.id}`, {
+      const response = await fetch(`/bff/admin/errors/${selected.id}`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
-      const payload = (await response.json()) as ErrorListPayload;
-      if (!response.ok || payload.status !== "success" || !payload.data?.error) {
-        throw new Error(payload.message ?? "Could not update error");
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
       }
-      setSelectedError(payload.data.error);
-      setErrors((current) =>
-        current.map((item) => (item.id === payload.data?.error?.id ? payload.data.error : item))
-      );
+      const payload = (await response.json()) as InboxPayload;
+      if (!response.ok || payload.status !== "success" || !payload.data?.error) {
+        throw new Error(payload.message ?? payload.error ?? "Could not update error");
+      }
+      mergeUpdated(payload.data.error);
       setNotice("Saved");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update error");
@@ -236,25 +280,56 @@ export default function AdminErrorInboxPage() {
     }
   }
 
-  async function repairSelected() {
-    if (!selectedError) return;
+  async function claimSelected(body: Record<string, unknown>) {
+    if (!selected) return;
     setIsMutating(true);
     setError("");
     setNotice("");
     try {
-      const response = await fetch(`/bff/admin/errors/${selectedError.id}/repair`, {
+      const response = await fetch(`/bff/admin/errors/${encodeURIComponent(selected.id)}/claim`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      const payload = (await response.json()) as InboxPayload;
+      if (!response.ok || payload.status !== "success") {
+        // Guard refusals (409/400) carry the reason; show it verbatim.
+        throw new Error(payload.message ?? payload.error ?? "Could not update the provisioning claim");
+      }
+      setNotice("Claim updated. Now press Run repair.");
+      setReloadTick((tick) => tick + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update the provisioning claim");
+    } finally {
+      setIsMutating(false);
+    }
+  }
+
+  async function repairSelected() {
+    if (!selected) return;
+    setIsMutating(true);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(`/bff/admin/errors/${selected.id}/repair`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
-      const payload = (await response.json()) as ErrorListPayload;
-      if (!response.ok || payload.status !== "success") {
-        throw new Error(payload.message ?? "Could not run repair");
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
       }
-      if (payload.data?.error) {
-        setSelectedError(payload.data.error);
+      const payload = (await response.json()) as InboxPayload;
+      if (!response.ok || payload.status !== "success") {
+        // 409 = the event's email is only a hint, so the backend refuses to repair; show its reason verbatim.
+        throw new Error(payload.message ?? payload.error ?? "Could not run repair");
       }
       setNotice("Repair action completed");
-      await loadErrors();
+      setReloadTick((tick) => tick + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not run repair");
     } finally {
@@ -262,9 +337,11 @@ export default function AdminErrorInboxPage() {
     }
   }
 
+  const pageNumber = stack.length + 1;
+  const pageSize = Number(filters.limit);
+
   return (
     <>
-      
       <AdminNav />
       <div className="min-h-screen bg-cloud px-6 py-7 md:px-9">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -277,14 +354,14 @@ export default function AdminErrorInboxPage() {
               Error Inbox
             </h1>
             <p className="mt-1 text-sm font-semibold text-muted">
-              Real failures only (404, 5xx, critical). Card fields never appear in cURL.
+              Server failures plus app and web client errors. Filters live in the URL, so a view is shareable.
             </p>
           </div>
           {token ? (
             <div className="flex gap-2">
               <button
                 className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan"
-                onClick={() => void loadErrors()}
+                onClick={() => setReloadTick((tick) => tick + 1)}
                 type="button"
               >
                 <RefreshCw aria-hidden="true" size={14} />
@@ -326,77 +403,20 @@ export default function AdminErrorInboxPage() {
             ) : null}
 
             <div className="grid gap-4 sm:grid-cols-4">
-              <StatCard label="Unresolved" value={summary.unresolved} />
-              <StatCard label="Critical" value={summary.critical} />
-              <StatCard label="Payment/Provision" value={summary.payments} />
-              <StatCard label="Loaded" value={errors.length} />
+              <StatCard label="Unresolved" value={stats?.unresolved ?? "-"} />
+              <StatCard label="Critical" value={stats?.critical ?? "-"} />
+              <StatCard label="Payment/Provision" value={stats?.payment ?? "-"} />
+              <StatCard label="Matching filters" value={stats?.total ?? total ?? "-"} />
             </div>
-
-            <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
-              <div className="grid gap-3 md:grid-cols-6 md:items-end">
-                <label className="text-xs font-bold text-muted">
-                  Email
-                  <input
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2.5 text-sm font-normal text-midnight outline-none focus:border-cyan"
-                    onChange={(event) => setFilterEmail(event.target.value)}
-                    value={filterEmail}
-                  />
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  Request ID
-                  <input
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2.5 text-sm font-normal text-midnight outline-none focus:border-cyan"
-                    onChange={(event) => setFilterRequestId(event.target.value)}
-                    value={filterRequestId}
-                  />
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  Area
-                  <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
-                    onChange={(event) => setFilterArea(event.target.value)}
-                    value={filterArea}
-                  >
-                    <option value="">All</option>
-                    <option value="payments">payments</option>
-                    <option value="auth">auth</option>
-                    <option value="packages">packages</option>
-                    <option value="orders">orders</option>
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
-                    <option value="unknown">unknown</option>
-                  </select>
-                </label>
-                <label className="text-xs font-bold text-muted">
-                  User
-                  <select
-                    className="mt-1 h-10 w-full rounded-xl border border-line px-2 text-sm font-normal text-midnight"
-                    onChange={(event) => setFilterUser(event.target.value as typeof filterUser)}
-                    value={filterUser}
-                  >
-                    <option value="">All</option>
-                    <option value="signed-in">With email</option>
-                    <option value="anonymous">No email</option>
-                  </select>
-                </label>
-                <label className="flex items-center gap-2 text-xs font-bold text-midnight">
-                  <input
-                    checked={unresolvedOnly}
-                    onChange={(event) => setUnresolvedOnly(event.target.checked)}
-                    type="checkbox"
-                  />
-                  Unresolved only
-                </label>
-                <button
-                  className="h-10 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-black text-aqua shadow-glow transition hover:opacity-90 disabled:opacity-50"
-                  disabled={isLoading}
-                  onClick={() => void loadErrors()}
-                  type="button"
-                >
-                  {isLoading ? "Loading..." : "Apply"}
-                </button>
+            {stats ? (
+              <div className="grid gap-1.5">
+                <Breakdown counts={stats.byArea} title="Area" />
+                <Breakdown counts={stats.byPlatform} title="Platform" />
+                <Breakdown counts={stats.byNoEmailReason} title="No email" />
               </div>
-            </section>
+            ) : null}
+
+            <ErrorFiltersPanel filters={filters} isLoading={isLoading} onApply={applyFilters} />
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)]">
               <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
@@ -405,212 +425,119 @@ export default function AdminErrorInboxPage() {
                     <thead>
                       <tr className="bg-[#f8fdfe]">
                         <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Time</th>
-                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                          Severity
-                        </th>
-                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Area</th>
-                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                          Email
-                        </th>
-                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">API</th>
-                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                          Status
-                        </th>
-                        <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                          Message
-                        </th>
-                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wide text-muted">
-                          State
-                        </th>
+                        <th className={TH}>Severity</th>
+                        <th className={TH}>Source / Kind</th>
+                        <th className={TH}>Area</th>
+                        <th className={TH}>Email</th>
+                        <th className={TH}>Platform / Version</th>
+                        <th className={TH}>Screen</th>
+                        <th className={TH}>Scenario / Stage</th>
+                        <th className={TH}>API</th>
+                        <th className={TH}>Status</th>
+                        <th className={TH}>Message</th>
+                        <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wide text-muted">State</th>
                       </tr>
                     </thead>
                     <tbody>
                       {errors.map((item) => {
                         const severity = displaySeverity(item);
                         return (
-                        <tr
-                          className={`cursor-pointer border-t border-line/60 transition hover:bg-[#fbfeff] ${
-                            selectedError?.id === item.id ? "bg-[#eafcff]" : ""
-                          }`}
-                          key={item.id}
-                          onClick={() => setSelectedError(item)}
-                        >
-                          <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDate(item.createdAt)}</td>
-                          <td className="px-3 py-3">
-                            <span
-                              className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${severityBadgeClass(severity)}`}
-                            >
-                              {severity}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3 text-muted">{item.area}</td>
-                          <td className="px-3 py-3 text-midnight">{item.userEmail ?? "N/A"}</td>
-                          <td className="px-3 py-3 font-mono text-xs text-muted">
-                            {item.method} {item.path}
-                          </td>
-                          <td className="px-3 py-3 font-bold text-midnight">{item.statusCode}</td>
-                          <td className="px-3 py-3 text-midnight">{item.message}</td>
-                          <td className="px-4 py-3 text-muted">{item.resolvedAt ? "Resolved" : "Open"}</td>
-                        </tr>
+                          <tr
+                            className={`cursor-pointer border-t border-line/60 transition hover:bg-[#fbfeff] ${
+                              selectedId === item.id ? "bg-[#eafcff]" : ""
+                            }`}
+                            key={item.id}
+                            onClick={() => setSelectedId(item.id)}
+                          >
+                            <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDate(item.createdAt)}</td>
+                            <td className="px-3 py-3">
+                              <span
+                                className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${severityBadgeClass(severity)}`}
+                              >
+                                {severity}
+                              </span>
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-3 text-xs text-muted">
+                              {item.source ?? "server"}
+                              <br />
+                              {item.kind ?? "http_error"}
+                            </td>
+                            <td className="px-3 py-3 text-muted">{item.area}</td>
+                            <td className="px-3 py-3 text-midnight">
+                              <EmailCell item={item} />
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-3 text-xs text-muted">
+                              {item.platform ?? "unknown"}
+                              <br />
+                              {item.appVersion ?? "-"}
+                            </td>
+                            <td className="px-3 py-3 text-xs text-muted">{item.screen ?? "-"}</td>
+                            <td className="px-3 py-3 text-xs text-muted">
+                              {item.scenario ?? "-"}
+                              {item.stage ? <span className="block">{item.stage}</span> : null}
+                            </td>
+                            <td className="px-3 py-3 font-mono text-xs text-muted">
+                              {item.method} {item.path}
+                            </td>
+                            <td className="px-3 py-3 font-bold text-midnight">{item.statusCode}</td>
+                            <td className="max-w-[260px] px-3 py-3 text-midnight">{item.message}</td>
+                            <td className="px-4 py-3 text-muted">{item.resolvedAt ? "Resolved" : "Open"}</td>
+                          </tr>
                         );
                       })}
                       {errors.length === 0 ? (
                         <tr>
-                          <td className="px-4 py-8 text-center font-bold text-muted" colSpan={8}>
-                            No errors found
+                          <td className="px-4 py-8 text-center font-bold text-muted" colSpan={12}>
+                            {isLoading ? "Loading..." : "No errors found"}
                           </td>
                         </tr>
                       ) : null}
                     </tbody>
                   </table>
                 </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line/60 px-4 py-3 text-xs font-semibold text-muted">
+                  <span>
+                    {errors.length > 0
+                      ? `Showing ${(pageNumber - 1) * pageSize + 1}-${(pageNumber - 1) * pageSize + errors.length}`
+                      : "Showing 0"}
+                    {total != null ? ` of ${total}` : ""} · page {pageNumber}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      className="inline-flex h-9 items-center gap-1 rounded-lg border border-line bg-white px-3 font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                      disabled={stack.length === 0 || isLoading}
+                      onClick={() => setCursorState({ key: filterKey, stack: stack.slice(0, -1) })}
+                      type="button"
+                    >
+                      <ChevronLeft aria-hidden="true" size={14} />
+                      Prev
+                    </button>
+                    <button
+                      className="inline-flex h-9 items-center gap-1 rounded-lg border border-line bg-white px-3 font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                      disabled={!nextCursor || isLoading}
+                      onClick={() => nextCursor && setCursorState({ key: filterKey, stack: [...stack, nextCursor] })}
+                      type="button"
+                    >
+                      Next
+                      <ChevronRight aria-hidden="true" size={14} />
+                    </button>
+                  </div>
+                </div>
               </section>
 
               <aside className="rounded-2xl border border-line bg-white p-5 shadow-card">
-                {selectedError ? (
-                  <div className="grid gap-3">
-                    <h2 className="font-display text-lg font-black text-midnight">Error Details</h2>
-                    <div className="rounded-xl border border-line bg-[#f8fdfe] p-3">
-                      <p className="text-[10px] font-black uppercase tracking-wide text-muted">User to contact</p>
-                      {selectedError.userEmail ? (
-                        <div className="mt-1 flex flex-wrap items-center gap-2">
-                          <p className="font-mono text-sm font-bold text-midnight">{selectedError.userEmail}</p>
-                          <button
-                            className="rounded-lg border border-line bg-white px-2.5 py-1 text-[11px] font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
-                            disabled={isMutating}
-                            onClick={() => {
-                              void navigator.clipboard?.writeText(selectedError.userEmail ?? "");
-                              setNotice("Email copied");
-                            }}
-                            type="button"
-                          >
-                            Copy email
-                          </button>
-                        </div>
-                      ) : (
-                        <p className="mt-1 text-sm font-semibold text-muted">No email on this request</p>
-                      )}
-                    </div>
-                    <dl className="grid grid-cols-[130px_1fr] gap-2 text-sm">
-                      <dt className="font-bold text-muted">Request ID</dt>
-                      <dd className="font-mono text-xs text-midnight">{selectedError.requestId}</dd>
-                      <dt className="font-bold text-muted">API</dt>
-                      <dd className="font-mono text-xs text-midnight">
-                        {selectedError.method} {selectedError.path}
-                      </dd>
-                      <dt className="font-bold text-muted">Provider</dt>
-                      <dd className="text-midnight">
-                        {selectedError.providerName ?? "N/A"} {selectedError.providerStatusCode ?? ""}
-                      </dd>
-                      <dt className="font-bold text-muted">Payment</dt>
-                      <dd className="text-midnight">{selectedError.relatedPaymentReference ?? "N/A"}</dd>
-                      <dt className="font-bold text-muted">Package</dt>
-                      <dd className="text-midnight">{selectedError.relatedPackageId ?? "N/A"}</dd>
-                      <dt className="font-bold text-muted">ICCID</dt>
-                      <dd className="text-midnight">{selectedError.relatedIccid ?? "N/A"}</dd>
-                      <dt className="font-bold text-muted">Repair action</dt>
-                      <dd className="text-midnight">{selectedError.repairAction ?? "N/A"}</dd>
-                    </dl>
-
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wide text-muted">Original request body</p>
-                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
-                        {stringifyJson(selectedError.originalRequestBody)}
-                      </pre>
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wide text-muted">Safe request body</p>
-                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
-                        {stringifyJson(selectedError.safeRequestBody)}
-                      </pre>
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wide text-muted">Safe query</p>
-                      <pre className="mt-1 max-h-32 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
-                        {stringifyJson(selectedError.safeQuery)}
-                      </pre>
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wide text-muted">Backend response</p>
-                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
-                        {displayBackendResponse(selectedError)}
-                      </pre>
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-wide text-muted">Replay cURL</p>
-                      <p className="mt-1 text-[11px] font-semibold text-muted">
-                        Uses the stored Bearer when available. Tokens expire; older rows may still show a
-                        placeholder. Card fields are never included.
-                      </p>
-                      <pre className="mt-1 max-h-40 overflow-auto rounded-xl bg-[#f8fdfe] p-2.5 text-xs text-midnight">
-                        {buildSafeCurl(selectedError)}
-                      </pre>
-                    </div>
-
-                    <label className="text-xs font-black uppercase tracking-wide text-muted">
-                      Admin notes
-                      <textarea
-                        className="mt-1 min-h-24 w-full rounded-xl border border-line p-2.5 text-sm font-normal text-midnight outline-none focus:border-cyan"
-                        onChange={(event) => setAdminNotes(event.target.value)}
-                        value={adminNotes}
-                      />
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
-                        disabled={isMutating}
-                        onClick={() => navigator.clipboard?.writeText(selectedError.requestId)}
-                        type="button"
-                      >
-                        Copy request id
-                      </button>
-                      <button
-                        className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
-                        disabled={isMutating || !selectedError.userEmail}
-                        onClick={() => {
-                          void navigator.clipboard?.writeText(selectedError.userEmail ?? "");
-                          setNotice("Email copied");
-                        }}
-                        type="button"
-                      >
-                        Copy email
-                      </button>
-                      <button
-                        className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-50"
-                        disabled={isMutating}
-                        onClick={() => navigator.clipboard?.writeText(buildSafeCurl(selectedError))}
-                        type="button"
-                      >
-                        Copy cURL
-                      </button>
-                      <button
-                        className="rounded-lg bg-gradient-to-r from-midnight to-ink px-3 py-2 text-xs font-black text-aqua shadow-sm transition hover:opacity-90 disabled:opacity-50"
-                        disabled={isMutating}
-                        onClick={() => void updateSelected({ adminNotes })}
-                        type="button"
-                      >
-                        Save notes
-                      </button>
-                      <button
-                        className="rounded-lg bg-green-700 px-3 py-2 text-xs font-black text-white transition hover:bg-green-800 disabled:opacity-50"
-                        disabled={isMutating}
-                        onClick={() => void updateSelected({ resolved: true, adminNotes })}
-                        type="button"
-                      >
-                        Mark resolved
-                      </button>
-                      {selectedError.repairAction ? (
-                        <button
-                          className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
-                          disabled={isMutating}
-                          onClick={() => void repairSelected()}
-                          type="button"
-                        >
-                          Run repair
-                        </button>
-                      ) : null}
-                    </div>
-                  </div>
+                {selected ? (
+                  <ErrorDetailPanel
+                    detailLoaded={Boolean(detail && detail.id === selected.id)}
+                    event={selected}
+                    isLoadingDetail={isLoadingDetail}
+                    isMutating={isMutating}
+                    onClaim={(body) => void claimSelected(body)}
+                    onNotice={setNotice}
+                    onRepair={() => void repairSelected()}
+                    onResolve={(adminNotes) => void updateSelected({ resolved: true, adminNotes })}
+                    onSaveNotes={(adminNotes) => void updateSelected({ adminNotes })}
+                  />
                 ) : (
                   <p className="text-sm font-bold text-muted">Select an error row to inspect details.</p>
                 )}
@@ -620,5 +547,14 @@ export default function AdminErrorInboxPage() {
         )}
       </div>
     </>
+  );
+}
+
+export default function AdminErrorInboxPage() {
+  // useSearchParams needs a Suspense boundary for the client page to prerender.
+  return (
+    <Suspense fallback={null}>
+      <AdminErrorInbox />
+    </Suspense>
   );
 }

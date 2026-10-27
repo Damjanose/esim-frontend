@@ -190,6 +190,8 @@ describe("GET /account/topup/return", () => {
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toContain("reason=missing_payment");
-    expect(fetchMock).not.toHaveBeenCalled();
+    // Nothing to provision; the only backend call is the error report.
+    const urls = fetchMock.mock.calls.map((call) => String((call as unknown[])[0]));
+    expect(urls.some((url) => url.endsWith("/payments/topups/provision"))).toBe(false);
   });
 });

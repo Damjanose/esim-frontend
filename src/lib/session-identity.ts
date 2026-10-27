@@ -43,3 +43,21 @@ export function readEmailFromAccessToken(token: string | null | undefined): stri
   const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
   return EMAIL_PATTERN.test(email) ? email : null;
 }
+
+/**
+ * Like readEmailFromAccessToken but ignores kind and expiry: used only to label
+ * backend requests with an UNVERIFIED `x-user-email` hint so failures from an
+ * expired session still name the visitor. Never an authorization decision.
+ */
+export function readEmailHintFromToken(token: string | null | undefined): string | null {
+  if (!token) return null;
+  const segments = token.split(".");
+  if (segments.length < 2) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(segments[1], "base64url").toString("utf8")) as AccessTokenPayload | null;
+    const email = typeof parsed?.email === "string" ? parsed.email.trim().toLowerCase() : "";
+    return EMAIL_PATTERN.test(email) ? email : null;
+  } catch {
+    return null;
+  }
+}

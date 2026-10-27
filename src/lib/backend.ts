@@ -1,4 +1,6 @@
 import { Agent, fetch as undiciFetch } from "undici";
+import packageJson from "../../package.json";
+import { readEmailHintFromToken } from "./session-identity";
 
 const DEFAULT_BACKEND_API_URL = "https://esim.uplisoft.com/api";
 
@@ -47,7 +49,63 @@ export type BackendRequest = {
    * this server. Only set it for public endpoints.
    */
   clientIp?: string;
+  /** The visitor's browser User-Agent, forwarded as x-client-user-agent (this server's own UA is useless). */
+  clientUserAgent?: string;
+  /** Unverified email hint (x-user-email). Defaults to the address inside `token`. */
+  userEmail?: string;
 };
+
+/** Web build identity sent as x-app-version: an explicit env value, else a git sha, else package.json. */
+export function getAppVersion(): string {
+  const explicit = (
+    process.env.NEXT_PUBLIC_APP_VERSION ??
+    process.env.APP_VERSION ??
+    process.env.GIT_SHA ??
+    process.env.VERCEL_GIT_COMMIT_SHA ??
+    ""
+  ).trim();
+  return (explicit || packageJson.version).slice(0, 64);
+}
+
+type MetaOptions = Pick<BackendRequest, "token" | "clientUserAgent" | "userEmail"> & {
+  /** Cached (`next.revalidate`) calls get only the stable headers. */
+  cached?: boolean;
+};
+
+const HEADER_SAFE_VALUE = /^[\x21-\x7e]+$/;
+
+/**
+ * Headers the backend reads on every request (client meta for request logs and
+ * /xerrors). Invariant: x-platform / x-client-source / x-app-version are stable
+ * and go on every call; x-request-id, x-user-email and x-client-user-agent vary
+ * per call/visitor and are added ONLY to uncached calls, because Next's fetch
+ * data cache keys on request headers and these would defeat every revalidate cache.
+ * x-user-email is printable ASCII only (Headers.set throws on anything else), and
+ * the whole thing is try/catch so a bad hint can never fail the call.
+ */
+export function applyClientMetaHeaders(
+  headers: Headers,
+  { token, clientUserAgent, userEmail, cached = false }: MetaOptions = {}
+) {
+  try {
+    headers.set("x-platform", "web");
+    headers.set("x-client-source", "web");
+    headers.set("x-app-version", getAppVersion());
+    if (cached) return;
+    headers.set("x-request-id", crypto.randomUUID());
+    const ua = clientUserAgent?.replace(/[\r\n]+/g, " ").trim().slice(0, 300);
+    if (ua && HEADER_SAFE_VALUE.test(ua.replace(/ /g, "_"))) headers.set("x-client-user-agent", ua);
+    const email = userEmail?.trim().toLowerCase() || readEmailHintFromToken(token);
+    if (email && email.length <= 254 && HEADER_SAFE_VALUE.test(email)) headers.set("x-user-email", email);
+  } catch {
+    // client meta is best effort
+  }
+}
+
+/** The visitor's browser User-Agent for a BFF request, to pass as `clientUserAgent`. */
+export function getClientUserAgent(request: Request): string | undefined {
+  return request.headers.get("user-agent")?.trim() || undefined;
+}
 
 /**
  * The visitor's IP for a BFF request. Production sits behind Cloudflare, which sets
@@ -91,7 +149,7 @@ const UNREACHABLE_MESSAGE = "We could not reach the eSIM service. Please try aga
 
 export async function backendFetch<T>(
   path: string,
-  { method = "GET", body, token, next, timeoutMs, clientIp }: BackendRequest = {}
+  { method = "GET", body, token, next, timeoutMs, clientIp, clientUserAgent, userEmail }: BackendRequest = {}
 ): Promise<BackendResult<T>> {
   const headers = new Headers({ Accept: "application/json" });
   if (body !== undefined) {
@@ -100,6 +158,7 @@ export async function backendFetch<T>(
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
+  applyClientMetaHeaders(headers, { token, clientUserAgent, userEmail, cached: Boolean(next) });
   const bffKey = process.env.BFF_SHARED_SECRET?.trim();
   if (clientIp && bffKey) {
     headers.set("X-Client-IP", clientIp);
@@ -156,6 +215,7 @@ export async function backendFetchFormData<T>(
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
+  applyClientMetaHeaders(headers, { token });
 
   let response: Response;
   try {
@@ -203,6 +263,7 @@ export async function backendFetchBinary(
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
+  applyClientMetaHeaders(headers, { token });
 
   let response: Response;
   try {

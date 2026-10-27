@@ -14,6 +14,7 @@ import {
   type CardFieldErrors,
   type CardFormData
 } from "@/lib/cardValidation";
+import { reportClientError } from "@/lib/report-client-error";
 import otpErrorAnimation from "@/../public/lottie/otp-error.json";
 
 /**
@@ -90,10 +91,31 @@ export function CardStep({
     onPaid();
   }, [onPaid]);
 
-  const handleError = useCallback((error: PaymentErrorResponse) => {
-    setSubmitting(false);
-    setSubmitError(error);
-  }, []);
+  // Never include card data: only the SDK's error type/message and the payment id.
+  const reportCardFailure = useCallback(
+    (message: string, extra: Record<string, unknown>) => {
+      reportClientError({
+        kind: "client_error",
+        scenario: "purchase_plan_web",
+        stage: "card",
+        screen: "/checkout",
+        errorName: "CardPaymentError",
+        message,
+        paymentReference: paymentId,
+        extra
+      });
+    },
+    [paymentId]
+  );
+
+  const handleError = useCallback(
+    (error: PaymentErrorResponse) => {
+      setSubmitting(false);
+      setSubmitError(error);
+      reportCardFailure(error.message ?? "Card payment failed", { type: error.type ?? null });
+    },
+    [reportCardFailure]
+  );
 
   const { processPayment } = usePOK(
     paymentId,
@@ -135,9 +157,13 @@ export function CardStep({
       // Actual outcome arrives asynchronously via handleSuccess/handleError
       // above (the SDK reports it through those callbacks, not necessarily
       // when this promise settles) — `submitting` is cleared there, not here.
-    } catch {
+    } catch (caught) {
       setSubmitting(false);
       setSubmitError({ message: "We couldn't process your card. Please try again." });
+      reportCardFailure(caught instanceof Error ? caught.message : "processPayment threw", {
+        thrown: true,
+        errorName: caught instanceof Error ? caught.name : typeof caught
+      });
     }
   };
 

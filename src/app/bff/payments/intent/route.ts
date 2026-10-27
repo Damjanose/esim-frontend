@@ -1,4 +1,4 @@
-import { backendFetch } from "@/lib/backend";
+import { backendFetch, getClientUserAgent } from "@/lib/backend";
 import { applyCookies, errorJson, readSessionTokens, successJson } from "@/lib/route-response";
 import { buildPendingPaymentCookie } from "@/lib/session";
 import { callWithSession } from "@/lib/with-session";
@@ -42,7 +42,8 @@ export async function POST(request: Request) {
         package_id: packageId,
         ...(promoCode ? { promoCode } : {})
       },
-      token
+      token,
+      clientUserAgent: getClientUserAgent(request)
     })
   );
 

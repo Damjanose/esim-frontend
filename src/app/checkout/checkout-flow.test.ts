@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE } from "@/lib/session";
+import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE, REFRESH_COOKIE } from "@/lib/session";
 import { POST as createIntent } from "../bff/payments/intent/route";
 import { POST as applyPromo } from "../bff/checkout/apply-promo/route";
 import { POST as provisionPayment } from "../bff/payments/provision/route";
 import { GET as checkoutReturn } from "./return/route";
+import { GET as topupReturn } from "../account/topup/return/route";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -297,6 +298,29 @@ describe("POST /bff/checkout/apply-promo", () => {
   });
 });
 
+describe("visitor user agent on uncached payment calls", () => {
+  it("forwards the browser UA as x-client-user-agent on intent, provision and return", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ status: "success", data: { order: { id: 1 }, paymentId: "p", checkoutUrl: "u" } }, 201)
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const headers = {
+      "content-type": "application/json",
+      "user-agent": "Mozilla/5.0 VisitorUA",
+      cookie: `${ACCESS_COOKIE}=good-token`
+    };
+
+    await createIntent(new Request("http://localhost:3000/bff/payments/intent", { method: "POST", headers, body: JSON.stringify({ package_id: "pkg" }) }));
+    await provisionPayment(new Request("http://localhost:3000/bff/payments/provision", { method: "POST", headers, body: JSON.stringify({ payment_id: "p1" }) }));
+    await checkoutReturn(new Request("http://localhost:3000/checkout/return?payment_id=p1", { headers }));
+
+    expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(3);
+    for (const call of fetchMock.mock.calls as unknown as Array<[string, RequestInit]>) {
+      expect(new Headers(call[1].headers).get("x-client-user-agent")).toBe("Mozilla/5.0 VisitorUA");
+    }
+  });
+});
+
 describe("GET /checkout/return", () => {
   function returnRequest(query: string, cookies: string) {
     return new Request(`http://localhost:3000/checkout/return${query}`, {
@@ -384,7 +408,126 @@ describe("GET /checkout/return", () => {
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toContain("reason=missing_payment");
-    expect(fetchMock).not.toHaveBeenCalled();
+    // Nothing to provision; the only backend call is the error report.
+    const urls = fetchMock.mock.calls.map((call) => String((call as unknown[])[0]));
+    expect(urls.some((url) => url.endsWith("/payments/provision"))).toBe(false);
+  });
+
+  it("keeps the refreshed session cookies and reports with the refreshed token when provisioning fails after a refresh", async () => {
+    let provisionCalls = 0;
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
+      const target = String(url);
+      if (target.endsWith("/auth/refresh")) {
+        return jsonResponse({
+          status: "success",
+          data: { token: "new-access", refreshToken: "new-refresh", expiresInSeconds: 600, refreshExpiresInSeconds: 6000 }
+        });
+      }
+      if (target.endsWith("/payments/provision")) {
+        provisionCalls += 1;
+        return provisionCalls === 1
+          ? jsonResponse({ status: "error", error: "expired" }, 401)
+          : jsonResponse({ status: "error", error: "Provider unavailable" }, 502);
+      }
+      return jsonResponse({ status: "success", data: { referenceId: "x" } }, 201);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await checkoutReturn(
+      returnRequest(
+        "?payment_id=sdk_order_123",
+        `${ACCESS_COOKIE}=old-access; ${REFRESH_COOKIE}=old-refresh; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`
+      )
+    );
+
+    expect(response.headers.get("location")).toContain("/checkout/failed");
+    const setCookie = response.headers.get("set-cookie") ?? "";
+    expect(setCookie).toContain(`${ACCESS_COOKIE}=new-access`);
+    expect(setCookie).toContain(`${REFRESH_COOKIE}=new-refresh`);
+    expect(setCookie).toContain(`${PENDING_PAYMENT_COOKIE}=;`);
+
+    const reportCall = fetchMock.mock.calls.find((call) => String(call[0]).endsWith("/client-errors"));
+    expect(new Headers(reportCall![1]!.headers).get("authorization")).toBe("Bearer new-access");
+  });
+
+  it("reports a provisioning failure with the payment id and shows the reference on the failure page", async () => {
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) =>
+      String(url).endsWith("/client-errors")
+        ? jsonResponse({ status: "success", data: { referenceId: "x" } }, 201)
+        : jsonResponse({ status: "error", error: "Provider unavailable" }, 502)
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await checkoutReturn(
+      returnRequest(
+        "?payment_id=sdk_order_123",
+        `${ACCESS_COOKIE}=good-token; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`
+      )
+    );
+
+    const location = new URL(response.headers.get("location") ?? "");
+    const ref = location.searchParams.get("ref");
+    expect(ref).toMatch(/^[A-Za-z0-9_.:-]{8,100}$/);
+
+    const reportCall = fetchMock.mock.calls.find((call) => String(call[0]).endsWith("/client-errors"));
+    expect(reportCall).toBeDefined();
+    const body = JSON.parse(String(reportCall![1]!.body));
+    expect(body).toMatchObject({
+      source: "client-web",
+      scenario: "checkout_return",
+      stage: "provisioning",
+      paymentReference: "sdk_order_123",
+      referenceId: ref,
+      failedRequest: { status: 502, response: { message: "Provider unavailable" } }
+    });
   });
 });
 
+
+describe("GET /account/topup/return failures", () => {
+  it("keeps refreshed cookies, reports with the refreshed token and passes ?ref= on provisioning failure", async () => {
+    let provisionCalls = 0;
+    const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
+      const target = String(url);
+      if (target.endsWith("/auth/refresh")) {
+        return jsonResponse({
+          status: "success",
+          data: { token: "new-access", refreshToken: "new-refresh", expiresInSeconds: 600, refreshExpiresInSeconds: 6000 }
+        });
+      }
+      if (target.endsWith("/payments/topups/provision")) {
+        provisionCalls += 1;
+        return provisionCalls === 1
+          ? jsonResponse({ status: "error", error: "expired" }, 401)
+          : jsonResponse({ status: "error", error: "Provider unavailable" }, 502);
+      }
+      return jsonResponse({ status: "success", data: { referenceId: "x" } }, 201);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await topupReturn(
+      new Request("http://localhost:3000/account/topup/return?payment_id=pay_topup_1", {
+        headers: { cookie: `${ACCESS_COOKIE}=old-access; ${REFRESH_COOKIE}=old-refresh` }
+      })
+    );
+
+    const location = new URL(response.headers.get("location") ?? "");
+    expect(location.pathname).toBe("/checkout/failed");
+    expect(location.searchParams.get("reason")).toBe("provisioning");
+    expect(location.searchParams.get("ref")).toMatch(/^[A-Za-z0-9_.:-]{8,100}$/);
+    const setCookie = response.headers.get("set-cookie") ?? "";
+    expect(setCookie).toContain(`${ACCESS_COOKIE}=new-access`);
+    expect(setCookie).toContain(`${REFRESH_COOKIE}=new-refresh`);
+
+    const reportCall = fetchMock.mock.calls.find((call) => String(call[0]).endsWith("/client-errors"));
+    expect(new Headers(reportCall![1]!.headers).get("authorization")).toBe("Bearer new-access");
+    const body = JSON.parse(String(reportCall![1]!.body));
+    expect(body).toMatchObject({
+      scenario: "topup_return",
+      stage: "provisioning",
+      paymentReference: "pay_topup_1",
+      referenceId: location.searchParams.get("ref"),
+      failedRequest: { status: 502, path: "/payments/topups/provision", response: { message: "Provider unavailable" } }
+    });
+  });
+});

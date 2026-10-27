@@ -375,6 +375,15 @@
         "f301"
       ],
       "source": "src/app/components/assistant/AssistantLauncher.tsx"
+    },
+    {
+      "symptom": "After a failed /checkout/return (provisioning error) the buyer is signed out and the xerrors report has a stale/expired token",
+      "root_cause": "callWithSession refreshed the session during the provision call, but failed() redirected with only the cleared pending-payment cookie, dropping attempt.cookies; the report used the pre-refresh access token",
+      "fix": "failed() receives attempt.cookies, applies them plus the cleared pending cookie, and reports with the refreshed access token (f317)",
+      "facts": [
+        "f317"
+      ],
+      "source": "src/app/checkout/return/route.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

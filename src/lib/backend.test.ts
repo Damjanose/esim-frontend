@@ -186,6 +186,74 @@ describe("backendFetch", () => {
   });
 });
 
+describe("client meta headers", () => {
+  function tokenFor(email: string, exp = 1) {
+    const payload = Buffer.from(JSON.stringify({ email, kind: "access", exp })).toString("base64url");
+    return `dev-auth.${payload}.sig`;
+  }
+
+  async function headersOf(options: Parameters<typeof backendFetch>[1]) {
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+    await backendFetch("/packages", options);
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    return new Headers(init.headers);
+  }
+
+  it("identifies the web client and sends a fresh request id on uncached calls", async () => {
+    const first = await headersOf({});
+    const second = await headersOf({});
+
+    expect(first.get("x-platform")).toBe("web");
+    expect(first.get("x-client-source")).toBe("web");
+    expect(first.get("x-app-version")).toBeTruthy();
+    expect(first.get("x-request-id")).toMatch(/^[A-Za-z0-9_.:-]{8,100}$/);
+    expect(first.get("x-request-id")).not.toBe(second.get("x-request-id"));
+  });
+
+  it("keeps per-call headers off revalidate calls so the Next fetch cache key stays stable", async () => {
+    const headers = await headersOf({
+      next: { revalidate: 60 },
+      token: tokenFor("a@b.co"),
+      userEmail: "a@b.co",
+      clientUserAgent: "Mozilla/5.0 Test"
+    });
+    expect(headers.get("x-platform")).toBe("web");
+    expect(headers.get("x-app-version")).toBeTruthy();
+    expect(headers.has("x-request-id")).toBe(false);
+    expect(headers.has("x-user-email")).toBe(false);
+    expect(headers.has("x-client-user-agent")).toBe(false);
+  });
+
+  it("skips non-ASCII email hints instead of throwing", async () => {
+    for (const email of ["иван@mail.ru", "用户@例子.广告"]) {
+      const headers = await headersOf({ userEmail: email });
+      expect(headers.has("x-user-email")).toBe(false);
+      expect(headers.get("x-platform")).toBe("web");
+    }
+    const viaToken = await headersOf({ token: tokenFor("иван@mail.ru") });
+    expect(viaToken.has("x-user-email")).toBe(false);
+  });
+
+  it("forwards the visitor user agent only when given, never the Node one", async () => {
+    expect((await headersOf({})).has("x-client-user-agent")).toBe(false);
+    expect((await headersOf({ clientUserAgent: "Mozilla/5.0 Test" })).get("x-client-user-agent")).toBe(
+      "Mozilla/5.0 Test"
+    );
+  });
+
+  it("sends the session email as an unverified hint, even from an expired token", async () => {
+    const headers = await headersOf({ token: tokenFor("Traveler@Example.com") });
+    expect(headers.get("x-user-email")).toBe("traveler@example.com");
+    expect((await headersOf({})).has("x-user-email")).toBe(false);
+  });
+
+  it("lets a caller-provided email win", async () => {
+    const headers = await headersOf({ token: tokenFor("a@b.co"), userEmail: "c@d.co" });
+    expect(headers.get("x-user-email")).toBe("c@d.co");
+  });
+});
+
 describe("backendFetchFormData", () => {
   it("posts FormData without forcing a JSON content type", async () => {
     const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: { id: "att_1" } }));

@@ -1,4 +1,4 @@
-import { backendFetch } from "@/lib/backend";
+import { backendFetch, getClientUserAgent } from "@/lib/backend";
 import { getPublicOrigin } from "@/lib/public-origin";
 import { applyCookies, errorJson, readSessionTokens, successJson } from "@/lib/route-response";
 import { buildPendingTopupCookie } from "@/lib/session";
@@ -43,7 +43,8 @@ export async function POST(request: Request) {
     backendFetch<PaymentSession>("/payments/topups/intent", {
       method: "POST",
       body: { order_id: rawOrderId, package_id: packageId, return_url: returnUrl },
-      token
+      token,
+      clientUserAgent: getClientUserAgent(request)
     })
   );
 

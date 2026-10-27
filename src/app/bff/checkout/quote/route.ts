@@ -1,4 +1,4 @@
-import { backendFetch } from "@/lib/backend";
+import { backendFetch, getClientUserAgent } from "@/lib/backend";
 import { errorJson, readSessionTokens, successJson } from "@/lib/route-response";
 import { callWithSession } from "@/lib/with-session";
 
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
     backendFetch<PriceQuote>("/payments/quote", {
       method: "POST",
       body: { packageId, ...(promoCode ? { promoCode } : {}), ...(orderId != null ? { orderId } : {}) },
-      token
+      token,
+      clientUserAgent: getClientUserAgent(request)
     })
   );
 

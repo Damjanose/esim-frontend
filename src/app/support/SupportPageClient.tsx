@@ -27,7 +27,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { supportEmail } from "@/lib/seo";
 import { Navbar } from "../components/Navbar";
 import { Button, LinkButton } from "../components/Button";
@@ -199,6 +199,12 @@ function normalizeSearch(value: string) {
 export function SupportPageClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  // Error reference from /error and /checkout/failed (?ref=...). Read after mount so the page stays static.
+  const [errorReference, setErrorReference] = useState<string | null>(null);
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    setErrorReference(ref && /^[A-Za-z0-9_.:-]{8,100}$/.test(ref) ? ref : null);
+  }, []);
 
   const filteredFaqs = useMemo(() => {
     const query = normalizeSearch(searchQuery);
@@ -242,6 +248,12 @@ export function SupportPageClient() {
 
       <section className={`pb-16 md:pb-24 ${CONTENT_GUTTER}`}>
         <div className="mx-auto max-w-6xl">
+          {errorReference ? (
+            <p className="mb-6 break-all rounded-[16px] border border-outline/70 bg-surfaceBright px-4 py-3 text-sm text-onSurfaceVariant">
+              Quote this error reference when you contact us:{" "}
+              <span className="font-mono font-bold text-brandInk">{errorReference}</span>
+            </p>
+          ) : null}
           {hasSearchResults ? (
             <>
               {filteredCategories.length > 0 ? (
