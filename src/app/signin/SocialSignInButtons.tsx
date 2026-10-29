@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { trackGaEvent } from "@/lib/analytics";
 
 export type LinkChallenge = { linkTicket: string; suggestedEmail: string | null };
 
@@ -116,6 +117,7 @@ export function SocialSignInButtons({
       }
 
       // Session cookies are set by the route handler.
+      trackGaEvent("login", { method: path.includes("apple") ? "apple" : "google" });
       window.location.assign(next);
     },
     [next, onLinkRequired]

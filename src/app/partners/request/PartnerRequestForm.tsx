@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { trackGaEvent } from "@/lib/analytics";
 import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
 import type { CountryOption } from "@/services/packages";
 
@@ -71,6 +72,7 @@ export function PartnerRequestForm({ countries }: { countries: CountryOption[] }
         return;
       }
 
+      trackGaEvent("generate_lead", { lead_source: "partner_request", partner_type: form.partnerType });
       router.push("/partners/status");
     } catch {
       setBusy(false);

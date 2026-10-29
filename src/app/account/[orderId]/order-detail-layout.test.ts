@@ -17,7 +17,7 @@ describe("/account/[orderId] layout", () => {
 
   it("keeps both banners and the purchase conversion exactly where they were", () => {
     expect(page).toContain('isNew === "1"');
-    expect(page).toContain("<PurchaseConversion transactionId={order.code} />");
+    expect(page).toContain("<PurchaseConversion packageId={order.package_id} plan={purchasedPlan} transactionId={order.code} />");
     expect(page).toContain("Payment complete — your eSIM is ready");
     expect(page).toContain('isToppedUp === "1"');
     expect(page).toContain("Top-up complete");

@@ -32,7 +32,7 @@ import { accountShellItems } from "../accountShellItems";
 import { CopyField } from "./CopyField";
 import { InstallOnIphoneLink } from "./InstallOnIphoneLink";
 import { OrderReviewCard } from "./OrderReviewCard";
-import { PurchaseConversion } from "./PurchaseConversion";
+import { PurchaseConversion, type PurchasedPlan } from "./PurchaseConversion";
 import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
 
 export const metadata: Metadata = createMetadata({
@@ -156,10 +156,17 @@ export default async function OrderDetailPage({
   const qr = resolveQrSource(sim?.qrcode);
   const instructionsAvailable =
     instructionsResult.ok && instructionsResult.data.instructions?.available === true;
-  const plan = describePackage(
-    order.package_id,
-    new Map(packageOptions.map((option) => [option.id, option]))
-  );
+  const catalog = new Map(packageOptions.map((option) => [option.id, option]));
+  const plan = describePackage(order.package_id, catalog);
+  const purchasedOption = catalog.get(order.package_id);
+  const purchasedPlan: PurchasedPlan = purchasedOption
+    ? {
+        id: purchasedOption.id,
+        title: purchasedOption.title,
+        country: purchasedOption.country,
+        priceNumeric: purchasedOption.priceNumeric
+      }
+    : null;
   const meter = usageMeter(usage);
   const statusLine = esimStatusLine(order);
   // The list below is the top-up; the card's Top up just jumps to it.
@@ -182,7 +189,7 @@ export default async function OrderDetailPage({
 
           {isNew === "1" ? (
             <>
-              <PurchaseConversion transactionId={order.code} />
+              <PurchaseConversion packageId={order.package_id} plan={purchasedPlan} transactionId={order.code} />
               <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
                 <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
                 <div>
