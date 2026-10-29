@@ -78,7 +78,7 @@
   },
   "conversion_tracking": {
     "component": "src/app/GoogleTag.tsx (gtag.js loaded globally via next/script in the root layout) + src/app/account/[orderId]/PurchaseConversion.tsx (f095)",
-    "fires": "a Google Ads 'conversion' event on the /account/[orderId]?new=1 checkout-confirmation view (the exact redirect target of checkout/return/route.ts on success), with transaction_id set to the order code; deduped per order via sessionStorage so a refresh of the confirmation URL doesn't double-count.",
+    "fires": "a Google Ads 'conversion' event on the /account/[orderId]?new=1 checkout-confirmation view (the exact redirect target of checkout/return/route.ts on success), with transaction_id set to the Pokpay payment id (order.payment_reference, order code only on legacy orders; f328); deduped per order via sessionStorage so a refresh of the confirmation URL doesn't double-count.",
     "config": "tracking id/label live in src/lib/analytics.ts, overridable via NEXT_PUBLIC_GOOGLE_ADS_ID / NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL, pinned explicitly in .env.production rather than relying only on the code fallback.",
     "script_strategy": "both <Script> tags in GoogleTag.tsx use strategy=\"beforeInteractive\", not \"afterInteractive\" \u2014 afterInteractive injects at the end of <body> post-hydration, but Google's setup requires the tag before </head> (f101)."
   }

@@ -33,6 +33,7 @@ import { CopyField } from "./CopyField";
 import { InstallOnIphoneLink } from "./InstallOnIphoneLink";
 import { OrderReviewCard } from "./OrderReviewCard";
 import { PurchaseConversion, type PurchasedPlan } from "./PurchaseConversion";
+import { TopUpConversion } from "./TopUpConversion";
 import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
 
 export const metadata: Metadata = createMetadata({
@@ -211,16 +212,19 @@ export default async function OrderDetailPage({
           ) : null}
 
           {isToppedUp === "1" ? (
-            <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
-              <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
-              <div>
-                <p className="font-bold text-brandInk">Top-up complete</p>
-                <p className="mt-0.5 text-sm text-onSurfaceVariant">
-                  Your extra data has been added to this eSIM. Usage can take a few minutes to
-                  catch up.
-                </p>
+            <>
+              <TopUpConversion orderId={order.id} />
+              <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
+                <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
+                <div>
+                  <p className="font-bold text-brandInk">Top-up complete</p>
+                  <p className="mt-0.5 text-sm text-onSurfaceVariant">
+                    Your extra data has been added to this eSIM. Usage can take a few minutes to
+                    catch up.
+                  </p>
+                </div>
               </div>
-            </div>
+            </>
           ) : null}
 
           <OrderReviewCard
@@ -330,7 +334,11 @@ export default async function OrderDetailPage({
           </div>
 
           {topupPackages.length > 0 ? (
-            <TopUpPanel orderId={order.id} packages={topupPackages} />
+            <TopUpPanel
+              esim={{ country: purchasedOption?.country, region: purchasedOption?.region }}
+              orderId={order.id}
+              packages={topupPackages}
+            />
           ) : topups?.message ? (
             <div className="mt-4 flex items-start gap-3 rounded-[18px] border border-outline/60 bg-surface px-5 py-4 shadow-brandCard">
               <Info aria-hidden="true" className="mt-0.5 shrink-0 text-brandBlue" size={18} />

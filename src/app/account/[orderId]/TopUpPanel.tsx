@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CreditCard, Flame, Plus } from "lucide-react";
 import { topupPlanRowPlan, type TopupOffer } from "@/lib/accountEsims";
+import { GA_CURRENCY, gaTopupItem, roundMoney, writePendingTopupPurchase } from "@/lib/analytics";
 import { planDurationText, planRowTags } from "@/lib/planRow";
 import { Button } from "../../components/Button";
 import { PlanDataDisc, PlanPrice, PlanTags } from "../../components/PlanRow";
@@ -16,10 +17,13 @@ export type TopupPackage = TopupOffer;
  */
 export function TopUpPanel({
   orderId,
-  packages
+  packages,
+  esim
 }: {
   orderId: number;
   packages: TopupPackage[];
+  /** The topped-up eSIM's catalog country and region, for the GA4 top-up item. */
+  esim: { country?: string; region?: string };
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,7 @@ export function TopUpPanel({
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
-        data?: { checkoutUrl?: string };
+        data?: { checkoutUrl?: string; paymentId?: string; amount?: number; currency?: string };
         error?: string;
       };
 
@@ -50,6 +54,19 @@ export function TopUpPanel({
         setPendingId(null);
         setError(payload.error ?? "We could not start the top-up. Please try again.");
         return;
+      }
+
+      // What Pokpay will charge (streak reward included), for the ?topup=1 purchase event.
+      const offer = packages.find((pkg) => pkg.id === packageId);
+      const { paymentId, amount, currency } = payload.data;
+      if (offer && paymentId && typeof amount === "number" && amount > 0) {
+        writePendingTopupPurchase({
+          orderId,
+          paymentId,
+          value: roundMoney(amount),
+          currency: currency?.trim().toUpperCase() || GA_CURRENCY,
+          item: gaTopupItem(offer, esim, amount)
+        });
       }
 
       // Full-page navigation: popups are unreliable in mobile and in-app browsers.
