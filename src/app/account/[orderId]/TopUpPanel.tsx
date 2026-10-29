@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CreditCard, Flame, Plus } from "lucide-react";
 import { topupPlanRowPlan, type TopupOffer } from "@/lib/accountEsims";
-import { GA_CURRENCY, gaTopupItem, roundMoney, writePendingTopupPurchase } from "@/lib/analytics";
+import {
+  GA_CURRENCY,
+  gaTopupItem,
+  roundMoney,
+  trackGaEvent,
+  writePendingTopupPurchase
+} from "@/lib/analytics";
 import { planDurationText, planRowTags } from "@/lib/planRow";
+import { GaEvent } from "../../GaEvent";
 import { Button } from "../../components/Button";
 import { PlanDataDisc, PlanPrice, PlanTags } from "../../components/PlanRow";
 
@@ -28,6 +35,16 @@ export function TopUpPanel({
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const streakPct = useStreakRewardPct(orderId, packages[0]?.id ?? null);
+  // GA4 view_item for the offers on show, like the app's top-up screen; valued at the cheapest.
+  const viewItem = useMemo(() => {
+    const items = packages.map((pkg) => gaTopupItem(pkg, esim, pkg.priceNumeric ?? 0));
+    const prices = items.map((item) => item.price).filter((price) => price > 0);
+    return {
+      currency: GA_CURRENCY,
+      value: prices.length > 0 ? Math.min(...prices) : 0,
+      items
+    };
+  }, [esim, packages]);
 
   async function startTopup(packageId: string) {
     setPendingId(packageId);
@@ -60,13 +77,17 @@ export function TopUpPanel({
       const offer = packages.find((pkg) => pkg.id === packageId);
       const { paymentId, amount, currency } = payload.data;
       if (offer && paymentId && typeof amount === "number" && amount > 0) {
-        writePendingTopupPurchase({
+        const pending = {
           orderId,
           paymentId,
           value: roundMoney(amount),
           currency: currency?.trim().toUpperCase() || GA_CURRENCY,
           item: gaTopupItem(offer, esim, amount)
-        });
+        };
+        writePendingTopupPurchase(pending);
+        // Card details go in on Pokpay's hosted page, which the site can't observe, so
+        // there's no add_payment_info here; begin_checkout marks the hand-off instead.
+        trackGaEvent("begin_checkout", { currency: pending.currency, value: pending.value, items: [pending.item] });
       }
 
       // Full-page navigation: popups are unreliable in mobile and in-app browsers.
@@ -82,6 +103,7 @@ export function TopUpPanel({
       className="mt-4 scroll-mt-6 rounded-[20px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6"
       id="top-up"
     >
+      <GaEvent name="view_item" params={viewItem} />
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <Plus aria-hidden="true" className="text-brandBlue" size={20} />
         Add more data

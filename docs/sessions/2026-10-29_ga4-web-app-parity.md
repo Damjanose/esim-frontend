@@ -14,3 +14,4 @@
 - `/esim/<slug>` `view_item` items now use each package's own API country name (what the app reports), falling back to the curated display name.
 - `feedAI/topics/account-flows.json` no longer says the Ads conversion uses the order code.
 - PR #13 review: the top-up purchase is now bound to the provisioned payment. The return route adds `payment=<id>` and the stash must match it, so an abandoned intent's stash is never reported.
+- Top-up funnel parity: `TopUpPanel` sends `view_item` for the offers shown and `begin_checkout` when the payment starts. `add_payment_info` is left out because card entry happens on Pokpay's hosted page.
