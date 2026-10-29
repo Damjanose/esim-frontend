@@ -14,13 +14,21 @@ import {
 import { useConsent } from "../../ConsentManager";
 
 /** The catalog entry for the bought plan; null when it has left the catalog. */
-export type PurchasedPlan = { id: string; title: string; country: string; priceNumeric: number } | null;
+export type PurchasedPlan = {
+  id: string;
+  country: string;
+  region?: string;
+  dataLabel: string;
+  durationLabel: string;
+  priceNumeric: number;
+} | null;
 
 /**
  * Fires the Google Ads purchase conversion and the GA4 `purchase` event once
  * per order. Rendered only when the checkout return flow lands here with
  * `?new=1`, but that query string survives refreshes, so each is deduped by
- * order code in browser storage.
+ * transaction id in browser storage. The transaction id is the Pokpay payment
+ * reference, the same id the mobile app reports.
  */
 export function PurchaseConversion({
   transactionId,
@@ -55,7 +63,7 @@ export function PurchaseConversion({
     const value = roundMoney(pending?.value ?? plan?.priceNumeric ?? 0);
     const item = plan
       ? gaItem(plan, value)
-      : { item_id: packageId, item_name: packageId, price: value, quantity: 1 };
+      : { item_id: packageId, item_name: packageId, item_category2: "esim_package" as const, price: value, quantity: 1 };
 
     trackGaEvent("purchase", {
       transaction_id: transactionId,

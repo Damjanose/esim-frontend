@@ -393,6 +393,15 @@
         "f322"
       ],
       "source": "src/app/GoogleTag.tsx"
+    },
+    {
+      "symptom": "Web and app purchases don't line up in GA4: different transaction_id formats and item names for the same plan",
+      "root_cause": "Web sent the Airalo order code as transaction_id and '<country> · <title>' as item_name with country as item_category; the app sends the Pokpay payment id and 'Turkey 5GB 7 Days' with region + item_category2",
+      "fix": "transactionId = order.payment_reference || order.code; gaItem builds the app's name from country/dataLabel/durationLabel, region as item_category, item_category2 esim_package (f328)",
+      "facts": [
+        "f328"
+      ],
+      "source": "src/lib/analytics.ts; src/app/account/[orderId]/page.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

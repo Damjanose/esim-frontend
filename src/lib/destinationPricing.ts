@@ -14,6 +14,8 @@ export type DestinationPlanRow = {
   title: string;
   dataLabel: string;
   durationLabel: string;
+  /** Catalog region (e.g. "Europe"), reported as the GA4 item category. */
+  region?: string;
   network: string;
   price: string;
   priceNumeric: number;
@@ -32,6 +34,7 @@ export type DestinationPlanRow = {
 type ApiPackage = {
   id?: string;
   countryCode?: string;
+  region?: string;
   title?: string;
   dataLabel?: string;
   durationLabel?: string;
@@ -110,6 +113,7 @@ function catalogFromPackages(packages: ApiPackage[]): DestinationCatalog {
       title: pkg.title?.trim() || `${pkg.dataLabel ?? "Data"} · ${pkg.durationLabel ?? "plan"}`,
       dataLabel: pkg.dataLabel?.trim() || "Data plan",
       durationLabel: pkg.durationLabel?.trim() || "Flexible validity",
+      ...(pkg.region?.trim() ? { region: pkg.region.trim() } : {}),
       network: pkg.network?.trim() || "4G/5G",
       price: pkg.price?.trim() || `€${pkg.priceNumeric.toFixed(2)}`,
       priceNumeric: pkg.priceNumeric,

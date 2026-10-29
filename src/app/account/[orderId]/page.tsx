@@ -54,6 +54,8 @@ type Order = {
   status: string;
   lifecycle_status: "ready" | "active" | "expired";
   package_id: string;
+  /** Pokpay payment id; null on orders that predate payment tracking. */
+  payment_reference?: string | null;
   created_at: string;
   expires_at: string | null;
   sims: Sim[];
@@ -162,8 +164,10 @@ export default async function OrderDetailPage({
   const purchasedPlan: PurchasedPlan = purchasedOption
     ? {
         id: purchasedOption.id,
-        title: purchasedOption.title,
         country: purchasedOption.country,
+        region: purchasedOption.region,
+        dataLabel: purchasedOption.dataLabel,
+        durationLabel: purchasedOption.durationLabel,
         priceNumeric: purchasedOption.priceNumeric
       }
     : null;
@@ -189,7 +193,11 @@ export default async function OrderDetailPage({
 
           {isNew === "1" ? (
             <>
-              <PurchaseConversion packageId={order.package_id} plan={purchasedPlan} transactionId={order.code} />
+              <PurchaseConversion
+                packageId={order.package_id}
+                plan={purchasedPlan}
+                transactionId={order.payment_reference || order.code}
+              />
               <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
                 <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
                 <div>

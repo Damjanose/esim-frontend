@@ -10,6 +10,8 @@ export type HeroPackageOption = {
   id: string;
   country: string;
   countryCode: string;
+  /** Catalog region (e.g. "Europe"), reported as the GA4 item category. */
+  region?: string;
   flagUri: string;
   dataLabel: string;
   durationLabel: string;
@@ -77,7 +79,7 @@ const PACKAGE_OPTION_LIMIT = 10;
  * Bump CATALOG_CACHE_VERSION when HeroPackageOption's shape changes.
  */
 const CATALOG_CACHE_TTL_MS = 5 * 24 * 60 * 60 * 1000;
-const CATALOG_CACHE_VERSION = 1;
+const CATALOG_CACHE_VERSION = 2;
 const PACKAGE_OPTIONS_STORAGE_KEY = "esim2you:packages";
 const PACKAGE_GROUPS_STORAGE_KEY = "esim2you:package-groups";
 
@@ -321,6 +323,7 @@ function mapPackageToOption(
     id,
     country,
     countryCode,
+    ...(pkg.region?.trim() ? { region: pkg.region.trim() } : {}),
     flagUri: pkg.flagUri?.trim() || "",
     dataLabel,
     durationLabel,

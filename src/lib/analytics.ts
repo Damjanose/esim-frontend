@@ -9,22 +9,53 @@ export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-95H527D5BG";
 /** Every catalog and checkout price is in EUR (the /esim pages and Pokpay both charge EUR). */
 export const GA_CURRENCY = "EUR";
 
-/** GA4 recommended-event item. item_name is the plan title; item_category the country/region. */
+/**
+ * GA4 recommended-event item, in the same shape the mobile app sends
+ * (velocity-eSim src/services/analyticsLogic.ts) so web and app purchases group
+ * together: item_name is country + data + duration ("Turkey 5GB 7 Days"),
+ * item_category the catalog region, item_category2 the product kind.
+ */
 export type GaItem = {
   item_id: string;
   item_name: string;
   item_category?: string;
+  item_category2: "esim_package";
   price: number;
   quantity: number;
 };
 
-type GaItemSource = { id: string; title: string; country?: string; priceNumeric: number };
+type GaItemSource = {
+  id: string;
+  country?: string;
+  region?: string;
+  dataLabel: string;
+  durationLabel: string;
+  priceNumeric: number;
+};
+
+/** "5 GB" -> "5GB", "Unlimited" stays, as the app's toCheckoutSummary formats it. */
+function compactDataLabel(label: string): string {
+  const trimmed = label.trim();
+  if (/^unlimited$/i.test(trimmed)) return "Unlimited";
+  const gb = trimmed.match(/^(\d+)\s*GB$/i);
+  if (gb) return `${gb[1]}GB`;
+  const value = trimmed.replace(/\s*GB$/i, "").trim();
+  return trimmed.toLowerCase().includes("gb") ? `${value}GB` : value;
+}
+
+export function gaItemName(plan: Pick<GaItemSource, "country" | "dataLabel" | "durationLabel">): string {
+  return [plan.country, compactDataLabel(plan.dataLabel), plan.durationLabel.replace(/\s*Duration\s*$/i, "")]
+    .map((part) => part?.trim())
+    .filter((part): part is string => Boolean(part))
+    .join(" ");
+}
 
 export function gaItem(plan: GaItemSource, price = plan.priceNumeric): GaItem {
   return {
     item_id: plan.id,
-    item_name: plan.country ? `${plan.country} · ${plan.title}` : plan.title,
-    ...(plan.country ? { item_category: plan.country } : {}),
+    item_name: gaItemName(plan),
+    ...(plan.region?.trim() ? { item_category: plan.region.trim() } : {}),
+    item_category2: "esim_package",
     price: roundMoney(price),
     quantity: 1
   };
