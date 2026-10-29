@@ -37,7 +37,8 @@
     "f169",
     "f170",
     "f171",
-    "f174"
+    "f174",
+    "f329"
   ],
   "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
@@ -122,5 +123,6 @@
     "renders": "Unread/Open/Solved tabs with unread badge, email search, master-detail chat, photo bubbles, Mark as solved. Opening an unread thread POSTs /read. Solved threads move to the archive tab.",
     "shared_helpers": "Support response types live in src/app/xsupport/support-types.ts; admin BFF request helpers live in src/lib/admin-bff.ts (f116)."
   },
-  "notification_open_in_app": "f161/f162: xnotificationy Open in app = continental pass + full advanced filters (MarketplaceOpenActionFields); posts openAction JSON; destinations hybrid catalog+custom slug"
+  "notification_open_in_app": "f161/f162: xnotificationy Open in app = continental pass + full advanced filters (MarketplaceOpenActionFields); posts openAction JSON; destinations hybrid catalog+custom slug",
+  "operations_dashboard": "/xloginy now shows UTC daily finances, searchable paginated purchases with expandable package details, and Users/OTP tabs. Read-only Airalo details use the protected /bff/admin/dashboard/purchases/[id]/provider proxy. Currency totals remain separate; missing costs display incomplete profit. Superseded requests are aborted and refresh failures retain existing data."
 }

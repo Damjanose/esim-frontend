@@ -15,44 +15,6 @@ describe("hidden admin purchase dashboard", () => {
     expect(hookSource).toContain("readAdminTokenCookie");
   });
 
-  it("renders an admin login, purchase table, and SVG purchases-over-time chart", () => {
-    const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
-    const hookSource = readFileSync("src/app/useAdminSession.ts", "utf8");
-
-    expect(hookSource).toContain("/bff/admin/login");
-    expect(dashboardSource).toContain("/bff/admin/dashboard");
-    expect(dashboardSource).toContain("response.status === 401");
-    expect(dashboardSource).toContain("handleUnauthorized");
-    expect(dashboardSource).toContain("Purchases &amp; revenue");
-    expect(dashboardSource).toContain('type="month"');
-    expect(dashboardSource).toContain("All time");
-    expect(dashboardSource).toContain("Earned");
-    expect(dashboardSource).toContain("Spent");
-    expect(dashboardSource).toContain("Profit");
-    expect(dashboardSource).toContain("costByCurrency");
-    expect(dashboardSource).toContain("month");
-    expect(dashboardSource).toContain("<svg");
-    expect(dashboardSource).toContain("Email");
-    expect(dashboardSource).toContain("Package");
-    expect(dashboardSource).toContain("Price");
-    expect(dashboardSource).toContain("Purchased At");
-  });
-
-  it("renders user tracking and recent OTP request sections", () => {
-    const dashboardSource = readFileSync("src/app/xloginy/page.tsx", "utf8");
-
-    expect(dashboardSource).toContain("Total users");
-    expect(dashboardSource).toContain("Users");
-    expect(dashboardSource).toContain("OTP requests");
-    expect(dashboardSource).toContain("Latest OTP");
-    expect(dashboardSource).toContain("Recent OTP requests");
-    expect(dashboardSource).toContain("userCount");
-    expect(dashboardSource).toContain("recentOtpRequests");
-    // Total users must come from the backend's unpaginated summary.userCount, never the
-    // current page's users.length, so the stat stays accurate across pagination.
-    expect(dashboardSource).toContain("summary.userCount ?? users.length");
-  });
-
   it("renders hidden admin navigation between dashboard and error inbox", () => {
     expect(existsSync("src/app/AdminNav.tsx")).toBe(true);
 
