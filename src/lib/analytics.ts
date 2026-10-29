@@ -15,11 +15,13 @@ export const GA_CURRENCY = "EUR";
  * together: item_name is country + data + duration ("Turkey 5GB 7 Days"),
  * item_category the catalog region, item_category2 the product kind.
  */
+export type GaItemKind = "esim_package" | "esim_topup";
+
 export type GaItem = {
   item_id: string;
   item_name: string;
   item_category?: string;
-  item_category2: "esim_package";
+  item_category2: GaItemKind;
   price: number;
   quantity: number;
 };
@@ -43,11 +45,15 @@ function compactDataLabel(label: string): string {
   return trimmed.toLowerCase().includes("gb") ? `${value}GB` : value;
 }
 
-export function gaItemName(plan: Pick<GaItemSource, "country" | "dataLabel" | "durationLabel">): string {
-  return [plan.country, compactDataLabel(plan.dataLabel), plan.durationLabel.replace(/\s*Duration\s*$/i, "")]
+function joinParts(...parts: (string | undefined)[]): string {
+  return parts
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part))
     .join(" ");
+}
+
+export function gaItemName(plan: Pick<GaItemSource, "country" | "dataLabel" | "durationLabel">): string {
+  return joinParts(plan.country, compactDataLabel(plan.dataLabel), plan.durationLabel.replace(/\s*Duration\s*$/i, ""));
 }
 
 export function gaItem(plan: GaItemSource, price = plan.priceNumeric): GaItem {
@@ -56,6 +62,35 @@ export function gaItem(plan: GaItemSource, price = plan.priceNumeric): GaItem {
     item_name: gaItemName(plan),
     ...(plan.region?.trim() ? { item_category: plan.region.trim() } : {}),
     item_category2: "esim_package",
+    price: roundMoney(price),
+    quantity: 1
+  };
+}
+
+type GaTopupSource = { id: string; title?: string; amount?: number; day?: number; is_unlimited?: boolean };
+
+/**
+ * A top-up offer as the app's toTopupCheckoutSummary names it: the eSIM's
+ * country + GB to one decimal ("Unlimited") + "N days", e.g. "Turkey 0.5GB 7 days".
+ * Region and country come from the eSIM being topped up.
+ */
+export function gaTopupItem(
+  offer: GaTopupSource,
+  esim: { country?: string; region?: string },
+  price: number
+): GaItem {
+  const gb = typeof offer.amount === "number" ? Math.round((offer.amount / 1024) * 10) / 10 : null;
+  const data = offer.is_unlimited
+    ? "Unlimited"
+    : gb != null
+      ? `${Number.isInteger(gb) ? gb.toFixed(0) : String(gb)}GB`
+      : (offer.title ?? offer.id);
+  const duration = typeof offer.day === "number" ? `${offer.day} ${offer.day === 1 ? "day" : "days"}` : undefined;
+  return {
+    item_id: offer.id,
+    item_name: joinParts(esim.country, data, duration),
+    ...(esim.region?.trim() ? { item_category: esim.region.trim() } : {}),
+    item_category2: "esim_topup",
     price: roundMoney(price),
     quantity: 1
   };
@@ -108,6 +143,55 @@ export function readPendingPurchase(packageId: string): PendingPurchase | null {
   try {
     const parsed = JSON.parse(window.sessionStorage.getItem(PENDING_PURCHASE_KEY) ?? "null") as PendingPurchase | null;
     if (parsed?.packageId !== packageId || typeof parsed.value !== "number" || !Number.isFinite(parsed.value)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The top-up panel stashes the started payment so the ?topup=1 return can report
+ * the purchase. Hosted Pokpay returns in the same tab, so sessionStorage survives.
+ */
+export const PENDING_TOPUP_PURCHASE_KEY = "esim2you:ga-pending-topup";
+
+export type PendingTopupPurchase = {
+  orderId: number;
+  paymentId: string;
+  value: number;
+  currency: string;
+  item: GaItem;
+};
+
+export function writePendingTopupPurchase(purchase: PendingTopupPurchase): void {
+  try {
+    window.sessionStorage.setItem(PENDING_TOPUP_PURCHASE_KEY, JSON.stringify(purchase));
+  } catch {
+    // Storage unavailable: the top-up simply goes unreported.
+  }
+}
+
+/**
+ * The pending top-up for this eSIM and the payment the return route provisioned,
+ * removed once read so it's reported at most once. A stash for any other payment
+ * (e.g. an abandoned intent) is never reported.
+ */
+export function takePendingTopupPurchase(orderId: number, paymentId: string): PendingTopupPurchase | null {
+  try {
+    const parsed = JSON.parse(
+      window.sessionStorage.getItem(PENDING_TOPUP_PURCHASE_KEY) ?? "null"
+    ) as PendingTopupPurchase | null;
+    if (
+      !paymentId ||
+      parsed?.orderId !== orderId ||
+      parsed.paymentId !== paymentId ||
+      typeof parsed.value !== "number" ||
+      !Number.isFinite(parsed.value) ||
+      !parsed.item
+    ) {
+      return null;
+    }
+    window.sessionStorage.removeItem(PENDING_TOPUP_PURCHASE_KEY);
     return parsed;
   } catch {
     return null;

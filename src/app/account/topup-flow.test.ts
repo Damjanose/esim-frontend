@@ -121,7 +121,7 @@ describe("GET /account/topup/return", () => {
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe(
-      "http://localhost:3000/account/42?topup=1"
+      "http://localhost:3000/account/42?topup=1&payment=sdk_order_topup_1"
     );
 
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];

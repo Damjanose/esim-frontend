@@ -408,7 +408,7 @@
       "root_cause": "AdminNav and dashboard owned separate useAdminSession state after the dashboard-local logout control was removed",
       "fix": "Pass the dashboard session into AdminNav so its displayed token and logout action belong to the page displaying admin data",
       "facts": [
-        "f330"
+        "f331"
       ],
       "source": "src/app/AdminNav.tsx; src/app/xloginy/page.tsx; src/app/xloginy/dashboard-session.test.ts"
     },
@@ -417,7 +417,7 @@
       "root_cause": "Queue cleanup canceled only its next timer and request handlers processed authorization failures before cancellation/session guards",
       "fix": "Abort pending provider requests when leaving the queue; guard responses before 401 effects or state publication; only delete the request entry owned by the completing controller",
       "facts": [
-        "f330"
+        "f331"
       ],
       "source": "src/app/xloginy/dashboard-requests.ts; src/app/xloginy/dashboard-requests.test.ts"
     },
@@ -426,7 +426,7 @@
       "root_cause": "Every successful HTTP response used the success TTL, including payloads with per-SIM errors",
       "fix": "Use a 30-second client TTL when any SIM has an error; retain the 20-minute TTL for successful provider data",
       "facts": [
-        "f330"
+        "f331"
       ],
       "source": "src/app/xloginy/dashboard-requests.ts; src/app/xloginy/dashboard-requests.test.ts"
     }
