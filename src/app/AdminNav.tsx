@@ -38,9 +38,12 @@ const adminLinks: Array<{
   { href: "/xstreaky", label: "Streak", full: "Games streak promo", Icon: Flame }
 ];
 
-export function AdminNav() {
+export function AdminNav({ session }: {
+  session?: Pick<ReturnType<typeof useAdminSession>, "token" | "logout">;
+} = {}) {
   const pathname = usePathname();
-  const { token, logout } = useAdminSession();
+  const ownSession = useAdminSession();
+  const { token, logout } = session ?? ownSession;
 
   return (
     <nav className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-6 border-b border-mist bg-gradient-to-r from-midnight to-ink px-6 py-0">
