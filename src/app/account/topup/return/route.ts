@@ -105,6 +105,8 @@ export async function GET(request: Request) {
     ? new URL(`/account/${pending.orderId}`, origin)
     : new URL("/account", origin);
   target.searchParams.set("topup", "1");
+  // Lets the page report this exact payment to GA4 (TopUpConversion).
+  target.searchParams.set("payment", paymentId);
 
   return applyCookies(NextResponse.redirect(target, 303), [
     ...attempt.cookies,

@@ -14,8 +14,9 @@ export type PlanRowPlan = DiscountPricedPlan & {
   durationDays?: number;
   voiceMinutes?: number;
   smsCount?: number;
-  /** Live catalog only: "local" / "regional" / "global" geography filters and the plan's own destination name. */
+  /** Live catalog only: "local" / "regional" / "global" geography filters. */
   filters?: readonly string[];
+  /** The plan's own destination name (live catalog and, since f329, static /esim rows). */
   country?: string;
 };
 

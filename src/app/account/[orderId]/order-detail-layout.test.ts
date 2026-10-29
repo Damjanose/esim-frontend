@@ -22,6 +22,7 @@ describe("/account/[orderId] layout", () => {
     expect(page).toContain("transactionId={order.payment_reference || order.code}");
     expect(page).toContain("Payment complete — your eSIM is ready");
     expect(page).toContain('isToppedUp === "1"');
+    expect(page).toContain("<TopUpConversion orderId={order.id} paymentId={topupPaymentId} />");
     expect(page).toContain("Top-up complete");
   });
 

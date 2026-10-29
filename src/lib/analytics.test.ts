@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CONSENT_COOKIE_NAME, serializeConsentCookie } from "@/lib/consent";
-import { GA_ID, gaItem, trackGaEvent } from "@/lib/analytics";
+import {
+  GA_ID,
+  PENDING_TOPUP_PURCHASE_KEY,
+  gaItem,
+  gaTopupItem,
+  takePendingTopupPurchase,
+  trackGaEvent,
+  writePendingTopupPurchase
+} from "@/lib/analytics";
 
 function stubBrowser(consent: { analytics: boolean; marketing: boolean }) {
   const gtag = vi.fn();
@@ -58,5 +66,64 @@ describe("gaItem", () => {
     const item = gaItem({ ...plan, region: undefined }, 4);
     expect(item).not.toHaveProperty("item_category");
     expect(item.price).toBe(4);
+  });
+});
+
+describe("gaTopupItem", () => {
+  const esim = { country: "Turkey", region: "Europe" };
+
+  it("names a top-up like the app: eSIM country + GB to one decimal + days", () => {
+    expect(gaTopupItem({ id: "tr-topup-1gb", amount: 1024, day: 7 }, esim, 4.499)).toEqual({
+      item_id: "tr-topup-1gb",
+      item_name: "Turkey 1GB 7 days",
+      item_category: "Europe",
+      item_category2: "esim_topup",
+      price: 4.5,
+      quantity: 1
+    });
+    expect(gaTopupItem({ id: "x", amount: 512, day: 1 }, esim, 2).item_name).toBe("Turkey 0.5GB 1 day");
+    expect(gaTopupItem({ id: "x", is_unlimited: true, day: 3 }, esim, 9).item_name).toBe("Turkey Unlimited 3 days");
+    expect(gaTopupItem({ id: "x", title: "Data boost" }, {}, 2)).not.toHaveProperty("item_category");
+  });
+});
+
+describe("pending top-up purchase", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  function stubSessionStorage() {
+    const store = new Map<string, string>();
+    vi.stubGlobal("window", {
+      sessionStorage: {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => void store.set(key, value),
+        removeItem: (key: string) => void store.delete(key)
+      }
+    });
+    return store;
+  }
+
+  const pending = {
+    orderId: 42,
+    paymentId: "pay_123",
+    value: 4.5,
+    currency: "EUR",
+    item: gaTopupItem({ id: "x", amount: 1024, day: 7 }, { country: "Turkey" }, 4.5)
+  };
+
+  it("is returned once, only for its own eSIM and the provisioned payment", () => {
+    const store = stubSessionStorage();
+    writePendingTopupPurchase(pending);
+    expect(takePendingTopupPurchase(7, "pay_123")).toBeNull();
+    expect(takePendingTopupPurchase(42, "pay_other")).toBeNull();
+    expect(takePendingTopupPurchase(42, "")).toBeNull();
+    expect(store.has(PENDING_TOPUP_PURCHASE_KEY)).toBe(true);
+    expect(takePendingTopupPurchase(42, "pay_123")).toEqual(pending);
+    expect(takePendingTopupPurchase(42, "pay_123")).toBeNull();
+  });
+
+  it("ignores a malformed stash", () => {
+    const store = stubSessionStorage();
+    store.set(PENDING_TOPUP_PURCHASE_KEY, JSON.stringify({ ...pending, value: "4.5" }));
+    expect(takePendingTopupPurchase(42, "pay_123")).toBeNull();
   });
 });

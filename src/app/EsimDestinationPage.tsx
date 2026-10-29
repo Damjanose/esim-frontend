@@ -96,7 +96,7 @@ export function EsimDestinationPageView({
           params={{
             currency: GA_CURRENCY,
             value: roundMoney(lowestPriced.priceNumeric),
-            items: plans.slice(0, 25).map((plan) => gaItem({ ...plan, country: countryName }))
+            items: plans.slice(0, 25).map((plan) => gaItem({ country: countryName, ...plan }))
           }}
         />
       ) : null}

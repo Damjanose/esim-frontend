@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CreditCard, Flame, Plus } from "lucide-react";
 import { topupPlanRowPlan, type TopupOffer } from "@/lib/accountEsims";
+import {
+  GA_CURRENCY,
+  gaTopupItem,
+  roundMoney,
+  trackGaEvent,
+  writePendingTopupPurchase
+} from "@/lib/analytics";
 import { planDurationText, planRowTags } from "@/lib/planRow";
+import { GaEvent } from "../../GaEvent";
 import { Button } from "../../components/Button";
 import { PlanDataDisc, PlanPrice, PlanTags } from "../../components/PlanRow";
 
@@ -16,14 +24,27 @@ export type TopupPackage = TopupOffer;
  */
 export function TopUpPanel({
   orderId,
-  packages
+  packages,
+  esim
 }: {
   orderId: number;
   packages: TopupPackage[];
+  /** The topped-up eSIM's catalog country and region, for the GA4 top-up item. */
+  esim: { country?: string; region?: string };
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const streakPct = useStreakRewardPct(orderId, packages[0]?.id ?? null);
+  // A list of offers beside the eSIM, so view_item_list: view_item would count every
+  // usage check as a product view, unlike the app (one top-up screen opened).
+  const viewItemList = useMemo(
+    () => ({
+      item_list_id: "topup_offers",
+      item_list_name: "Top-up offers",
+      items: packages.map((pkg) => gaTopupItem(pkg, esim, pkg.priceNumeric ?? 0))
+    }),
+    [esim, packages]
+  );
 
   async function startTopup(packageId: string) {
     setPendingId(packageId);
@@ -37,7 +58,7 @@ export function TopUpPanel({
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
-        data?: { checkoutUrl?: string };
+        data?: { checkoutUrl?: string; paymentId?: string; amount?: number; currency?: string };
         error?: string;
       };
 
@@ -50,6 +71,23 @@ export function TopUpPanel({
         setPendingId(null);
         setError(payload.error ?? "We could not start the top-up. Please try again.");
         return;
+      }
+
+      // What Pokpay will charge (streak reward included), for the ?topup=1 purchase event.
+      const offer = packages.find((pkg) => pkg.id === packageId);
+      const { paymentId, amount, currency } = payload.data;
+      if (offer && paymentId && typeof amount === "number" && amount > 0) {
+        const pending = {
+          orderId,
+          paymentId,
+          value: roundMoney(amount),
+          currency: currency?.trim().toUpperCase() || GA_CURRENCY,
+          item: gaTopupItem(offer, esim, amount)
+        };
+        writePendingTopupPurchase(pending);
+        // Card details go in on Pokpay's hosted page, which the site can't observe, so
+        // there's no add_payment_info here; begin_checkout marks the hand-off instead.
+        trackGaEvent("begin_checkout", { currency: pending.currency, value: pending.value, items: [pending.item] });
       }
 
       // Full-page navigation: popups are unreliable in mobile and in-app browsers.
@@ -65,6 +103,7 @@ export function TopUpPanel({
       className="mt-4 scroll-mt-6 rounded-[20px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6"
       id="top-up"
     >
+      <GaEvent name="view_item_list" params={viewItemList} />
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <Plus aria-hidden="true" className="text-brandBlue" size={20} />
         Add more data
