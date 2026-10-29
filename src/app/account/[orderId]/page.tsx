@@ -104,10 +104,10 @@ export default async function OrderDetailPage({
   searchParams
 }: {
   params: Promise<{ orderId: string }>;
-  searchParams: Promise<{ new?: string; topup?: string }>;
+  searchParams: Promise<{ new?: string; topup?: string; payment?: string }>;
 }) {
   const { orderId } = await params;
-  const { new: isNew, topup: isToppedUp } = await searchParams;
+  const { new: isNew, topup: isToppedUp, payment: topupPaymentId } = await searchParams;
   const basePath = `/account/${orderId}`;
 
   const orderResult = await fetchForPage<{ order: Order }>(`/orders/${orderId}`, basePath);
@@ -213,7 +213,7 @@ export default async function OrderDetailPage({
 
           {isToppedUp === "1" ? (
             <>
-              <TopUpConversion orderId={order.id} />
+              {topupPaymentId ? <TopUpConversion orderId={order.id} paymentId={topupPaymentId} /> : null}
               <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
                 <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
                 <div>

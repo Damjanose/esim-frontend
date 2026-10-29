@@ -7,15 +7,16 @@ import { useConsent } from "../../ConsentManager";
 /**
  * Fires the GA4 `purchase` for a top-up on the /account/[orderId]?topup=1
  * return, as the app does (transaction_id = Pokpay payment id, item_category2
- * esim_topup). The value and item come from what TopUpPanel stashed when the
- * payment started; without that stash (another tab or browser) nothing is sent.
+ * esim_topup). `paymentId` is the payment /account/topup/return provisioned;
+ * the value and item come from what TopUpPanel stashed for that same payment.
+ * Without a matching stash (another tab or browser) nothing is sent.
  */
-export function TopUpConversion({ orderId }: { orderId: number }) {
+export function TopUpConversion({ orderId, paymentId }: { orderId: number; paymentId: string }) {
   const { consent } = useConsent();
 
   useEffect(() => {
     if (consent?.analytics !== true || !window.gtag) return;
-    const pending = takePendingTopupPurchase(orderId);
+    const pending = takePendingTopupPurchase(orderId, paymentId);
     if (!pending || !claimOnce(`ga4_purchase_${pending.paymentId}`)) return;
 
     trackGaEvent("purchase", {
@@ -24,7 +25,7 @@ export function TopUpConversion({ orderId }: { orderId: number }) {
       currency: pending.currency,
       items: [pending.item]
     });
-  }, [consent?.analytics, orderId]);
+  }, [consent?.analytics, orderId, paymentId]);
 
   return null;
 }

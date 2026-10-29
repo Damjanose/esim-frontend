@@ -110,18 +110,20 @@ describe("pending top-up purchase", () => {
     item: gaTopupItem({ id: "x", amount: 1024, day: 7 }, { country: "Turkey" }, 4.5)
   };
 
-  it("is returned once, for its own eSIM only", () => {
+  it("is returned once, only for its own eSIM and the provisioned payment", () => {
     const store = stubSessionStorage();
     writePendingTopupPurchase(pending);
-    expect(takePendingTopupPurchase(7)).toBeNull();
+    expect(takePendingTopupPurchase(7, "pay_123")).toBeNull();
+    expect(takePendingTopupPurchase(42, "pay_other")).toBeNull();
+    expect(takePendingTopupPurchase(42, "")).toBeNull();
     expect(store.has(PENDING_TOPUP_PURCHASE_KEY)).toBe(true);
-    expect(takePendingTopupPurchase(42)).toEqual(pending);
-    expect(takePendingTopupPurchase(42)).toBeNull();
+    expect(takePendingTopupPurchase(42, "pay_123")).toEqual(pending);
+    expect(takePendingTopupPurchase(42, "pay_123")).toBeNull();
   });
 
   it("ignores a malformed stash", () => {
     const store = stubSessionStorage();
-    store.set(PENDING_TOPUP_PURCHASE_KEY, JSON.stringify({ ...pending, paymentId: "" }));
-    expect(takePendingTopupPurchase(42)).toBeNull();
+    store.set(PENDING_TOPUP_PURCHASE_KEY, JSON.stringify({ ...pending, value: "4.5" }));
+    expect(takePendingTopupPurchase(42, "pay_123")).toBeNull();
   });
 });

@@ -13,3 +13,4 @@
 - **Missing:** web top-ups sent no GA4 `purchase` at all, while the app logs them as `esim_topup`. `TopUpPanel` now stashes the payment id, charged amount and item when the intent succeeds, and `TopUpConversion` sends the purchase on `?topup=1` (f329). Top-ups don't send a Google Ads conversion, same as before.
 - `/esim/<slug>` `view_item` items now use each package's own API country name (what the app reports), falling back to the curated display name.
 - `feedAI/topics/account-flows.json` no longer says the Ads conversion uses the order code.
+- PR #13 review: the top-up purchase is now bound to the provisioned payment. The return route adds `payment=<id>` and the stash must match it, so an abandoned intent's stash is never reported.

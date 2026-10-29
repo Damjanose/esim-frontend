@@ -149,23 +149,6 @@ export function readPendingPurchase(packageId: string): PendingPurchase | null {
   }
 }
 
-/** utm_* and click ids the GA4 / Ads tags read from the landing URL. */
-const CAMPAIGN_PARAM = /^(utm_[a-z_]+|gclid|gbraid|wbraid|fbclid)$/;
-
-/** Copies campaign params from `from` onto `to`, so a redirect never strips attribution. */
-export function carryCampaignParams(from: URLSearchParams, to: URLSearchParams): void {
-  for (const [key, value] of from) {
-    if (CAMPAIGN_PARAM.test(key) && !to.has(key)) to.set(key, value);
-  }
-}
-
-declare global {
-  interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
-  }
-}
-
 /**
  * The top-up panel stashes the started payment so the ?topup=1 return can report
  * the purchase. Hosted Pokpay returns in the same tab, so sessionStorage survives.
@@ -188,16 +171,20 @@ export function writePendingTopupPurchase(purchase: PendingTopupPurchase): void 
   }
 }
 
-/** The pending top-up for this eSIM, removed once read so it's reported at most once. */
-export function takePendingTopupPurchase(orderId: number): PendingTopupPurchase | null {
+/**
+ * The pending top-up for this eSIM and the payment the return route provisioned,
+ * removed once read so it's reported at most once. A stash for any other payment
+ * (e.g. an abandoned intent) is never reported.
+ */
+export function takePendingTopupPurchase(orderId: number, paymentId: string): PendingTopupPurchase | null {
   try {
     const parsed = JSON.parse(
       window.sessionStorage.getItem(PENDING_TOPUP_PURCHASE_KEY) ?? "null"
     ) as PendingTopupPurchase | null;
     if (
+      !paymentId ||
       parsed?.orderId !== orderId ||
-      typeof parsed.paymentId !== "string" ||
-      !parsed.paymentId ||
+      parsed.paymentId !== paymentId ||
       typeof parsed.value !== "number" ||
       !Number.isFinite(parsed.value) ||
       !parsed.item
@@ -208,5 +195,22 @@ export function takePendingTopupPurchase(orderId: number): PendingTopupPurchase 
     return parsed;
   } catch {
     return null;
+  }
+}
+
+/** utm_* and click ids the GA4 / Ads tags read from the landing URL. */
+const CAMPAIGN_PARAM = /^(utm_[a-z_]+|gclid|gbraid|wbraid|fbclid)$/;
+
+/** Copies campaign params from `from` onto `to`, so a redirect never strips attribution. */
+export function carryCampaignParams(from: URLSearchParams, to: URLSearchParams): void {
+  for (const [key, value] of from) {
+    if (CAMPAIGN_PARAM.test(key) && !to.has(key)) to.set(key, value);
+  }
+}
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
