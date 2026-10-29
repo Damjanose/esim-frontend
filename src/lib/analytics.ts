@@ -1,3 +1,5 @@
+import { readConsentFromDocument } from "@/lib/consent";
+
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "AW-11016325088";
 export const GOOGLE_ADS_PURCHASE_LABEL =
   process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL || "Xf_8CIug2u0cEOCP_4Qp";
@@ -33,12 +35,12 @@ export function roundMoney(amount: number): number {
 }
 
 /**
- * Sends a GA4 event. A no-op until analytics or marketing consent installs
- * window.gtag (GoogleTag.tsx), and gtag.js itself drops the GA4 hit while
- * analytics_storage is denied, so callers never check consent themselves.
+ * Sends a GA4 event, only with analytics consent. window.gtag also exists with
+ * marketing consent alone (for the Ads tag), so its presence isn't enough;
+ * callers never check consent themselves.
  */
 export function trackGaEvent(name: string, params: Record<string, unknown>): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || readConsentFromDocument()?.analytics !== true) return;
   window.gtag?.("event", name, { send_to: GA_ID, ...params });
 }
 
