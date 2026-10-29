@@ -141,9 +141,17 @@ describe("relatedBlogPosts", () => {
     expect(related).not.toContain("esim-vs-roaming-which-keeps-your-mobile-bill-lower");
   });
 
-  it("never links a duplicate to its own twin", () => {
+  it("leads the older duplicate with its canonical twin", () => {
     const related = relatedBlogPosts(posts[2]!, posts).map((post) => post.slug);
-    expect(related).not.toContain("esim-vs-roaming-which-keeps-your-bill-lower");
+    expect(related).toHaveLength(3);
+    expect(related[0]).toBe("esim-vs-roaming-which-keeps-your-bill-lower");
     expect(related).not.toContain("esim-vs-roaming-which-keeps-your-mobile-bill-lower");
+  });
+
+  it("never links the newer duplicate back to the older one", () => {
+    const related = relatedBlogPosts(posts[3]!, posts).map((post) => post.slug);
+    expect(related).toHaveLength(3);
+    expect(related).not.toContain("esim-vs-roaming-which-keeps-your-mobile-bill-lower");
+    expect(related).not.toContain("esim-vs-roaming-which-keeps-your-bill-lower");
   });
 });

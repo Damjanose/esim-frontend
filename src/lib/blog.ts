@@ -117,6 +117,7 @@ function topicWords(post: Pick<BlogPostSummary, "title" | "excerpt">): Set<strin
 /**
  * `count` other posts for the internal-link block under a post: most shared
  * title/excerpt words first, newest first on ties, never a duplicate of it.
+ * An older duplicate leads with its canonical twin, so its visitors reach it.
  */
 export function relatedBlogPosts(
   post: Pick<BlogPostSummary, "slug" | "title" | "excerpt">,
@@ -125,7 +126,8 @@ export function relatedBlogPosts(
 ): BlogPostSummary[] {
   const words = topicWords(post);
   const self = canonicalBlogSlug(post.slug, posts);
-  return sortNewestFirst(posts)
+  const twin = self !== post.slug ? posts.find((other) => other.slug === self) : undefined;
+  const ranked = sortNewestFirst(posts)
     .filter((other) => other.slug !== post.slug && canonicalBlogSlug(other.slug, posts) !== self)
     .filter((other) => !isDuplicateBlogPost(other.slug, posts))
     .map((other, index) => ({
@@ -134,8 +136,8 @@ export function relatedBlogPosts(
       score: [...topicWords(other)].filter((word) => words.has(word)).length
     }))
     .sort((a, b) => b.score - a.score || a.index - b.index)
-    .slice(0, count)
     .map(({ other }) => other);
+  return (twin ? [twin, ...ranked] : ranked).slice(0, count);
 }
 
 /**
