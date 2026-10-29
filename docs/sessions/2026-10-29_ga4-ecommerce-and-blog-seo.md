@@ -18,7 +18,7 @@ status: complete
 - GA4 events (EUR): `view_item` (`/esim/<slug>` all listed plans, `/pkg/<id>`), `begin_checkout` (`/checkout`), `purchase` once per order code (localStorage) with value = checkout's settled total (stashed in sessionStorage by `CheckoutPriceSection`, catalog price fallback), `login` (email/google/apple; OTP doesn't say new vs returning, so no `sign_up`), `generate_lead` (partner request).
 - UTM/click ids kept on the auth-guard redirect to `/signin` and on the `/destinations?country=` page-level redirect (middleware and next.config redirects already kept the query).
 - Blog: `/blog` lists all posts newest first, 12 per page via `?page=N` (self canonical, out-of-range 404); 3 related posts under each post (shared title/excerpt words, then recency); `DUPLICATE_POST_GROUPS` makes the older eSIM-vs-roaming post canonicalise to the newer (decided at render time by publishedAt, since the live API wasn't reachable from the session) and drops it from the sitemap; all blog fetches tagged `blog`, revalidated by `/bff/blog/revalidate` via `revalidateTag`.
-- Tests: blog pagination/duplicates/related, sitemap duplicate exclusion, revalidateTag, guard UTM carry. 133 files / 1066 tests green, `tsc` clean, `next build` ok. Browser check: one loader, GA4 + Ads config, entries are `[object Arguments]`.
+- Tests: blog pagination/duplicates/related, sitemap duplicate exclusion, revalidateTag, guard UTM carry. 133 files / 1059 tests green, `tsc` clean, `next build` ok. Browser check: one loader, GA4 + Ads config, entries are `[object Arguments]`.
 
 ## Decisions
 - Enhanced measurement over a manual page_view tracker: manual + the GA4 default history setting double-counts.
