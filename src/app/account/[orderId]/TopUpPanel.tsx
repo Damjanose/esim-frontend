@@ -35,16 +35,16 @@ export function TopUpPanel({
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const streakPct = useStreakRewardPct(orderId, packages[0]?.id ?? null);
-  // GA4 view_item for the offers on show, like the app's top-up screen; valued at the cheapest.
-  const viewItem = useMemo(() => {
-    const items = packages.map((pkg) => gaTopupItem(pkg, esim, pkg.priceNumeric ?? 0));
-    const prices = items.map((item) => item.price).filter((price) => price > 0);
-    return {
-      currency: GA_CURRENCY,
-      value: prices.length > 0 ? Math.min(...prices) : 0,
-      items
-    };
-  }, [esim, packages]);
+  // A list of offers beside the eSIM, so view_item_list: view_item would count every
+  // usage check as a product view, unlike the app (one top-up screen opened).
+  const viewItemList = useMemo(
+    () => ({
+      item_list_id: "topup_offers",
+      item_list_name: "Top-up offers",
+      items: packages.map((pkg) => gaTopupItem(pkg, esim, pkg.priceNumeric ?? 0))
+    }),
+    [esim, packages]
+  );
 
   async function startTopup(packageId: string) {
     setPendingId(packageId);
@@ -103,7 +103,7 @@ export function TopUpPanel({
       className="mt-4 scroll-mt-6 rounded-[20px] border border-outline/60 bg-surface p-5 shadow-brandCard sm:p-6"
       id="top-up"
     >
-      <GaEvent name="view_item" params={viewItem} />
+      <GaEvent name="view_item_list" params={viewItemList} />
       <h2 className="flex items-center gap-2.5 font-display text-xl font-black text-brandInk">
         <Plus aria-hidden="true" className="text-brandBlue" size={20} />
         Add more data
