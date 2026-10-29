@@ -1,24 +1,51 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { notFound } from "next/navigation";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { JsonLd } from "../JsonLd";
 import { Navbar } from "../components/Navbar";
-import { CONTENT_CARD, CONTENT_CARD_LINK, CONTENT_EYEBROW, CONTENT_GUTTER, CONTENT_H1, CONTENT_TOP } from "../components/contentClasses";
+import {
+  CONTENT_CARD,
+  CONTENT_CARD_LINK,
+  CONTENT_EYEBROW,
+  CONTENT_GUTTER,
+  CONTENT_H1,
+  CONTENT_TEXT_LINK,
+  CONTENT_TOP
+} from "../components/contentClasses";
 import { SiteFooter } from "../SiteFooter";
-import { blogPath, formatBlogDate, loadBlogPosts } from "@/lib/blog";
+import { blogIndexPath, blogPath, formatBlogDate, loadBlogPosts, paginateBlogPosts } from "@/lib/blog";
 import { absoluteUrl, createMetadata, siteName, siteUrl } from "@/lib/seo";
-
-// Must be a literal for Next; keep it equal to BLOG_REVALIDATE_SECONDS.
-export const revalidate = 3600;
 
 const title = "Travel eSIM blog";
 const description =
   "Travel eSIM news, destination tips and guides to staying connected abroad, from the eSIM2you team.";
 
-export const metadata: Metadata = createMetadata({ path: "/blog", title, description });
+type Props = { searchParams: Promise<{ page?: string | string[] }> };
 
-export default async function BlogIndexPage() {
-  const posts = await loadBlogPosts();
+/** ?page=N, 1 when absent or not a positive integer. */
+async function requestedPage(searchParams: Props["searchParams"]): Promise<number> {
+  const raw = (await searchParams).page;
+  const page = Number(Array.isArray(raw) ? raw[0] : raw);
+  return Number.isInteger(page) && page > 1 ? page : 1;
+}
+
+// Each page is its own canonical URL; posts are cached by the fetch (tag "blog"),
+// which /bff/blog/revalidate expires on every Holo publish.
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const page = await requestedPage(searchParams);
+  return createMetadata({
+    path: blogIndexPath(page),
+    title: page > 1 ? `${title} – page ${page}` : title,
+    description
+  });
+}
+
+export default async function BlogIndexPage({ searchParams }: Props) {
+  const requested = await requestedPage(searchParams);
+  const allPosts = await loadBlogPosts({ all: true });
+  const { posts, page, pageCount } = paginateBlogPosts(allPosts, requested);
+  if (page !== requested) notFound();
   const url = absoluteUrl("/blog");
 
   return (
@@ -34,7 +61,7 @@ export default async function BlogIndexPage() {
           isPartOf: { "@id": `${siteUrl}/#website` },
           publisher: { "@id": `${siteUrl}/#organization` },
           inLanguage: "en",
-          blogPost: posts.slice(0, 20).map((post) => ({
+          blogPost: posts.map((post) => ({
             "@type": "BlogPosting",
             headline: post.title,
             url: absoluteUrl(blogPath(post.slug)),
@@ -90,6 +117,30 @@ export default async function BlogIndexPage() {
               ))}
             </div>
           )}
+
+          {pageCount > 1 ? (
+            <nav aria-label="Blog pages" className="mt-10 flex flex-wrap items-center justify-between gap-4">
+              {page > 1 ? (
+                <Link className={CONTENT_TEXT_LINK} href={blogIndexPath(page - 1)} rel="prev">
+                  <ArrowLeft aria-hidden="true" size={16} />
+                  Newer posts
+                </Link>
+              ) : (
+                <span />
+              )}
+              <p className="text-sm text-onSurfaceVariant">
+                Page {page} of {pageCount}
+              </p>
+              {page < pageCount ? (
+                <Link className={CONTENT_TEXT_LINK} href={blogIndexPath(page + 1)} rel="next">
+                  Older posts
+                  <ArrowRight aria-hidden="true" size={16} />
+                </Link>
+              ) : (
+                <span />
+              )}
+            </nav>
+          ) : null}
         </div>
       </section>
       <SiteFooter />

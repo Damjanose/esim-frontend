@@ -4,9 +4,16 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { JsonLd } from "../../JsonLd";
 import { Navbar } from "../../components/Navbar";
-import { CONTENT_EYEBROW, CONTENT_GUTTER, CONTENT_H1, CONTENT_TEXT_LINK, CONTENT_TOP } from "../../components/contentClasses";
+import {
+  CONTENT_CARD_LINK,
+  CONTENT_EYEBROW,
+  CONTENT_GUTTER,
+  CONTENT_H1,
+  CONTENT_TEXT_LINK,
+  CONTENT_TOP
+} from "../../components/contentClasses";
 import { SiteFooter } from "../../SiteFooter";
-import { blogPath, formatBlogDate, loadBlogPost } from "@/lib/blog";
+import { blogPath, canonicalBlogSlug, formatBlogDate, loadBlogPost, loadBlogPosts, relatedBlogPosts } from "@/lib/blog";
 import { absoluteUrl, createMetadata, ogImage, siteName, siteUrl } from "@/lib/seo";
 
 // Must be a literal for Next; keep it equal to BLOG_REVALIDATE_SECONDS.
@@ -24,11 +31,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await loadBlogPost((await params).slug);
   if (!post) return { title: "Post not found", robots: { index: false, follow: false } };
 
-  const base = createMetadata({
+  const created = createMetadata({
     path: blogPath(post.slug),
     title: post.metaTitle ?? post.title,
     description: post.metaDescription ?? post.excerpt
   });
+  // An older near-duplicate keeps its own URL but hands ranking to the newer post.
+  const canonicalSlug = canonicalBlogSlug(post.slug, await loadBlogPosts({ all: true }));
+  const base =
+    canonicalSlug === post.slug
+      ? created
+      : { ...created, alternates: { canonical: absoluteUrl(blogPath(canonicalSlug)) } };
   if (!post.featuredImage) return { ...base, openGraph: { ...base.openGraph, type: "article" } };
 
   const image = { url: post.featuredImage, alt: post.title };
@@ -50,6 +63,7 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
 
   const url = absoluteUrl(blogPath(post.slug));
+  const related = relatedBlogPosts(post, await loadBlogPosts({ all: true }));
 
   return (
     <main className="min-h-screen overflow-x-clip bg-surfaceBright text-onSurface">
@@ -116,6 +130,23 @@ export default async function BlogPostPage({ params }: Props) {
             </Link>
             .
           </p>
+          {related.length > 0 ? (
+            <section aria-labelledby="related-posts" className="mt-12">
+              <h2 className="font-display text-headline-md font-black text-brandInk" id="related-posts">
+                Related posts
+              </h2>
+              <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                {related.map((other) => (
+                  <Link className={CONTENT_CARD_LINK} href={blogPath(other.slug)} key={other.slug}>
+                    <p className="text-label-caps uppercase text-onSurfaceVariant">
+                      <time dateTime={other.publishedAt}>{formatBlogDate(other.publishedAt)}</time>
+                    </p>
+                    <h3 className="mt-2 font-display text-base font-black leading-6 text-brandInk">{other.title}</h3>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       </article>
       <SiteFooter />

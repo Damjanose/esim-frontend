@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LogIn } from "lucide-react";
 import type { HeroPackageOption } from "@/services/packages";
 import { LinkButton } from "@/app/components/Button";
+import { GaEvent } from "@/app/GaEvent";
+import { GA_CURRENCY, gaItem, roundMoney, writePendingPurchase } from "@/lib/analytics";
 import { CheckoutWizard } from "./CheckoutWizard";
 import { OrderSummary } from "./OrderSummary";
 import type { AppliedPromo } from "./PromoCodeField";
@@ -51,8 +53,28 @@ export function CheckoutPriceSection({
     enabled: Boolean(accountEmail) && !promoPending
   });
 
+  const beginCheckout = useMemo(
+    () => ({ currency: GA_CURRENCY, value: roundMoney(plan.priceNumeric), items: [gaItem(plan)] }),
+    [plan]
+  );
+
+  // The GA4 purchase on the success page reports what Pay charged, discounts included.
+  const settledCents =
+    promoPending || quote.pending
+      ? null
+      : (quote.streak?.finalCustomerPriceCents ?? promo?.finalCustomerPriceCents ?? Math.round(plan.priceNumeric * 100));
+  useEffect(() => {
+    if (settledCents === null) return;
+    writePendingPurchase({
+      packageId: plan.id,
+      value: settledCents / 100,
+      ...(promo?.promoCode ? { coupon: promo.promoCode } : {})
+    });
+  }, [plan.id, promo?.promoCode, settledCents]);
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
+      <GaEvent name="begin_checkout" params={beginCheckout} />
       <OrderSummary
         className="lg:col-start-2 lg:row-start-1"
         onPromoChange={setPromo}

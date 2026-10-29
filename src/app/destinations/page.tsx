@@ -4,6 +4,7 @@ import Link from "next/link";
 import { permanentRedirect } from "next/navigation";
 
 import { destinationPages } from "@/content/seo-pages";
+import { carryCampaignParams } from "@/lib/analytics";
 import { esimPathForCountryQuery } from "@/lib/esim-routes";
 import {
   createContentPageJsonLd,
@@ -37,6 +38,18 @@ type DestinationsPageProps = {
 
 function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+/** utm_* and click ids survive the redirect so GA4 still sees the campaign. */
+function campaignParams(params: Record<string, string | string[] | undefined>) {
+  const carried = new URLSearchParams();
+  const source = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    const first = firstValue(value);
+    if (first) source.set(key, first);
+  }
+  carryCampaignParams(source, carried);
+  return Object.fromEntries(carried);
 }
 
 function remainingSearch(params: Record<string, string | undefined>) {
@@ -78,6 +91,7 @@ export default async function DestinationsPage({
         dataMin: firstValue(resolvedSearchParams.dataMin),
         dataMax: firstValue(resolvedSearchParams.dataMax),
         unlimited: firstValue(resolvedSearchParams.unlimited),
+        ...campaignParams(resolvedSearchParams),
       })}`,
     );
   }

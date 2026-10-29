@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { policyDocument, termsDocument } from "@/content/legal";
-import { blogPath, loadBlogPosts } from "@/lib/blog";
+import { blogPath, isDuplicateBlogPost, loadBlogPosts } from "@/lib/blog";
 import { contentUpdatedAt } from "@/lib/content-dates";
 import { absoluteUrl, indexableRoutes, siteUrl } from "@/lib/seo";
 
@@ -67,7 +67,8 @@ export async function blogSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const newest = new Date(Math.max(...posts.map((post) => Date.parse(post.updatedAt))));
   return [
     { url: absoluteUrl("/blog"), lastModified: newest, changeFrequency: "weekly", priority: 0.6 },
-    ...posts.map((post) => ({
+    // An older duplicate canonicalises to its newer twin, so only the twin is listed.
+    ...posts.filter((post) => !isDuplicateBlogPost(post.slug, posts)).map((post) => ({
       url: absoluteUrl(blogPath(post.slug)),
       lastModified: new Date(post.updatedAt),
       changeFrequency: "monthly" as const,

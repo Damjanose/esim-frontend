@@ -1,6 +1,6 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
-import { blogPath, isValidBlogSlug, verifyHoloSignature } from "@/lib/blog";
+import { BLOG_CACHE_TAG, blogPath, isValidBlogSlug, verifyHoloSignature } from "@/lib/blog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +28,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
+  // The tag covers every cached blog fetch: the index pages, each post's
+  // related-posts block and both sitemaps. The paths below drop the rendered pages.
+  revalidateTag(BLOG_CACHE_TAG);
   revalidatePath("/blog");
   for (const slug of slugs) revalidatePath(blogPath(slug));
   revalidatePath("/sitemap.xml");

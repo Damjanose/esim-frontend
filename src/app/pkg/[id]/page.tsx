@@ -9,6 +9,8 @@ import { PlanRow } from "../../components/PlanRow";
 import { SiteFooter } from "../../SiteFooter";
 import { OpenAppActions } from "./OpenAppActions";
 import { FlagImage } from "@/app/components/FlagImage";
+import { GaEvent } from "@/app/GaEvent";
+import { GA_CURRENCY, gaItem, roundMoney } from "@/lib/analytics";
 
 function safeDecode(value: string) {
   try {
@@ -77,6 +79,10 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
               </div>
             </div>
 
+            <GaEvent
+              name="view_item"
+              params={{ currency: GA_CURRENCY, value: roundMoney(plan.priceNumeric), items: [gaItem(plan)] }}
+            />
             <div className="mt-6">
               <PlanRow plan={plan} showTitle={false} tags={planRowTags(plan, { position: null })} />
               {coverage.length > 1 ? (

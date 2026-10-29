@@ -2,7 +2,11 @@ import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const revalidatePath = vi.fn();
-vi.mock("next/cache", () => ({ revalidatePath: (...args: unknown[]) => revalidatePath(...args) }));
+const revalidateTag = vi.fn();
+vi.mock("next/cache", () => ({
+  revalidatePath: (...args: unknown[]) => revalidatePath(...args),
+  revalidateTag: (...args: unknown[]) => revalidateTag(...args)
+}));
 
 import { POST } from "./route";
 
@@ -21,6 +25,7 @@ function request(body: string, signature?: string) {
 describe("POST /bff/blog/revalidate", () => {
   beforeEach(() => {
     revalidatePath.mockClear();
+    revalidateTag.mockClear();
     vi.stubEnv("HOLO_WEBHOOK_SECRET", SECRET);
   });
   afterEach(() => vi.unstubAllEnvs());
@@ -30,6 +35,7 @@ describe("POST /bff/blog/revalidate", () => {
     expect((await POST(request(body))).status).toBe(401);
     expect((await POST(request(body, sign(body, "other")))).status).toBe(401);
     expect(revalidatePath).not.toHaveBeenCalled();
+    expect(revalidateTag).not.toHaveBeenCalled();
   });
 
   it("answers 503 without a configured secret", async () => {
@@ -38,10 +44,11 @@ describe("POST /bff/blog/revalidate", () => {
     expect((await POST(request(body, sign(body)))).status).toBe(503);
   });
 
-  it("revalidates the index, each valid slug and the sitemaps", async () => {
+  it("revalidates the blog cache tag, the index, each valid slug and the sitemaps", async () => {
     const body = JSON.stringify({ slugs: ["new-slug", "old-slug", "../xloginy"] });
     const res = await POST(request(body, sign(body)));
     expect(res.status).toBe(200);
+    expect(revalidateTag).toHaveBeenCalledWith("blog");
     expect(revalidatePath.mock.calls.map((call) => call[0])).toEqual([
       "/blog",
       "/blog/new-slug",

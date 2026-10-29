@@ -36,7 +36,7 @@ export type BackendRequest = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   token?: string;
-  next?: { revalidate?: number };
+  next?: { revalidate?: number; tags?: string[] };
   /**
    * For calls that legitimately run for minutes (trip-plan generation and edits).
    * Node's global fetch gives up after 300s without response headers, so these go
@@ -167,7 +167,7 @@ export async function backendFetch<T>(
 
   let response: Response;
   try {
-    const requestInit: RequestInit & { next?: { revalidate?: number } } = {
+    const requestInit: RequestInit & { next?: { revalidate?: number; tags?: string[] } } = {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),

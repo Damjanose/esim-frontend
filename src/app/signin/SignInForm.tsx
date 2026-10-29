@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, MailCheck, ShieldCheck } from "lucide-react";
+import { trackGaEvent } from "@/lib/analytics";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { Button } from "../components/Button";
 import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "../components/fieldClasses";
@@ -84,7 +85,9 @@ export function SignInForm() {
       return;
     }
 
-    // Session cookies are already set by the route handler.
+    // Session cookies are already set by the route handler. The OTP flow both
+    // signs in and creates accounts, and the backend doesn't say which, so GA4 gets `login`.
+    trackGaEvent("login", { method: "email" });
     router.replace(next);
     router.refresh();
   }

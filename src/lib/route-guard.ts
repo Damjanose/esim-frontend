@@ -1,3 +1,5 @@
+import { carryCampaignParams } from "@/lib/analytics";
+
 const GUARDED_PREFIXES = [
   "/account",
   "/profile",
@@ -42,5 +44,10 @@ export function guardedRedirect(
     return null;
   }
 
-  return `/signin?next=${encodeURIComponent(`${pathname}${search}`)}`;
+  // Campaign params also go on /signin itself: GA4 reads them from the landing
+  // URL, not from inside the encoded `next`.
+  const campaign = new URLSearchParams();
+  carryCampaignParams(new URLSearchParams(search), campaign);
+  const campaignQuery = campaign.size > 0 ? `&${campaign.toString()}` : "";
+  return `/signin?next=${encodeURIComponent(`${pathname}${search}`)}${campaignQuery}`;
 }

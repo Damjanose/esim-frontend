@@ -57,4 +57,10 @@ describe("guardedRedirect", () => {
     expect(guardedRedirect("/trip-plan/abc123", "", false)).toBe("/signin?next=%2Ftrip-plan%2Fabc123");
     expect(guardedRedirect("/trip-plan/abc123", "", true)).toBeNull();
   });
+
+  it("copies campaign params onto /signin so GA4 still sees them", () => {
+    expect(guardedRedirect("/account", "?utm_source=ig&utm_medium=social&x=1", false)).toBe(
+      "/signin?next=%2Faccount%3Futm_source%3Dig%26utm_medium%3Dsocial%26x%3D1&utm_source=ig&utm_medium=social"
+    );
+  });
 });

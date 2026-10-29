@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { GaEvent } from "./GaEvent";
 import { JsonLd } from "./JsonLd";
 import { Navbar } from "./components/Navbar";
 import { LinkButton } from "./components/Button";
@@ -10,6 +11,7 @@ import { PlanBuyLink, PlanDataDisc, PlanPrice, PlanTags } from "./components/Pla
 import { SiteFooter } from "./SiteFooter";
 import { landingContent } from "@/content/landing";
 import { priorityDestinationEnhancements, type SeoContentPage } from "@/content/seo-pages";
+import { GA_CURRENCY, gaItem, roundMoney } from "@/lib/analytics";
 import { destinationAnswerFaq } from "@/lib/destination-answer";
 import { destinationDisplay, destinationH1 } from "@/lib/esim-routes";
 import { destinationGuideLinks, relatedDestinationLinks } from "@/lib/internal-links";
@@ -88,6 +90,16 @@ export function EsimDestinationPageView({
 
   return (
     <main className="min-h-screen overflow-x-clip bg-surface text-onSurface">
+      {plans.length > 0 ? (
+        <GaEvent
+          name="view_item"
+          params={{
+            currency: GA_CURRENCY,
+            value: roundMoney(lowestPriced.priceNumeric),
+            items: plans.slice(0, 25).map((plan) => gaItem({ ...plan, country: countryName }))
+          }}
+        />
+      ) : null}
       <JsonLd
         data={createContentPageJsonLd({
           path: page.path,

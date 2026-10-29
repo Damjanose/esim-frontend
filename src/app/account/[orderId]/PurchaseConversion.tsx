@@ -1,22 +1,36 @@
 "use client";
 
 import { useEffect } from "react";
-import { GOOGLE_ADS_ID, GOOGLE_ADS_PURCHASE_LABEL } from "@/lib/analytics";
+import {
+  GA_CURRENCY,
+  GOOGLE_ADS_ID,
+  GOOGLE_ADS_PURCHASE_LABEL,
+  claimOnce,
+  gaItem,
+  readPendingPurchase,
+  roundMoney,
+  trackGaEvent
+} from "@/lib/analytics";
 import { useConsent } from "../../ConsentManager";
 
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
+/** The catalog entry for the bought plan; null when it has left the catalog. */
+export type PurchasedPlan = { id: string; title: string; country: string; priceNumeric: number } | null;
 
 /**
- * Fires the Google Ads purchase conversion once per order. Rendered only when
- * the checkout return flow lands here with `?new=1`, but that query string
- * survives refreshes, so dedupe by order id in sessionStorage to avoid
- * double-counting the same conversion.
+ * Fires the Google Ads purchase conversion and the GA4 `purchase` event once
+ * per order. Rendered only when the checkout return flow lands here with
+ * `?new=1`, but that query string survives refreshes, so each is deduped by
+ * order code in browser storage.
  */
-export function PurchaseConversion({ transactionId }: { transactionId: string }) {
+export function PurchaseConversion({
+  transactionId,
+  packageId,
+  plan
+}: {
+  transactionId: string;
+  packageId: string;
+  plan: PurchasedPlan;
+}) {
   const { consent } = useConsent();
 
   useEffect(() => {
@@ -31,6 +45,26 @@ export function PurchaseConversion({ transactionId }: { transactionId: string })
     });
     sessionStorage.setItem(key, "1");
   }, [consent?.marketing, transactionId]);
+
+  useEffect(() => {
+    if (consent?.analytics !== true || !window.gtag) return;
+    if (!claimOnce(`ga4_purchase_${transactionId}`)) return;
+
+    // What checkout charged (after promo / streak discounts); the catalog price otherwise.
+    const pending = readPendingPurchase(packageId);
+    const value = roundMoney(pending?.value ?? plan?.priceNumeric ?? 0);
+    const item = plan
+      ? gaItem(plan, value)
+      : { item_id: packageId, item_name: packageId, price: value, quantity: 1 };
+
+    trackGaEvent("purchase", {
+      transaction_id: transactionId,
+      value,
+      currency: GA_CURRENCY,
+      ...(pending?.coupon ? { coupon: pending.coupon } : {}),
+      items: [item]
+    });
+  }, [consent?.analytics, packageId, plan, transactionId]);
 
   return null;
 }

@@ -384,6 +384,15 @@
         "f317"
       ],
       "source": "src/app/checkout/return/route.ts"
+    },
+    {
+      "symptom": "Google Ads purchase conversions / GA hits not recorded although gtag.js loads after consent",
+      "root_cause": "window.gtag stub pushed a rest-args array to dataLayer; gtag.js only executes commands pushed as an arguments object",
+      "fix": "function gtag(){ window.dataLayer.push(arguments) } plus gtag('js', new Date()) (f322)",
+      "facts": [
+        "f322"
+      ],
+      "source": "src/app/GoogleTag.tsx"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
