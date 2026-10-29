@@ -402,6 +402,33 @@
         "f328"
       ],
       "source": "src/lib/analytics.ts; src/app/account/[orderId]/page.tsx"
+    },
+    {
+      "symptom": "Operations dashboard remains visible and authorized after navigation logout, or has no logout after signing in",
+      "root_cause": "AdminNav and dashboard owned separate useAdminSession state after the dashboard-local logout control was removed",
+      "fix": "Pass the dashboard session into AdminNav so its displayed token and logout action belong to the page displaying admin data",
+      "facts": [
+        "f330"
+      ],
+      "source": "src/app/AdminNav.tsx; src/app/xloginy/page.tsx; src/app/xloginy/dashboard-session.test.ts"
+    },
+    {
+      "symptom": "Switching purchase pages leaves old provider checks running; a late 401 can sign out a newer admin session",
+      "root_cause": "Queue cleanup canceled only its next timer and request handlers processed authorization failures before cancellation/session guards",
+      "fix": "Abort pending provider requests when leaving the queue; guard responses before 401 effects or state publication; only delete the request entry owned by the completing controller",
+      "facts": [
+        "f330"
+      ],
+      "source": "src/app/xloginy/dashboard-requests.ts; src/app/xloginy/dashboard-requests.test.ts"
+    },
+    {
+      "symptom": "An unavailable provider SIM result remains cached for 20 minutes even after the provider recovers",
+      "root_cause": "Every successful HTTP response used the success TTL, including payloads with per-SIM errors",
+      "fix": "Use a 30-second client TTL when any SIM has an error; retain the 20-minute TTL for successful provider data",
+      "facts": [
+        "f330"
+      ],
+      "source": "src/app/xloginy/dashboard-requests.ts; src/app/xloginy/dashboard-requests.test.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

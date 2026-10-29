@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { RefreshCw, Search, X } from "lucide-react";
 import { AdminNav } from "../AdminNav";
@@ -14,9 +14,14 @@ import {
   currentUtcMonth,
   formatDate,
   type Dashboard,
-  type ProviderDetails,
   type ProviderState,
 } from "./dashboard-model";
+
+import {
+  createProviderChecks,
+  requestAdminData,
+  startProviderQueue,
+} from "./dashboard-requests";
 
 const DashboardLoading = dynamic(() => import("./DashboardLoading"), {
   ssr: false,
@@ -29,6 +34,7 @@ const DashboardLoading = dynamic(() => import("./DashboardLoading"), {
     </p>
   ),
 });
+
 const TABS = [
   { id: "purchases", label: "Purchases" },
   { id: "daily", label: "Daily earnings" },
@@ -36,7 +42,6 @@ const TABS = [
   { id: "otp", label: "OTP activity" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
-type ResponsePayload<T> = { status?: string; data?: T; message?: string };
 
 export default function AdminDashboardPage() {
   const session = useAdminSession();
@@ -57,11 +62,18 @@ export default function AdminDashboardPage() {
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [providers, setProviders] = useState<Record<string, ProviderState>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
-  const providerCache = useRef<Record<string, ProviderState>>({});
-  const providerRequests = useRef(new Map<string, Promise<void>>());
-  const providerControllers = useRef(new Set<AbortController>());
   const sessionToken = useRef(token);
   sessionToken.current = token;
+  const providerChecks = useMemo(
+    () => createProviderChecks({
+      token,
+      isCurrent: () => sessionToken.current === token,
+      onUnauthorized: handleUnauthorized,
+      onState: (id, state) =>
+        setProviders((previous) => ({ ...previous, [id]: state })),
+    }),
+    [token, handleUnauthorized],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,17 +84,11 @@ export default function AdminDashboardPage() {
   }, [query]);
 
   useEffect(() => {
-    const controllers = providerControllers.current;
-    providerCache.current = {};
-    providerRequests.current.clear();
     setProviders({});
     setExpanded(null);
     setDashboard(null);
-    return () => {
-      controllers.forEach((controller) => controller.abort());
-      controllers.clear();
-    };
-  }, [token]);
+    return () => providerChecks.cancelPending();
+  }, [token, providerChecks]);
 
   useEffect(() => {
     if (!token) return;
@@ -102,20 +108,17 @@ export default function AdminDashboardPage() {
     if (customer) params.set("userEmail", customer);
     void (async () => {
       try {
-        const response = await fetch(`/bff/admin/dashboard?${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        if (response.status === 401) {
-          handleUnauthorized();
-          throw new Error("Session expired. Sign in again.");
-        }
-        const payload = (await response.json()) as ResponsePayload<Dashboard>;
-        if (!response.ok || payload.status !== "success" || !payload.data)
-          throw new Error(payload.message || "Could not load dashboard.");
+        const data = await requestAdminData<Dashboard>(
+          `/bff/admin/dashboard?${params}`,
+          {
+            token,
+            signal: controller.signal,
+            isCurrent: () => sessionToken.current === token,
+            onUnauthorized: handleUnauthorized,
+          },
+        );
         if (controller.signal.aborted) return;
-        setDashboard(payload.data);
+        setDashboard(data);
         setExpanded(null);
         setUpdatedAt(new Date().toISOString());
       } catch (err) {
@@ -140,80 +143,13 @@ export default function AdminDashboardPage() {
     handleUnauthorized,
   ]);
 
-  const checkProvider = useCallback(
-    (id: string, retry = false): Promise<void> => {
-      if (!token) return Promise.resolve();
-      const inFlight = providerRequests.current.get(id);
-      if (inFlight) return inFlight;
-      const cached = providerCache.current[id];
-      if (
-        !retry &&
-        cached?.data &&
-        Date.now() - new Date(cached.data.checkedAt).getTime() < 20 * 60 * 1000
-      )
-        return Promise.resolve();
-      const controller = new AbortController();
-      providerControllers.current.add(controller);
-      const publish = (state: ProviderState) => {
-        if (controller.signal.aborted || sessionToken.current !== token) return;
-        providerCache.current[id] = state;
-        setProviders((previous) => ({ ...previous, [id]: state }));
-      };
-      publish({ ...cached, loading: true, error: undefined });
-      const promise = (async () => {
-        try {
-          const response = await fetch(
-            `/bff/admin/dashboard/purchases/${encodeURIComponent(id)}/provider`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-              cache: "no-store",
-              signal: controller.signal,
-            },
-          );
-          if (response.status === 401) {
-            handleUnauthorized();
-            throw new Error("Session expired.");
-          }
-          const payload =
-            (await response.json()) as ResponsePayload<ProviderDetails>;
-          if (!response.ok || !payload.data || payload.status !== "success")
-            throw new Error(payload.message || "Airalo check failed.");
-          publish({ data: payload.data });
-        } catch (err) {
-          if (!controller.signal.aborted)
-            publish({
-              data: cached?.data,
-              error:
-                err instanceof Error ? err.message : "Airalo check failed.",
-            });
-        } finally {
-          providerControllers.current.delete(controller);
-          if (sessionToken.current === token)
-            providerRequests.current.delete(id);
-        }
-      })();
-      providerRequests.current.set(id, promise);
-      return promise;
-    },
-    [token, handleUnauthorized],
-  );
-
   useEffect(() => {
     if (tab !== "purchases" || !dashboard || loading) return;
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const ids = dashboard.purchases.map((purchase) => purchase.id);
-    const run = async (index: number) => {
-      if (cancelled || index >= ids.length) return;
-      await checkProvider(ids[index]);
-      if (!cancelled) timer = setTimeout(() => void run(index + 1), 650);
-    };
-    void run(0);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [dashboard, tab, loading, checkProvider]);
+    return startProviderQueue(
+      dashboard.purchases.map((purchase) => purchase.id),
+      providerChecks,
+    );
+  }, [dashboard, tab, loading, providerChecks]);
 
   const changeMonth = (value: string) => {
     setMonth(value);
@@ -238,7 +174,7 @@ export default function AdminDashboardPage() {
 
   return (
     <>
-      <AdminNav />
+      <AdminNav session={session} />
       <main className="min-h-screen bg-surfaceBright px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1600px]">
           <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -478,7 +414,7 @@ export default function AdminDashboardPage() {
                                 previous === id ? null : id,
                               )
                             }
-                            onRetry={(id) => void checkProvider(id, true)}
+                            onRetry={(id) => void providerChecks.check(id, true)}
                             loading={loading}
                             onPageChange={setPurchasesPage}
                           />
