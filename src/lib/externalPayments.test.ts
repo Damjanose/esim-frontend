@@ -4,11 +4,26 @@ import {
   availableMethods,
   formatCountdown,
   isExternalPaymentId,
+  paypalFailureReason,
   shouldKeepPolling,
   successPath
 } from "./externalPayments";
 
 describe("external payments helpers", () => {
+  it("maps PayPal capture failures to the right failure page", () => {
+    expect(paypalFailureReason(402, "payment_declined")).toBe("unpaid");
+    expect(paypalFailureReason(402, "payment_failed")).toBe("unpaid");
+    expect(paypalFailureReason(409, "payment_not_settled")).toBe("pending");
+    expect(paypalFailureReason(409, "provisioning_in_progress")).toBe("setting_up");
+    expect(paypalFailureReason(409, "payment_in_review")).toBe("review");
+    expect(paypalFailureReason(409, "payment_refunded")).toBe("refunded");
+    // PayPal outage: may or may not have captured, so neither "charged" nor "not charged".
+    expect(paypalFailureReason(502, "paypal_error")).toBe("unconfirmed");
+    expect(paypalFailureReason(504, undefined)).toBe("unconfirmed");
+    expect(paypalFailureReason(409, "provisioning_needs_review")).toBe("provisioning");
+  });
+
+
   it("always offers card first, then only the enabled methods", () => {
     expect(availableMethods(CARD_ONLY)).toEqual(["card"]);
     expect(

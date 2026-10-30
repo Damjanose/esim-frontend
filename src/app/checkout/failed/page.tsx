@@ -39,6 +39,39 @@ function copyFor(reason: string): FailureCopy {
     };
   }
 
+  if (reason === "setting_up") {
+    return {
+      heading: "Your payment went through — your eSIM is being set up",
+      body: "We're finishing your eSIM right now. It will appear in your account in a moment.",
+      chargeNote: "Do not pay again. Open your account to find your eSIM."
+    };
+  }
+
+  if (reason === "review") {
+    return {
+      heading: "We're checking this payment",
+      body: "The payment needs a quick manual check by our team. We'll email you as soon as it's done.",
+      chargeNote: "Do not pay again. Contact support with the reference below if you have questions."
+    };
+  }
+
+  if (reason === "refunded") {
+    return {
+      heading: "This payment was refunded",
+      body: "PayPal reports this payment as refunded, so the plan was not delivered.",
+      chargeNote: "If you still want the plan, you can buy it again."
+    };
+  }
+
+  if (reason === "unconfirmed") {
+    return {
+      heading: "We couldn't confirm your payment with PayPal",
+      body: "PayPal didn't answer in time, so we can't tell yet whether the payment went through.",
+      chargeNote:
+        "Check your PayPal activity before trying again. If you were charged, your eSIM will appear in your account shortly; contact support with the reference below if it doesn't."
+    };
+  }
+
   if (reason === "missing_payment") {
     return {
       heading: "We lost track of that payment",

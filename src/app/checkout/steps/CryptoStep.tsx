@@ -30,12 +30,15 @@ export function CryptoStep({
   target,
   networks,
   signInPath,
-  onStarted
+  onStarted,
+  onSettled
 }: {
   target: ExternalCheckoutTarget;
   networks: Array<{ id: CryptoNetwork; label: string }>;
   signInPath: string;
   onStarted?: (payment: ExternalPayment) => void;
+  /** The eSIM / top-up exists; called just before navigating to it. */
+  onSettled?: (payment: ExternalPayment) => void;
 }) {
   const router = useRouter();
   const [network, setNetwork] = useState<CryptoNetwork>(networks[0]?.id ?? "tron-usdt");
@@ -81,10 +84,11 @@ export function CryptoStep({
         setSetupPolls((count) => count + 1);
         return;
       }
+      onSettled?.(next);
       const path = successPath(next, target.kind === "topup" ? target.orderId : null);
       if (path) router.push(path);
     },
-    [router, target]
+    [onSettled, router, target]
   );
 
   // Poll while pending (the backend expires it), then briefly while the eSIM is set up.
@@ -173,13 +177,20 @@ function CryptoInvoice({
   const qr = useQrDataUrl(crypto.qrUri);
 
   if (payment.status === "completed") {
+    // Ready (eSIM / top-up exists) and still setting up both read as success; only a
+    // completed payment whose setup polling ran out gets the "we'll finish it" copy.
+    const ready = payment.order != null || payment.topup != null;
+    const waiting = ready || settingUp;
     return (
-      <StatusCard tone="ok" title={settingUp ? "Payment received — setting up your eSIM" : "Payment received"}>
-        {settingUp
+      <StatusCard
+        tone="ok"
+        title={ready ? "Payment received — your eSIM is ready" : settingUp ? "Payment received — setting up your eSIM" : "Payment received"}
+      >
+        {waiting
           ? "One moment while we take you to your eSIM…"
           : "We have your payment but couldn't finish setting up the eSIM yet. It may still appear in your account in a few minutes; if not, our team will complete it. You don't need to pay again."}
         <Reference id={payment.paymentId} />
-        {settingUp ? null : (
+        {waiting ? null : (
           <LinkButton className="mt-4 w-full" href="/account" variant="tint">
             Go to my eSIMs
           </LinkButton>

@@ -261,6 +261,8 @@ export function TopUpPanel({
             onStarted={(payment) =>
               stashPendingPurchase(cryptoPackageId, payment.paymentId, payment.amountCents / 100, payment.currency)
             }
+            // The success URL is this same page, so the panel stays mounted: close the invoice.
+            onSettled={() => setCryptoPackageId(null)}
             signInPath={`/account/${orderId}`}
             target={{ kind: "topup", orderId, packageId: cryptoPackageId }}
           />

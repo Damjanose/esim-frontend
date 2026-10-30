@@ -112,3 +112,18 @@ export function targetBody(target: ExternalCheckoutTarget): Record<string, unkno
     ? { order_id: target.orderId, package_id: target.packageId }
     : { package_id: target.packageId, ...(target.promoCode ? { promo_code: target.promoCode } : {}) };
 }
+
+/**
+ * Backend capture failure -> /checkout/failed reason. Only 402 means no money moved;
+ * a PayPal outage (502 paypal_error) or anything unrecognised is "unconfirmed", never
+ * "it went through" and never "you weren't charged".
+ */
+export function paypalFailureReason(status: number, code: string | undefined): string {
+  if (status === 402) return "unpaid";
+  if (code === "payment_not_settled") return "pending";
+  if (code === "provisioning_in_progress") return "setting_up";
+  if (code === "payment_in_review") return "review";
+  if (code === "payment_refunded") return "refunded";
+  if (code === "paypal_error" || status === 0 || status >= 500) return "unconfirmed";
+  return "provisioning";
+}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { backendFetch, getClientUserAgent } from "@/lib/backend";
-import { isExternalPaymentId, successPath, type ExternalPayment } from "@/lib/externalPayments";
+import { isExternalPaymentId, paypalFailureReason, successPath, type ExternalPayment } from "@/lib/externalPayments";
 import { getPublicOrigin } from "@/lib/public-origin";
 import { reportServerError } from "@/lib/report-server-error";
 import { siteUrl } from "@/lib/site-host";
@@ -72,10 +72,7 @@ export async function GET(request: Request) {
   );
 
   if (!attempt.ok) {
-    // 402 = PayPal declined: no money moved. payment_not_settled = PayPal is still
-    // holding it (e.g. under review); the webhook finishes the order later.
-    const reason =
-      attempt.status === 402 ? "unpaid" : attempt.code === "payment_not_settled" ? "pending" : "provisioning";
+    const reason = paypalFailureReason(attempt.status, attempt.code);
     return failed(reason, { status: attempt.status, message: attempt.message, code: attempt.code }, attempt.cookies);
   }
 
