@@ -429,6 +429,15 @@
         "f331"
       ],
       "source": "src/app/xloginy/dashboard-requests.ts; src/app/xloginy/dashboard-requests.test.ts"
+    },
+    {
+      "date": "2026-10-30",
+      "symptom": "Signed-out visitors on /checkout saw the billing form and card inputs below the 'Sign in to complete your purchase' prompt.",
+      "root_cause": "CheckoutPriceSection rendered CheckoutWizard unconditionally after /checkout was made public for anonymous package viewing (03a5be3).",
+      "fix": "CheckoutWizard now renders only when accountEmail is set; signed-out visitors get only the sign-in prompt.",
+      "files": [
+        "src/app/checkout/CheckoutPriceSection.tsx"
+      ]
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

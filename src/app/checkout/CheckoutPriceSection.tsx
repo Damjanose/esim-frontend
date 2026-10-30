@@ -109,17 +109,19 @@ export function CheckoutPriceSection({
               </div>
             </div>
           </div>
-        ) : null}
-
-        <div className="mt-8">
-          <CheckoutWizard
-            accountEmail={accountEmail}
-            countries={countries}
-            disabled={promoPending}
-            packageId={plan.id}
-            promoCode={promo?.promoCode ?? null}
-          />
-        </div>
+        ) : (
+          // Billing, card, PayPal and crypto all need a session, so signed-out
+          // visitors only get the sign-in prompt above.
+          <div className="mt-8">
+            <CheckoutWizard
+              accountEmail={accountEmail}
+              countries={countries}
+              disabled={promoPending}
+              packageId={plan.id}
+              promoCode={promo?.promoCode ?? null}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
