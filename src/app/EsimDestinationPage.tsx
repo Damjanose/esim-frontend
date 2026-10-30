@@ -26,6 +26,8 @@ import { formatEstimateRange, type DisplayRates } from "@/lib/exchangeRate";
 import { destinationBuyingChecks } from "@/content/destination-buying";
 import { hasBestValueTag, planDurationText, planRowTags } from "@/lib/planRow";
 import { FlagImage } from "./components/FlagImage";
+import { ContentFaq } from "./components/ContentFaq";
+import type { CitySection } from "@/content/city-sections";
 
 function trustPoints(offer?: DestinationOfferInput) {
   return [
@@ -49,6 +51,7 @@ export function EsimDestinationPageView({
   page,
   offer,
   plans,
+  citySections = [],
   coverage = [],
   rates,
   flagUri,
@@ -57,6 +60,8 @@ export function EsimDestinationPageView({
   page: SeoContentPage;
   offer?: DestinationOfferInput;
   plans: DestinationPlanRow[];
+  /** City blocks (#barcelona, #rome, …) with tokens already filled. */
+  citySections?: CitySection[];
   /** Countries every plan covers; only set for regional destinations. */
   coverage?: string[];
   /** EUR -> USD/GBP for the display estimate next to the EUR range. */
@@ -80,7 +85,9 @@ export function EsimDestinationPageView({
   // (AI answers mostly quote a page's opening) and leads the FAQPage schema.
   // The visible FAQ list skips it so the page doesn't say it twice.
   const answerFaq = destinationAnswerFaq({ countryName, plans, offer });
-  const faqs = answerFaq ? [answerFaq, ...page.faqs] : page.faqs;
+  // City FAQs are shown inside their city block and join the FAQPage schema.
+  const cityFaqs = citySections.flatMap((section) => section.faqs);
+  const faqs = [...(answerFaq ? [answerFaq] : []), ...page.faqs, ...cityFaqs];
   const estimate = offer && rates ? formatEstimateRange(offer.lowPrice, offer.highPrice, rates) : null;
   const buyingChecks = destinationBuyingChecks(countryName);
   const sections = [
@@ -374,6 +381,33 @@ export function EsimDestinationPageView({
                       <h2 className="font-display text-headline-md font-black text-brandInk">{section.title}</h2>
                       <p className="mt-2 leading-7 text-onSurfaceVariant">{section.body}</p>
                     </div>
+                  </div>
+                </section>
+              ))}
+              {citySections.map((city) => (
+                <section
+                  className="scroll-mt-24 rounded-[20px] border border-outline/70 bg-surface p-5 sm:p-7"
+                  id={city.id}
+                  key={city.id}
+                >
+                  <h2 className="font-display text-headline-md font-black text-brandInk">{city.title}</h2>
+                  <div className="mt-2 space-y-3">
+                    {city.body.map((paragraph) => (
+                      <p className="leading-7 text-onSurfaceVariant" key={paragraph}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    {city.tips.map((tip) => (
+                      <li className="flex gap-3 leading-7 text-onSurfaceVariant" key={tip}>
+                        <CheckCircle2 aria-hidden="true" className="mt-1 shrink-0 text-brandBlue" size={18} />
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-5">
+                    <ContentFaq faqs={city.faqs} />
                   </div>
                 </section>
               ))}

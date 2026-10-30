@@ -40,7 +40,7 @@ describe("Next SEO routes", () => {
       /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-10-09T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
-      /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-10-25T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-10-30T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
       /sitemaps\/travel\.xml<\/loc>\s*<lastmod>2026-10-08T00:00:00\.000Z<\/lastmod>/

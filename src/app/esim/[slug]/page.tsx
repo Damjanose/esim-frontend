@@ -16,6 +16,7 @@ import { destinationPlanFaqs, type RegionalPlanMatch } from "@/lib/destination-p
 import { destinationDisplay } from "@/lib/esim-routes";
 import { regionalHubOf } from "@/lib/internal-links";
 import { getDisplayRates } from "@/lib/exchangeRate";
+import { citySectionsFor, cityTitleOverrides, fillCityTokens } from "@/content/city-sections";
 
 export const revalidate = 3600;
 
@@ -64,9 +65,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
+  const cityTitle = cityTitleOverrides[page.slug];
+  const title = cityTitle ? fillCityTokens(cityTitle, (await getDestinationOffer(page.slug))?.lowPrice) : page.title;
+
   return createMetadata({
     path: page.path,
-    title: page.title,
+    title,
     description: await destinationDescription(page)
   });
 }
@@ -103,6 +107,7 @@ export default async function EsimDestinationPage({ params }: PageProps) {
       offer={offer ?? undefined}
       page={{ ...page, description, faqs: [...planFaqs, ...page.faqs] }}
       plans={plans}
+      citySections={citySectionsFor(page.slug, offer?.lowPrice)}
       coverage={coverage}
       rates={rates}
       flagUri={flagUri ?? undefined}

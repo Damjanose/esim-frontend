@@ -30,7 +30,12 @@ const byPath: Record<string, string> = {
   "/esim-price-index": "2026-10-08",
   "/press": "2026-10-08",
   // Options table, data, roaming and WhatsApp sections, new FAQs.
-  "/travel/internet-abroad": "2026-10-08"
+  "/travel/internet-abroad": "2026-10-08",
+  // SEO content pack: /compare price-per-GB hub, city blocks and city-led titles.
+  "/compare": "2026-10-30",
+  "/esim/spain": "2026-10-30",
+  "/esim/italy": "2026-10-30",
+  "/esim/mexico": "2026-10-30"
 };
 
 const byPrefix: Array<[prefix: string, date: string]> = [
