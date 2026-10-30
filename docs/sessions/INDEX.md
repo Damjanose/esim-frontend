@@ -123,3 +123,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-10-30 | [admin operations dashboard](2026-10-30_admin-operations-dashboard.md) | UTC finances, searchable purchases, provider details and Users/OTP tabs (f330). |
 | 2026-10-30 | [admin operations review fixes](2026-10-30_admin-operations-review-fixes.md) | Owning-session logout, stale-request guards, provider queue cancellation and short partial-error caching (f331). |
 | 2026-10-30 | [admin operations merge](2026-10-30_admin-operations-merge.md) | Preserved top-up analytics and dashboard changes; reconciled feedAI IDs and session history. |
+| 2026-10-30 | [seo compare and city sections](2026-10-30_seo-compare-and-city-sections.md) | /compare price-per-GB hub (live table, checklist, provider table, FAQPage) and Barcelona/Madrid/Rome/Milan/Cancun blocks + city-led titles on the Spain/Italy/Mexico pages (f332) |

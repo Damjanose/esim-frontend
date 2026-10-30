@@ -114,9 +114,9 @@ export const indexableRoutes: IndexableRoute[] = [
   {
     path: "/compare",
     url: `${siteUrl}/compare`,
-    title: "Compare Travel eSIMs | eSIM2you",
+    title: "Compare Travel eSIM Plans: Price per GB, Validity & Data",
     description:
-      "Factual comparisons of eSIM2you with other travel eSIM providers. Live prices stay on destination pages.",
+      "Compare travel eSIM plans side by side: price per GB, validity, unlimited vs fixed data, hotspot and top-ups. Live eSIM2you prices for 200+ destinations.",
     changeFrequency: "monthly",
     priority: 0.7
   },

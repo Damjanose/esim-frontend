@@ -4,8 +4,7 @@ import { RETIRED_COLOR_CLASS } from "./components/retiredTokens";
 
 const hubs = [
   { file: "src/app/travel/page.tsx", h1: "Travel eSIM guides", cta: "Read guide", crumb: 'breadcrumbName: "Travel"' },
-  { file: "src/app/use-cases/page.tsx", h1: "eSIM use cases", cta: "Read more", crumb: 'breadcrumbName: "Use cases"' },
-  { file: "src/app/compare/page.tsx", h1: "Compare travel eSIMs", cta: "Read comparison", crumb: 'breadcrumbName: "Compare"' }
+  { file: "src/app/use-cases/page.tsx", h1: "eSIM use cases", cta: "Read more", crumb: 'breadcrumbName: "Use cases"' }
 ];
 
 describe("content hubs restyle (spec 8B)", () => {
@@ -26,6 +25,28 @@ describe("content hubs restyle (spec 8B)", () => {
       expect(source).not.toContain("bg-white");
     });
   }
+});
+
+describe("/compare hub (SEO content pack, Oct 2026)", () => {
+  const source = readFileSync("src/app/compare/page.tsx", "utf8");
+
+  it("keeps the breadcrumb, links every comparison page and adds the FAQ to JSON-LD", () => {
+    expect(source).toContain('breadcrumbName: "Compare"');
+    expect(source).toContain("faqs: compareHub.faqs");
+    expect(source).toContain("href={page.path}");
+    expect(source).toContain("<ContentFaq faqs={compareHub.faqs} />");
+    expect(source).toContain("<Navbar />");
+    expect(source).toContain("<SiteFooter />");
+    expect(source).toContain("CONTENT_TOP");
+  });
+
+  it("scrolls both wide tables inside focusable positioned boxes (f195) on the new tokens", () => {
+    expect(source.match(/relative mt-5 overflow-x-auto rounded-\[20px\]/g)?.length).toBe(2);
+    expect(source.match(/tabIndex=\{0\}/g)?.length).toBe(2);
+    expect(source).toContain('scope="row"');
+    expect(source).not.toMatch(RETIRED_COLOR_CLASS);
+    expect(source).not.toContain("bg-white");
+  });
 });
 
 describe("/compare/[slug] restyle (spec 8B)", () => {
