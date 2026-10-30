@@ -10,7 +10,11 @@ import {
   trackGaEvent,
   writePendingTopupPurchase
 } from "@/lib/analytics";
+import { availableMethods, type PaymentMethod } from "@/lib/externalPayments";
 import { planDurationText, planRowTags } from "@/lib/planRow";
+import { PaymentMethodPicker } from "../../checkout/PaymentMethodPicker";
+import { usePaymentMethods } from "../../checkout/usePaymentMethods";
+import { CryptoStep } from "../../checkout/steps/CryptoStep";
 import { GaEvent } from "../../GaEvent";
 import { Button } from "../../components/Button";
 import { PlanDataDisc, PlanPrice, PlanTags } from "../../components/PlanRow";
@@ -19,7 +23,8 @@ export type TopupPackage = TopupOffer;
 
 /**
  * "Add more data": the backend's top-up offers as PlanRow-style rows (data disc,
- * days, tags, price). Payment is unchanged: a hosted Pokpay redirect (f019).
+ * days, tags, price). Card is a hosted Pokpay redirect (f019); PayPal redirects to
+ * PayPal and returns via /checkout/paypal/return; crypto opens an inline USDT invoice.
  * Every Top up is flat; the page's gradient, if any, is the usage card's Top up.
  */
 export function TopUpPanel({
@@ -35,6 +40,19 @@ export function TopUpPanel({
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const streakPct = useStreakRewardPct(orderId, packages[0]?.id ?? null);
+  const paymentMethods = usePaymentMethods();
+  const methods = availableMethods(paymentMethods);
+  const [method, setMethod] = useState<PaymentMethod>("card");
+  const selectedMethod = methods.includes(method) ? method : "card";
+  const [cryptoPackageId, setCryptoPackageId] = useState<string | null>(null);
+
+  // Back from PayPal's Cancel link: reopen PayPal and say nothing was charged.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("paypal") === "cancelled") {
+      setMethod("paypal");
+      setError("You cancelled at PayPal, so nothing was charged. Pick a top-up to try again.");
+    }
+  }, []);
   // A list of offers beside the eSIM, so view_item_list: view_item would count every
   // usage check as a product view, unlike the app (one top-up screen opened).
   const viewItemList = useMemo(
@@ -45,6 +63,63 @@ export function TopUpPanel({
     }),
     [esim, packages]
   );
+
+  /** Stashes what will be charged so ?topup=1 can report the GA4 purchase for this payment. */
+  function stashPendingPurchase(packageId: string, paymentId: string | undefined, amount: number | undefined, currency?: string) {
+    const offer = packages.find((pkg) => pkg.id === packageId);
+    if (!offer || !paymentId || typeof amount !== "number" || amount <= 0) return;
+    const pending = {
+      orderId,
+      paymentId,
+      value: roundMoney(amount),
+      currency: currency?.trim().toUpperCase() || GA_CURRENCY,
+      item: gaTopupItem(offer, esim, amount)
+    };
+    writePendingTopupPurchase(pending);
+    trackGaEvent("begin_checkout", { currency: pending.currency, value: pending.value, items: [pending.item] });
+  }
+
+  async function startPaypalTopup(packageId: string) {
+    setPendingId(packageId);
+    setError(null);
+    try {
+      const response = await fetch("/bff/payments/paypal/intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId, package_id: packageId })
+      });
+      if (response.status === 401) {
+        window.location.assign(`/signin?next=${encodeURIComponent(`/account/${orderId}`)}`);
+        return;
+      }
+      const payload = (await response.json().catch(() => ({}))) as {
+        data?: { approveUrl?: string; paymentId?: string; amountCents?: number; currency?: string };
+        error?: string;
+      };
+      if (!response.ok || !payload.data?.approveUrl) {
+        setPendingId(null);
+        setError(payload.error ?? "We could not start PayPal. Please try again.");
+        return;
+      }
+      const { paymentId, amountCents, currency } = payload.data;
+      stashPendingPurchase(packageId, paymentId, amountCents != null ? amountCents / 100 : undefined, currency);
+      window.location.assign(payload.data.approveUrl);
+    } catch {
+      setPendingId(null);
+      setError("We could not reach PayPal. Please try again.");
+    }
+  }
+
+  function chooseTopup(packageId: string) {
+    if (selectedMethod === "paypal") {
+      void startPaypalTopup(packageId);
+    } else if (selectedMethod === "crypto") {
+      setError(null);
+      setCryptoPackageId(packageId);
+    } else {
+      void startTopup(packageId);
+    }
+  }
 
   async function startTopup(packageId: string) {
     setPendingId(packageId);
@@ -112,6 +187,15 @@ export function TopUpPanel({
         Top up this eSIM without installing a new one.
       </p>
 
+      <div className="mt-5">
+        <PaymentMethodPicker
+          disabled={pendingId !== null || cryptoPackageId !== null}
+          methods={methods}
+          onChange={setMethod}
+          value={selectedMethod}
+        />
+      </div>
+
       {streakPct ? (
         <p className="mt-3 flex items-center gap-2 rounded-[12px] bg-brandBlue/10 px-3 py-2 text-sm font-semibold text-brandBlue">
           <Flame aria-hidden="true" className="shrink-0" size={16} />
@@ -145,9 +229,9 @@ export function TopUpPanel({
                 <Button
                   aria-label={`Top up: ${plan.title}`}
                   className="whitespace-nowrap"
-                  disabled={pendingId !== null}
+                  disabled={pendingId !== null || cryptoPackageId !== null}
                   loading={busy}
-                  onClick={() => void startTopup(pkg.id)}
+                  onClick={() => chooseTopup(pkg.id)}
                   type="button"
                   variant="tint"
                 >
@@ -160,10 +244,37 @@ export function TopUpPanel({
         })}
       </ul>
 
+      {cryptoPackageId ? (
+        <div className="mt-5 border-t border-outline/50 pt-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="font-display text-sm font-black text-brandInk">Pay with USDT</p>
+            <button
+              className="text-sm font-bold text-brandBlue underline-offset-4 hover:underline"
+              onClick={() => setCryptoPackageId(null)}
+              type="button"
+            >
+              Choose another top-up
+            </button>
+          </div>
+          <CryptoStep
+            networks={paymentMethods.cryptoNetworks}
+            onStarted={(payment) =>
+              stashPendingPurchase(cryptoPackageId, payment.paymentId, payment.amountCents / 100, payment.currency)
+            }
+            signInPath={`/account/${orderId}`}
+            target={{ kind: "topup", orderId, packageId: cryptoPackageId }}
+          />
+        </div>
+      ) : null}
+
       {error ? <p className="mt-4 text-sm font-semibold text-error">{error}</p> : null}
 
       <p className="mt-4 text-xs text-onSurfaceVariant">
-        You will be redirected to Pokpay to complete your payment securely.
+        {selectedMethod === "paypal"
+          ? "You will be redirected to PayPal to approve the payment."
+          : selectedMethod === "crypto"
+            ? "Pick a top-up to get a USDT payment address."
+            : "You will be redirected to Pokpay to complete your payment securely."}
       </p>
     </section>
   );

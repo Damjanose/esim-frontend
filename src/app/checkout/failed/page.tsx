@@ -31,6 +31,14 @@ function copyFor(reason: string): FailureCopy {
     };
   }
 
+  if (reason === "pending") {
+    return {
+      heading: "Your payment is still processing",
+      body: "PayPal hasn't released this payment to us yet. That usually takes a few minutes, and your eSIM is set up automatically once it clears.",
+      chargeNote: "Do not pay again. Your eSIM will appear in your account as soon as the payment clears."
+    };
+  }
+
   if (reason === "missing_payment") {
     return {
       heading: "We lost track of that payment",

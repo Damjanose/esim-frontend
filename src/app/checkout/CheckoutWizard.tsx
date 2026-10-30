@@ -4,8 +4,13 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
 import { PAYMENT_TRUST_NOTE } from "@/lib/checkoutSummary";
+import { availableMethods, type PaymentMethod } from "@/lib/externalPayments";
+import { PaymentMethodPicker } from "./PaymentMethodPicker";
+import { usePaymentMethods } from "./usePaymentMethods";
 import { BillingStep } from "./steps/BillingStep";
 import { CardStep } from "./steps/CardStep";
+import { CryptoStep } from "./steps/CryptoStep";
+import { PaypalStep } from "./steps/PaypalStep";
 
 type CountryOption = { code: string; name: string };
 
@@ -34,6 +39,19 @@ export function CheckoutWizard({
   // loading note, and a visible step 02 below it would jump (CLS).
   const [billingLoaded, setBillingLoaded] = useState(false);
   const markBillingLoaded = useCallback(() => setBillingLoaded(true), []);
+  const paymentMethods = usePaymentMethods();
+  const methods = availableMethods(paymentMethods);
+  const [method, setMethod] = useState<PaymentMethod>("card");
+  const [paypalCancelled, setPaypalCancelled] = useState(false);
+  // Card is the default; coming back from PayPal's Cancel link reopens PayPal.
+  const selectedMethod = methods.includes(method) ? method : "card";
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("paypal") === "cancelled") {
+      setMethod("paypal");
+      setPaypalCancelled(true);
+    }
+  }, []);
 
   // Creates (or re-creates) the payment intent as soon as the package/promo
   // are settled — there is no "Continue to payment" click anymore, so this
@@ -136,11 +154,18 @@ export function CheckoutWizard({
 
       <section aria-labelledby="checkout-step-card" className={`pt-8 ${billingLoaded ? "" : "invisible"}`}>
         {/* At lg the order summary carries the Pokpay note, so it shows once per screen. */}
-        <StepHeading id="checkout-step-card" number="02" noteClassName="lg:hidden" title="Card details">
-          {PAYMENT_TRUST_NOTE}
+        <StepHeading
+          id="checkout-step-card"
+          number="02"
+          noteClassName="lg:hidden"
+          title={methods.length > 1 ? "Payment" : "Card details"}
+        >
+          {selectedMethod === "card" ? <>{PAYMENT_TRUST_NOTE}</> : "Pay with PayPal or USDT; no card needed."}
         </StepHeading>
 
-        <div className="mb-4 space-y-2 empty:hidden">
+        <PaymentMethodPicker disabled={disabled} methods={methods} onChange={setMethod} value={selectedMethod} />
+
+        <div className={`mb-4 space-y-2 empty:hidden ${selectedMethod === "card" ? "" : "hidden"}`}>
           {disabled ? (
             <p className="text-sm text-onSurfaceVariant">Finish applying your partner code first.</p>
           ) : null}
@@ -158,7 +183,23 @@ export function CheckoutWizard({
           ) : null}
         </div>
 
-        {paymentId && billingAddress ? (
+        {selectedMethod === "paypal" && billingAddress && !disabled ? (
+          <PaypalStep
+            cancelled={paypalCancelled}
+            signInPath={`/checkout?package=${packageId}`}
+            target={{ kind: "package", packageId, promoCode }}
+          />
+        ) : null}
+
+        {selectedMethod === "crypto" && billingAddress && !disabled ? (
+          <CryptoStep
+            networks={paymentMethods.cryptoNetworks}
+            signInPath={`/checkout?package=${packageId}`}
+            target={{ kind: "package", packageId, promoCode }}
+          />
+        ) : null}
+
+        {selectedMethod === "card" && paymentId && billingAddress ? (
           <CardStep
             billingAddress={billingAddress}
             environment={environment}

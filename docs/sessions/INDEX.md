@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-30 | [PayPal + crypto checkout](./2026-10-30_paypal-crypto-checkout.md) | Card / PayPal / Crypto picker in checkout and top-ups, PayPal return route, USDT invoice step with polling; card path unchanged (f333-f334) |
 | 2026-10-14 | [homepage perf](./2026-10-14_homepage-perf.md) | Lottie wizard intro lazy-loaded and Geist not preloaded (homepage First Load JS 228->144 KB), Airalo flags through next/image (FlagImage, no third-party cookie), descriptive cookie-banner link (f283-f285) |
 | 2026-10-14 | [GEO answer-first](./2026-10-14_geo-answer-first.md) | GEO re-audit (~63/100), 'Does eSIM2you work in X?' answer moved into the /esim hero, /esim/united-states and similar names 308 to the real slug (f281-f282) |
 | 2026-10-14 | [security headers](./2026-10-14_security-headers.md) | CSP (frame-ancestors/base-uri/object-src/upgrade-insecure-requests), Referrer-Policy and Permissions-Policy added in next.config.mjs after a technical SEO audit (f280) |
