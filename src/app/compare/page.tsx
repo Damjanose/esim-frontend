@@ -42,7 +42,9 @@ function competitorFactor(page: ComparePage, factor: string): string {
 async function priceRows() {
   const rows = await Promise.all(
     compareHub.pricePerGb.destinations.map(async (slug) => {
-      const row = comparePriceRow(await getDestinationPlanRows(slug));
+      // One failed destination drops its row instead of erroring the page.
+      const plans = await getDestinationPlanRows(slug).catch(() => []);
+      const row = comparePriceRow(plans);
       return row ? { slug, name: destinationDisplay[slug]?.countryName ?? slug, ...row } : null;
     })
   );
