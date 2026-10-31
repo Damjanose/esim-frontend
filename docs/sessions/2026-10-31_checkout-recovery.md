@@ -13,3 +13,12 @@ The implementer subagent did the work and the main session reviewed it. Polling 
 
 ## Outcome
 `tsc` clean, vitest 1119 passing, `next build` not run. Paired with backend `fix/order-integrity` (pending-payments endpoint, stuck-claim sweep) and mobile `fix/offline-esims`. Facts f337-f339.
+
+## Phase 2 (same day, same branch)
+- Install guides (iOS/Android, APN, roaming) and the SM-DP+/activation code beside the QR (f340).
+- Honest plan copy from backend fair_usage, activation trigger and networks, with no unbacked 5G/hotspot claims (f341).
+- Usage "Updated X ago · Refresh" and a 'preparing' lifecycle (f342).
+- /xsupport order context and Reopen; the traveler can see and reopen a solved thread; order_id is linked from the order page (f343).
+- Reviewer found no blocking bugs. Three inbox issues were fixed: a stale 409, the reopened thread missing from its tab, an unhandled rejection.
+- tsc clean, vitest 1142.
+- Open items: confirm the Airalo instructions shape with a real payload; plan details for regional/global plans; an /xloginy deep link for orders.

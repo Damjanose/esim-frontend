@@ -449,6 +449,25 @@
         "src/app/checkout/RecoveryPanel.tsx",
         "src/app/account/[orderId]/page.tsx"
       ]
+    },
+    {
+      "date": "2026-10-31",
+      "symptom": "Order page fetched carrier settings but never showed APN, roaming or Android steps; unlimited plans were sold as 'High-speed data without limits.'",
+      "root_cause": "Only instructions.available was read; planRow hardcoded the unlimited copy with no fair-use data available.",
+      "fix": "InstallGuides + parseLpa; planDetails from backend fair_usage/activation/networks (f340-f341).",
+      "files": [
+        "src/app/account/[orderId]/page.tsx",
+        "src/lib/planRow.ts"
+      ]
+    },
+    {
+      "date": "2026-10-31",
+      "symptom": "/xsupport Reopen 409 alert could appear under a different thread; reopened thread missing from the Unread/Read list until the socket event.",
+      "root_cause": "409 branch skipped the stale-request check; success path only removed from the Solved list.",
+      "fix": "Same requestId/selected check before setReopenConflict; insert the reopened thread into the matching tab; catch loadUnreadCount.",
+      "files": [
+        "src/app/xsupport/SupportInbox.tsx"
+      ]
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
