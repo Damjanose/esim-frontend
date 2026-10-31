@@ -4,6 +4,7 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 
 | Date | Topic | Summary |
 | --- | --- | --- |
+| 2026-10-31 | [checkout recovery](./2026-10-31_checkout-recovery.md) | Paid-but-setup-failed card checkout gets a Retry setup panel and no second intent, the order page only says ready with a QR and auto-refreshes, and /account lists pending payments (f337-f339) |
 | 2026-10-30 | [PayPal + crypto checkout](./2026-10-30_paypal-crypto-checkout.md) | Card / PayPal / Crypto picker in checkout and top-ups, PayPal return route, USDT invoice step with polling; card path unchanged (f333-f334) |
 | 2026-10-14 | [homepage perf](./2026-10-14_homepage-perf.md) | Lottie wizard intro lazy-loaded and Geist not preloaded (homepage First Load JS 228->144 KB), Airalo flags through next/image (FlagImage, no third-party cookie), descriptive cookie-banner link (f283-f285) |
 | 2026-10-14 | [GEO answer-first](./2026-10-14_geo-answer-first.md) | GEO re-audit (~63/100), 'Does eSIM2you work in X?' answer moved into the /esim hero, /esim/united-states and similar names 308 to the real slug (f281-f282) |

@@ -8,7 +8,7 @@ const HEX = /#[0-9a-fA-F]{3,8}\b/;
 
 describe("/account layout (desktop sidebar dashboard, phone My eSIMs)", () => {
   it("fetches once and switches only the active plan's presentation at lg", () => {
-    expect(page.match(/fetchForPage</g)).toHaveLength(3);
+    expect(page.match(/fetchForPage</g)).toHaveLength(4);
     expect(page).toContain('<div className="lg:hidden">\n        <ActiveEsimCard');
     expect(page).toContain('<div className="hidden lg:block">\n        <UsageRingCard');
     expect(existsSync("src/app/account/PlanCard.tsx")).toBe(false);

@@ -11,6 +11,7 @@ import {
   usageMeter
 } from "@/lib/accountEsims";
 import { summariseUsage, type UsagePayload, type UsageSummary } from "@/lib/esim-install";
+import { normalisePendingPayments } from "@/lib/pendingPayments";
 import { resolveOrderSections, type OrderSummary } from "@/lib/order-groups";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
@@ -25,6 +26,7 @@ import { UsageRingCard } from "../components/UsageRing";
 import { SiteFooter } from "../SiteFooter";
 import { accountShellItems } from "./accountShellItems";
 import { EsimListRow } from "./EsimListRow";
+import { PendingPaymentCards } from "./PendingPaymentCards";
 
 export const metadata: Metadata = createMetadata({
   path: "/account",
@@ -117,13 +119,16 @@ export default async function AccountPage() {
 
   // Per-order usage is one upstream round-trip each, so only the live plan gets
   // one here. The rest load their usage on the detail page.
-  const [ordersResult, usageResult, packageOptions] = await Promise.all([
+  const [ordersResult, usageResult, packageOptions, pendingResult] = await Promise.all([
     fetchForPage<{ orders: OrderSummary[] }>("/orders", "/account"),
     activeOrder
       ? fetchForPage<{ usage: UsagePayload }>(`/orders/${activeOrder.id}/usage`, "/account")
       : null,
-    getPackageOptions()
+    getPackageOptions(),
+    // Not deployed everywhere yet: any failure (404 included) just hides the cards.
+    fetchForPage<{ pending: unknown }>("/orders/pending-payments", "/account")
   ]);
+  const pendingPayments = pendingResult.ok ? normalisePendingPayments(pendingResult.data) : [];
 
   const catalog = new Map(packageOptions.map((option) => [option.id, option]));
   const sections = ordersResult.ok
@@ -158,6 +163,8 @@ export default async function AccountPage() {
               {countLine ?? "Your plans, installation details, and remaining data."}
             </p>
           </div>
+
+          <PendingPaymentCards catalog={catalog} pending={pendingPayments} />
 
           {sections === null ? (
             <div className="mt-8 flex items-center gap-4 rounded-[18px] border border-error/30 bg-surface px-5 py-4 shadow-brandCard">

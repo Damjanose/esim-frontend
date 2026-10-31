@@ -35,7 +35,9 @@ describe("checkout page layout (spec option B)", () => {
     expect(section).toContain("href={`/signin?next=${encodeURIComponent(`/checkout?package=${plan.id}`)}`}");
     expect(section).toContain("disabled={promoPending}");
     expect(wizard).toContain("window.location.assign(`/signin?next=${encodeURIComponent(`/checkout?package=${packageId}`)}`)");
-    expect(wizard).toContain("Payment reference:");
+    // Recovery panel (paid but setup failed) shows the reference and has no Pay button.
+    expect(wizard).toContain("<RecoveryPanel");
+    expect(readFileSync("src/app/checkout/RecoveryPanel.tsx", "utf8")).toContain("Payment reference:");
   });
 
   it("never shifts step 02 or the footer while the client steps load (CLS 0)", () => {
