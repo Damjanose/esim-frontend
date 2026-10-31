@@ -62,6 +62,7 @@ export const privateRoutePrefixes = [
   "/xsupport",
   "/xtestimonialsy",
   "/xtripplany",
+  "/xtroubley",
   "/xversion"
 ] as const;
 

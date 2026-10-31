@@ -68,6 +68,7 @@ describe("SEO route contract", () => {
       "/xsupport",
       "/xtestimonialsy",
       "/xtripplany",
+      "/xtroubley",
       "/xversion"
     ]);
   });
