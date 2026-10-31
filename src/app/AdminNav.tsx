@@ -8,6 +8,7 @@ import {
   Bell,
   Bug,
   Flame,
+  HelpCircle,
   LifeBuoy,
   LogOut,
   Map,
@@ -35,7 +36,8 @@ const adminLinks: Array<{
   { href: "/xsupport", label: "Support", full: "Support inbox", Icon: LifeBuoy },
   { href: "/xtestimonialsy", label: "Quotes", full: "Testimonials", Icon: MessageSquareQuote },
   { href: "/xtripplany", label: "Trips", full: "Trip plans", Icon: Map },
-  { href: "/xstreaky", label: "Streak", full: "Games streak promo", Icon: Flame }
+  { href: "/xstreaky", label: "Streak", full: "Games streak promo", Icon: Flame },
+  { href: "/xtroubley", label: "Troubleshooting", full: "Assistant troubleshooting", Icon: HelpCircle }
 ];
 
 export function AdminNav({ session }: {
