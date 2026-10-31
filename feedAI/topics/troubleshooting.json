@@ -438,6 +438,17 @@
       "files": [
         "src/app/checkout/CheckoutPriceSection.tsx"
       ]
+    },
+    {
+      "date": "2026-10-31",
+      "symptom": "After a card charge whose eSIM setup failed, the checkout showed only an error string; a refresh created a new payment intent and a fresh card form, inviting a second charge. The order page meanwhile said 'your eSIM is ready' next to 'Still provisioning'.",
+      "root_cause": "The paid payment id lived only in React state, handledRef blocked any retry, the intent effect ran unconditionally on mount, and the ?new=1 banner ignored whether a QR existed.",
+      "fix": "Charged payment persisted in sessionStorage, RecoveryPanel with idempotent Retry setup, no new intent while a charged one exists; banner keyed on qr.kind plus ProvisioningWatcher auto-refresh (f337-f339).",
+      "files": [
+        "src/app/checkout/CheckoutWizard.tsx",
+        "src/app/checkout/RecoveryPanel.tsx",
+        "src/app/account/[orderId]/page.tsx"
+      ]
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

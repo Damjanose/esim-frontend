@@ -31,6 +31,7 @@ import { SiteFooter } from "../../SiteFooter";
 import { accountShellItems } from "../accountShellItems";
 import { CopyField } from "./CopyField";
 import { InstallOnIphoneLink } from "./InstallOnIphoneLink";
+import { ProvisioningWatcher } from "./ProvisioningWatcher";
 import { OrderReviewCard } from "./OrderReviewCard";
 import { PurchaseConversion, type PurchasedPlan } from "./PurchaseConversion";
 import { TopUpConversion } from "./TopUpConversion";
@@ -199,15 +200,29 @@ export default async function OrderDetailPage({
                 plan={purchasedPlan}
                 transactionId={order.payment_reference || order.code}
               />
-              <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
-                <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
-                <div>
-                  <p className="font-bold text-brandInk">Payment complete — your eSIM is ready</p>
-                  <p className="mt-0.5 text-sm text-onSurfaceVariant">
-                    Scan the QR code below to install it on your device.
-                  </p>
+              {qr.kind === "none" ? (
+                <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandBlue/30 bg-brandBlue/10 px-5 py-4">
+                  <Clock3 aria-hidden="true" className="shrink-0 text-brandBlue" size={22} />
+                  <div>
+                    <p className="font-bold text-brandInk">Payment received — we&apos;re preparing your eSIM</p>
+                    <p className="mt-0.5 text-sm text-onSurfaceVariant">
+                      Your QR code will appear below in a moment.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
+                  <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
+                  <div>
+                    <p className="font-bold text-brandInk">Payment complete — your eSIM is ready</p>
+                    <p className="mt-0.5 text-sm text-onSurfaceVariant">
+                      {qr.kind === "image"
+                        ? "Scan the QR code below to install it on your device."
+                        : "Use the activation code below to install it on your device."}
+                    </p>
+                  </div>
+                </div>
+              )}
             </>
           ) : null}
 
@@ -301,10 +316,7 @@ export default async function OrderDetailPage({
                   <Clock3 aria-hidden="true" className="mt-0.5 shrink-0 text-brandBlue" size={18} />
                   <div>
                     <p className="text-sm font-bold text-brandInk">Still provisioning</p>
-                    <p className="mt-1 text-sm text-onSurfaceVariant">
-                      Your eSIM is being prepared. Refresh this page in a moment to get your QR
-                      code.
-                    </p>
+                    <ProvisioningWatcher orderCode={order.code} />
                   </div>
                 </div>
               )}
