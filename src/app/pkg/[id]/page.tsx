@@ -3,7 +3,7 @@ import { Globe2 } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
 import { planRowTags } from "@/lib/planRow";
 import { landingContent } from "@/content/landing";
-import { getPackageOption } from "@/services/server-packages";
+import { getPackageOption, getPackageOptionWithDetails } from "@/services/server-packages";
 import { Navbar } from "../../components/Navbar";
 import { PlanRow } from "../../components/PlanRow";
 import { SiteFooter } from "../../SiteFooter";
@@ -49,7 +49,7 @@ export async function generateMetadata({
 export default async function PackageLinkPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const packageId = safeDecode(id);
-  const plan = await getPackageOption(packageId);
+  const plan = await getPackageOptionWithDetails(packageId);
   const { appLinks } = landingContent;
 
   const coverage = plan?.countries ?? [];

@@ -62,27 +62,49 @@ export function daysLeft(expiresAt: string | null | undefined, now: number = Dat
   return Math.max(0, Math.ceil((end - now) / DAY_MS));
 }
 
-export type LifecycleBadge = { label: "Active" | "Ready" | "Expired"; tone: "active" | "ready" | "expired" };
+export type LifecycleBadge = {
+  label: "Active" | "Ready" | "Expired" | "Preparing";
+  tone: "active" | "ready" | "expired" | "preparing";
+};
 
-/** Straight from lifecycle_status. An unknown status reads as Ready, like groupOrdersByLifecycle. */
+/**
+ * Straight from lifecycle_status. "preparing" is a paid order with no QR yet. An
+ * unknown status reads as Ready, like groupOrdersByLifecycle.
+ */
 export function lifecycleBadge(status: string): LifecycleBadge {
+  if (status === "preparing") return { label: "Preparing", tone: "preparing" };
   if (status === "active") return { label: "Active", tone: "active" };
   if (status === "expired") return { label: "Expired", tone: "expired" };
   return { label: "Ready", tone: "ready" };
 }
 
-/** "Active · 12 days left", "Active · Expires today", "Ready to install", "Expired". */
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * "Active · 12 days left", "Active · 5 hours left" (under 24h), "Active · Expires today",
+ * "Ready to install", "Preparing your eSIM", "Expired". `expiresAt` overrides the order's
+ * own expiry (the usage payload's provider expiry is fresher).
+ */
 export function esimStatusLine(
   order: Pick<OrderSummary, "lifecycle_status" | "expires_at">,
-  now: number = Date.now()
+  now: number = Date.now(),
+  expiresAt?: string | null
 ): string {
   const { label } = lifecycleBadge(order.lifecycle_status);
+  if (label === "Preparing") return "Preparing your eSIM";
   if (label === "Ready") return "Ready to install";
   if (label === "Expired") return "Expired";
 
-  const days = daysLeft(order.expires_at, now);
-  if (days == null) return "Active";
-  if (days === 0) return "Active · Expires today";
+  const expiry = expiresAt ?? order.expires_at;
+  const end = expiry ? new Date(expiry).getTime() : Number.NaN;
+  if (Number.isNaN(end)) return "Active";
+  const remainingMs = end - now;
+  if (remainingMs <= 0) return "Active · Expires today";
+  if (remainingMs < 24 * HOUR_MS) {
+    const hours = Math.max(1, Math.ceil(remainingMs / HOUR_MS));
+    return `Active · ${hours} ${hours === 1 ? "hour" : "hours"} left`;
+  }
+  const days = daysLeft(expiry, now) ?? 1;
   return `Active · ${days} ${days === 1 ? "day" : "days"} left`;
 }
 
@@ -111,7 +133,8 @@ export type AccountPrimaryAction = { kind: "install" | "topup"; orderId: number 
  * active plan's Top up; otherwise none (Buy again and Details stay flat).
  */
 export function accountPrimaryAction(sections: OrderGroups): AccountPrimaryAction {
-  const newestReady = sections.ready[0];
+  // A preparing order has no QR yet, so there is nothing to install.
+  const newestReady = sections.ready.find((order) => order.lifecycle_status !== "preparing");
   if (newestReady) return { kind: "install", orderId: newestReady.id };
   if (sections.active) return { kind: "topup", orderId: sections.active.id };
   return null;
@@ -129,6 +152,8 @@ export type UsageMeter = {
   note: string | null;
   /** Accessible description of the ring / bar. */
   label: string;
+  /** When the figure was last read from the provider (ISO); drives "Updated ...". */
+  syncedAt?: string | null;
 };
 
 export function usageMeter(usage: UsageSummary): UsageMeter {
@@ -136,10 +161,11 @@ export function usageMeter(usage: UsageSummary): UsageMeter {
     return { state: "unavailable", leftPercent: null, headline: null, caption: null, note: usage.message, label: usage.message };
   }
   if (usage.unlimited) {
-    return { state: "unlimited", leftPercent: 100, headline: "Unlimited", caption: "No data cap", note: null, label: "Unlimited data" };
+    return { state: "unlimited", leftPercent: 100, headline: "Unlimited", caption: "No data cap", note: null, label: "Unlimited data", syncedAt: usage.lastSyncedAt };
   }
   const leftPercent = Math.min(100, Math.max(0, 100 - usage.usedPercent));
   return {
+    syncedAt: usage.lastSyncedAt,
     state: "metered",
     leftPercent,
     headline: usage.remainingLabel,

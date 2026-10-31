@@ -7,6 +7,8 @@ import {
   supportReplyDragOffset,
   applyMessagePreviewToThreads,
   formatSupportDevice,
+  mergeThreadUpdate,
+  reopenConflictMessage,
   nextAdminTypingEmit,
   previewFromSupportMessage,
   shouldAlertAdminOfIncomingMessage,
@@ -141,5 +143,35 @@ describe("support reply helpers", () => {
   it("falls back to Photo for a photo-only quote", () => {
     expect(supportQuoteSnippet({ body: " a\n b ", hasPhoto: false })).toBe("a b");
     expect(supportQuoteSnippet({ body: null, hasPhoto: true })).toBe("Photo");
+  });
+});
+
+type TestThread = { id: string; status?: string; order?: unknown };
+const merge = (a: TestThread | undefined, b: TestThread) => mergeThreadUpdate<TestThread>(a, b);
+
+describe("mergeThreadUpdate", () => {
+  const order = { id: 7, code: "ORD-7", package_id: "p", iccid: null, status: "completed", lifecycle_status: "ready", created_at: "2026-01-01T00:00:00.000Z" };
+
+  it("keeps the known order when a socket payload omits it", () => {
+    const merged = merge({ id: "t1", status: "read", order }, { id: "t1", status: "solved" });
+    expect(merged).toEqual({ id: "t1", status: "solved", order });
+  });
+
+  it("takes an explicit order, including an explicit null", () => {
+    expect(merge({ id: "t1", order }, { id: "t1", order: null }).order).toBeNull();
+    expect(merge({ id: "t1" }, { id: "t1", order }).order).toEqual(order);
+  });
+
+  it("passes the update through when nothing was known", () => {
+    expect(merge(undefined, { id: "t1" })).toEqual({ id: "t1" });
+  });
+});
+
+describe("reopenConflictMessage", () => {
+  it("names the already-open conversation", () => {
+    expect(reopenConflictMessage({ code: "USER_HAS_OPEN_THREAD", message: "m", openThreadId: "t9" })).toMatch(
+      /already has an open conversation/
+    );
+    expect(reopenConflictMessage({ code: "OTHER", message: "boom" })).toBe("boom");
   });
 });

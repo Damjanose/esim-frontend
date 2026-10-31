@@ -47,6 +47,11 @@ export type UsagePayload = {
   remaining?: number;
   total?: number;
   expiredAt?: string;
+  /** Airalo's expiry for the live package (ISO) or null; preferred over the order's own. */
+  expires_at?: string | null;
+  provider_status?: string;
+  /** When the figures were actually read from Airalo (server cache fill time), ISO. */
+  last_synced_at?: string;
 };
 
 export type UsageSummary =
@@ -58,6 +63,7 @@ export type UsageSummary =
       remainingLabel: string;
       totalLabel: string;
       expiresAt?: string;
+      lastSyncedAt?: string;
     }
   | { available: false; message: string };
 
@@ -108,7 +114,8 @@ export function summariseUsage(usage: UsagePayload | null | undefined): UsageSum
       usedPercent: 0,
       remainingLabel: "Unlimited",
       totalLabel: "Unlimited",
-      expiresAt: usage.expiredAt
+      expiresAt: usage.expires_at ?? usage.expiredAt,
+      lastSyncedAt: usage.last_synced_at
     };
   }
 
@@ -123,6 +130,134 @@ export function summariseUsage(usage: UsagePayload | null | undefined): UsageSum
     usedPercent,
     remainingLabel: formatMegabytes(remaining),
     totalLabel: formatMegabytes(total),
-    expiresAt: usage.expiredAt
+    expiresAt: usage.expires_at ?? usage.expiredAt,
+    lastSyncedAt: usage.last_synced_at
   };
+}
+
+/** "just now", "5 minutes ago", "2 hours ago", "3 days ago". Null without a usable date. */
+export function formatRelativeTime(value: string | null | undefined, now: number = Date.now()): string | null {
+  if (!value) return null;
+  const then = new Date(value).getTime();
+  if (Number.isNaN(then)) return null;
+  const minutes = Math.floor(Math.max(0, now - then) / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} ${days === 1 ? "day" : "days"} ago`;
+}
+
+/** An LPA activation string split into the SM-DP+ address and the activation code. */
+export type LpaParts = { address: string; code: string | null };
+
+/** "LPA:1$smdp.example.com$CODE" -> address + code. Null when it is not an LPA string. */
+export function parseLpa(value: string | null | undefined): LpaParts | null {
+  const trimmed = value?.trim();
+  if (!trimmed || !trimmed.toUpperCase().startsWith("LPA:")) return null;
+  const parts = trimmed.split("$");
+  const address = parts[1]?.trim();
+  if (!address) return null;
+  return { address, code: parts[2]?.trim() || null };
+}
+
+export type InstallPlatform = "ios" | "android";
+
+export type InstallGuide = {
+  platform: InstallPlatform;
+  /** "iOS 17.4+", "Android" ... */
+  title: string;
+  qrSteps: string[];
+  manualSteps: string[];
+  manualLpa: string | null;
+  networkSteps: string[];
+  apnType: string | null;
+  apnValue: string | null;
+  /** Whether the provider says data roaming must be on. Null when it says nothing. */
+  roaming: boolean | null;
+};
+
+export type InstallInstructions = {
+  guides: InstallGuide[];
+  /** Older {title, body} shape, shown as plain text when no platform guides exist. */
+  generic: { title: string; body: string }[];
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+}
+
+function asString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+/** Airalo sends steps as {"1": "...", "2": "..."}; an array is accepted too. */
+function readSteps(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(asString).filter((step): step is string => step !== null);
+  const record = asRecord(value);
+  if (!record) return [];
+  return Object.keys(record)
+    .sort((a, b) => Number(a) - Number(b))
+    .map((key) => asString(record[key]))
+    .filter((step): step is string => step !== null);
+}
+
+function readGuide(platform: InstallPlatform, raw: unknown): InstallGuide | null {
+  const entry = asRecord(raw);
+  if (!entry) return null;
+  const qr = asRecord(entry.installation_via_qr_code);
+  const manual = asRecord(entry.installation_manual);
+  const network = asRecord(entry.network_setup);
+  const base = platform === "ios" ? "iOS" : "Android";
+  const version = asString(entry.version);
+  const model = asString(entry.model);
+  const guide: InstallGuide = {
+    platform,
+    title: version ? `${base} ${version}` : model ? `${base} · ${model}` : base,
+    qrSteps: readSteps(qr?.steps),
+    manualSteps: readSteps(manual?.steps),
+    manualLpa: asString(manual?.smdp_address_and_activation_code) ?? asString(qr?.qr_code_data),
+    networkSteps: readSteps(network?.steps),
+    apnType: asString(network?.apn_type),
+    apnValue: asString(network?.apn_value),
+    roaming: typeof network?.is_roaming === "boolean" ? network.is_roaming : null
+  };
+  const hasContent =
+    guide.qrSteps.length > 0 ||
+    guide.manualSteps.length > 0 ||
+    guide.networkSteps.length > 0 ||
+    guide.apnValue !== null;
+  return hasContent ? guide : null;
+}
+
+/**
+ * GET /orders/:id/instructions passes Airalo's payload through:
+ * `{available, iccid, instructions: {language, ios: [...], android: [...]}}`.
+ * Every field may be missing, so each is read defensively.
+ */
+export function parseInstallInstructions(raw: unknown): InstallInstructions {
+  const result: InstallInstructions = { guides: [], generic: [] };
+  const top = asRecord(raw);
+  if (!top) return result;
+
+  if (Array.isArray(top.instructions)) {
+    for (const item of top.instructions) {
+      const record = asRecord(item);
+      const body = asString(record?.body);
+      if (body) result.generic.push({ title: asString(record?.title) ?? "Install your eSIM", body });
+    }
+    return result;
+  }
+
+  const nested = asRecord(top.instructions);
+  if (!nested) return result;
+  for (const platform of ["ios", "android"] as const) {
+    const entries = Array.isArray(nested[platform]) ? (nested[platform] as unknown[]) : [];
+    for (const entry of entries) {
+      const guide = readGuide(platform, entry);
+      if (guide) result.guides.push(guide);
+    }
+  }
+  return result;
 }

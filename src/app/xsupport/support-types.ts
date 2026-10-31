@@ -29,6 +29,19 @@ export type SupportReplyQuote = {
   photoId?: string | null;
 };
 
+/** The order a conversation is about, as the admin thread endpoints send it (snake_case, like orders). */
+export type SupportOrderRef = {
+  id: number;
+  code: string;
+  package_id: string;
+  iccid: string | null;
+  status: string;
+  lifecycle_status: string;
+  created_at: string;
+};
+
+export type SupportRecentOrder = SupportOrderRef & { expires_at: string | null };
+
 export type SupportThread = {
   id: string;
   userEmail: string;
@@ -43,6 +56,8 @@ export type SupportThread = {
   /** Admin-only: the traveler's phone, from their latest mobile-app message (debugging aid). */
   deviceModel?: string | null;
   deviceOs?: string | null;
+  /** Admin-only: the order the traveler linked to the conversation. Absent on some socket payloads. */
+  order?: SupportOrderRef | null;
 };
 
 export type AdminJsonPayload<T> = {

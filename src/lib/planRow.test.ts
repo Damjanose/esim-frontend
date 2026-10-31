@@ -118,7 +118,7 @@ describe("plan row text", () => {
 
   it("subtitles a row with its minutes/texts, else the old CompactPlanCard line", () => {
     expect(planSubtitle(plan({ voiceMinutes: 10, smsCount: 10 }))).toBe("10 min + 10 SMS");
-    expect(planSubtitle(plan({ dataLabel: "Unlimited", dataNumericGb: 999 }))).toBe("High-speed data without limits.");
+    expect(planSubtitle(plan({ dataLabel: "Unlimited", dataNumericGb: 999 }))).toBe("Unlimited (fair-use policy applies)");
     expect(planSubtitle(plan({ durationDays: 15 }))).toBe("Perfect for short trips.");
     expect(planSubtitle(plan({ durationDays: 30 }))).toBe("More data for longer adventures.");
   });

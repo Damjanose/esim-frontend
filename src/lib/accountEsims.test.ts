@@ -99,8 +99,16 @@ describe("daysLeft / esimStatusLine", () => {
       "Active · 12 days left"
     );
     expect(esimStatusLine({ lifecycle_status: "active", expires_at: "2026-10-02T11:00:00.000Z" }, NOW)).toBe(
-      "Active · 1 day left"
+      "Active · 23 hours left"
     );
+    expect(esimStatusLine({ lifecycle_status: "active", expires_at: "2026-10-03T11:00:00.000Z" }, NOW)).toBe(
+      "Active · 2 days left"
+    );
+    // The usage payload's provider expiry wins over the order's.
+    expect(
+      esimStatusLine({ lifecycle_status: "active", expires_at: "2026-10-13T12:00:00.000Z" }, NOW, "2026-10-01T14:00:00.000Z")
+    ).toBe("Active · 2 hours left");
+    expect(esimStatusLine({ lifecycle_status: "preparing", expires_at: null }, NOW)).toBe("Preparing your eSIM");
     expect(esimStatusLine({ lifecycle_status: "active", expires_at: "2026-09-30T00:00:00.000Z" }, NOW)).toBe(
       "Active · Expires today"
     );
@@ -115,6 +123,7 @@ describe("lifecycleBadge", () => {
     expect(lifecycleBadge("active")).toEqual({ label: "Active", tone: "active" });
     expect(lifecycleBadge("ready")).toEqual({ label: "Ready", tone: "ready" });
     expect(lifecycleBadge("expired")).toEqual({ label: "Expired", tone: "expired" });
+    expect(lifecycleBadge("preparing")).toEqual({ label: "Preparing", tone: "preparing" });
     // Same rule as groupOrdersByLifecycle: a new backend status never hides a paid plan.
     expect(lifecycleBadge("something-new")).toEqual({ label: "Ready", tone: "ready" });
   });
@@ -151,6 +160,14 @@ describe("accountPrimaryAction", () => {
       orderId: 3
     });
     expect(accountPrimaryAction({ active, ready: [], history: [] })).toEqual({ kind: "topup", orderId: 1 });
+    // A preparing order has no QR yet, so it never takes the Install CTA.
+    expect(
+      accountPrimaryAction({
+        active,
+        ready: [order({ id: 5, lifecycle_status: "preparing" }), order({ id: 2 })],
+        history: []
+      })
+    ).toEqual({ kind: "install", orderId: 2 });
     expect(
       accountPrimaryAction({ active: null, ready: [], history: [order({ id: 4, lifecycle_status: "expired" })] })
     ).toBeNull();

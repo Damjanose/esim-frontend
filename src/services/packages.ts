@@ -1,3 +1,5 @@
+import { mapPlanDetails, type ApiPlanDetails, type PlanDetails } from "@/lib/planDetails";
+
 export type CoveredDestination = {
   slug: string;
   countryCode: string;
@@ -35,9 +37,11 @@ export type HeroPackageOption = {
   coveredDestinations?: CoveredDestination[];
   /** Merchandising toggle from admin pricing. */
   trending?: boolean;
+  /** Activation, networks and fair usage. Only present when read from a country-filtered endpoint. */
+  planDetails?: PlanDetails;
 };
 
-export type ApiPackage = {
+export type ApiPackage = ApiPlanDetails & {
   kind?: string;
   id?: string;
   country?: string;
@@ -282,6 +286,7 @@ function mapPackageToOption(
     `${dataLabel} - ${durationLabel}`;
 
   const filters = normalizeFilters(pkg.filters);
+  const planDetails = mapPlanDetails(pkg);
 
   const id =
     pkg.id?.trim() ||
@@ -344,6 +349,7 @@ function mapPackageToOption(
         : undefined,
     countries: pkg.countries,
     coveredDestinations: pkg.coveredDestinations,
+    ...(planDetails ? { planDetails } : {}),
     ...(typeof pkg.trending === "boolean" ? { trending: pkg.trending } : {}),
     // Matches the mobile app's formatRetailPriceLabel (src/currency/formatPrice.ts):
     // trust the backend's hasDiscount flag directly, no magnitude comparison
@@ -533,4 +539,48 @@ export async function fetchPackageGroups(): Promise<PackageGroupOptions> {
   } finally {
     packageGroupsRequest = null;
   }
+}
+
+/**
+ * Two-letter ISO code of the country a LOCAL plan covers, for the country-filtered
+ * catalog endpoints (which take an ISO code, not the slug in `countryCode`). Null for
+ * regional/global bundles, which have no single country.
+ */
+export function planIsoCountryCode(option: Pick<HeroPackageOption, "filters" | "coveredDestinations">): string | null {
+  if (!option.filters.includes("local")) return null;
+  const code = option.coveredDestinations?.[0]?.countryCode?.trim() ?? "";
+  return /^[A-Za-z]{2}$/.test(code) ? code.toUpperCase() : null;
+}
+
+const planDetailsRequests = new Map<string, Promise<Map<string, PlanDetails>>>();
+
+/**
+ * Plan details (activation, networks, fair usage) for one country, keyed by package id.
+ * The unfiltered catalog omits them, so the plan page asks the country-filtered
+ * endpoint through the BFF. A failure resolves to an empty map: the page then shows
+ * its neutral copy instead of an error.
+ */
+export function fetchCountryPlanDetails(isoCode: string): Promise<Map<string, PlanDetails>> {
+  const code = isoCode.trim().toUpperCase();
+  const existing = planDetailsRequests.get(code);
+  if (existing) return existing;
+
+  const request = (async () => {
+    const details = new Map<string, PlanDetails>();
+    try {
+      const response = await fetch(`/bff/packages?country_code=${encodeURIComponent(code)}`, {
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) throw new Error(String(response.status));
+      const payload = (await response.json()) as PackagesResponse | ApiPackage[];
+      for (const option of mapPackagesPayload(payload)) {
+        if (option.planDetails) details.set(option.id, option.planDetails);
+      }
+    } catch {
+      planDetailsRequests.delete(code);
+    }
+    return details;
+  })();
+  planDetailsRequests.set(code, request);
+  return request;
 }

@@ -8,6 +8,8 @@ import {
   type PlanRowPlan,
   type PlanRowTag,
 } from "@/lib/planRow";
+import { activationNote, networksLabel, unlimitedPlanCopy } from "@/lib/planDetails";
+import { isUnlimitedPlan } from "@/lib/planRow";
 import { crawlRel } from "@/lib/robots-policy";
 import { formatOriginalPrice, hasActiveDiscount } from "@/services/discountPricing";
 import { LinkButton } from "./Button";
@@ -97,6 +99,35 @@ export function PlanBuyLink({ href, primary, planTitle }: { href: string; primar
   );
 }
 
+/**
+ * Provider-reported facts about when the plan starts and which networks it uses
+ * (and, with `showUnlimited`, what its "unlimited" means). Only what the provider
+ * sent is shown: without plan details this renders nothing.
+ */
+export function PlanFacts({
+  plan,
+  showUnlimited = false,
+  className = ""
+}: {
+  plan: PlanRowPlan;
+  showUnlimited?: boolean;
+  className?: string;
+}) {
+  const lines = [
+    showUnlimited && isUnlimitedPlan(plan) ? unlimitedPlanCopy(plan.planDetails) : null,
+    activationNote(plan.planDetails, plan.country),
+    networksLabel(plan.planDetails)
+  ].filter((line): line is string => line !== null);
+  if (lines.length === 0) return null;
+  return (
+    <ul className={`space-y-0.5 text-body-sm text-onSurfaceVariant ${className}`} data-plan-facts>
+      {lines.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ul>
+  );
+}
+
 type PlanRowProps = {
   plan: PlanRowPlan;
   /** planRowTags(plan, { position }). A "Best value" tag makes this row's Buy now the gradient one. */
@@ -132,7 +163,8 @@ export function PlanRow({ plan, tags, buyHref, showTitle = true }: PlanRowProps)
           <p className="mt-0.5 line-clamp-2 text-body-sm font-semibold text-brandBlue sm:truncate">Regional bundle · {coverage}</p>
         ) : null}
         <PlanTags className="mt-1" tags={tags} />
-        <p className="mt-1 truncate text-body-sm text-onSurfaceVariant">{planSubtitle(plan)}</p>
+        <p className="mt-1 text-body-sm text-onSurfaceVariant sm:truncate">{planSubtitle(plan)}</p>
+        <PlanFacts className="mt-0.5" plan={plan} />
       </div>
 
       {/* Phones: price and Buy drop to their own line, so the plan text gets the full width. */}

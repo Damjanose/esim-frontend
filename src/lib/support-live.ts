@@ -149,3 +149,23 @@ export function supportReplyDragOffset(deltaX: number, mine: boolean): number {
   const capped = Math.min(toward, SUPPORT_REPLY_DRAG_MAX);
   return mine ? -capped : capped;
 }
+
+/**
+ * A `support:thread_updated` payload may omit `order`; merging (not replacing)
+ * keeps the order the header already shows. An explicit `order: null` still clears it.
+ */
+export function mergeThreadUpdate<T extends { order?: unknown }>(current: T | undefined, incoming: T): T {
+  if (!current || incoming.order !== undefined) return incoming;
+  return current.order === undefined ? incoming : { ...incoming, order: current.order };
+}
+
+/** Body of a 409 from the reopen route. */
+export type ReopenConflict = { code?: string; message?: string; openThreadId?: string | null };
+
+/** Admin-facing text for a failed reopen. */
+export function reopenConflictMessage(conflict: ReopenConflict): string {
+  if (conflict.code === "USER_HAS_OPEN_THREAD") {
+    return "This traveler already has an open conversation, so this one cannot be reopened.";
+  }
+  return conflict.message ?? "Could not reopen the conversation";
+}

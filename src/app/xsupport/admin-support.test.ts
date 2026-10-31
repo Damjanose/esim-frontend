@@ -96,4 +96,13 @@ describe("hidden admin support inbox", () => {
     expect(existsSync("src/app/bff/admin/support/threads/[id]/solved/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/support/attachments/[id]/route.ts")).toBe(true);
   });
+
+  it("shows the linked order, recent orders and a Reopen action on solved threads", () => {
+    const inboxSource = readFileSync("src/app/xsupport/SupportInbox.tsx", "utf8");
+    expect(inboxSource).toContain("recent_orders");
+    expect(inboxSource).toContain("Recent orders");
+    expect(inboxSource).toContain("/reopen");
+    expect(inboxSource).toContain("mergeThreadUpdate");
+    expect(existsSync("src/app/bff/admin/support/threads/[id]/reopen/route.ts")).toBe(true);
+  });
 });

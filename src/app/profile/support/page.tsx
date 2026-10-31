@@ -17,7 +17,14 @@ export const metadata: Metadata = createMetadata({
 });
 
 /** Signed-in only: middleware sends visitors without a session to /signin?next=/profile/support. */
-export default function SupportChatPage() {
+export default async function SupportChatPage({
+  searchParams
+}: {
+  searchParams: Promise<{ order?: string }>;
+}) {
+  const { order } = await searchParams;
+  // Opened from an order page: only a plain numeric Airalo order id is forwarded.
+  const orderId = order && /^\d{1,12}$/.test(order) ? order : undefined;
   return (
     // overflow-x-clip, not -hidden, so the AccountShell sidebar sticks (f215).
     <main className="min-h-screen overflow-x-clip bg-surfaceBright text-onSurface">
@@ -41,7 +48,7 @@ export default function SupportChatPage() {
               The same conversation you see in the eSIM2you app.
             </p>
 
-            <SupportChat />
+            <SupportChat orderId={orderId} />
           </div>
         </AccountShell>
       </div>

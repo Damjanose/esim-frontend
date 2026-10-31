@@ -21,12 +21,13 @@ type SharedEsimSummary = {
   coverageTitle: string | null;
   dataLabel: string | null;
   validityDays: number | null;
-  status: "ready" | "active" | "expired";
+  status: "ready" | "preparing" | "active" | "expired";
   purchasedAt: string;
 };
 
 const STATUS_LABEL: Record<SharedEsimSummary["status"], string> = {
   ready: "Not yet installed",
+  preparing: "Being prepared",
   active: "Active",
   expired: "Expired"
 };
@@ -77,7 +78,7 @@ export default async function SharedEsimPage({
     if (esim.dataLabel) rows.push({ label: "Data", value: esim.dataLabel });
     if (esim.validityDays != null)
       rows.push({ label: "Validity", value: `${esim.validityDays} days` });
-    rows.push({ label: "Status", value: STATUS_LABEL[esim.status] });
+    rows.push({ label: "Status", value: STATUS_LABEL[esim.status] ?? STATUS_LABEL.ready });
   }
 
   return (

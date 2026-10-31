@@ -62,6 +62,22 @@ describe("/bff/user/support", () => {
     expect(JSON.parse(String(init.body))).toEqual({ body: "Hi", attachmentIds: ["a1"], replyToId: "m1" });
   });
 
+  it("forwards order_id (string or number) when the chat was opened from an order", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await postMessage(
+      new Request("http://localhost:3000/bff/user/support/messages", {
+        method: "POST",
+        headers: { cookie: signedIn, "content-type": "application/json" },
+        body: JSON.stringify({ body: "Hi", order_id: "12345" })
+      })
+    );
+
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toMatchObject({ body: "Hi", order_id: "12345" });
+  });
+
   it("passes backend validation errors through", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ status: "error", error: "Message is too long." }, 400)));
 

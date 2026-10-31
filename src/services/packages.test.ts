@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  planIsoCountryCode,
   mapPackageGroupsPayload,
   mapPackagesPayload,
   planCoversDestination,
@@ -210,5 +211,34 @@ describe("persisted catalog cache", () => {
     };
     expect(readPersistedCatalog("k")).toBeNull();
     expect(() => writePersistedCatalog("k", [])).not.toThrow();
+  });
+});
+
+describe("plan details", () => {
+  it("carries activation, networks and fair usage from a country-filtered package", () => {
+    const [option] = mapPackagesPayload({
+      packages: [
+        {
+          ...apiPackage,
+          activation_policy: "first-usage",
+          networks: [{ name: "AT&T", types: ["5G"] }],
+          fair_usage: { policy: "p", high_speed_mb_per_day: 1024, throttled_speed_kbps: 128 }
+        }
+      ]
+    });
+    expect(option?.planDetails?.activationPolicy).toBe("first-usage");
+    expect(option?.planDetails?.networks).toEqual([{ name: "AT&T", types: ["5G"] }]);
+    expect(option?.planDetails?.fairUsage?.highSpeedMbPerDay).toBe(1024);
+  });
+
+  it("leaves planDetails unset on the unfiltered list", () => {
+    const [option] = mapPackagesPayload({ packages: [apiPackage] });
+    expect(option?.planDetails).toBeUndefined();
+  });
+
+  it("derives the ISO code only for local plans", () => {
+    expect(planIsoCountryCode({ filters: ["local"], coveredDestinations: [{ slug: "us", countryCode: "us", title: "US", aliases: [] }] })).toBe("US");
+    expect(planIsoCountryCode({ filters: ["regional"], coveredDestinations: [{ slug: "us", countryCode: "US", title: "US", aliases: [] }] })).toBeNull();
+    expect(planIsoCountryCode({ filters: ["local"] })).toBeNull();
   });
 });

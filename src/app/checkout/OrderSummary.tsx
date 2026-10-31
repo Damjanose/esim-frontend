@@ -13,7 +13,7 @@ import {
 } from "@/lib/checkoutSummary";
 import { planDurationText, planRowTags, planVoiceSmsDetail } from "@/lib/planRow";
 import type { HeroPackageOption } from "@/services/packages";
-import { PlanDataDisc, PlanTags } from "@/app/components/PlanRow";
+import { PlanDataDisc, PlanFacts, PlanTags } from "@/app/components/PlanRow";
 import { PromoCodeField, type AppliedPromo } from "./PromoCodeField";
 import { FlagImage } from "../components/FlagImage";
 
@@ -123,6 +123,7 @@ export function OrderSummary({
             <PlanTags className="mt-1" tags={tags} />
           </div>
         </div>
+        <PlanFacts className="mt-3 px-1" plan={plan} showUnlimited />
 
         {planCountries.length > 0 ? (
           <div className="mt-3">
