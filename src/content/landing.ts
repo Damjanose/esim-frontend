@@ -55,7 +55,6 @@ export const landingContent = {
       country: "USA",
       region: "North America",
       price: "$4.50",
-      badge: "5G ready",
       href: "/esim/usa",
       palette: "from-sky-200 via-cyan-100 to-slate-200",
       landmark: "NYC",

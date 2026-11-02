@@ -14,6 +14,8 @@ import {
 import { describePackage, esimStatusLine, lifecycleBadge, usageMeter } from "@/lib/accountEsims";
 import {
   formatMegabytes,
+  parseInstallInstructions,
+  parseLpa,
   resolveQrSource,
   summariseUsage,
   type UsagePayload
@@ -30,7 +32,9 @@ import { UsageRingCard } from "../../components/UsageRing";
 import { SiteFooter } from "../../SiteFooter";
 import { accountShellItems } from "../accountShellItems";
 import { CopyField } from "./CopyField";
+import { InstallGuides } from "./InstallGuides";
 import { InstallOnIphoneLink } from "./InstallOnIphoneLink";
+import { ProvisioningWatcher } from "./ProvisioningWatcher";
 import { OrderReviewCard } from "./OrderReviewCard";
 import { PurchaseConversion, type PurchasedPlan } from "./PurchaseConversion";
 import { TopUpConversion } from "./TopUpConversion";
@@ -53,7 +57,7 @@ type Order = {
   id: number;
   code: string;
   status: string;
-  lifecycle_status: "ready" | "active" | "expired";
+  lifecycle_status: "ready" | "preparing" | "active" | "expired";
   package_id: string;
   /** Pokpay payment id; null on orders that predate payment tracking. */
   payment_reference?: string | null;
@@ -104,10 +108,10 @@ export default async function OrderDetailPage({
   searchParams
 }: {
   params: Promise<{ orderId: string }>;
-  searchParams: Promise<{ new?: string; topup?: string; payment?: string }>;
+  searchParams: Promise<{ new?: string; topup?: string; payment?: string; refresh?: string }>;
 }) {
   const { orderId } = await params;
-  const { new: isNew, topup: isToppedUp, payment: topupPaymentId } = await searchParams;
+  const { new: isNew, topup: isToppedUp, payment: topupPaymentId, refresh } = await searchParams;
   const basePath = `/account/${orderId}`;
 
   const orderResult = await fetchForPage<{ order: Order }>(`/orders/${orderId}`, basePath);
@@ -142,7 +146,7 @@ export default async function OrderDetailPage({
   const sim = order.sims?.[0];
 
   const [usageResult, instructionsResult, packagesResult, topupsResult, packageOptions] = await Promise.all([
-    fetchForPage<{ usage: UsagePayload }>(`/orders/${orderId}/usage`, basePath),
+    fetchForPage<{ usage: UsagePayload }>(`/orders/${orderId}/usage${refresh === "1" ? "?refresh=1" : ""}`, basePath),
     fetchForPage<{ instructions: Instructions }>(`/orders/${orderId}/instructions`, basePath),
     fetchForPage<{ packages: PackageHistoryEntry[] }>(`/orders/${orderId}/packages`, basePath),
     fetchForPage<{ topups: Topups }>(`/orders/${orderId}/topups`, basePath),
@@ -159,6 +163,16 @@ export default async function OrderDetailPage({
   const qr = resolveQrSource(sim?.qrcode);
   const instructionsAvailable =
     instructionsResult.ok && instructionsResult.data.instructions?.available === true;
+  const installInstructions = parseInstallInstructions(
+    instructionsAvailable && instructionsResult.ok ? instructionsResult.data.instructions : null
+  );
+  // Manual install details next to the QR: from the SIM's LPA string, else from the provider's guide.
+  const manualLpa = parseLpa(
+    qr.kind === "activation"
+      ? qr.code
+      : (installInstructions.guides.find((guide) => guide.manualLpa)?.manualLpa ?? null)
+  );
+  const isPreparing = order.lifecycle_status === "preparing";
   const catalog = new Map(packageOptions.map((option) => [option.id, option]));
   const plan = describePackage(order.package_id, catalog);
   const purchasedOption = catalog.get(order.package_id);
@@ -173,7 +187,8 @@ export default async function OrderDetailPage({
       }
     : null;
   const meter = usageMeter(usage);
-  const statusLine = esimStatusLine(order);
+  const statusLine = esimStatusLine(order, Date.now(), usage.available ? usage.expiresAt : null);
+  const refreshHref = `${basePath}?refresh=1`;
   // The list below is the top-up; the card's Top up just jumps to it.
   const topUpHref = topupPackages.length > 0 ? "#top-up" : undefined;
 
@@ -199,15 +214,29 @@ export default async function OrderDetailPage({
                 plan={purchasedPlan}
                 transactionId={order.payment_reference || order.code}
               />
-              <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
-                <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
-                <div>
-                  <p className="font-bold text-brandInk">Payment complete — your eSIM is ready</p>
-                  <p className="mt-0.5 text-sm text-onSurfaceVariant">
-                    Scan the QR code below to install it on your device.
-                  </p>
+              {qr.kind === "none" ? (
+                <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandBlue/30 bg-brandBlue/10 px-5 py-4">
+                  <Clock3 aria-hidden="true" className="shrink-0 text-brandBlue" size={22} />
+                  <div>
+                    <p className="font-bold text-brandInk">Payment received — we&apos;re preparing your eSIM</p>
+                    <p className="mt-0.5 text-sm text-onSurfaceVariant">
+                      Your QR code will appear below in a moment.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mt-4 flex items-center gap-4 rounded-[16px] border border-brandTeal/40 bg-brandTeal/10 px-5 py-4">
+                  <CheckCircle2 aria-hidden="true" className="shrink-0 text-brandTeal" size={22} />
+                  <div>
+                    <p className="font-bold text-brandInk">Payment complete — your eSIM is ready</p>
+                    <p className="mt-0.5 text-sm text-onSurfaceVariant">
+                      {qr.kind === "image"
+                        ? "Scan the QR code below to install it on your device."
+                        : "Use the activation code below to install it on your device."}
+                    </p>
+                  </div>
+                </div>
+              )}
             </>
           ) : null}
 
@@ -245,6 +274,7 @@ export default async function OrderDetailPage({
                 <ActiveEsimCard
                   flagUri={plan.flagUri}
                   meter={meter}
+                  refreshHref={refreshHref}
                   statusLine={statusLine}
                   title={plan.title}
                   topUpHref={topUpHref}
@@ -257,6 +287,7 @@ export default async function OrderDetailPage({
                   flagUri={plan.flagUri}
                   meter={meter}
                   primaryTopUp
+                  refreshHref={refreshHref}
                   statusLine={statusLine}
                   title={plan.title}
                   topUpHref={topUpHref}
@@ -286,25 +317,44 @@ export default async function OrderDetailPage({
                     />
                   </div>
                   <p className="mt-4 text-center text-xs text-onSurfaceVariant">
-                    On your phone, open Settings → Mobile Data → Add eSIM, then scan this code.
+                    Open your phone&apos;s eSIM settings and scan this code. On iPhone: Settings → Mobile
+                    Service → Add eSIM. On Android: Settings → Network &amp; internet → SIMs → Add eSIM
+                    (menus vary by brand).
                   </p>
+                  {manualLpa ? (
+                    <div className="mt-4 space-y-3">
+                      <p className="text-sm text-onSurfaceVariant">Or enter these details manually:</p>
+                      <CopyField installAttemptOrderId={order.id} label="SM-DP+ address" value={manualLpa.address} />
+                      {manualLpa.code ? (
+                        <CopyField installAttemptOrderId={order.id} label="Activation code" value={manualLpa.code} />
+                      ) : null}
+                    </div>
+                  ) : null}
                 </>
               ) : qr.kind === "activation" ? (
                 <div className="mt-5 space-y-3">
                   <p className="text-sm text-onSurfaceVariant">
                     Install manually with this activation code:
                   </p>
-                  <CopyField installAttemptOrderId={order.id} label="Activation code" value={qr.code} />
+                  {manualLpa ? (
+                    <>
+                      <CopyField installAttemptOrderId={order.id} label="SM-DP+ address" value={manualLpa.address} />
+                      {manualLpa.code ? (
+                        <CopyField installAttemptOrderId={order.id} label="Activation code" value={manualLpa.code} />
+                      ) : null}
+                    </>
+                  ) : (
+                    <CopyField installAttemptOrderId={order.id} label="Activation code" value={qr.code} />
+                  )}
                 </div>
               ) : (
                 <div className="mt-5 flex items-start gap-3 rounded-[14px] border border-outline/60 bg-surfaceBright px-5 py-4">
                   <Clock3 aria-hidden="true" className="mt-0.5 shrink-0 text-brandBlue" size={18} />
                   <div>
-                    <p className="text-sm font-bold text-brandInk">Still provisioning</p>
-                    <p className="mt-1 text-sm text-onSurfaceVariant">
-                      Your eSIM is being prepared. Refresh this page in a moment to get your QR
-                      code.
+                    <p className="text-sm font-bold text-brandInk">
+                      {isPreparing ? "Preparing your eSIM" : "Still provisioning"}
                     </p>
+                    <ProvisioningWatcher orderCode={order.code} />
                   </div>
                 </div>
               )}
@@ -319,6 +369,8 @@ export default async function OrderDetailPage({
                 <InstallOnIphoneLink href={sim.direct_apple_installation_url} orderId={order.id} />
               ) : null}
 
+              <InstallGuides instructions={installInstructions} />
+
               {!instructionsAvailable ? (
                 <p className="mt-4 flex items-start gap-2 text-xs text-onSurfaceVariant">
                   <Info aria-hidden="true" className="mt-0.5 shrink-0" size={13} />
@@ -326,7 +378,7 @@ export default async function OrderDetailPage({
                 </p>
               ) : null}
 
-              <LinkButton className="mt-4 w-full" href="/support" variant="tint">
+              <LinkButton className="mt-4 w-full" href={`/profile/support?order=${order.id}`} variant="tint">
                 <LifeBuoy aria-hidden="true" size={16} />
                 Need help?
               </LinkButton>

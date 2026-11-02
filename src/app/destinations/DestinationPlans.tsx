@@ -6,7 +6,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   coveredDestinationsForOption,
+  fetchCountryPlanDetails,
   fetchPackageOptions,
+  planIsoCountryCode,
   planCoversDestination,
   type HeroPackageOption,
 } from "@/services/packages";
@@ -15,6 +17,7 @@ import {
   matchesDestinationFilters,
   parseDestinationFiltersFromParams,
 } from "@/services/destinationFilters";
+import type { PlanDetails } from "@/lib/planDetails";
 import { planRowTags } from "@/lib/planRow";
 import { absoluteUrl, createOfferProductJsonLd } from "@/lib/seo";
 import { Navbar } from "../components/Navbar";
@@ -106,6 +109,8 @@ export function DestinationPlans({ countryCode, searchFilters }: DestinationPlan
   const [sort, setSort] = useState<PlanSort>("recommended");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Activation / networks / fair usage: only the country-filtered endpoint has them.
+  const [planDetails, setPlanDetails] = useState<Map<string, PlanDetails>>(new Map());
 
   useEffect(() => {
     let active = true;
@@ -178,10 +183,31 @@ export function DestinationPlans({ countryCode, searchFilters }: DestinationPlan
     };
   }, [selectedCountryPlans]);
 
+  // The one ISO code the plan details are read for (local plans only; bundles show neutral copy).
+  const detailsIso = useMemo(
+    () => selectedCountryPlans.map(planIsoCountryCode).find((code) => code !== null) ?? null,
+    [selectedCountryPlans],
+  );
+
+  useEffect(() => {
+    if (!detailsIso) return;
+    let active = true;
+    void fetchCountryPlanDetails(detailsIso).then((details) => {
+      if (active) setPlanDetails(details);
+    });
+    return () => {
+      active = false;
+    };
+  }, [detailsIso]);
+
   // The list as displayed. Its first row is the Best value (planRowTags position 0).
   const displayedPlans = useMemo(
-    () => visiblePlans(selectedCountryPlans, filter, sort),
-    [filter, selectedCountryPlans, sort],
+    () =>
+      visiblePlans(selectedCountryPlans, filter, sort).map((plan) => {
+        const details = planDetails.get(plan.id);
+        return details ? { ...plan, planDetails: details } : plan;
+      }),
+    [filter, planDetails, selectedCountryPlans, sort],
   );
 
   const { image: heroImage, loading: heroImageLoading } = useCountryHeroImage({

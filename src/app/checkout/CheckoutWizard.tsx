@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { BillingAddress } from "@/app/bff/user/billing-address/route";
+import { clearChargedPayment, readChargedPayment, saveChargedPayment } from "@/lib/chargedPayment";
+import { reportClientError } from "@/lib/report-client-error";
 import { PAYMENT_TRUST_NOTE } from "@/lib/checkoutSummary";
 import { availableMethods, type PaymentMethod } from "@/lib/externalPayments";
+import { RecoveryPanel } from "./RecoveryPanel";
 import { PaymentMethodPicker } from "./PaymentMethodPicker";
 import { usePaymentMethods } from "./usePaymentMethods";
 import { BillingStep } from "./steps/BillingStep";
@@ -31,9 +34,13 @@ export function CheckoutWizard({
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [environment, setEnvironment] = useState<string>("staging");
-  const [cardError, setCardError] = useState<string | null>(null);
   const [intentError, setIntentError] = useState<string | null>(null);
   const [creatingIntent, setCreatingIntent] = useState(false);
+  // undefined = storage not read yet (no intent is created until it is); null = nothing
+  // charged; string = a payment already charged whose eSIM setup still has to be confirmed.
+  const [chargedId, setChargedId] = useState<string | null | undefined>(undefined);
+  const [retrying, setRetrying] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
   // Step 02 stays invisible (still laid out, so nothing pops in) until the billing
   // step has its real height: the saved address or the form replaces a one-line
   // loading note, and a visible step 02 below it would jump (CLS).
@@ -60,7 +67,11 @@ export function CheckoutWizard({
   // the charge amount depends on it; the card step below just gets a fresh
   // paymentId when that happens.
   useEffect(() => {
-    if (disabled) return;
+    setChargedId(readChargedPayment(packageId)?.paymentId ?? null);
+  }, [packageId]);
+
+  useEffect(() => {
+    if (disabled || chargedId !== null) return;
     let cancelled = false;
 
     void (async () => {
@@ -105,38 +116,85 @@ export function CheckoutWizard({
     return () => {
       cancelled = true;
     };
-  }, [packageId, promoCode, disabled]);
+  }, [packageId, promoCode, disabled, chargedId]);
+
+  // Safe to call repeatedly: the backend provisions once per payment id and never re-charges.
+  const provision = useCallback(
+    async (id: string): Promise<boolean> => {
+      let failure = "Your payment went through, but we could not finish setting up your eSIM.";
+      try {
+        const response = await fetch("/bff/payments/provision", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payment_id: id })
+        });
+        const payload = (await response.json().catch(() => ({}))) as {
+          data?: { order?: { id: number | string } };
+          error?: string;
+        };
+
+        if (response.ok && payload.data?.order) {
+          clearChargedPayment();
+          // Lands on the existing order page — same destination the hosted-redirect
+          // flow ended at (/account/{orderId}?new=1), via client navigation.
+          router.push(`/account/${payload.data.order.id}?new=1`);
+          return true;
+        }
+        failure = payload.error ?? failure;
+        reportClientError({
+          kind: "client_error",
+          scenario: "purchase_plan_web",
+          stage: "provision",
+          screen: "/checkout",
+          errorName: "ProvisionAfterPaymentError",
+          message: failure,
+          paymentReference: id,
+          packageId,
+          extra: { status: response.status }
+        });
+      } catch (caught) {
+        failure = "Your payment went through, but we could not confirm it with our server.";
+        reportClientError({
+          kind: "client_error",
+          scenario: "purchase_plan_web",
+          stage: "provision",
+          screen: "/checkout",
+          errorName: "ProvisionAfterPaymentError",
+          message: caught instanceof Error ? caught.message : failure,
+          paymentReference: id,
+          packageId
+        });
+      }
+      setRecoveryError(failure);
+      return false;
+    },
+    [packageId, router]
+  );
 
   const handlePaid = useCallback(async () => {
     if (!paymentId) return;
-    try {
-      const response = await fetch("/bff/payments/provision", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payment_id: paymentId })
-      });
-      const payload = (await response.json().catch(() => ({}))) as {
-        data?: { order?: { id: number | string } };
-        error?: string;
-      };
+    // Persist first: from here on the card is charged, so a reload must not offer Pay again.
+    saveChargedPayment({ paymentId, packageId, at: Date.now() });
+    setChargedId(paymentId);
+    setRetrying(true);
+    await provision(paymentId);
+    setRetrying(false);
+  }, [paymentId, packageId, provision]);
 
-      if (!response.ok || !payload.data?.order) {
-        setCardError(
-          payload.error ??
-            "Your payment went through, but we could not finish setting up your eSIM. Please contact support with your payment reference."
-        );
-        return;
-      }
+  const retryProvision = useCallback(async () => {
+    if (!chargedId) return;
+    setRetrying(true);
+    setRecoveryError(null);
+    await provision(chargedId);
+    setRetrying(false);
+  }, [chargedId, provision]);
 
-      // Lands on the existing order page — same destination the hosted-redirect
-      // flow ended at (/account/{orderId}?new=1), via client navigation.
-      router.push(`/account/${payload.data.order.id}?new=1`);
-    } catch {
-      setCardError(
-        "Your payment went through, but we could not confirm it with our server. Please contact support with your payment reference."
-      );
-    }
-  }, [paymentId, router]);
+  const startNewPurchase = useCallback(() => {
+    clearChargedPayment();
+    setRecoveryError(null);
+    setPaymentId(null);
+    setChargedId(null);
+  }, []);
 
   return (
     <div>
@@ -163,6 +221,17 @@ export function CheckoutWizard({
           {selectedMethod === "card" ? <>{PAYMENT_TRUST_NOTE}</> : "Pay with PayPal or USDT; no card needed."}
         </StepHeading>
 
+        {chargedId ? (
+          <RecoveryPanel
+            error={recoveryError}
+            onRetry={() => void retryProvision()}
+            onStartOver={startNewPurchase}
+            paymentId={chargedId}
+            retrying={retrying}
+          />
+        ) : null}
+
+        <div className={chargedId ? "hidden" : undefined}>
         <PaymentMethodPicker disabled={disabled} methods={methods} onChange={setMethod} value={selectedMethod} />
 
         <div className={`mb-4 space-y-2 empty:hidden ${selectedMethod === "card" ? "" : "hidden"}`}>
@@ -174,13 +243,6 @@ export function CheckoutWizard({
           ) : null}
           {intentError ? <p className="text-sm font-semibold text-error">{intentError}</p> : null}
 
-          {cardError ? (
-            <p className="text-sm font-semibold text-error">
-              {cardError}
-              <br />
-              Payment reference: <span className="font-mono font-bold">{paymentId}</span>
-            </p>
-          ) : null}
         </div>
 
         {selectedMethod === "paypal" && billingAddress && !disabled ? (
@@ -199,7 +261,7 @@ export function CheckoutWizard({
           />
         ) : null}
 
-        {selectedMethod === "card" && paymentId && billingAddress ? (
+        {selectedMethod === "card" && paymentId && billingAddress && !chargedId ? (
           <CardStep
             billingAddress={billingAddress}
             environment={environment}
@@ -207,6 +269,7 @@ export function CheckoutWizard({
             paymentId={paymentId}
           />
         ) : null}
+        </div>
       </section>
     </div>
   );

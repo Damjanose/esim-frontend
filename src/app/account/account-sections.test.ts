@@ -21,7 +21,7 @@ describe("account plan sections", () => {
   });
 
   it("fetches usage only for the live plan, not once per plan", () => {
-    const usageCalls = accountPage.match(/\/usage`/g) ?? [];
+    const usageCalls = accountPage.match(/\/usage\$\{usageQuery\}`/g) ?? [];
     expect(usageCalls).toHaveLength(1);
     expect(accountPage).toContain("activeOrder\n      ?");
   });

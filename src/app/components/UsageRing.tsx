@@ -3,6 +3,7 @@ import type { LifecycleBadge, UsageMeter } from "@/lib/accountEsims";
 import { LinkButton } from "./Button";
 import { EsimFlag } from "./EsimFlag";
 import { StatusBadge } from "./StatusBadge";
+import { UsageUpdated } from "./UsageUpdated";
 
 /**
  * Teal ring of the data LEFT (lg+ account pages), with the figure in the middle.
@@ -53,6 +54,7 @@ export function UsageRingCard({
   topUpHref,
   detailsHref,
   primaryTopUp = false,
+  refreshHref,
   children
 }: {
   title: string;
@@ -64,6 +66,7 @@ export function UsageRingCard({
   topUpHref?: string;
   detailsHref?: string;
   primaryTopUp?: boolean;
+  refreshHref?: string;
   /** Extra actions after Top up / Details. */
   children?: ReactNode;
 }) {
@@ -85,6 +88,7 @@ export function UsageRingCard({
 
         {details ? <p className="mt-4 text-sm text-onSurfaceVariant">{details}</p> : null}
         {meter.note ? <p className="mt-3 text-sm leading-6 text-onSurfaceVariant">{meter.note}</p> : null}
+        <UsageUpdated refreshHref={refreshHref} syncedAt={meter.syncedAt} />
 
         {topUpHref || detailsHref || children ? (
           <div className="mt-5 flex flex-wrap gap-3">

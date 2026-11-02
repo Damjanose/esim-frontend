@@ -1,5 +1,5 @@
 import { backendFetch } from "@/lib/backend";
-import { mapPackagesPayload, type HeroPackageOption } from "./packages";
+import { mapPackagesPayload, planIsoCountryCode, type HeroPackageOption } from "./packages";
 
 const CATALOG_CACHE_TTL_MS = 60_000;
 
@@ -60,4 +60,26 @@ export async function getPackageOption(id: string): Promise<HeroPackageOption | 
 
   const options = await getPackageOptions();
   return options.find((option) => option.id === wanted) ?? null;
+}
+
+/**
+ * The plan plus its provider details (activation, networks, fair usage). The public
+ * catalog omits them, so for a local plan this also reads the country-filtered list
+ * server-side. Any failure just returns the plain plan, so pages show neutral copy.
+ */
+export async function getPackageOptionWithDetails(id: string): Promise<HeroPackageOption | null> {
+  const option = await getPackageOption(id);
+  if (!option) return null;
+
+  const iso = planIsoCountryCode(option);
+  if (!iso) return option;
+
+  try {
+    const result = await backendFetch<{ packages?: unknown[] }>(`/packages?country_code=${iso}`);
+    if (!result.ok) return option;
+    const detailed = mapPackagesPayload(result.data as { packages?: [] }).find((item) => item.id === option.id);
+    return detailed?.planDetails ? { ...option, planDetails: detailed.planDetails } : option;
+  } catch {
+    return option;
+  }
 }

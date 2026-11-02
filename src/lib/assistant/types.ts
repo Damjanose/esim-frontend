@@ -74,7 +74,7 @@ export type AssistantClarify = { destination: string; place?: string };
 export type AssistantOrderSummary = {
   id: number;
   destination: string | null;
-  status: "ready" | "active" | "expired";
+  status: "ready" | "preparing" | "active" | "expired";
   createdAt: string;
 };
 

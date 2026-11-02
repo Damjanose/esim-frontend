@@ -1,6 +1,7 @@
 import type { UsageMeter } from "@/lib/accountEsims";
 import { LinkButton } from "./Button";
 import { EsimFlag } from "./EsimFlag";
+import { UsageUpdated } from "./UsageUpdated";
 
 /**
  * The app's ActiveEsimCard (phones/tablets): a brandBlue card with the data left in
@@ -14,7 +15,8 @@ export function ActiveEsimCard({
   statusLine,
   meter,
   topUpHref,
-  detailsHref
+  detailsHref,
+  refreshHref
 }: {
   title: string;
   flagUri: string | null;
@@ -22,6 +24,7 @@ export function ActiveEsimCard({
   meter: UsageMeter;
   topUpHref?: string;
   detailsHref?: string;
+  refreshHref?: string;
 }) {
   return (
     <article className="rounded-[18px] bg-brandBlue p-5 text-surface shadow-brandGlow" data-active-esim-card>
@@ -44,6 +47,8 @@ export function ActiveEsimCard({
       <div aria-label={meter.label} className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-surface/25" role="img">
         <div className="h-full rounded-full bg-surface" style={{ width: `${meter.leftPercent ?? 0}%` }} />
       </div>
+
+      <UsageUpdated onDark refreshHref={refreshHref} syncedAt={meter.syncedAt} />
 
       {topUpHref || detailsHref ? (
         <div className="mt-5 flex gap-2">

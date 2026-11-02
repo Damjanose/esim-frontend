@@ -15,7 +15,7 @@ export function OrderReviewCard({
 }: {
   airaloOrderId: number;
   justPaid: boolean;
-  lifecycle: "ready" | "active" | "expired";
+  lifecycle: "ready" | "preparing" | "active" | "expired";
 }) {
   const key = `review_dismissed_${airaloOrderId}`;
   const [show, setShow] = useState(false);
@@ -28,7 +28,7 @@ export function OrderReviewCard({
       // Storage blocked: just show it.
     }
     const reopened = new URLSearchParams(window.location.search).get("review") === "open";
-    setShow(reopened || (!dismissed && (justPaid || lifecycle !== "ready")));
+    setShow(reopened || (!dismissed && (justPaid || (lifecycle !== "ready" && lifecycle !== "preparing"))));
   }, [key, justPaid, lifecycle]);
 
   if (!show) return null;
@@ -46,7 +46,7 @@ export function OrderReviewCard({
     <div className="mt-4">
       <ReviewComposer
         airaloOrderId={airaloOrderId}
-        heading={justPaid && lifecycle === "ready" ? "How was buying your eSIM?" : "How's your trip data?"}
+        heading={justPaid && (lifecycle === "ready" || lifecycle === "preparing") ? "How was buying your eSIM?" : "How's your trip data?"}
         onDismiss={dismiss}
         onlyWhenWritable
         subheading="Two taps and a line. It helps other travelers a lot."

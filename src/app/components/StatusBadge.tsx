@@ -3,6 +3,7 @@ import type { LifecycleBadge } from "@/lib/accountEsims";
 const TONE_CLASSES: Record<LifecycleBadge["tone"], string> = {
   active: "bg-brandTeal/15 text-brandInk",
   ready: "bg-brandBlue/10 text-brandBlue",
+  preparing: "bg-outline/40 text-onSurfaceVariant",
   expired: "bg-outline/40 text-onSurfaceVariant"
 };
 

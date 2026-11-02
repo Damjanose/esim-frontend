@@ -1,3 +1,4 @@
+import { unlimitedPlanCopy, type PlanDetails } from "@/lib/planDetails";
 import { discountPercentOff, type DiscountPricedPlan } from "@/services/discountPricing";
 
 /**
@@ -18,6 +19,8 @@ export type PlanRowPlan = DiscountPricedPlan & {
   filters?: readonly string[];
   /** The plan's own destination name (live catalog and, since f329, static /esim rows). */
   country?: string;
+  /** Provider plan details (activation, networks, fair usage); only on country-filtered catalog reads. */
+  planDetails?: PlanDetails;
 };
 
 export type PlanRowTag =
@@ -97,7 +100,7 @@ export function planVoiceSmsDetail(plan: Pick<PlanRowPlan, "voiceMinutes" | "sms
 export function planSubtitle(plan: PlanRowPlan): string {
   const voiceSms = planVoiceSmsDetail(plan);
   if (voiceSms) return voiceSms;
-  if (isUnlimitedPlan(plan)) return "High-speed data without limits.";
+  if (isUnlimitedPlan(plan)) return unlimitedPlanCopy(plan.planDetails);
   return (plan.durationDays ?? 0) <= 15 ? "Perfect for short trips." : "More data for longer adventures.";
 }
 

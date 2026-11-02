@@ -72,9 +72,13 @@ function SupportPhoto({ src, onOpen }: { src: string; onOpen: (src: string) => v
   );
 }
 
-export function SupportChat() {
+export function SupportChat({ orderId }: { orderId?: string }) {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [threadOpen, setThreadOpen] = useState(false);
+  // A solved thread stays visible for 30 days; sending a message reopens it.
+  const [threadSolved, setThreadSolved] = useState(false);
+  // The order is attached to the first message sent from this page visit only.
+  const orderLinkedRef = useRef(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -97,7 +101,8 @@ export function SupportChat() {
       // A slower poll must not overwrite what a later send/solve already loaded.
       if (request !== requestRef.current) return;
       setMessages(data.messages ?? []);
-      setThreadOpen(Boolean(data.thread));
+      setThreadSolved(data.thread?.status === "solved");
+      setThreadOpen(Boolean(data.thread) && data.thread?.status !== "solved");
       setLoadError(null);
     } catch (err) {
       if (request !== requestRef.current) return;
@@ -203,10 +208,12 @@ export function SupportChat() {
         body: JSON.stringify({
           body: check.body || null,
           attachmentIds,
-          ...(replyTarget ? { replyToId: replyTarget.id } : {})
+          ...(replyTarget ? { replyToId: replyTarget.id } : {}),
+          ...(orderId && !orderLinkedRef.current ? { order_id: orderId } : {})
         })
       });
 
+      orderLinkedRef.current = true;
       setDraft("");
       setFiles([]);
       setReplyTarget(null);
@@ -375,6 +382,12 @@ export function SupportChat() {
           })
         )}
       </div>
+
+      {threadSolved ? (
+        <p className="border-t border-outline/60 bg-surfaceBright px-4 py-2.5 text-xs text-onSurfaceVariant" role="status">
+          This conversation was marked solved — send a message to reopen it.
+        </p>
+      ) : null}
 
       <form className="border-t border-outline/60 p-3 sm:p-4" onSubmit={(event) => void send(event)}>
         {replyTarget ? (

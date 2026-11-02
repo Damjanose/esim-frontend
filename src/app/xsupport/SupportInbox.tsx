@@ -10,6 +10,7 @@ import {
   ImagePlus,
   RefreshCw,
   Reply,
+  RotateCcw,
   Send,
   Smartphone,
   X
@@ -22,8 +23,10 @@ import {
   applyEditedSupportMessage,
   applyMessagePreviewToThreads,
   formatSupportDevice,
+  mergeThreadUpdate,
   nextAdminTypingEmit,
   previewFromSupportMessage,
+  reopenConflictMessage,
   shouldAlertAdminOfIncomingMessage,
   supportLiveThreadId,
   supportMessageDomId,
@@ -35,6 +38,8 @@ import {
 import type {
   AdminJsonPayload,
   SupportMessage,
+  SupportOrderRef,
+  SupportRecentOrder,
   SupportThread,
   SupportThreadStatus
 } from "./support-types";
@@ -145,6 +150,67 @@ type SupportInboxProps = {
   handleUnauthorized: () => void;
 };
 
+function LinkedOrder({ order }: { order: SupportOrderRef | null }) {
+  if (!order) return null;
+  return (
+    <div
+      className="mt-1.5 max-w-full rounded-lg border border-line bg-cloud/60 px-2.5 py-1.5 text-xs text-midnight"
+      data-linked-order
+    >
+      <p className="font-black">
+        Order {order.code} <span className="font-semibold text-muted">· {order.package_id}</span>
+      </p>
+      <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-muted">
+        <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-midnight">
+          {order.lifecycle_status}
+        </span>
+        {order.iccid ? <span className="break-all font-mono">ICCID {order.iccid}</span> : <span>No ICCID yet</span>}
+        <span>Created {formatDate(order.created_at)}</span>
+      </p>
+    </div>
+  );
+}
+
+function RecentOrdersPanel({
+  orders,
+  open,
+  onToggle
+}: {
+  orders: SupportRecentOrder[];
+  open: boolean;
+  onToggle: () => void;
+}) {
+  if (orders.length === 0) return null;
+  return (
+    <div className="border-b border-line bg-white px-5 py-2 text-xs">
+      <button
+        aria-expanded={open}
+        className="font-black text-midnight underline-offset-2 hover:underline"
+        onClick={onToggle}
+        type="button"
+      >
+        Recent orders ({orders.length}) {open ? "▴" : "▾"}
+      </button>
+      {open ? (
+        <ul className="mt-2 space-y-1.5">
+          {orders.map((order) => (
+            <li className="rounded-lg border border-line px-2.5 py-1.5" key={order.id}>
+              <p className="font-black text-midnight">
+                {order.code} <span className="font-semibold text-muted">· {order.package_id}</span>
+              </p>
+              <p className="text-muted">
+                {order.lifecycle_status}
+                {order.iccid ? ` · ICCID ${order.iccid}` : ""} · Created {formatDate(order.created_at)}
+                {order.expires_at ? ` · Expires ${formatDate(order.expires_at)}` : ""}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
   const [tab, setTab] = useState<SupportThreadStatus>("unread");
   const [threads, setThreads] = useState<SupportThread[]>([]);
@@ -159,6 +225,10 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
   const [isLoadingThread, setIsLoadingThread] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isSolving, setIsSolving] = useState(false);
+  const [isReopening, setIsReopening] = useState(false);
+  const [reopenConflict, setReopenConflict] = useState<{ message: string; openThreadId: string | null } | null>(null);
+  const [recentOrders, setRecentOrders] = useState<SupportRecentOrder[]>([]);
+  const [recentOrdersOpen, setRecentOrdersOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -298,7 +368,11 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
           cache: "no-store"
         });
         handleAuthStatus(response.status);
-        const payload = await readJson<{ thread?: SupportThread; messages?: SupportMessage[] }>(response);
+        const payload = await readJson<{
+          thread?: SupportThread;
+          messages?: SupportMessage[];
+          recent_orders?: SupportRecentOrder[];
+        }>(response);
         if (!response.ok || payload.status !== "success" || !payload.data?.thread) {
           throw new Error(payload.message ?? "Could not load conversation");
         }
@@ -306,6 +380,8 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
 
         let thread = payload.data.thread;
         setMessages(payload.data.messages ?? []);
+        setRecentOrders(payload.data.recent_orders ?? []);
+        setReopenConflict(null);
         setSelectedThread(thread);
 
         if (thread.status === "unread") {
@@ -317,7 +393,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
           const readPayload = await readJson<{ thread?: SupportThread }>(readResponse);
           if (readResponse.ok && readPayload.status === "success" && readPayload.data?.thread) {
             if (requestId !== threadRequestRef.current) return;
-            thread = readPayload.data.thread;
+            thread = mergeThreadUpdate(thread, readPayload.data.thread);
             setSelectedThread(thread);
           }
         }
@@ -384,8 +460,13 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
         setNotice("Live updates paused. Reconnecting…");
       }
     });
-    socket.on("support:thread_updated", (thread: SupportThread) => {
+    socket.on("support:thread_updated", (update: SupportThread) => {
       setThreads((current) => {
+        // The payload may omit `order`: merge so the linked order is not wiped.
+        const thread = mergeThreadUpdate(
+          current.find((item) => item.id === update.id),
+          update
+        );
         const belongsHere = thread.status === tabRef.current;
         const without = current.filter((item) => item.id !== thread.id);
         if (!belongsHere) return without;
@@ -393,7 +474,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
           (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
         );
       });
-      setSelectedThread((current) => (current?.id === thread.id ? thread : current));
+      setSelectedThread((current) => (current?.id === update.id ? mergeThreadUpdate(current, update) : current));
       void loadUnreadCount().catch(() => {
         // List refresh failures already surface via REST; keep the socket alive.
       });
@@ -562,10 +643,10 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
       if (!response.ok || payload.status !== "success" || !payload.data?.thread) {
         throw new Error(payload.message ?? "Could not mark the issue as solved");
       }
-      const thread = payload.data.thread;
+      const thread = mergeThreadUpdate(selectedThread ?? undefined, payload.data.thread);
       if (requestId !== threadRequestRef.current || selectedIdRef.current !== activeThreadId) return;
       setSelectedThread(thread);
-      setNotice("Marked as solved. It now lives in the archive.");
+      setNotice("Marked as solved. The traveler can still see it for 30 days, and replying reopens it.");
       if (tab !== "solved") {
         setThreads((current) => current.filter((item) => item.id !== thread.id));
         setSelectedId(null);
@@ -576,6 +657,55 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
       setError(err instanceof Error ? err.message : "Could not mark the issue as solved");
     } finally {
       setIsSolving(false);
+    }
+  }
+
+  async function reopenThread() {
+    if (!selectedId || isReopening || selectedThread?.status !== "solved") return;
+    setIsReopening(true);
+    setError("");
+    setNotice("");
+    setReopenConflict(null);
+    const requestId = threadRequestRef.current;
+    const activeThreadId = selectedId;
+    try {
+      const response = await fetch(`/bff/admin/support/threads/${encodeURIComponent(selectedId)}/reopen`, {
+        method: "POST",
+        headers: authHeaders
+      });
+      handleAuthStatus(response.status);
+      const payload = (await response.json().catch(() => ({}))) as AdminJsonPayload<{ thread?: SupportThread }> & {
+        code?: string;
+        openThreadId?: string | null;
+      };
+      if (response.status === 409) {
+        // The admin may have switched threads while this was in flight.
+        if (requestId !== threadRequestRef.current || selectedIdRef.current !== activeThreadId) return;
+        setReopenConflict({
+          message: reopenConflictMessage({ code: payload.code, message: payload.message }),
+          openThreadId: payload.openThreadId ?? null
+        });
+        return;
+      }
+      if (!response.ok || payload.status !== "success" || !payload.data?.thread) {
+        throw new Error(payload.message ?? "Could not reopen the conversation");
+      }
+      if (requestId !== threadRequestRef.current || selectedIdRef.current !== activeThreadId) return;
+      const thread = mergeThreadUpdate(selectedThread ?? undefined, payload.data.thread);
+      setSelectedThread(thread);
+      setNotice("Conversation reopened. You can reply now.");
+      // It is no longer solved, so it leaves the Solved list.
+      if (tab === "solved") {
+        setThreads((current) => current.filter((item) => item.id !== thread.id));
+      } else if (thread.status === tab) {
+        // Show it in the open tab now rather than waiting for the socket event.
+        setThreads((current) => [thread, ...current.filter((item) => item.id !== thread.id)]);
+      }
+      void loadUnreadCount().catch(() => {});
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reopen the conversation");
+    } finally {
+      setIsReopening(false);
     }
   }
 
@@ -754,6 +884,7 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                       <span className="truncate">{selectedDevice}</span>
                     </span>
                   ) : null}
+                  <LinkedOrder order={selectedThread?.order ?? null} />
                 </div>
                 {selectedThread?.status !== "solved" ? (
                   <button
@@ -766,9 +897,23 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
                     {isSolving ? "Solving…" : "Mark as solved"}
                   </button>
                 ) : (
-                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-700">Archived</span>
+                  <button
+                    className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-white px-3 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan disabled:opacity-50"
+                    disabled={isReopening}
+                    onClick={() => void reopenThread()}
+                    type="button"
+                  >
+                    <RotateCcw aria-hidden="true" size={14} />
+                    {isReopening ? "Reopening…" : "Reopen"}
+                  </button>
                 )}
               </header>
+
+              <RecentOrdersPanel
+                onToggle={() => setRecentOrdersOpen((open) => !open)}
+                open={recentOrdersOpen}
+                orders={recentOrders}
+              />
 
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-cloud/40 px-5 py-4">
                 {isLoadingThread ? (
@@ -877,9 +1022,26 @@ export function SupportInbox({ token, handleUnauthorized }: SupportInboxProps) {
               </div>
 
               {selectedThread?.status === "solved" ? (
-                <p className="border-t border-line px-5 py-3 text-xs font-semibold text-muted">
-                  This issue is solved. The reporter no longer sees it; reply is disabled.
-                </p>
+                <div className="border-t border-line px-5 py-3 text-xs font-semibold text-muted">
+                  <p>
+                    This issue is solved, so reply is disabled until you reopen it. The traveler can still see it
+                    for 30 days, and if they reply it reopens on its own.
+                  </p>
+                  {reopenConflict ? (
+                    <p className="mt-2 text-red-700" role="alert">
+                      {reopenConflict.message}{" "}
+                      {reopenConflict.openThreadId ? (
+                        <button
+                          className="font-black underline"
+                          onClick={() => void openThread(reopenConflict.openThreadId as string)}
+                          type="button"
+                        >
+                          Go to the open conversation
+                        </button>
+                      ) : null}
+                    </p>
+                  ) : null}
+                </div>
               ) : (
                 <form className="border-t border-line p-4" onSubmit={(event) => void sendMessage(event)}>
                   {replyTarget ? (

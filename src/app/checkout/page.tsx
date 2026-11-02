@@ -6,7 +6,7 @@ import { createMetadata } from "@/lib/seo";
 import { backendFetch } from "@/lib/backend";
 import { ACCESS_COOKIE } from "@/lib/session";
 import { readEmailFromAccessToken } from "@/lib/session-identity";
-import { getPackageOption } from "@/services/server-packages";
+import { getPackageOptionWithDetails } from "@/services/server-packages";
 import { Navbar } from "../components/Navbar";
 import { SiteFooter } from "../SiteFooter";
 import { CheckoutPriceSection } from "./CheckoutPriceSection";
@@ -26,7 +26,7 @@ export default async function CheckoutPage({
   searchParams: Promise<{ package?: string }>;
 }) {
   const { package: packageId = "" } = await searchParams;
-  const plan = await getPackageOption(packageId);
+  const plan = await getPackageOptionWithDetails(packageId);
 
   if (!plan) {
     notFound();

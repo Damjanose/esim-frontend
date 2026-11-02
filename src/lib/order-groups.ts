@@ -1,4 +1,4 @@
-export type LifecycleStatus = "ready" | "active" | "expired";
+export type LifecycleStatus = "ready" | "preparing" | "active" | "expired";
 
 export type OrderSummary = {
   id: number;
