@@ -127,3 +127,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-10-30 | [admin operations merge](2026-10-30_admin-operations-merge.md) | Preserved top-up analytics and dashboard changes; reconciled feedAI IDs and session history. |
 | 2026-10-30 | [seo compare and city sections](2026-10-30_seo-compare-and-city-sections.md) | /compare price-per-GB hub (live table, checklist, provider table, FAQPage) and Barcelona/Madrid/Rome/Milan/Cancun blocks + city-led titles on the Spain/Italy/Mexico pages (f332) |
 | 2026-10-31 | [admin troubleshoot](2026-10-31_admin-troubleshoot.md) | /xtroubley admin page: test a message, problems, keywords, answers with auto-translation, unmatched messages (f336) |
+| 2026-11-02 | [faster build](2026-11-02_faster-build.md) | Faster next build: shared in-flight /packages catalog fetch, build-only 15s backendFetch cap, no empty-catalog caching (f344) |
