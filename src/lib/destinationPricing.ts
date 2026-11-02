@@ -198,31 +198,52 @@ function emptyCatalog(): DestinationCatalog {
   return { offers: {}, plans: {}, coverage: {}, flags: {}, bestPerGb: {}, fetchedAt: new Date().toISOString() };
 }
 
+const CATALOG_FETCH_TIMEOUT_MS = 30_000;
+
+/** Throws on failure so `unstable_cache` never stores an empty catalog for an hour. */
 async function loadCatalog(): Promise<DestinationCatalog> {
-  try {
-    const response = await fetch(`${getBackendApiUrl()}/packages`, {
-      headers: { Accept: "application/json" },
-      cache: "no-store"
-    });
-
-    if (!response.ok) {
-      return emptyCatalog();
-    }
-
-    const payload = (await response.json()) as PackagesResponse;
-    return catalogFromPackages(payload.data?.packages ?? payload.packages ?? []);
-  } catch {
-    return emptyCatalog();
+  const response = await fetch(`${getBackendApiUrl()}/packages`, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+    // Caps a stalled API so `next build` can't hang on it (the page falls back
+    // to static copy and ISR fills prices in later).
+    signal: AbortSignal.timeout(CATALOG_FETCH_TIMEOUT_MS)
+  });
+  if (!response.ok) {
+    throw new Error(`GET /packages failed: ${response.status}`);
   }
+  const payload = (await response.json()) as PackagesResponse;
+  return catalogFromPackages(payload.data?.packages ?? payload.packages ?? []);
+}
+
+// `unstable_cache` doesn't dedupe in-flight calls: `next build` prerenders ~50
+// destination/compare pages at once and each started its own ~2.7MB download
+// of /packages, so they choked each other (and the prod API). Share one
+// request per process while it's in flight.
+let inflightCatalog: Promise<DestinationCatalog> | null = null;
+
+function loadCatalogShared(): Promise<DestinationCatalog> {
+  inflightCatalog ??= loadCatalog().finally(() => {
+    inflightCatalog = null;
+  });
+  return inflightCatalog;
 }
 
 // Next's data cache rejects bodies over 2MB. `/api/packages` is ~2.7MB, so we
 // must not `fetch` it with `next.revalidate`. Cache only this slim per-country
 // catalog (ISR, 1h) so destination JSON-LD prices and plan tables refresh
 // without storing the full payload.
-const getCachedCatalog = unstable_cache(loadCatalog, ["destination-catalog"], {
+const getCachedCatalogOrThrow = unstable_cache(loadCatalogShared, ["destination-catalog"], {
   revalidate: 3600
 });
+
+async function getCachedCatalog(): Promise<DestinationCatalog> {
+  try {
+    return await getCachedCatalogOrThrow();
+  } catch {
+    return emptyCatalog();
+  }
+}
 
 export async function getDestinationOffer(slug: string): Promise<DestinationOffer | null> {
   const catalog = await getCachedCatalog();

@@ -145,6 +145,8 @@ type BackendEnvelope<T> = {
   message?: string;
 };
 
+const BUILD_FETCH_TIMEOUT_MS = 15_000;
+
 const UNREACHABLE_MESSAGE = "We could not reach the eSIM service. Please try again.";
 
 export async function backendFetch<T>(
@@ -173,6 +175,13 @@ export async function backendFetch<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
       ...(next ? { next } : { cache: "no-store" })
     };
+    if (!timeoutMs && process.env.NEXT_PHASE === "phase-production-build") {
+      // Prerendering ~190 pages fans out to the live API, and Node's default
+      // wait is 300s, so one stalled response could hold a page past Next's
+      // 60s limit and trigger retries. Cap it at build time only (the page
+      // falls back and ISR refreshes it); runtime calls are unchanged.
+      requestInit.signal = AbortSignal.timeout(BUILD_FETCH_TIMEOUT_MS);
+    }
     const url = `${getBackendApiUrl()}${path}`;
     response = timeoutMs ? await longFetch(url, requestInit, timeoutMs) : await fetch(url, requestInit);
   } catch {

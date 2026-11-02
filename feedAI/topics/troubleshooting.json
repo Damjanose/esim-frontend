@@ -468,6 +468,16 @@
       "files": [
         "src/app/xsupport/SupportInbox.tsx"
       ]
+    },
+    {
+      "date": "2026-11-02",
+      "symptom": "`next build` takes ~2-3 min; log shows 'Failed to build /esim/... because it took more than 60 seconds. Retrying'.",
+      "root_cause": "~50 SEO pages each called unstable_cache(loadCatalog) concurrently; unstable_cache doesn't dedupe in-flight calls, so ~55 parallel downloads of the 2.7MB /api/packages hit prod at once.",
+      "fix": "In-flight promise share per process for the catalog, throw-on-failure so empties aren't cached, build-only 15s cap in backendFetch. Not --turbopack (bigger client bundles).",
+      "files": [
+        "src/lib/destinationPricing.ts",
+        "src/lib/backend.ts"
+      ]
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
