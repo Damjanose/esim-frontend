@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { claimOnce, takePendingTopupPurchase, trackGaEvent } from "@/lib/analytics";
+import { metaProductParams, trackMetaEvent } from "@/lib/meta-pixel";
 import { useConsent } from "../../ConsentManager";
 
 /**
@@ -15,17 +16,31 @@ export function TopUpConversion({ orderId, paymentId }: { orderId: number; payme
   const { consent } = useConsent();
 
   useEffect(() => {
-    if (consent?.analytics !== true || !window.gtag) return;
-    const pending = takePendingTopupPurchase(orderId, paymentId);
-    if (!pending || !claimOnce(`ga4_purchase_${pending.paymentId}`)) return;
+    const analytics = consent?.analytics === true;
+    const marketing = consent?.marketing === true;
+    if (!analytics && !marketing) return;
+    // Taking the stash is final, so wait for gtag when GA4 will need it.
+    if (analytics && !window.gtag) return;
 
-    trackGaEvent("purchase", {
-      transaction_id: pending.paymentId,
-      value: pending.value,
-      currency: pending.currency,
-      items: [pending.item]
-    });
-  }, [consent?.analytics, orderId, paymentId]);
+    const pending = takePendingTopupPurchase(orderId, paymentId);
+    if (!pending) return;
+
+    if (analytics && claimOnce(`ga4_purchase_${pending.paymentId}`)) {
+      trackGaEvent("purchase", {
+        transaction_id: pending.paymentId,
+        value: pending.value,
+        currency: pending.currency,
+        items: [pending.item]
+      });
+    }
+    if (marketing && claimOnce(`meta_purchase_${pending.paymentId}`)) {
+      trackMetaEvent(
+        "Purchase",
+        metaProductParams([pending.item.item_id], pending.value, pending.currency),
+        pending.paymentId
+      );
+    }
+  }, [consent?.analytics, consent?.marketing, orderId, paymentId]);
 
   return null;
 }

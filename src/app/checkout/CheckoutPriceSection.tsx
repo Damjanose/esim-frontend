@@ -5,6 +5,8 @@ import { LogIn } from "lucide-react";
 import type { HeroPackageOption } from "@/services/packages";
 import { LinkButton } from "@/app/components/Button";
 import { GaEvent } from "@/app/GaEvent";
+import { MetaEvent } from "@/app/MetaEvent";
+import { metaProductParams } from "@/lib/meta-pixel";
 import { GA_CURRENCY, gaItem, roundMoney, writePendingPurchase } from "@/lib/analytics";
 import { CheckoutWizard } from "./CheckoutWizard";
 import { OrderSummary } from "./OrderSummary";
@@ -58,6 +60,11 @@ export function CheckoutPriceSection({
     [plan]
   );
 
+  const initiateCheckout = useMemo(
+    () => ({ ...metaProductParams([plan.id], roundMoney(plan.priceNumeric), GA_CURRENCY), num_items: 1 }),
+    [plan]
+  );
+
   // The GA4 purchase on the success page reports what Pay charged, discounts included.
   const settledCents =
     promoPending || quote.pending
@@ -75,6 +82,7 @@ export function CheckoutPriceSection({
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
       <GaEvent name="begin_checkout" params={beginCheckout} />
+      <MetaEvent name="InitiateCheckout" params={initiateCheckout} />
       <OrderSummary
         className="lg:col-start-2 lg:row-start-1"
         onPromoChange={setPromo}

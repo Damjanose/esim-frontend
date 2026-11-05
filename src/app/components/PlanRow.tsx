@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { MetaAddToCart } from "./MetaAddToCart";
 import {
   hasBestValueTag,
   planCoverageNote,
@@ -83,19 +84,33 @@ export function PlanPrice({ plan }: { plan: PlanRowPlan }) {
 }
 
 /** "Buy now": the list's best-value row is its one gradient primary, every other row is flat. */
-export function PlanBuyLink({ href, primary, planTitle }: { href: string; primary: boolean; planTitle: string }) {
+export function PlanBuyLink({
+  href,
+  primary,
+  planId,
+  planPrice,
+  planTitle
+}: {
+  href: string;
+  primary: boolean;
+  planId: string;
+  planPrice: number;
+  planTitle: string;
+}) {
   return (
-    <LinkButton
-      aria-label={`Buy now: ${planTitle}`}
-      className="whitespace-nowrap"
-      href={href}
-      rel={crawlRel(href)}
-      size="md"
-      variant={primary ? "lit" : "tint"}
-    >
-      Buy now
-      <ArrowRight aria-hidden="true" className="hidden sm:block" size={16} />
-    </LinkButton>
+    <MetaAddToCart planId={planId} price={planPrice}>
+      <LinkButton
+        aria-label={`Buy now: ${planTitle}`}
+        className="whitespace-nowrap"
+        href={href}
+        rel={crawlRel(href)}
+        size="md"
+        variant={primary ? "lit" : "tint"}
+      >
+        Buy now
+        <ArrowRight aria-hidden="true" className="hidden sm:block" size={16} />
+      </LinkButton>
+    </MetaAddToCart>
   );
 }
 
@@ -170,7 +185,7 @@ export function PlanRow({ plan, tags, buyHref, showTitle = true }: PlanRowProps)
       {/* Phones: price and Buy drop to their own line, so the plan text gets the full width. */}
       <div className="flex w-full items-center justify-between gap-2 border-t border-outline/50 pt-3 sm:w-auto sm:shrink-0 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
         <PlanPrice plan={plan} />
-        {buyHref ? <PlanBuyLink href={buyHref} planTitle={plan.title} primary={bestValue} /> : null}
+        {buyHref ? <PlanBuyLink href={buyHref} planId={plan.id} planPrice={plan.priceNumeric} planTitle={plan.title} primary={bestValue} /> : null}
       </div>
     </article>
   );

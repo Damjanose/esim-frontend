@@ -8,6 +8,8 @@ import {
   type MobilePlatform
 } from "@/lib/app-links";
 import { resolveButtonClasses } from "@/app/components/buttonClasses";
+import { GA_CURRENCY, roundMoney } from "@/lib/analytics";
+import { metaProductParams, trackMetaEvent } from "@/lib/meta-pixel";
 
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
@@ -19,12 +21,14 @@ const secondaryClass = `${resolveButtonClasses({ variant: "tint", size: "lg" })}
 export function OpenAppActions({
   packageId,
   webCheckoutUrl,
+  webPlan,
   appStoreUrl,
   playStoreUrl
 }: {
   packageId: string;
   /** Web checkout for this plan, or null when the plan isn't in the web catalog. */
   webCheckoutUrl: string | null;
+  webPlan: { id: string; price: number } | null;
   appStoreUrl: string;
   playStoreUrl: string;
 }) {
@@ -71,7 +75,15 @@ export function OpenAppActions({
         </button>
       ) : null}
       {webCheckoutUrl ? (
-        <a href={webCheckoutUrl} className={platform === "other" ? openAppClass : secondaryClass}>
+        <a
+          href={webCheckoutUrl}
+          className={platform === "other" ? openAppClass : secondaryClass}
+          onClick={() => {
+            if (webPlan) {
+              trackMetaEvent("AddToCart", metaProductParams([webPlan.id], roundMoney(webPlan.price), GA_CURRENCY));
+            }
+          }}
+        >
           Buy on the web
         </a>
       ) : null}
