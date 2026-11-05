@@ -2,6 +2,8 @@ import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { GaEvent } from "./GaEvent";
+import { MetaEvent } from "./MetaEvent";
+import { metaProductParams } from "@/lib/meta-pixel";
 import { JsonLd } from "./JsonLd";
 import { Navbar } from "./components/Navbar";
 import { LinkButton } from "./components/Button";
@@ -98,14 +100,24 @@ export function EsimDestinationPageView({
   return (
     <main className="min-h-screen overflow-x-clip bg-surface text-onSurface">
       {plans.length > 0 ? (
-        <GaEvent
-          name="view_item"
-          params={{
-            currency: GA_CURRENCY,
-            value: roundMoney(lowestPriced.priceNumeric),
-            items: plans.slice(0, 25).map((plan) => gaItem({ country: countryName, ...plan }))
-          }}
-        />
+        <>
+          <GaEvent
+            name="view_item"
+            params={{
+              currency: GA_CURRENCY,
+              value: roundMoney(lowestPriced.priceNumeric),
+              items: plans.slice(0, 25).map((plan) => gaItem({ country: countryName, ...plan }))
+            }}
+          />
+          <MetaEvent
+            name="ViewContent"
+            params={metaProductParams(
+              plans.slice(0, 25).map((plan) => plan.id),
+              roundMoney(lowestPriced.priceNumeric),
+              GA_CURRENCY
+            )}
+          />
+        </>
       ) : null}
       <JsonLd
         data={createContentPageJsonLd({
@@ -311,6 +323,8 @@ export function EsimDestinationPageView({
                             >
                               <PlanBuyLink
                                 href={`/checkout?package=${encodeURIComponent(plan.id)}`}
+                                planId={plan.id}
+                                planPrice={plan.priceNumeric}
                                 planTitle={plan.title}
                                 primary={bestValue}
                               />

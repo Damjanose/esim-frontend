@@ -15,6 +15,7 @@ import { planDurationText, planRowTags } from "@/lib/planRow";
 import { PaymentMethodPicker } from "../../checkout/PaymentMethodPicker";
 import { usePaymentMethods } from "../../checkout/usePaymentMethods";
 import { CryptoStep } from "../../checkout/steps/CryptoStep";
+import { trackMetaEvent } from "@/lib/meta-pixel";
 import { GaEvent } from "../../GaEvent";
 import { Button } from "../../components/Button";
 import { PlanDataDisc, PlanPrice, PlanTags } from "../../components/PlanRow";
@@ -77,6 +78,7 @@ export function TopUpPanel({
     };
     writePendingTopupPurchase(pending);
     trackGaEvent("begin_checkout", { currency: pending.currency, value: pending.value, items: [pending.item] });
+    trackMetaEvent("InitiateCheckout", { value: pending.value, currency: pending.currency, num_items: 1 });
   }
 
   async function startPaypalTopup(packageId: string) {
@@ -163,6 +165,7 @@ export function TopUpPanel({
         // Card details go in on Pokpay's hosted page, which the site can't observe, so
         // there's no add_payment_info here; begin_checkout marks the hand-off instead.
         trackGaEvent("begin_checkout", { currency: pending.currency, value: pending.value, items: [pending.item] });
+        trackMetaEvent("InitiateCheckout", { value: pending.value, currency: pending.currency, num_items: 1 });
       }
 
       // Full-page navigation: popups are unreliable in mobile and in-app browsers.

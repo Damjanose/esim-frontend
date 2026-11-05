@@ -10,6 +10,8 @@ import { SiteFooter } from "../../SiteFooter";
 import { OpenAppActions } from "./OpenAppActions";
 import { FlagImage } from "@/app/components/FlagImage";
 import { GaEvent } from "@/app/GaEvent";
+import { MetaEvent } from "@/app/MetaEvent";
+import { metaProductParams } from "@/lib/meta-pixel";
 import { GA_CURRENCY, gaItem, roundMoney } from "@/lib/analytics";
 
 function safeDecode(value: string) {
@@ -83,6 +85,10 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
               name="view_item"
               params={{ currency: GA_CURRENCY, value: roundMoney(plan.priceNumeric), items: [gaItem(plan)] }}
             />
+            <MetaEvent
+              name="ViewContent"
+              params={metaProductParams([plan.id], roundMoney(plan.priceNumeric), GA_CURRENCY)}
+            />
             <div className="mt-6">
               <PlanRow plan={plan} showTitle={false} tags={planRowTags(plan, { position: null })} />
               {coverage.length > 1 ? (
@@ -106,6 +112,7 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
         <OpenAppActions
           packageId={packageId}
           webCheckoutUrl={plan ? `/checkout?package=${encodeURIComponent(plan.id)}` : null}
+          webPlan={plan ? { id: plan.id, price: plan.priceNumeric } : null}
           appStoreUrl={appLinks.ios.href}
           playStoreUrl={appLinks.android.href}
         />
