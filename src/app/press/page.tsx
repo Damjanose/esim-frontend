@@ -51,8 +51,6 @@ const facts = [
 
 const logos = [
   { label: "App icon", file: "/app-logo.png", size: "1024 × 1024 PNG", width: 1024, height: 1024 },
-  { label: "Logo with wordmark", file: "/logo-full.png", size: "1200 × 345 PNG", width: 1200, height: 345 },
-  { label: "Logo mark", file: "/logo-icon.png", size: "512 × 512 PNG", width: 512, height: 512 },
   { label: "Social preview image", file: "/og/esim2you-og.png", size: "1200 × 630 PNG", width: 1200, height: 630 }
 ];
 
