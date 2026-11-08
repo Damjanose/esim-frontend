@@ -71,8 +71,8 @@
   },
   "sync": {
     "commit": "working-tree",
-    "branch": "feat/meta-pixel-events",
-    "date": "2026-11-05",
-    "note_latest": "f345: Meta Pixel on with ViewContent/AddToCart/InitiateCheckout/Purchase behind Marketing consent; admin x* paths excluded; Conversions API still open."
+    "branch": "feat/web-app-only-purchases",
+    "date": "2026-11-08",
+    "note_latest": "f346: web purchases disabled; Buy -> /pkg/{id} open-in-app; payment intents + paid trip-plan unlock return 403."
   }
 }

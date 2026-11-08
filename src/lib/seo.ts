@@ -1,3 +1,4 @@
+import { appPurchaseHref } from "@/lib/web-purchases";
 import type { Metadata } from "next";
 import { comparePages } from "@/content/compare-pages";
 import { landingContent } from "@/content/landing";
@@ -517,7 +518,7 @@ export function createOfferProductJsonLd({
               "@type": "Offer",
               name: plan.title,
               sku: plan.id,
-              url: absoluteUrl(`/checkout?package=${encodeURIComponent(plan.id)}`),
+              url: absoluteUrl(appPurchaseHref(plan.id)),
               price: plan.priceNumeric.toFixed(2),
               priceCurrency: offer.currency,
               availability: "https://schema.org/InStock",

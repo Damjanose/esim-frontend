@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("/pkg/[id] shared-plan landing", () => {
-  it("shows the plan as a PlanRow and keeps its own open-in-app / buy actions", () => {
+  it("shows the plan as a PlanRow and keeps its open-in-app actions with no web checkout", () => {
     const source = readFileSync(join(process.cwd(), "src/app/pkg/[id]/page.tsx"), "utf8");
 
     expect(source).toContain('import { PlanRow } from "../../components/PlanRow";');
@@ -15,7 +15,8 @@ describe("/pkg/[id] shared-plan landing", () => {
     expect(source).not.toContain("buyHref=");
     expect(source).toContain("Covers {coverage.length} countries:");
     // Buy flow and app links unchanged.
-    expect(source).toContain("webCheckoutUrl={plan ? `/checkout?package=${encodeURIComponent(plan.id)}` : null}");
+    expect(source).not.toContain("webCheckoutUrl");
+    expect(source).not.toContain("/checkout?package=");
     expect(source).toContain("<OpenAppActions");
     expect(source).toContain("indexable: false");
     expect(source).not.toContain("bg-white");

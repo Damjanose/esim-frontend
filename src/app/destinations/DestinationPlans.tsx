@@ -1,4 +1,5 @@
 "use client";
+import { appPurchaseHref } from "@/lib/web-purchases";
 
 import { Globe2 } from "lucide-react";
 import Image from "next/image";
@@ -334,7 +335,7 @@ export function DestinationPlans({ countryCode, searchFilters }: DestinationPlan
                   {displayedPlans.map((plan, index) => (
                     <li key={plan.id}>
                       <PlanRow
-                        buyHref={`/checkout?package=${encodeURIComponent(plan.id)}`}
+                        buyHref={appPurchaseHref(plan.id)}
                         plan={plan}
                         tags={planRowTags(plan, { position: index })}
                       />

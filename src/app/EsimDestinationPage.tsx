@@ -1,3 +1,4 @@
+import { appPurchaseHref } from "@/lib/web-purchases";
 import { ArrowRight, CheckCircle2, CircleHelp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -322,7 +323,7 @@ export function EsimDestinationPageView({
                               role="cell"
                             >
                               <PlanBuyLink
-                                href={`/checkout?package=${encodeURIComponent(plan.id)}`}
+                                href={appPurchaseHref(plan.id)}
                                 planId={plan.id}
                                 planPrice={plan.priceNumeric}
                                 planTitle={plan.title}

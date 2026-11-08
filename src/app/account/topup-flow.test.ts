@@ -1,3 +1,4 @@
+import { WEB_PURCHASES_DISABLED_MESSAGE } from "@/lib/web-purchases";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ACCESS_COOKIE, PENDING_TOPUP_COOKIE } from "@/lib/session";
 import { POST as createTopupIntent } from "../bff/payments/topups/intent/route";
@@ -36,66 +37,13 @@ afterEach(() => {
 });
 
 describe("POST /bff/payments/topups/intent", () => {
-  it("asks the backend for a checkout url and remembers which eSIM is topping up", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    const response = await createTopupIntent(
-      intentRequest({ order_id: 42, package_id: "hej-topup-1gb-7days" })
-    );
-    const payload = (await response.json()) as { data: { checkoutUrl: string } };
-
-    expect(response.status).toBe(200);
-    expect(payload.data.checkoutUrl).toBe(paymentSession.checkoutUrl);
-
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    const sentBody = JSON.parse(String(init.body)) as Record<string, unknown>;
-    expect(sentBody.order_id).toBe(42);
-    expect(sentBody.package_id).toBe("hej-topup-1gb-7days");
-    // The backend validates this against its allowed web return origins.
-    expect(sentBody.return_url).toBe("http://localhost:3000/account/topup/return");
-
-    // The provisioning response carries no order id, so the return handler can
-    // only get the visitor back to their eSIM via this cookie.
-    const cookie = response.headers.get("set-cookie") ?? "";
-    expect(cookie).toContain(`${PENDING_TOPUP_COOKIE}=42`);
-  });
-
-  it("rejects a request with no plan chosen", async () => {
+  it("refuses with 403: top-ups are app-only, and never calls the backend", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-
-    const response = await createTopupIntent(intentRequest({ order_id: 42 }));
-
-    expect(response.status).toBe(400);
+    const response = await createTopupIntent();
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ status: "error", error: WEB_PURCHASES_DISABLED_MESSAGE });
     expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("rejects a request with no eSIM to top up", async () => {
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const response = await createTopupIntent(intentRequest({ package_id: "hej-topup-1gb" }));
-
-    expect(response.status).toBe(400);
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("passes a backend refusal straight through to the buyer", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () =>
-        jsonResponse({ status: "error", error: "Top-up package price is invalid" }, 422)
-      )
-    );
-
-    const response = await createTopupIntent(
-      intentRequest({ order_id: 42, package_id: "hej-topup-1gb" })
-    );
-    const payload = (await response.json()) as { error: string };
-
-    expect(response.status).toBe(422);
-    expect(payload.error).toBe("Top-up package price is invalid");
   });
 });
 

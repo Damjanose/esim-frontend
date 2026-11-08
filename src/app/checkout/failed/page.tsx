@@ -1,3 +1,4 @@
+import { appPurchaseHref } from "@/lib/web-purchases";
 import type { Metadata } from "next";
 import { AlertTriangle, LifeBuoy } from "lucide-react";
 import { createMetadata } from "@/lib/seo";
@@ -138,7 +139,7 @@ export default async function CheckoutFailedPage({
             {reason === "unpaid" && packageId ? (
               <LinkButton
                 className="w-full sm:flex-1"
-                href={`/checkout?package=${encodeURIComponent(packageId)}`}
+                href={appPurchaseHref(packageId)}
                 size="lg"
               >
                 Try again

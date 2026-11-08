@@ -111,7 +111,12 @@ export function TripPlanUnlock({
         </div>
       </div>
 
-      {phase.kind === "idle" || phase.kind === "starting" ? (
+      {!free ? (
+        // Web purchases are disabled: paid plans unlock only in the app.
+        <p className="mt-5 rounded-[14px] bg-brandBlue/10 px-4 py-3 text-sm font-semibold text-brandBlue" role="status">
+          Purchases are available only in the eSIM2you app. Open the app to unlock this plan for {priceLabel}.
+        </p>
+      ) : phase.kind === "idle" || phase.kind === "starting" ? (
         <Button
           className="mt-5 w-full sm:w-auto"
           hero
