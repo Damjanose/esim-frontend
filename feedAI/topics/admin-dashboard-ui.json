@@ -41,7 +41,7 @@
     "f330"
   ],
   "shared_shell": {
-    "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/logo-icon.png linked to '/'. See f051/f099.",
+    "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/app-logo.png (since 2026-11-08, f348) linked to '/'. See f051/f099.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {

@@ -84,7 +84,7 @@ export default async function SharedEsimPage({
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface px-4 py-12 text-onSurface">
       <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-lg">
-        <Image src="/logo-icon.png" alt="eSIM2you" width={72} height={72} className="mx-auto" priority />
+        <Image src="/app-logo.png" alt="eSIM2you" width={72} height={72} className="mx-auto" priority />
         {esim ? (
           <>
             <h1 className="mt-5 text-2xl font-bold">Someone shared an eSIM with you</h1>

@@ -68,9 +68,9 @@ export function Navbar() {
           >
             <Image
               alt="eSIM2you app logo"
-              className="h-9 w-9 object-contain lg:h-10 lg:w-10"
+              className="h-9 w-9 rounded-[10px] object-contain lg:h-10 lg:w-10"
               height={40}
-              src="/logo-icon.png"
+              src="/app-logo.png"
               width={40}
             />
 

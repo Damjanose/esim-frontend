@@ -101,6 +101,6 @@ export const config = {
   matcher: [
     // .well-known stays out: Apple and Android fetch app-link files on the
     // exact host they verify and reject a redirect.
-    "/((?!_next/static|_next/image|favicon.ico|og/|bff/|images/|lottie/|\\.well-known/|manifest\\.json|logo-icon\\.png|app-logo\\.png).*)"
+    "/((?!_next/static|_next/image|favicon.ico|og/|bff/|images/|lottie/|\\.well-known/|manifest\\.json|app-logo\\.png).*)"
   ]
 };

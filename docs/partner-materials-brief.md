@@ -7,8 +7,7 @@ send them as they're finished.
 
 ## Brand assets to use
 
-- **Logo**: `public/logo-full.png` (horizontal lockup, use where there's room) or
-  `public/logo-icon.png` (mark only, for tight/square layouts).
+- **Logo**: `public/app-logo.png` (the app logo, the only brand mark since 2026-11-08).
 - **Colors**:
   - Primary: `#0B49B7` (brand blue)
   - Accent: `#09C3BE` (brand teal)
