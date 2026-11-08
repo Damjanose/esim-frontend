@@ -3,6 +3,7 @@ import {
   ACCESS_COOKIE,
   PENDING_PAYMENT_COOKIE,
   PENDING_TOPUP_COOKIE,
+  PENDING_WALLET_TOPUP_COOKIE,
   REFRESH_COOKIE,
   buildClearedSessionCookies,
   buildPendingTopupCookie,
@@ -101,7 +102,8 @@ describe("buildClearedSessionCookies", () => {
       ACCESS_COOKIE,
       REFRESH_COOKIE,
       PENDING_PAYMENT_COOKIE,
-      PENDING_TOPUP_COOKIE
+      PENDING_TOPUP_COOKIE,
+      PENDING_WALLET_TOPUP_COOKIE
     ]);
     expect(cookies.every((cookie) => cookie.value === "")).toBe(true);
     expect(cookies.every((cookie) => cookie.options.maxAge === 0)).toBe(true);

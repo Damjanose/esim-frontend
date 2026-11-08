@@ -4,6 +4,7 @@ import {
   availableMethods,
   formatCountdown,
   isExternalPaymentId,
+  paymentReturnFailureReason,
   paypalFailureReason,
   shouldKeepPolling,
   successPath
@@ -21,6 +22,25 @@ describe("external payments helpers", () => {
     expect(paypalFailureReason(502, "paypal_error")).toBe("unconfirmed");
     expect(paypalFailureReason(504, undefined)).toBe("unconfirmed");
     expect(paypalFailureReason(409, "provisioning_needs_review")).toBe("provisioning");
+    // Session expired before the capture ran: nothing was captured yet, sign in to finish.
+    expect(paypalFailureReason(401, undefined)).toBe("signin");
+    // Unrecognised refusals never claim the payment went through.
+    expect(paypalFailureReason(404, undefined)).toBe("unconfirmed");
+    expect(paypalFailureReason(400, undefined)).toBe("unconfirmed");
+  });
+
+  it("maps card / top-up / wallet return failures without claiming money moved when unknown", () => {
+    expect(paymentReturnFailureReason(402, "payment_failed")).toBe("unpaid");
+    expect(paymentReturnFailureReason(409, "payment_not_settled")).toBe("pending");
+    expect(paymentReturnFailureReason(409, "provisioning_in_progress")).toBe("setting_up");
+    expect(paymentReturnFailureReason(409, "provisioning_needs_review")).toBe("review");
+    expect(paymentReturnFailureReason(502, "payment_outcome_unknown")).toBe("unconfirmed");
+    expect(paymentReturnFailureReason(0, undefined)).toBe("unconfirmed");
+    expect(paymentReturnFailureReason(503, undefined)).toBe("unconfirmed");
+    expect(paymentReturnFailureReason(401, undefined)).toBe("signin");
+    expect(paymentReturnFailureReason(404, undefined)).toBe("unconfirmed");
+    // Paid, setup failed for a known reason (e.g. Airalo refused after the charge).
+    expect(paymentReturnFailureReason(422, "provider_error")).toBe("provisioning");
   });
 
 
