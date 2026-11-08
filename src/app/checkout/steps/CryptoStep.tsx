@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
-import QRCode from "qrcode";
+import { brandedQrDataUrl } from "@/lib/brandedQr";
 import { AlertTriangle, Check, Copy } from "lucide-react";
 import { Button, LinkButton } from "@/app/components/Button";
 import { FIELD_INPUT_CLASSES, FIELD_LABEL_CLASSES } from "@/app/components/fieldClasses";
@@ -396,7 +396,7 @@ function useQrDataUrl(value: string): string | null {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(value, { margin: 1, width: 336 })
+    brandedQrDataUrl(value, 336)
       .then((next) => {
         if (!cancelled) setUrl(next);
       })

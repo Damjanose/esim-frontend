@@ -83,8 +83,8 @@ describe("QrCodeCard", () => {
     expect(qrCodeCard).toContain("value: string");
   });
 
-  it("uses the qrcode package to render client-side, not a server-generated image", () => {
-    expect(qrCodeCard).toContain('from "qrcode"');
-    expect(qrCodeCard).toContain("QRCode.toDataURL");
+  it("renders client-side through the branded (astronaut) QR helper, not a server image", () => {
+    expect(qrCodeCard).toContain('from "@/lib/brandedQr"');
+    expect(qrCodeCard).toContain("brandedQrDataUrl(value");
   });
 });

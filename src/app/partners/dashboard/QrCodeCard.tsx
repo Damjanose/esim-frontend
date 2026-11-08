@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
+import { brandedQrDataUrl } from "@/lib/brandedQr";
 
 /**
  * Renders a QR code for an arbitrary string client-side (no server round
@@ -17,7 +17,7 @@ export function QrCodeCard({ value, label }: { value: string; label?: string }) 
   useEffect(() => {
     let cancelled = false;
 
-    QRCode.toDataURL(value, { margin: 1, width: 220 })
+    brandedQrDataUrl(value, 220)
       .then((url) => {
         if (!cancelled) setDataUrl(url);
       })
