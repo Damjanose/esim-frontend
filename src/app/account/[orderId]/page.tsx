@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Clock3,
+  Download,
   History,
   Info,
   LifeBuoy,
@@ -20,12 +21,14 @@ import {
   summariseUsage,
   type UsagePayload
 } from "@/lib/esim-install";
+import { receiptDownloadPath } from "@/lib/orderCode";
 import { createMetadata } from "@/lib/seo";
 import { fetchForPage } from "@/lib/server-session";
 import { getPackageOptions } from "@/services/server-packages";
 import { AccountShell } from "../../components/AccountShell";
 import { ActiveEsimCard } from "../../components/ActiveEsimCard";
 import { LinkButton } from "../../components/Button";
+import { resolveButtonClasses } from "../../components/buttonClasses";
 import { Navbar } from "../../components/Navbar";
 import { SignOutButton } from "../../components/SignOutButton";
 import { UsageRingCard } from "../../components/UsageRing";
@@ -378,7 +381,16 @@ export default async function OrderDetailPage({
                 </p>
               ) : null}
 
-              <LinkButton className="mt-4 w-full" href={`/profile/support?order=${order.id}`} variant="tint">
+              <a
+                className={`${resolveButtonClasses({ variant: "tint", size: "md" })} mt-4 w-full`}
+                download
+                href={receiptDownloadPath(order.code)}
+              >
+                <Download aria-hidden="true" size={16} />
+                Download receipt
+              </a>
+
+              <LinkButton className="mt-3 w-full" href={`/profile/support?order=${order.id}`} variant="tint">
                 <LifeBuoy aria-hidden="true" size={16} />
                 Need help?
               </LinkButton>

@@ -130,3 +130,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-10-31 | [admin troubleshoot](2026-10-31_admin-troubleshoot.md) | /xtroubley admin page: test a message, problems, keywords, answers with auto-translation, unmatched messages (f336) |
 | 2026-11-02 | [faster build](2026-11-02_faster-build.md) | Faster next build: shared in-flight /packages catalog fetch, build-only 15s backendFetch cap, no empty-catalog caching (f344) |
 | 2026-11-08 | [web app-only purchases](2026-11-08_web-app-only-purchases.md) | Web checkout, top-ups and paid trip-plan unlocks blocked; Buy → /pkg/{id} open-in-app page; payment intents 403 (f346) |
+| 2026-11-08 | [order-receipt-page](2026-11-08_order-receipt-page.md) | /orders/[code] receipt landing page, PDF proxy and download button |
