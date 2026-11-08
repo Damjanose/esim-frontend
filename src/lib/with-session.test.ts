@@ -4,6 +4,7 @@ import {
   ACCESS_COOKIE,
   PENDING_PAYMENT_COOKIE,
   PENDING_TOPUP_COOKIE,
+  PENDING_WALLET_TOPUP_COOKIE,
   REFRESH_COOKIE
 } from "./session";
 import { callWithSession, type SessionPairResult } from "./with-session";
@@ -94,7 +95,8 @@ describe("callWithSession", () => {
       ACCESS_COOKIE,
       REFRESH_COOKIE,
       PENDING_PAYMENT_COOKIE,
-      PENDING_TOPUP_COOKIE
+      PENDING_TOPUP_COOKIE,
+      PENDING_WALLET_TOPUP_COOKIE
     ]);
   });
 
@@ -115,7 +117,8 @@ describe("callWithSession", () => {
       ACCESS_COOKIE,
       REFRESH_COOKIE,
       PENDING_PAYMENT_COOKIE,
-      PENDING_TOPUP_COOKIE
+      PENDING_TOPUP_COOKIE,
+      PENDING_WALLET_TOPUP_COOKIE
     ]);
   });
 

@@ -17,7 +17,8 @@ describe("checkout status pages", () => {
     expect(failed.match(/variant="tint"/g)).toHaveLength(1);
     // In the phone column a basis-0 flex-1 squashed the 54px buttons to ~24px.
     expect(failed).not.toContain('className="flex-1"');
-    expect(failed.match(/className="w-full sm:flex-1"/g)).toHaveLength(3);
+    // Try again / Sign in to finish / Go to my eSIMs, plus Contact support.
+    expect(failed.match(/className="w-full sm:flex-1"/g)).toHaveLength(4);
   });
 
   it("not-found: the same copy and Browse destinations CTA, in a card", () => {

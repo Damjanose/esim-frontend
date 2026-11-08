@@ -11,6 +11,7 @@ import {
   type CookieSpec
 } from "@/lib/session";
 import { callWithSession } from "@/lib/with-session";
+import { isRetryableReturnReason, paymentReturnFailureReason } from "@/lib/externalPayments";
 
 type ProvisionedOrder = {
   order?: { id: number | string };
@@ -68,9 +69,13 @@ export async function GET(request: Request) {
     target.searchParams.set("reason", reason);
     if (paymentId) target.searchParams.set("payment", paymentId);
     target.searchParams.set("ref", referenceId);
+    if (reason === "signin" && paymentId) {
+      target.searchParams.set("resume", `/checkout/return?payment_id=${encodeURIComponent(paymentId)}`);
+    }
+    // Keep the cookie while the same return can still finish the purchase (refresh, sign in).
     return applyCookies(NextResponse.redirect(target, 303), [
       ...sessionCookies,
-      buildClearedPendingPaymentCookie()
+      ...(isRetryableReturnReason(reason) ? [] : [buildClearedPendingPaymentCookie()])
     ]);
   };
 
@@ -88,11 +93,10 @@ export async function GET(request: Request) {
   );
 
   if (!attempt.ok) {
-    // 402 is the only status that means the money definitively did not move.
-    // Everything else may have taken payment, so the buyer must never be told
-    // their card was untouched.
+    // 402 is the only status that means the money definitively did not move; an
+    // outcome we can't read is "unconfirmed", never "it went through".
     return failed(
-      attempt.status === 402 ? "unpaid" : "provisioning",
+      paymentReturnFailureReason(attempt.status, attempt.code),
       { status: attempt.status, message: attempt.message, code: attempt.code },
       attempt.cookies
     );

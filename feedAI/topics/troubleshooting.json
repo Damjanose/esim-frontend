@@ -478,6 +478,24 @@
         "src/lib/destinationPricing.ts",
         "src/lib/backend.ts"
       ]
+    },
+    {
+      "symptom": "Partner paid a wallet top-up by card, landed on a 404 at /partners/wallet/return, and the wallet balance never went up.",
+      "root_cause": "The BFF sent Pokpay a return_url for a page that never existed and nothing else (no webhook, no sweep) called /payments/wallet-topups/provision.",
+      "fix": "Added /partners/wallet/return + pending wallet cookie (fact above).",
+      "facts": [
+        "f350"
+      ],
+      "source": "src/app/partners/wallet/return/route.ts"
+    },
+    {
+      "symptom": "Card/top-up return showed 'Your payment went through, but setup didn't finish' for settling, outcome-unknown or expired-session cases; PayPal return said 'we received your payment' after a 401 that never captured.",
+      "root_cause": "Return routes mapped everything except 402 to 'provisioning'; paypalFailureReason fell through to 'provisioning' for unrecognised 4xx.",
+      "fix": "Shared code-aware mapping with unconfirmed/signin reasons and resume links (fact above).",
+      "facts": [
+        "f349"
+      ],
+      "source": "src/lib/externalPayments.ts"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

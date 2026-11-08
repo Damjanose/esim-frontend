@@ -125,5 +125,37 @@ export function paypalFailureReason(status: number, code: string | undefined): s
   if (code === "payment_in_review") return "review";
   if (code === "payment_refunded") return "refunded";
   if (code === "paypal_error" || status === 0 || status >= 500) return "unconfirmed";
+  // The session expired before the capture ran: nothing was captured yet.
+  if (status === 401) return "signin";
+  // Anything else unrecognised was refused before provisioning: never "it went through".
+  if (status === 400 || status === 403 || status === 404) return "unconfirmed";
   return "provisioning";
+}
+
+/**
+ * Pokpay return (plan, top-up, partner wallet) provisioning failure -> /checkout/failed
+ * reason. Only 402 means no money moved; "provisioning" (paid, setup failed) is used only
+ * when the backend says so, never for an outcome we can't read.
+ */
+export function paymentReturnFailureReason(status: number, code: string | undefined): string {
+  if (status === 402) return "unpaid";
+  if (code === "payment_not_settled") return "pending";
+  if (code === "provisioning_in_progress") return "setting_up";
+  if (code === "payment_in_review" || code === "provisioning_needs_review") return "review";
+  if (code === "payment_outcome_unknown" || status === 0 || status >= 500) return "unconfirmed";
+  if (status === 401) return "signin";
+  if (status === 400 || status === 403 || status === 404) return "unconfirmed";
+  return "provisioning";
+}
+
+/** Reasons after which the same return link can still finish the purchase (keep its cookie). */
+export function isRetryableReturnReason(reason: string): boolean {
+  return reason !== "unpaid" && reason !== "missing_payment";
+}
+
+/** Return routes a "sign in to finish" link may send the buyer back to. */
+export function safeResumePath(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const allowed = ["/checkout/return", "/checkout/paypal/return", "/account/topup/return", "/partners/wallet/return"];
+  return allowed.some((prefix) => value === prefix || value.startsWith(`${prefix}?`)) ? value : null;
 }

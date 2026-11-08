@@ -2,6 +2,10 @@ export const ACCESS_COOKIE = "esim_at";
 export const REFRESH_COOKIE = "esim_rt";
 export const PENDING_PAYMENT_COOKIE = "esim_pending_payment";
 export const PENDING_TOPUP_COOKIE = "esim_pending_topup";
+/** Partner wallet top-up in flight: Pokpay's return carries no payment id. */
+export const PENDING_WALLET_TOPUP_COOKIE = "esim_pending_wallet_topup";
+/** Longer than a plan checkout: a partner may take a while on the hosted card page. */
+export const PENDING_WALLET_TOPUP_MAX_AGE_SECONDS = 60 * 60;
 
 /** Pokpay checkout is short-lived; the pending reference should not outlive it by much. */
 export const PENDING_PAYMENT_MAX_AGE_SECONDS = 10 * 60;
@@ -69,7 +73,7 @@ export function buildPendingPaymentCookie(paymentId: string): CookieSpec {
 }
 
 export function buildClearedSessionCookies(): CookieSpec[] {
-  return [ACCESS_COOKIE, REFRESH_COOKIE, PENDING_PAYMENT_COOKIE, PENDING_TOPUP_COOKIE].map(
+  return [ACCESS_COOKIE, REFRESH_COOKIE, PENDING_PAYMENT_COOKIE, PENDING_TOPUP_COOKIE, PENDING_WALLET_TOPUP_COOKIE].map(
     (name) => ({
       name,
       value: "",
@@ -100,6 +104,18 @@ export function buildPendingTopupCookie(orderId: string, paymentId: string): Coo
     value: `${orderId}:${paymentId}`,
     options: cookieOptions(PENDING_PAYMENT_MAX_AGE_SECONDS)
   };
+}
+
+export function buildPendingWalletTopupCookie(paymentId: string): CookieSpec {
+  return {
+    name: PENDING_WALLET_TOPUP_COOKIE,
+    value: paymentId,
+    options: cookieOptions(PENDING_WALLET_TOPUP_MAX_AGE_SECONDS)
+  };
+}
+
+export function buildClearedPendingWalletTopupCookie(): CookieSpec {
+  return { name: PENDING_WALLET_TOPUP_COOKIE, value: "", options: cookieOptions(0) };
 }
 
 export function buildClearedPendingTopupCookie(): CookieSpec {

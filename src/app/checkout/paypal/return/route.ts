@@ -55,6 +55,11 @@ export async function GET(request: Request) {
     target.searchParams.set("reason", reason);
     if (paymentId) target.searchParams.set("payment", paymentId);
     target.searchParams.set("ref", referenceId);
+    if (reason === "signin") {
+      const resume = new URLSearchParams({ payment_id: paymentId });
+      if (topupOrderId) resume.set("order", topupOrderId);
+      target.searchParams.set("resume", `/checkout/paypal/return?${resume.toString()}`);
+    }
     return applyCookies(NextResponse.redirect(target, 303), sessionCookies);
   };
 

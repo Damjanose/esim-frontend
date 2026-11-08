@@ -2,6 +2,7 @@ import { backendFetch } from "@/lib/backend";
 import { getPublicOrigin } from "@/lib/public-origin";
 import { errorJson, readSessionTokens, successJson } from "@/lib/route-response";
 import { callWithSession } from "@/lib/with-session";
+import { buildPendingWalletTopupCookie } from "@/lib/session";
 
 type PaymentSession = {
   paymentId: string;
@@ -14,8 +15,9 @@ type PaymentSession = {
 
 /**
  * Starts a Pokpay-hosted checkout for a partner topping up their own wallet
- * balance (as opposed to `/payments/wallet-topups/provision`, which the
- * webhook calls after payment completes, or `/partners/me/wallet/transfer`,
+ * balance (credited by `/partners/wallet/return`, which calls
+ * `/payments/wallet-topups/provision` when Pokpay sends the partner back; there is
+ * no Pokpay webhook), as opposed to `/partners/me/wallet/transfer`,
  * which moves already-earned commission into the wallet with no payment
  * involved). Mirrors `bff/payments/intent` and `bff/payments/topups/intent`:
  * the return_url must be the public origin, since the backend checks it
@@ -48,5 +50,6 @@ export async function POST(request: Request) {
     return errorJson(attempt.message, attempt.status, {}, attempt.cookies);
   }
 
-  return successJson(attempt.data, attempt.cookies);
+  // /partners/wallet/return reads this: Pokpay's return URL carries no payment id.
+  return successJson(attempt.data, [...attempt.cookies, buildPendingWalletTopupCookie(attempt.data.paymentId)]);
 }

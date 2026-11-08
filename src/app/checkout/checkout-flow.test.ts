@@ -299,8 +299,28 @@ describe("GET /checkout/return", () => {
       )
     );
 
-    expect(response.headers.get("location")).toContain("reason=provisioning");
+    // A bare 502 can't tell whether the card was charged: neither "untouched" nor "went through".
+    expect(response.headers.get("location")).toContain("reason=unconfirmed");
     expect(response.headers.get("location")).not.toContain("reason=unpaid");
+  });
+
+  it("says the payment went through only when the backend reports a setup failure", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ status: "error", error: "Airalo refused", code: "provider_error" }, 422))
+    );
+    const response = await checkoutReturn(
+      returnRequest("?payment_id=sdk_order_123", `${ACCESS_COOKIE}=good-token; ${PENDING_PAYMENT_COOKIE}=sdk_order_123`)
+    );
+    expect(response.headers.get("location")).toContain("reason=provisioning");
+  });
+
+  it("sends an expired session to sign in and back to this exact payment", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ status: "error", error: "expired" }, 401)));
+    const response = await checkoutReturn(returnRequest("?payment_id=sdk_order_123", `${ACCESS_COOKIE}=bad`));
+    const location = new URL(response.headers.get("location") ?? "");
+    expect(location.searchParams.get("reason")).toBe("signin");
+    expect(location.searchParams.get("resume")).toBe("/checkout/return?payment_id=sdk_order_123");
   });
 
   it("sends the buyer somewhere sensible when there is no payment reference at all", async () => {
@@ -347,7 +367,8 @@ describe("GET /checkout/return", () => {
     const setCookie = response.headers.get("set-cookie") ?? "";
     expect(setCookie).toContain(`${ACCESS_COOKIE}=new-access`);
     expect(setCookie).toContain(`${REFRESH_COOKIE}=new-refresh`);
-    expect(setCookie).toContain(`${PENDING_PAYMENT_COOKIE}=;`);
+    // Unconfirmed is retryable: the pending-payment cookie stays so a refresh can finish it.
+    expect(setCookie).not.toContain(`${PENDING_PAYMENT_COOKIE}=;`);
 
     const reportCall = fetchMock.mock.calls.find((call) => String(call[0]).endsWith("/client-errors"));
     expect(new Headers(reportCall![1]!.headers).get("authorization")).toBe("Bearer new-access");
@@ -378,7 +399,7 @@ describe("GET /checkout/return", () => {
     expect(body).toMatchObject({
       source: "client-web",
       scenario: "checkout_return",
-      stage: "provisioning",
+      stage: "unconfirmed",
       paymentReference: "sdk_order_123",
       referenceId: ref,
       failedRequest: { status: 502, response: { message: "Provider unavailable" } }
@@ -416,7 +437,7 @@ describe("GET /account/topup/return failures", () => {
 
     const location = new URL(response.headers.get("location") ?? "");
     expect(location.pathname).toBe("/checkout/failed");
-    expect(location.searchParams.get("reason")).toBe("provisioning");
+    expect(location.searchParams.get("reason")).toBe("unconfirmed");
     expect(location.searchParams.get("ref")).toMatch(/^[A-Za-z0-9_.:-]{8,100}$/);
     const setCookie = response.headers.get("set-cookie") ?? "";
     expect(setCookie).toContain(`${ACCESS_COOKIE}=new-access`);
@@ -427,7 +448,7 @@ describe("GET /account/topup/return failures", () => {
     const body = JSON.parse(String(reportCall![1]!.body));
     expect(body).toMatchObject({
       scenario: "topup_return",
-      stage: "provisioning",
+      stage: "unconfirmed",
       paymentReference: "pay_topup_1",
       referenceId: location.searchParams.get("ref"),
       failedRequest: { status: 502, path: "/payments/topups/provision", response: { message: "Provider unavailable" } }

@@ -126,7 +126,8 @@ describe("GET /account/topup/return", () => {
       )
     );
 
-    expect(response.headers.get("location")).toContain("reason=provisioning");
+    // A bare 502 can't tell whether the card was charged.
+    expect(response.headers.get("location")).toContain("reason=unconfirmed");
     expect(response.headers.get("location")).not.toContain("reason=unpaid");
   });
 
