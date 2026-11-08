@@ -92,7 +92,7 @@ describe("SEO content page template", () => {
     expect(source).toContain("<PlanDataDisc plan={plan} />");
     expect(source).toContain("<PlanPrice plan={plan} />");
     expect(source).toContain("primary={bestValue}");
-    expect(source).toContain("href={`/checkout?package=${encodeURIComponent(plan.id)}`}");
+    expect(source).toContain("href={appPurchaseHref(plan.id)}");
     expect(source.match(/variant="tint"/g)).toHaveLength(2);
     expect(source).not.toContain("text-white");
     expect(source).not.toContain("bg-white");

@@ -1,3 +1,4 @@
+import { WEB_PURCHASES_DISABLED_MESSAGE } from "@/lib/web-purchases";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ACCESS_COOKIE, PENDING_PAYMENT_COOKIE, REFRESH_COOKIE } from "@/lib/session";
 import { POST as createIntent } from "../bff/payments/intent/route";
@@ -38,110 +39,13 @@ afterEach(() => {
 });
 
 describe("POST /bff/payments/intent", () => {
-  it("asks the backend for a payment session and remembers the payment id", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    const response = await createIntent(
-      new Request("http://localhost:3000/bff/payments/intent", {
-        method: "POST",
-        headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
-        body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })
-      })
-    );
-    const payload = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(payload.data.paymentId).toBe(paymentSession.paymentId);
-    expect(payload.data.environment).toBe(paymentSession.environment);
-
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    const sent = JSON.parse(String(init.body));
-    expect(sent.package_id).toBe("hej-telecom-in-30days-20gb");
-    // In-app CardStep: never send return_url (avoids allowlist failures on local→prod).
-    expect(sent).not.toHaveProperty("return_url");
-
-    const pending = response.headers
-      .getSetCookie()
-      .find((cookie) => cookie.startsWith(`${PENDING_PAYMENT_COOKIE}=`));
-    expect(pending).toContain("sdk_order_123");
-    expect(pending).toContain("HttpOnly");
-  });
-
-  it("does not require a public return origin for in-app plan checkout", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    // Localhost against a production backend used to 400 with
-    // "return_url origin is not allowed" when we still posted return_url.
-    const response = await createIntent(
-      new Request("http://localhost:3000/bff/payments/intent", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          cookie: `${ACCESS_COOKIE}=good-token`,
-          host: "localhost:3000"
-        },
-        body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })
-      })
-    );
-
-    expect(response.status).toBe(200);
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).not.toHaveProperty("return_url");
-  });
-
-  it("refuses to start a payment without a session", async () => {
+  it("refuses with 403: purchases are app-only, and never calls the backend", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-
-    const response = await createIntent(
-      new Request("http://localhost:3000/bff/payments/intent", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })
-      })
-    );
-
-    expect(response.status).toBe(401);
+    const response = await createIntent();
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ status: "error", error: WEB_PURCHASES_DISABLED_MESSAGE });
     expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("forwards an applied promo code to the backend as camelCase promoCode", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    await createIntent(
-      new Request("http://localhost:3000/bff/payments/intent", {
-        method: "POST",
-        headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
-        body: JSON.stringify({
-          package_id: "hej-telecom-in-30days-20gb",
-          promo_code: "FRIEND10"
-        })
-      })
-    );
-
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    const sent = JSON.parse(String(init.body));
-    expect(sent.promoCode).toBe("FRIEND10");
-  });
-
-  it("omits promoCode from the backend call entirely when no code was given", async () => {
-    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: paymentSession }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    await createIntent(
-      new Request("http://localhost:3000/bff/payments/intent", {
-        method: "POST",
-        headers: { "content-type": "application/json", cookie: `${ACCESS_COOKIE}=good-token` },
-        body: JSON.stringify({ package_id: "hej-telecom-in-30days-20gb" })
-      })
-    );
-
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    const sent = JSON.parse(String(init.body));
-    expect(sent).not.toHaveProperty("promoCode");
   });
 });
 
@@ -299,7 +203,7 @@ describe("POST /bff/checkout/apply-promo", () => {
 });
 
 describe("visitor user agent on uncached payment calls", () => {
-  it("forwards the browser UA as x-client-user-agent on intent, provision and return", async () => {
+  it("forwards the browser UA as x-client-user-agent on provision and return", async () => {
     const fetchMock = vi.fn(async () =>
       jsonResponse({ status: "success", data: { order: { id: 1 }, paymentId: "p", checkoutUrl: "u" } }, 201)
     );
@@ -310,11 +214,10 @@ describe("visitor user agent on uncached payment calls", () => {
       cookie: `${ACCESS_COOKIE}=good-token`
     };
 
-    await createIntent(new Request("http://localhost:3000/bff/payments/intent", { method: "POST", headers, body: JSON.stringify({ package_id: "pkg" }) }));
     await provisionPayment(new Request("http://localhost:3000/bff/payments/provision", { method: "POST", headers, body: JSON.stringify({ payment_id: "p1" }) }));
     await checkoutReturn(new Request("http://localhost:3000/checkout/return?payment_id=p1", { headers }));
 
-    expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(3);
+    expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2);
     for (const call of fetchMock.mock.calls as unknown as Array<[string, RequestInit]>) {
       expect(new Headers(call[1].headers).get("x-client-user-agent")).toBe("Mozilla/5.0 VisitorUA");
     }

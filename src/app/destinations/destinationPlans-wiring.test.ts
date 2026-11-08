@@ -72,7 +72,7 @@ describe("DestinationPlans", () => {
     expect(source).toContain("<PlanFilterBar");
     expect(source).toContain("visiblePlans(selectedCountryPlans, filter, sort)");
     expect(source).toContain("tags={planRowTags(plan, { position: index })}");
-    expect(source).toContain("buyHref={`/checkout?package=${encodeURIComponent(plan.id)}`}");
+    expect(source).toContain("buyHref={appPurchaseHref(plan.id)}");
     expect(source).toContain('className="mt-8 lg:sticky lg:top-6 lg:mt-0"');
     expect(source).toContain("<PlansSidebar plansCount={selectedCountryPlans.length} />");
     // Sticky needs a main that isn't a scroll container: clip, not hidden (here and in page.tsx).

@@ -5,30 +5,23 @@ import {
   androidIntentUrlForPackage,
   appSchemeUrlForPackage,
   detectMobilePlatform,
-  type MobilePlatform
+  type MobilePlatform,
 } from "@/lib/app-links";
 import { resolveButtonClasses } from "@/app/components/buttonClasses";
-import { GA_CURRENCY, roundMoney } from "@/lib/analytics";
-import { metaProductParams, trackMetaEvent } from "@/lib/meta-pixel";
+import { WEB_PURCHASES_DISABLED_MESSAGE } from "@/lib/web-purchases";
 
 /** How long to wait for the app to take over before sending iOS to the App Store. */
 const IOS_STORE_FALLBACK_MS = 1500;
 
 // Shared lit-pill paint; these stay raw <a>/<button> because Android needs a real intent:// link.
 const openAppClass = `${resolveButtonClasses({ size: "lg", hero: true })} w-full`;
-const secondaryClass = `${resolveButtonClasses({ variant: "tint", size: "lg" })} w-full`;
 
 export function OpenAppActions({
   packageId,
-  webCheckoutUrl,
-  webPlan,
   appStoreUrl,
-  playStoreUrl
+  playStoreUrl,
 }: {
   packageId: string;
-  /** Web checkout for this plan, or null when the plan isn't in the web catalog. */
-  webCheckoutUrl: string | null;
-  webPlan: { id: string; price: number } | null;
   appStoreUrl: string;
   playStoreUrl: string;
 }) {
@@ -42,7 +35,8 @@ export function OpenAppActions({
     // Try the app; if the page is still in front after a moment, the app
     // isn't installed, so go to the App Store.
     const timer = window.setTimeout(() => {
-      if (document.visibilityState === "visible") window.location.href = appStoreUrl;
+      if (document.visibilityState === "visible")
+        window.location.href = appStoreUrl;
     }, IOS_STORE_FALLBACK_MS);
     const cancel = () => {
       if (document.visibilityState === "hidden") window.clearTimeout(timer);
@@ -52,13 +46,23 @@ export function OpenAppActions({
   };
 
   const storeLink = (href: string, label: string) => (
-    <a key={label} href={href} className="font-semibold text-brandBlue underline-offset-2 hover:underline">
+    <a
+      key={label}
+      href={href}
+      className="font-semibold text-brandBlue underline-offset-2 hover:underline"
+    >
       {label}
     </a>
   );
 
   return (
     <div className="mt-6 flex flex-col gap-3">
+      <p
+        role="status"
+        className="rounded-[14px] bg-brandBlue/10 px-4 py-3 text-sm font-semibold text-brandBlue"
+      >
+        {WEB_PURCHASES_DISABLED_MESSAGE}
+      </p>
       {platform === "android" ? (
         // A real link, not script: Chrome blocks script-initiated intent:// navigation.
         // It opens the app if installed, otherwise the Play Store listing.
@@ -74,24 +78,33 @@ export function OpenAppActions({
           Open in the app
         </button>
       ) : null}
-      {webCheckoutUrl ? (
-        <a
-          href={webCheckoutUrl}
-          className={platform === "other" ? openAppClass : secondaryClass}
-          onClick={() => {
-            if (webPlan) {
-              trackMetaEvent("AddToCart", metaProductParams([webPlan.id], roundMoney(webPlan.price), GA_CURRENCY));
-            }
-          }}
-        >
-          Buy on the web
-        </a>
+      {platform === "other" ? (
+        // Desktop: no app to open here, so the store buttons are the next step.
+        <div className="grid gap-3 sm:grid-cols-2">
+          <a href={appStoreUrl} className={openAppClass}>
+            App Store
+          </a>
+          <a href={playStoreUrl} className={openAppClass}>
+            Google Play
+          </a>
+        </div>
       ) : null}
-      <p className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-onSurfaceVariant">
-        <span>Get the app:</span>
-        {platform !== "android" ? storeLink(appStoreUrl, "App Store") : null}
-        {platform !== "ios" ? storeLink(playStoreUrl, "Google Play") : null}
-      </p>
+      {platform !== "other" ? (
+        <p className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-onSurfaceVariant">
+          {platform === "ios" ? (
+            <>
+              <span>Don&apos;t have the app?</span>
+              {storeLink(appStoreUrl, "App Store")}
+            </>
+          ) : null}
+          {platform === "android" ? (
+            <>
+              <span>Don&apos;t have the app?</span>
+              {storeLink(playStoreUrl, "Google Play")}
+            </>
+          ) : null}
+        </p>
+      ) : null}
     </div>
   );
 }

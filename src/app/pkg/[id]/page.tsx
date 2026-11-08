@@ -33,7 +33,7 @@ export async function generateMetadata({
     path: `/pkg/${id}`,
     title: plan ? `${plan.country} eSIM · ${plan.title} | eSIM2you` : "eSIM plan | eSIM2you",
     description: plan
-      ? `${plan.title} for ${plan.price}. Open it in the eSIM2you app or buy it on the web.`
+      ? `${plan.title} for ${plan.price}. Buy it in the eSIM2you app.`
       : "Open this eSIM plan in the eSIM2you app, or download the app to get it.",
     indexable: false
   });
@@ -45,8 +45,7 @@ export async function generateMetadata({
  * With the app installed, universal / App Links open the app before this page
  * loads. Reaching it means the app isn't installed, or the link was opened
  * somewhere links don't fire (in-app browsers, a debug build), so it shows the
- * plan itself and offers every next step: open in the app, buy on the web, or
- * download the app. It never gates the plan behind a download.
+ * plan and sends the visitor to the app: purchases are app-only (no web checkout).
  */
 export default async function PackageLinkPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -111,8 +110,6 @@ export default async function PackageLinkPage({ params }: { params: Promise<{ id
 
         <OpenAppActions
           packageId={packageId}
-          webCheckoutUrl={plan ? `/checkout?package=${encodeURIComponent(plan.id)}` : null}
-          webPlan={plan ? { id: plan.id, price: plan.priceNumeric } : null}
           appStoreUrl={appLinks.ios.href}
           playStoreUrl={appLinks.android.href}
         />

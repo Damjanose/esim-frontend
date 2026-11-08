@@ -319,7 +319,7 @@ describe("SEO route contract", () => {
         "@type": "Offer",
         name: "1 GB - 7 days",
         sku: "kosovo 1gb",
-        url: "https://esim.uplisoft.com/checkout?package=kosovo%201gb",
+        url: "https://esim.uplisoft.com/pkg/kosovo%201gb",
         price: "4.50",
         priceCurrency: "EUR",
         availability: "https://schema.org/InStock",

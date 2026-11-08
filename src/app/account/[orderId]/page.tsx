@@ -38,7 +38,7 @@ import { ProvisioningWatcher } from "./ProvisioningWatcher";
 import { OrderReviewCard } from "./OrderReviewCard";
 import { PurchaseConversion, type PurchasedPlan } from "./PurchaseConversion";
 import { TopUpConversion } from "./TopUpConversion";
-import { TopUpPanel, type TopupPackage } from "./TopUpPanel";
+import type { TopupPackage } from "./TopUpPanel";
 
 export const metadata: Metadata = createMetadata({
   path: "/account",
@@ -386,11 +386,16 @@ export default async function OrderDetailPage({
           </div>
 
           {topupPackages.length > 0 ? (
-            <TopUpPanel
-              esim={{ country: purchasedOption?.country, region: purchasedOption?.region }}
-              orderId={order.id}
-              packages={topupPackages}
-            />
+            // Top-ups are app-only (no web purchases): point to the app instead of TopUpPanel.
+            <div className="mt-4 flex items-start gap-3 rounded-[18px] border border-outline/60 bg-surface px-5 py-4 shadow-brandCard">
+              <Info aria-hidden="true" className="mt-0.5 shrink-0 text-brandBlue" size={18} />
+              <div>
+                <p className="text-sm font-bold text-brandInk">Need more data?</p>
+                <p className="mt-1 text-sm text-onSurfaceVariant">
+                  Top up this eSIM in the eSIM2you app. Purchases are available only in the app.
+                </p>
+              </div>
+            </div>
           ) : topups?.message ? (
             <div className="mt-4 flex items-start gap-3 rounded-[18px] border border-outline/60 bg-surface px-5 py-4 shadow-brandCard">
               <Info aria-hidden="true" className="mt-0.5 shrink-0 text-brandBlue" size={18} />
