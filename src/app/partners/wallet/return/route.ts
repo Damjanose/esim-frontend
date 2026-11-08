@@ -59,6 +59,8 @@ export async function GET(request: Request) {
     target.searchParams.set("reason", reason);
     if (paymentId) target.searchParams.set("payment", paymentId);
     target.searchParams.set("ref", referenceId);
+    // Wallet wording and a dashboard link instead of eSIM copy.
+    target.searchParams.set("kind", "wallet");
     if (reason === "signin" && paymentId) {
       target.searchParams.set("resume", `/partners/wallet/return?payment_id=${encodeURIComponent(paymentId)}`);
     }

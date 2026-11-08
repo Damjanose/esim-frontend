@@ -75,6 +75,7 @@ describe("partner wallet top-up by card", () => {
       returnRequest("", `${ACCESS_COOKIE}=good-token; ${PENDING_WALLET_TOPUP_COOKIE}=sdk_wallet_1`)
     );
     expect(unknown.headers.get("location")).toContain("reason=unconfirmed");
+    expect(unknown.headers.get("location")).toContain("kind=wallet");
     expect(unknown.headers.get("set-cookie") ?? "").not.toContain(`${PENDING_WALLET_TOPUP_COOKIE}=;`);
 
     vi.stubGlobal(
