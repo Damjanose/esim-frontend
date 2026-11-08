@@ -118,13 +118,11 @@ describe("landingContent", () => {
     expect(existsSync("src/app/icon.png")).toBe(true);
     expect(existsSync("public/favicon.png")).toBe(true);
     expect(existsSync("public/app-logo.png")).toBe(true);
-    expect(existsSync("public/logo-icon.png")).toBe(true);
-    // The navbar sits on both the colorful homepage hero and plain white content
-    // pages, so it uses the transparent, colored icon mark (cropped from
-    // logo-full.png) rather than logo-no-bg.png (which renders white-on-white,
-    // effectively invisible, on every light page) or app-logo.png's solid square
-    // (which the footer, on a plain white background, uses instead).
-    expect(navSource).toContain('src="/logo-icon.png"');
+    // The old flat logo (logo-full.png / logo-icon.png) was retired on 2026-11-08;
+    // the app logo is now the only brand mark, in the navbar and footer alike.
+    expect(existsSync("public/logo-icon.png")).toBe(false);
+    expect(existsSync("public/logo-full.png")).toBe(false);
+    expect(navSource).toContain('src="/app-logo.png"');
     expect(footerSource).toContain('src="/app-logo.png"');
     // Globe2 is legitimately reused elsewhere (language selector, "Global Coverage"
     // benefit icons) now that the logo itself is a real image — only the brand-mark

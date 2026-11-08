@@ -66,7 +66,7 @@ const nextConfig = {
         ],
       },
       {
-        source: "/:path(logo-icon.png|app-logo.png)",
+        source: "/:path(app-logo.png)",
         headers: [
           {
             key: "Cache-Control",
