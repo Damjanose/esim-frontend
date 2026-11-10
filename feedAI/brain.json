@@ -71,8 +71,8 @@
   },
   "sync": {
     "commit": "working-tree",
-    "branch": "feat/web-app-only-purchases",
-    "date": "2026-11-08",
-    "note_latest": "f346: web purchases disabled; Buy -> /pkg/{id} open-in-app; payment intents + paid trip-plan unlock return 403."
+    "branch": "feat/ahrefs-analytics",
+    "date": "2026-11-10",
+    "note_latest": "f351: Ahrefs Web Analytics in <head> for all public pages, not consent-gated, skipped on admin x* paths; privacy policy updated."
   }
 }

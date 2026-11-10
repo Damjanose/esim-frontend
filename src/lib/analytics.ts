@@ -5,6 +5,8 @@ export const GOOGLE_ADS_PURCHASE_LABEL =
   process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL || "Xf_8CIug2u0cEOCP_4Qp";
 /** GA4 property. Configured on the same gtag.js loader as the Ads tag (GoogleTag.tsx). */
 export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-95H527D5BG";
+/** Ahrefs Web Analytics site key (AhrefsAnalytics.tsx). Cookieless, so not consent-gated. */
+export const AHREFS_ANALYTICS_KEY = process.env.NEXT_PUBLIC_AHREFS_ANALYTICS_KEY || "eur+MFq7wVUJdv9eHCGVYg";
 
 /** Every catalog and checkout price is in EUR (the /esim pages and Pokpay both charge EUR). */
 export const GA_CURRENCY = "EUR";

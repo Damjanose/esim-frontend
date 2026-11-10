@@ -72,7 +72,7 @@ export const termsDocument = {
 
 export const policyDocument = {
   title: "Privacy Policy",
-  lastUpdated: "September 25, 2026",
+  lastUpdated: "November 10, 2026",
   sections: [
     {
       title: "Overview",
@@ -101,6 +101,7 @@ export const policyDocument = {
       title: "Cookies and similar technologies",
       paragraphs: [
         "The website uses a strictly necessary first-party cookie to remember your privacy choices. Optional analytics cookies and similar technologies are disabled unless you enable Analytics. Optional advertising technologies from Google Ads and Meta are disabled unless you enable Marketing.",
+        "Separately from those optional categories, we use Ahrefs Web Analytics to count visits to the public website. According to Ahrefs, it sets no cookies and does not identify individual visitors, so it runs without a consent choice.",
         "You can accept all optional categories, reject them, or choose categories individually in the Privacy choices dialog. You can change or withdraw your choices at any time using the Privacy choices link in the website footer. Our consent record includes the consent version and timestamp so we can respect changes to this policy."
       ]
     },

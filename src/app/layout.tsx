@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Hanken_Grotesk, Inter } from "next/font/google";
 import { createMetadata, siteUrl } from "@/lib/seo";
+import { AhrefsAnalytics } from "./AhrefsAnalytics";
 import { ConsentProvider } from "./ConsentManager";
 import { GoogleTag } from "./GoogleTag";
 import { MetaPixel } from "./MetaPixel";
@@ -68,6 +69,7 @@ export default function RootLayout({
         className={`${hankenGrotesk.variable} ${inter.variable} ${geist.variable}`}
         suppressHydrationWarning
       >
+        <AhrefsAnalytics />
         <ConsentProvider>
           <GoogleTag />
           <MetaPixel />
