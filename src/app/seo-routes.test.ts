@@ -37,7 +37,7 @@ describe("Next SEO routes", () => {
       expect(indexXml).toContain(`https://esim.uplisoft.com/sitemaps/${id}.xml`);
     }
     expect(indexXml).toMatch(
-      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-10-09T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-11-10T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
       /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-10-30T00:00:00\.000Z<\/lastmod>/
@@ -73,7 +73,7 @@ describe("Next SEO routes", () => {
     expect(all.every((entry) => entry.url.startsWith("https://esim.uplisoft.com"))).toBe(true);
     expect(all.every((entry) => entry.lastModified instanceof Date)).toBe(true);
     expect(all.find((entry) => entry.url.endsWith("/policy"))?.lastModified).toEqual(
-      new Date("2026-09-25T00:00:00.000Z")
+      new Date("2026-11-10T00:00:00.000Z")
     );
     expect(all.find((entry) => entry.url.endsWith("/terms"))?.lastModified).toEqual(
       new Date("2026-09-25T00:00:00.000Z")
