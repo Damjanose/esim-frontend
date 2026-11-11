@@ -20,6 +20,7 @@ export const noindexRoutePrefixes = [
   "/account",
   "/billing",
   "/checkout",
+  "/copy-code",
   "/dashboard",
   "/esim/id",
   "/partners",

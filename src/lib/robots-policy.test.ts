@@ -3,7 +3,7 @@ import { crawlRel, isNoindexPath } from "./robots-policy";
 
 describe("crawl policy", () => {
   it("treats private HTML routes as noindex but not the public pages next to them", () => {
-    for (const path of ["/checkout", "/signin", "/profile/billing", "/account/12", "/partners/request", "/trip-plan/abc", "/pkg/x", "/esim/id/t"]) {
+    for (const path of ["/checkout", "/copy-code", "/signin", "/profile/billing", "/account/12", "/partners/request", "/trip-plan/abc", "/pkg/x", "/esim/id/t"]) {
       expect(isNoindexPath(path)).toBe(true);
     }
     for (const path of ["/", "/trip-plan", "/esim/japan", "/destinations", "/accounts-faq"]) {
