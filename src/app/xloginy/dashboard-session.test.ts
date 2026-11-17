@@ -32,9 +32,17 @@ it("routes navigation logout to the dashboard session that owns the loaded data"
   const nav = AdminNav({ session: {
     token: dashboardToken, logout: () => { dashboardToken = ""; },
   } });
-  const button = React.Children.toArray(nav.props.children).find((child) =>
-    React.isValidElement(child) && (child.props as { "aria-label"?: string })["aria-label"] === "Logout",
-  ) as React.ReactElement<{ onClick: () => void }>;
+  const findLogout = (node: React.ReactNode): React.ReactElement<{ onClick: () => void }> | undefined => {
+    for (const child of React.Children.toArray(node)) {
+      if (!React.isValidElement(child)) continue;
+      const props = child.props as { "aria-label"?: string; children?: React.ReactNode };
+      if (props["aria-label"] === "Logout") return child as React.ReactElement<{ onClick: () => void }>;
+      const found = findLogout(props.children);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  const button = findLogout(nav?.props.children) as React.ReactElement<{ onClick: () => void }>;
   button.props.onClick();
   expect(dashboardToken).toBe("");
   expect(navigationToken).toBe("older-navigation-session");

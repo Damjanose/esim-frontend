@@ -71,8 +71,8 @@
   },
   "sync": {
     "commit": "working-tree",
-    "branch": "feat/ahrefs-analytics",
-    "date": "2026-11-10",
-    "note_latest": "f351: Ahrefs Web Analytics in <head> for all public pages, not consent-gated, skipped on admin x* paths; privacy policy updated."
+    "branch": "feat/admin-sidebar-nav",
+    "date": "2026-11-17",
+    "note_latest": "f353: admin nav is a grouped, collapsible fixed sidebar (rail springs open on hover, drawer on mobile); state on <html> attributes."
   }
 }
