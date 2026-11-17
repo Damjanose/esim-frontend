@@ -12,14 +12,23 @@ function isSecurePage(): boolean {
   return window.location.protocol === "https:";
 }
 
+/** Lets every useAdminSession instance on the page (page + sidebar) follow a login or logout. */
+const SESSION_EVENT = "admin-session-change";
+
+function announceSessionChange(): void {
+  window.dispatchEvent(new Event(SESSION_EVENT));
+}
+
 /** Keeps the token in a cookie until it expires, so a new tab or browser restart stays signed in. */
 function saveToken(token: string): void {
   const maxAge = adminTokenMaxAgeSeconds(token);
   document.cookie = maxAge > 0 ? adminTokenCookie(token, maxAge, isSecurePage()) : clearedAdminTokenCookie(isSecurePage());
+  announceSessionChange();
 }
 
 function clearToken(): void {
   document.cookie = clearedAdminTokenCookie(isSecurePage());
+  announceSessionChange();
 }
 
 type AdminLoginResponse = {
@@ -46,6 +55,13 @@ export function useAdminSession() {
     const storedToken = readAdminTokenCookie(document.cookie);
     if (storedToken && adminTokenMaxAgeSeconds(storedToken) > 0) setToken(storedToken);
     else if (storedToken) clearToken();
+
+    const sync = () => {
+      const current = readAdminTokenCookie(document.cookie);
+      setToken(current && adminTokenMaxAgeSeconds(current) > 0 ? current : "");
+    };
+    window.addEventListener(SESSION_EVENT, sync);
+    return () => window.removeEventListener(SESSION_EVENT, sync);
   }, []);
 
   const login = useCallback(

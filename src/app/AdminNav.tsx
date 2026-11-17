@@ -21,6 +21,13 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { useAdminSession } from "./useAdminSession";
+import {
+  AdminNavClose,
+  AdminNavCollapseButton,
+  AdminNavGroup,
+  AdminNavMobile,
+  AdminNavState
+} from "./AdminNavControls";
 
 const adminLinks: Array<{
   href: string;
@@ -44,53 +51,78 @@ const adminLinks: Array<{
   { href: "/xtroubley", label: "Troubleshooting", full: "Assistant troubleshooting", Icon: HelpCircle }
 ];
 
+/** Sidebar sections, named by what an admin is trying to do. Every href in adminLinks belongs to exactly one. */
+export const adminNavGroups: Array<{ title: string; hrefs: string[] }> = [
+  { title: "Money", hrefs: ["/xloginy", "/xpricing", "/xcryptoy", "/xpartnersy"] },
+  { title: "People", hrefs: ["/xsupport", "/xmailx", "/xactivityy", "/xnotificationy", "/xtestimonialsy"] },
+  { title: "Product", hrefs: ["/xtripplany", "/xstreaky", "/xtroubley"] },
+  { title: "System", hrefs: ["/xerrors", "/xversion"] }
+];
+
 export function AdminNav({ session }: {
   session?: Pick<ReturnType<typeof useAdminSession>, "token" | "logout">;
 } = {}) {
   const pathname = usePathname();
   const ownSession = useAdminSession();
   const { token, logout } = session ?? ownSession;
+  const current = adminLinks.find((link) => link.href === pathname);
+
+  // Signed out: no sidebar at all, so the sign-in form is the whole page.
+  if (!token) return null;
 
   return (
-    <nav className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-6 border-b border-mist bg-gradient-to-r from-midnight to-ink px-6 py-0">
-      <Link aria-label="Home" className="shrink-0" href="/" title="Home">
-        <img alt="eSIM2you app logo" className="h-8 w-8 rounded-[10px] object-contain shadow-glow" src="/app-logo.png" />
-      </Link>
+    <>
+    <AdminNavState />
+    <AdminNavMobile title={current?.full ?? "Admin"} />
+    <nav aria-label="Admin" className="admin-nav">
+      <AdminNavClose />
 
-      <div className="flex flex-1 items-center gap-1 overflow-x-auto">
-        {adminLinks.map(({ href, label, full, Icon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              aria-label={full}
-              className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm transition ${
-                active
-                  ? "bg-[rgba(0,217,245,0.12)] text-aqua shadow-[inset_0_0_0_1px_rgba(0,217,245,0.35)]"
-                  : "text-[#7fd8e6] opacity-70 hover:bg-white/5 hover:opacity-100"
-              }`}
-              href={href}
-              key={href}
-              title={full}
-            >
-              <Icon aria-hidden="true" size={16} />
-              <span className="font-semibold">{label}</span>
-            </Link>
-          );
-        })}
+      <div className="admin-nav-top">
+        <Link aria-label="Home" className="admin-nav-brand" href="/" title="Home">
+          <img alt="eSIM2you app logo" className="h-8 w-8 rounded-[10px] object-contain" src="/app-logo.png" />
+          <span className="admin-nav-label">
+            <b>eSIM2you</b>
+            <small>Admin</small>
+          </span>
+        </Link>
+        <AdminNavCollapseButton />
       </div>
 
-      {token && (
-        <button
+      <div className="admin-nav-scroll">
+        {adminNavGroups.map((group) => (
+          <AdminNavGroup key={group.title} title={group.title}>
+            {group.hrefs.map((href) => {
+              const link = adminLinks.find((candidate) => candidate.href === href);
+              if (!link) return null;
+              const active = pathname === href;
+              return (
+                <Link
+                  aria-current={active ? "page" : undefined}
+                  className="admin-nav-link"
+                  href={href}
+                  key={href}
+                  title={link.full}
+                >
+                  <link.Icon aria-hidden="true" size={18} />
+                  <span className="admin-nav-label">{link.full}</span>
+                </Link>
+              );
+            })}
+          </AdminNavGroup>
+        ))}
+      </div>
+
+      <button
           aria-label="Logout"
-          className="flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold text-[#7fd8e6] transition hover:bg-white/5 hover:text-aqua"
+          className="admin-nav-link admin-nav-logout"
           onClick={logout}
           title="Logout"
           type="button"
         >
-          <LogOut aria-hidden="true" size={16} />
-          <span className="hidden sm:inline">Logout</span>
+          <LogOut aria-hidden="true" size={18} />
+          <span className="admin-nav-label">Logout</span>
         </button>
-      )}
     </nav>
+    </>
   );
 }

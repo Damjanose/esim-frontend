@@ -1,5 +1,8 @@
-import { FormEvent } from "react";
-import { LockKeyhole } from "lucide-react";
+"use client";
+
+import { FormEvent, useState } from "react";
+import { Eye, EyeOff, LockKeyhole } from "lucide-react";
+import { Button } from "./components/Button";
 
 type AdminLoginCardProps = {
   email: string;
@@ -11,6 +14,9 @@ type AdminLoginCardProps = {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
+const inputClasses =
+  "h-11 w-full rounded-xl border border-outline bg-white px-3.5 text-sm text-brandInk outline-none transition placeholder:text-onSurfaceVariant/60 focus:border-brandBlue focus:ring-2 focus:ring-brandBlue/20";
+
 export function AdminLoginCard({
   email,
   setEmail,
@@ -20,54 +26,75 @@ export function AdminLoginCard({
   isLoggingIn,
   onSubmit
 }: AdminLoginCardProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <div className="mx-auto mt-8 max-w-md">
-      <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
-        <div className="h-1 w-full bg-gradient-to-r from-cyan to-aqua" />
-        <form className="p-7" onSubmit={onSubmit}>
-          <span className="mb-5 grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-midnight to-ink text-aqua shadow-glow">
-            <LockKeyhole aria-hidden="true" size={20} />
-          </span>
-          <h2 className="font-display text-xl font-black text-midnight">Admin sign in</h2>
-          <p className="mt-1 text-xs font-bold uppercase tracking-wide text-muted">Restricted access</p>
+    <div className="mx-auto mt-[12vh] w-full max-w-sm">
+      <form
+        aria-busy={isLoggingIn}
+        className="rounded-2xl border border-outline/70 bg-white p-7 shadow-brandCard"
+        onSubmit={onSubmit}
+      >
+        <span className="grid h-11 w-11 place-items-center rounded-xl bg-brandInk text-white">
+          <LockKeyhole aria-hidden="true" size={20} />
+        </span>
+        <h1 className="mt-5 font-display text-2xl font-bold tracking-tight text-brandInk">Admin sign in</h1>
+        <p className="mt-1 text-sm text-onSurfaceVariant">Use your admin account to continue.</p>
 
-          <label className="mt-5 block text-sm font-bold text-midnight" htmlFor="admin-email">
-            Email
-          </label>
-          <input
-            autoComplete="email"
-            className="mt-1.5 h-11 w-full rounded-xl border border-line px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-            id="admin-email"
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            type="email"
-            value={email}
-          />
+        <div className="mt-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-brandInk" htmlFor="admin-email">
+              Email
+            </label>
+            <input
+              autoComplete="email"
+              autoFocus
+              className={inputClasses}
+              id="admin-email"
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              type="email"
+              value={email}
+            />
+          </div>
 
-          <label className="mt-4 block text-sm font-bold text-midnight" htmlFor="admin-password">
-            Password
-          </label>
-          <input
-            autoComplete="current-password"
-            className="mt-1.5 h-11 w-full rounded-xl border border-line px-3.5 text-sm outline-none transition focus:border-cyan focus:ring-2 focus:ring-cyan/20"
-            id="admin-password"
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            type="password"
-            value={password}
-          />
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-brandInk" htmlFor="admin-password">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                autoComplete="current-password"
+                className={`${inputClasses} pr-11`}
+                id="admin-password"
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                type={showPassword ? "text" : "password"}
+                value={password}
+              />
+              <button
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                className="absolute right-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-lg text-onSurfaceVariant transition hover:bg-surfaceBright hover:text-brandInk focus-visible:outline focus-visible:outline-2 focus-visible:outline-brandBlue"
+                onClick={() => setShowPassword((value) => !value)}
+                type="button"
+              >
+                {showPassword ? <EyeOff aria-hidden="true" size={16} /> : <Eye aria-hidden="true" size={16} />}
+              </button>
+            </div>
+          </div>
+        </div>
 
-          {error ? <p className="mt-3 text-sm font-bold text-red-700">{error}</p> : null}
+        {error ? (
+          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700" role="alert">
+            {error}
+          </p>
+        ) : null}
 
-          <button
-            className="mt-6 h-11 w-full rounded-xl bg-gradient-to-r from-midnight to-ink text-sm font-black text-aqua shadow-glow transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isLoggingIn}
-            type="submit"
-          >
-            {isLoggingIn ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-      </div>
+        <Button className="mt-6 w-full" loading={isLoggingIn} type="submit">
+          Sign in
+        </Button>
+      </form>
     </div>
   );
 }
