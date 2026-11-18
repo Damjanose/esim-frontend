@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-09-23
+last_updated: 2026-11-18
 ---
 
 # Project Overview — E-SIM-frontend
@@ -11,6 +11,7 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 - App Router structure under `src/app/`: public marketing pages (`destinations` browse hub, `esim/[slug]` destination SEO, `travel` + `travel/[slug]`, `use-cases` + `use-cases/[slug]`, `compare` + `compare/[slug]`, `support`, `policy`, `terms`), auth (`signin`), account/purchase (`account`, `account/[orderId]`, `account/topup`, `profile`, `profile/billing`, `profile/deleted`), and `checkout` + `checkout/return` + `checkout/failed`. Legacy `/destinations/:slug` and `/guides/:slug` 301 to the new paths.
 - Admin surfaces live under deliberately obfuscated route names, not `/admin*`: `xloginy` (admin sign-in), `xpricing` (price management), `xnotificationy` (broadcast drafts plus an Individual tab for one-off per-user pushes, send history, and force-logout of unlinked or all accounts), `xerrors`, `xversion` (app version/usage report), `xactivityy`, `xpartnersy`, `xsupport` (live support inbox), `xtripplany` (trip-plan provider, write-only API key, rolling generation quota, USD download price; the traveler planner itself is public `/trip-plan` + guarded `/trip-plan/[id]`, see `feedAI/topics/trip-plan.json`) — obfuscation is the access control, don't rename these to anything guessable
 - `src/app/bff/*` is a Backend-For-Frontend layer: Next.js route handlers under `bff/auth`, `bff/payments`, `bff/user`, `bff/packages`, `bff/admin`, `bff/country-image` proxy browser requests to the `E-SIM backend` API. REST from the browser never calls Express directly. The **one exception** is Socket.IO from `/xsupport`, which connects to the API origin with the admin dashboard token so unread badges and messages update live.
+- Event modals admin at `xeventsy` (`/xeventsy` list, `/xeventsy/new` and `/xeventsy/[id]` editor): in-app promo and giveaway modals with blocks, schedule, audience, translations, rules and a Results tab. All calls go through `src/app/bff/admin/event-modals/**`; the editor holds its draft in React state only. See `docs/sessions/2026-11-18_event-modals-web-admin.md` and `feedAI/topics/admin-dashboard-ui.json` (`xeventsy_event_modals`).
 - `src/middleware.ts` handles host/protocol canonicalization (redirects `www.esim.uplisoft.com` and `http://` to the canonical `https://esim.uplisoft.com`, strips trailing slashes) and route guarding (`src/lib/route-guard.ts`) for signed-in-only pages; it resolves the public origin from forwarded headers rather than `request.nextUrl`, since production sits behind an Nginx reverse proxy on loopback
 - Session cookies (`ACCESS_COOKIE`, `REFRESH_COOKIE` in `src/lib/session.ts`) are the client-side auth state; BFF routes read/refresh them rather than the page code touching backend tokens directly
 - `src/content/` holds static/CMS-style content for destination pages, guides, comparisons, and use-case pages. The public content source now contains 27 destination pages, 11 travel guides, and 2 use-case pages; comparison content is maintained separately in `src/content/compare-pages.ts`.
@@ -25,6 +26,10 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 - Canonical host enforcement and trailing-slash normalization happen in `middleware.ts` before any route guard runs, so redirects always land on the canonical URL
 - Public destination SEO canonicals are `/esim/[slug]` (not `/destinations/[slug]`). `/destinations` remains the interactive catalog. Sitemap is a generated index of static/esim/travel/compare segments.
 - This repo currently has no `docs/architecture/` or `docs/decisions/` folder (see this repo's `CLAUDE.md`) — significant structural decisions live in session docs until one is warranted
+
+## Active work
+- Branch `feat/event-modals-admin` holds the web admin for event modals (plan: `docs/superpowers/plans/2026-11-18-event-modals-web-plan.md`), uncommitted at the time of writing. The matching backend work is E-SIM backend PR #36.
+- Open before release: a manual pass of the editor against a local backend (set `BACKEND_API_URL`, see f360), and a real resolve and winner-notify run.
 
 ## Flight search
 `/flights` (public, in sitemap) is a form + results over `/bff/flights/{countries,airports,search}` (`proxyFlights()` in `src/lib/flightsBff.ts`). Results are cached partner fares; "View deal" links are `rel="sponsored"` and nothing is purchased here. `backendFetch({ clientIp })` forwards the visitor IP so the backend's per-IP rate limit works. See f276.
