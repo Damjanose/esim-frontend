@@ -22,6 +22,7 @@ import { AudienceFrequencyTab } from "./AudienceFrequencyTab";
 import { BlocksTab } from "./BlocksTab";
 import { PreviewPanel } from "./PreviewPanel";
 import { ResultsTab } from "./ResultsTab";
+import { TitleField } from "./TitleField";
 import { RulesTab } from "./RulesTab";
 import { ScheduleTab } from "./ScheduleTab";
 import TranslationsTab from "./TranslationsTab";
@@ -352,6 +353,7 @@ export function EditorShell({ id }: { id: string }) {
           <p className="text-sm font-semibold text-muted">Loading event modal…</p>
         ) : !loaded ? null : (
           <>
+            <TitleField value={draft.title} onChange={(next) => patchDraft({ title: next })} />
             <div role="tablist" aria-label="Event modal sections" className="mb-6 flex flex-wrap gap-2">
               {EDITOR_TABS.filter((item) => tabs.includes(item.id)).map((item) => (
                 <button
