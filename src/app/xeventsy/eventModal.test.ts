@@ -623,3 +623,39 @@ describe("validateDraft", () => {
     expect(validateDraft(validDraft({ blocks: [image] })).length).toBeGreaterThan(0);
   });
 });
+
+describe("draftToRequestBody with a saved record", () => {
+  const record = {
+    ...({} as EventModalRecord),
+    startsAt: "2026-12-01T10:00:30.123Z",
+    votingClosesAt: "2026-12-05T18:00:45.000Z",
+    displayUntil: "2026-12-10T00:00:00.000Z"
+  } as EventModalRecord;
+
+  it("leaves out dates whose input is unchanged (keeps stored seconds)", () => {
+    const draft = validDraft({
+      startsAt: toLocalInput(record.startsAt),
+      votingClosesAt: toLocalInput(record.votingClosesAt),
+      displayUntil: toLocalInput(record.displayUntil)
+    });
+    const body = draftToRequestBody(draft, record);
+    expect(body).not.toHaveProperty("startsAt");
+    expect(body).not.toHaveProperty("votingClosesAt");
+    expect(body).not.toHaveProperty("displayUntil");
+  });
+
+  it("still sends a date the admin changed", () => {
+    const draft = validDraft({
+      startsAt: toLocalInput(record.startsAt),
+      votingClosesAt: toLocalInput(record.votingClosesAt),
+      displayUntil: "2027-01-01T00:00"
+    });
+    const body = draftToRequestBody(draft, record);
+    expect(body).not.toHaveProperty("startsAt");
+    expect(body.displayUntil).toBe(fromLocalInput("2027-01-01T00:00"));
+  });
+
+  it("sends every date when creating", () => {
+    expect(draftToRequestBody(validDraft())).toHaveProperty("startsAt");
+  });
+});

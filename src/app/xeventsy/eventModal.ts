@@ -265,7 +265,12 @@ function parseOptionalNumber(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export function draftToRequestBody(draft: EditorDraft): Record<string, unknown> {
+/**
+ * `original` is the saved record when updating: a date whose input is unchanged is left out,
+ * so a stored value with seconds is not re-sent truncated to the minute (the backend locks
+ * the voting dates once a resolution exists).
+ */
+export function draftToRequestBody(draft: EditorDraft, original?: EventModalRecord): Record<string, unknown> {
   const locales = draft.audience.locales
     .split(",")
     .map((locale) => locale.trim().toLowerCase())
@@ -285,7 +290,7 @@ export function draftToRequestBody(draft: EditorDraft): Record<string, unknown> 
 
   const rulesText = draft.rulesText.trim();
 
-  return {
+  const body: Record<string, unknown> = {
     title: draft.title.trim(),
     priority: draft.priority,
     presentation: draft.presentation,
@@ -298,6 +303,12 @@ export function draftToRequestBody(draft: EditorDraft): Record<string, unknown> 
     winnerVisibility: draft.winnerVisibility,
     blocks: draft.blocks
   };
+  if (original) {
+    for (const key of ["startsAt", "votingClosesAt", "displayUntil"] as const) {
+      if (draft[key] === toLocalInput(original[key])) delete body[key];
+    }
+  }
+  return body;
 }
 
 export function toLocalInput(iso: string | null): string {
