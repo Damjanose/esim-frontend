@@ -496,6 +496,11 @@
         "f349"
       ],
       "source": "src/lib/externalPayments.ts"
+    },
+    {
+      "symptom": "Creating an event modal in /xeventsy fails with a null/missing title error, but the editor has no title input.",
+      "root_cause": "The editor draft starts with title '' and nothing in the editor edited it (the visible 'Title' fields are block props for winner/results). The backend and client validation both require title 1-120 chars.",
+      "fix": "Added TitleField ('Name') above the editor tabs in EditorShell, bound to patchDraft({ title }). See f361."
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
