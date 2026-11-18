@@ -42,12 +42,11 @@ describe("editor shell helpers", () => {
     expect(splitBackendMessage("")).toEqual([]);
   });
 
-  it("lists the six tabs in order with the Results tab only when saved and a vote block exists", () => {
+  it("lists the five tabs in order with the Results tab only when saved and a vote block exists", () => {
     expect(EDITOR_TABS.map((tab) => tab.label)).toEqual([
       "Content",
       "Schedule",
       "Audience & frequency",
-      "Translations",
       "Giveaway rules",
       "Results"
     ]);
@@ -58,7 +57,6 @@ describe("editor shell helpers", () => {
       "content",
       "schedule",
       "audience",
-      "translations",
       "rules",
       "results"
     ]);
@@ -66,7 +64,6 @@ describe("editor shell helpers", () => {
       "content",
       "schedule",
       "audience",
-      "translations",
       "rules"
     ]);
   });
@@ -88,7 +85,7 @@ describe("editor shell source", () => {
     expect(shell).toContain('from "./ScheduleTab"');
     expect(shell).toContain('from "./AudienceFrequencyTab"');
     expect(shell).toContain('from "./RulesTab"');
-    expect(shell).toContain('from "./TranslationsTab"');
+    expect(shell).not.toContain("TranslationsTab");
     expect(shell).toContain('from "./ResultsTab"');
     expect(shell).toContain("adminFetch");
     expect(shell).toContain("draftFromRecord");
@@ -116,10 +113,9 @@ describe("editor shell source", () => {
     expect(BLOCKS_V2_NOTE).toContain("app version supporting blocks v2");
   });
 
-  it("bumps the preview version after saves and tracks unsaved edits", () => {
-    expect(shell).toContain("setVersion");
+  it("tracks unsaved edits and feeds the live preview the draft", () => {
     expect(shell).toContain("setDirty(true)");
-    expect(shell).toContain("hasUnsavedChanges={dirty}");
+    expect(shell).toContain("<PreviewPanel draft={draft}");
   });
 
   it("uses the admin session and the shared admin shell", () => {

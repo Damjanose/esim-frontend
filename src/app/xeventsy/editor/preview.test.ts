@@ -75,20 +75,18 @@ describe("PreviewPanel", () => {
 
     expect(source).toContain('"use client"');
     expect(source).toContain("adminFetch");
-    expect(source).toContain("/preview");
+    expect(source).toContain("/preview-draft");
     expect(source).toContain('method: "POST"');
     expect(source).toContain("phase");
     expect(source).toContain("locale");
     expect(source).toContain("LOCALES");
     expect(source).toContain("PHASE_LABELS");
     expect(source).toContain("onUnauthorized");
-    expect(source).toContain("version");
   });
 
-  it("shows the empty, unsaved and no-blocks messages", () => {
+  it("shows the paused and no-blocks messages", () => {
     const source = readFileSync("src/app/xeventsy/editor/PreviewPanel.tsx", "utf8");
-    expect(source).toContain("Save the modal once to see a preview");
-    expect(source).toContain("Preview shows the last saved version");
+    expect(source).toContain("Preview paused");
     expect(source).toContain("No blocks are visible in this phase");
   });
 
@@ -96,5 +94,33 @@ describe("PreviewPanel", () => {
     const source = readFileSync("src/app/xeventsy/editor/PreviewPanel.tsx", "utf8");
     expect(source).toContain("PhonePreview");
     expect(source).toContain("payload");
+  });
+});
+
+describe("buildDraftPreviewBody", () => {
+  it("wraps the unsaved draft with phase and locale and drops title, start and audience", async () => {
+    const { buildDraftPreviewBody } = await import("./preview");
+    const { emptyDraft } = await import("../eventModal");
+    const draft = { ...emptyDraft(), title: "Secret", rulesText: " Rules " };
+    const body = buildDraftPreviewBody(draft, "live_voted", "de") as { draft: Record<string, unknown>; phase: string; locale: string };
+    expect(body.phase).toBe("live_voted");
+    expect(body.locale).toBe("de");
+    expect(body.draft.rulesText).toBe("Rules");
+    expect(body.draft).not.toHaveProperty("title");
+    expect(body.draft).not.toHaveProperty("startsAt");
+    expect(body.draft).not.toHaveProperty("audience");
+    expect(body.draft).toHaveProperty("blocks");
+  });
+});
+
+describe("live preview wiring", () => {
+  it("PreviewPanel posts the draft to /preview-draft and the editor has no manual translations tab", async () => {
+    const { readFileSync, existsSync } = await import("node:fs");
+    const panel = readFileSync("src/app/xeventsy/editor/PreviewPanel.tsx", "utf8");
+    expect(panel).toContain('"/preview-draft"');
+    expect(panel).toContain("PREVIEW_DEBOUNCE_MS");
+    expect(readFileSync("src/app/xeventsy/editor/editor.ts", "utf8")).not.toContain("translations");
+    expect(existsSync("src/app/xeventsy/editor/TranslationsTab.tsx")).toBe(false);
+    expect(existsSync("src/app/bff/admin/event-modals/preview-draft/route.ts")).toBe(true);
   });
 });
