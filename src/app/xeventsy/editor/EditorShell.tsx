@@ -18,6 +18,7 @@ import {
   type EditorDraft,
   type EventModalRecord
 } from "../eventModal";
+import { draftForTemplate, type EventTemplate } from "../templates";
 import { AudienceFrequencyTab } from "./AudienceFrequencyTab";
 import { BlocksTab } from "./BlocksTab";
 import { PreviewPanel } from "./PreviewPanel";
@@ -30,6 +31,7 @@ import {
   EDITOR_TABS,
   isNewModalId,
   needsBlocksV2,
+  resultsHref,
   splitBackendMessage,
   visibleTabs,
   type EditorTab
@@ -50,13 +52,13 @@ const STATUS_CHIP: Record<string, string> = {
   archived: "bg-slate-100 text-slate-500"
 };
 
-export function EditorShell({ id }: { id: string }) {
+export function EditorShell({ id, template = null }: { id: string; template?: EventTemplate | null }) {
   const router = useRouter();
   const session = useAdminSession();
   const { token, handleUnauthorized } = session;
   const isNew = isNewModalId(id);
 
-  const [draft, setDraft] = useState<EditorDraft>(emptyDraft);
+  const [draft, setDraft] = useState<EditorDraft>(() => (isNew ? draftForTemplate(template) : emptyDraft()));
   const [record, setRecord] = useState<EventModalRecord | null>(null);
   const [loaded, setLoaded] = useState(isNew);
   const [dirty, setDirty] = useState(false);
@@ -277,6 +279,11 @@ export function EditorShell({ id }: { id: string }) {
               <ArrowLeft aria-hidden="true" size={14} />
               Back to list
             </Link>
+            {record && hasVote ? (
+              <Link className={BUTTON} href={resultsHref(record.id)}>
+                Results page
+              </Link>
+            ) : null}
             <button
               className={BUTTON}
               disabled={saving || !loaded}

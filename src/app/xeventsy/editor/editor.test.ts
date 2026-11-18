@@ -6,6 +6,14 @@ import { emptyDraft, newBlock, type EditorDraft } from "../eventModal";
 import { ScheduleTab } from "./ScheduleTab";
 import { AudienceFrequencyTab, FREQUENCY_MODES } from "./AudienceFrequencyTab";
 import { RulesTab } from "./RulesTab";
+import { resultsHref } from "./editor";
+
+describe("resultsHref", () => {
+  it("points at the standalone results page and encodes the id", () => {
+    expect(resultsHref("abc123")).toBe("/xeventsy/abc123/results");
+    expect(resultsHref("a/b")).toBe("/xeventsy/a%2Fb/results");
+  });
+});
 
 function withDraft(patch: Partial<EditorDraft> = {}): EditorDraft {
   return { ...emptyDraft(), ...patch };

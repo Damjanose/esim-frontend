@@ -8,6 +8,7 @@ import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
 import { adminFetch } from "./api";
 import { hasVoteBlock, type EventModalRecord } from "./eventModal";
+import { resultsHref } from "./editor/editor";
 
 // Chip colors per stored time state (computed by the backend at read time).
 const TIME_STATE_CHIP: Record<string, string> = {
@@ -119,10 +120,23 @@ export default function AdminEventModalsPage() {
               </button>
               <Link
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-midnight to-ink px-4 text-xs font-bold text-aqua shadow-glow transition hover:opacity-90"
-                href="/xeventsy/new"
+                href="/xeventsy/new?template=match"
               >
                 <Plus aria-hidden="true" size={14} />
-                New event modal
+                New match giveaway
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-white px-4 text-xs font-bold text-midnight shadow-sm transition hover:border-cyan"
+                href="/xeventsy/new?template=promo"
+              >
+                <Plus aria-hidden="true" size={14} />
+                New promo (image)
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center rounded-xl px-2 text-xs font-bold text-muted underline-offset-2 hover:underline"
+                href="/xeventsy/new"
+              >
+                Blank
               </Link>
             </div>
           ) : null}
@@ -195,6 +209,11 @@ export default function AdminEventModalsPage() {
                               <Link className={ROW_BUTTON} href={`/xeventsy/${modal.id}`}>
                                 Edit
                               </Link>
+                              {hasVoteBlock(modal.blocks) && modal.status !== "draft" ? (
+                                <Link className={`${ROW_BUTTON} border-cyan`} href={resultsHref(modal.id)}>
+                                  Results
+                                </Link>
+                              ) : null}
                               <button
                                 className={ROW_BUTTON}
                                 disabled={busy}

@@ -32,6 +32,11 @@ export function visibleTabs({ saved, hasVote }: { saved: boolean; hasVote: boole
   return EDITOR_TABS.map((tab) => tab.id).filter((id) => id !== "results" || (saved && hasVote));
 }
 
+/** The standalone results page for a saved modal. */
+export function resultsHref(id: string): string {
+  return `/xeventsy/${encodeURIComponent(id)}/results`;
+}
+
 /** The backend joins several validation errors with "; ". */
 export function splitBackendMessage(message: string): string[] {
   return message
