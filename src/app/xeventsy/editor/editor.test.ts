@@ -2,10 +2,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { emptyDraft, newBlock, type EditorDraft } from "../eventModal";
+import { emptyDraft, newBlock, type Block, type EditorDraft } from "../eventModal";
 import { ScheduleTab } from "./ScheduleTab";
 import { AudienceFrequencyTab, FREQUENCY_MODES } from "./AudienceFrequencyTab";
 import { RulesTab } from "./RulesTab";
+import { BlockInspector } from "./BlockInspector";
 import { resultsHref } from "./editor";
 
 describe("resultsHref", () => {
@@ -105,7 +106,7 @@ describe("AudienceFrequencyTab", () => {
     expect(daily).not.toContain('id="frequency-n"');
   });
 
-  it("renders platform, locale and presentation controls", () => {
+  it("renders platform and locale controls and no presentation choice", () => {
     const markup = renderToStaticMarkup(
       createElement(AudienceFrequencyTab, tabProps(withDraft()))
     );
@@ -113,8 +114,8 @@ describe("AudienceFrequencyTab", () => {
     expect(markup).toContain("iOS");
     expect(markup).toContain("Android");
     expect(markup).toContain("empty = all languages");
-    expect(markup).toContain("Bottom sheet");
-    expect(markup).toContain("Centered modal");
+    expect(markup).not.toContain("Bottom sheet");
+    expect(markup).not.toContain("Centered modal");
   });
 });
 
@@ -171,5 +172,34 @@ describe("editor tab sources", () => {
       expect(source).toContain("onChange(");
       expect(source).not.toContain("draft.blocks.push");
     }
+  });
+});
+
+describe("BlockInspector countdown size", () => {
+  const renderCountdown = (props: Record<string, unknown>) => {
+    const block: Block = { ...newBlock("countdown", []), props };
+    return renderToStaticMarkup(
+      createElement(BlockInspector, {
+        block,
+        voteBlocks: [],
+        token: "test-token",
+        onUnauthorized: () => {},
+        onPatch: () => {}
+      })
+    );
+  };
+
+  it("offers a Size select with small and large options", () => {
+    const html = renderCountdown({ target: "displayUntil", size: "small" });
+
+    expect(html).toContain(">Size<");
+    expect(html).toContain('<option value="small" selected="">Small, compact pill</option>');
+    expect(html).toContain('<option value="large">Large tiles</option>');
+  });
+
+  it("treats a missing size as small", () => {
+    const html = renderCountdown({ target: "displayUntil" });
+
+    expect(html).toContain('<option value="small" selected="">Small, compact pill</option>');
   });
 });

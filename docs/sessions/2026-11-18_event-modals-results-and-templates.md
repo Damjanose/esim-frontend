@@ -8,3 +8,5 @@ Added to the `/xeventsy` admin: one-click templates for an image-only promo and 
 - No backend change. Promo vs giveaway still comes from `hasVoteBlock`.
 - Test change: `admin-event-modals.test.ts` pinned the old "New event modal" label and now checks the new labels.
 - Not done: manual browser check (dev hits the production backend unless `BACKEND_API_URL` is set, f004); mobile vote UI is a separate plan.
+
+- Follow-up: removed the Bottom sheet / Centered modal choice; events always save as `modal` (f364).

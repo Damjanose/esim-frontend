@@ -28,7 +28,7 @@ describe("draftForTemplate", () => {
     expect(draft.frequency.mode).toBe("once");
   });
 
-  it("match has image, heading, countdown, one 3-option choice vote, results, winner, rules link", () => {
+  it("match has image, heading, countdown, one exact-score vote, results, winner, rules link", () => {
     const draft = draftForTemplate("match");
     expect(draft.blocks.map((b) => b.type)).toEqual([
       "image",
@@ -41,12 +41,17 @@ describe("draftForTemplate", () => {
     ]);
     const votes = voteBlocksOf(draft.blocks);
     expect(votes).toHaveLength(1);
-    expect(votes[0].props.questionType).toBe("choice");
-    expect((votes[0].props.options as unknown[]).length).toBe(3);
+    expect(votes[0].id).toBe("vote-1");
+    expect(votes[0].props.questionType).toBe("exact_score");
+    expect(votes[0].props.question).toEqual({ default: "Guess the exact score" });
+    expect(votes[0].props.homeLabel).toEqual({ default: "Home" });
+    expect(votes[0].props.awayLabel).toEqual({ default: "Away" });
+    expect(votes[0].props.points).toBe(1);
+    expect(votes[0].props).not.toHaveProperty("options");
     const results = draft.blocks.find((b) => b.type === "results")!;
     expect(results.props.voteBlockId).toBe(votes[0].id);
     const countdown = draft.blocks.find((b) => b.type === "countdown")!;
-    expect(countdown.props.target).toBe("votingClosesAt");
+    expect(countdown.props).toEqual({ target: "votingClosesAt", size: "small" });
     expect(draft.frequency.mode).toBe("until_voted");
   });
 

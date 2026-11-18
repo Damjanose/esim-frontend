@@ -124,7 +124,7 @@ export const BLOCK_DEFS: Record<BlockType, BlockDef> = {
     description: "Time left until voting closes or the modal ends.",
     icon: "Timer",
     defaultVisibleIn: ["live"],
-    createProps: () => ({ target: "displayUntil" })
+    createProps: () => ({ target: "displayUntil", size: "small" })
   },
   button: {
     label: "Button",
@@ -222,7 +222,7 @@ export function emptyDraft(): EditorDraft {
   return {
     title: "",
     priority: 0,
-    presentation: "sheet",
+    presentation: "modal",
     startsAt: "",
     votingClosesAt: "",
     displayUntil: "",
@@ -293,7 +293,8 @@ export function draftToRequestBody(draft: EditorDraft, original?: EventModalReco
   const body: Record<string, unknown> = {
     title: draft.title.trim(),
     priority: draft.priority,
-    presentation: draft.presentation,
+    // The app always shows event modals centered, so the sheet option is gone.
+    presentation: "modal",
     startsAt: fromLocalInput(draft.startsAt),
     votingClosesAt: fromLocalInput(draft.votingClosesAt),
     displayUntil: fromLocalInput(draft.displayUntil),

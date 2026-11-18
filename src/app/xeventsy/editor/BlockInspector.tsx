@@ -176,6 +176,17 @@ export function BlockInspector({ block, voteBlocks, token, onUnauthorized, onPat
                 <option value="votingClosesAt">Voting closes</option>
               </select>
             </Field>
+            <Field label="Size" htmlFor={id("size")}>
+              <select
+                id={id("size")}
+                className={inputClass}
+                value={props.size === "large" ? "large" : "small"}
+                onChange={(event) => setProps({ ...props, size: event.target.value })}
+              >
+                <option value="small">Small, compact pill</option>
+                <option value="large">Large tiles</option>
+              </select>
+            </Field>
             <Field label="Label (optional)" htmlFor={id("label")}>
               <input
                 id={id("label")}
