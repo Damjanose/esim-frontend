@@ -7,13 +7,12 @@ export const BLOCKS_V2_TYPES = ["vote", "results", "winner", "rules_link"] as co
 export const BLOCKS_V2_NOTE =
   "Needs app version supporting blocks v2: older apps will not show this modal.";
 
-export type EditorTab = "content" | "schedule" | "audience" | "translations" | "rules" | "results";
+export type EditorTab = "content" | "schedule" | "audience" | "rules" | "results";
 
 export const EDITOR_TABS: Array<{ id: EditorTab; label: string }> = [
   { id: "content", label: "Content" },
   { id: "schedule", label: "Schedule" },
   { id: "audience", label: "Audience & frequency" },
-  { id: "translations", label: "Translations" },
   { id: "rules", label: "Giveaway rules" },
   { id: "results", label: "Results" }
 ];

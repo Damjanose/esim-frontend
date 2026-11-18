@@ -134,3 +134,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-11-10 | [Ahrefs Web Analytics](2026-11-10_ahrefs-analytics.md) | Ahrefs analytics tag in <head> for all public pages (not consent-gated, skipped on admin x* paths), privacy policy updated (f351) |
 | 2026-11-17 | [admin sidebar nav](2026-11-17_admin-sidebar-nav.md) | Admin top bar replaced by grouped collapsible sidebar (rail springs open on hover, drawer on mobile) (f353) |
 | 2026-11-18 | [event modals web admin](2026-11-18_event-modals-web-admin.md) | `/xeventsy` admin for in-app event modals: list, block editor, schedule, audience, translations, rules, results and winners over new `/bff/admin/event-modals/**`; draft lives in React state only (f354-f360) |
+| 2026-11-18 | [event modal live preview](2026-11-18_event-modal-live-preview.md) | Live unsaved-draft phone preview with language picker; manual Translations tab removed in favour of backend AI translation (f362) |

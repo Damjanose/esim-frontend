@@ -25,7 +25,6 @@ import { ResultsTab } from "./ResultsTab";
 import { TitleField } from "./TitleField";
 import { RulesTab } from "./RulesTab";
 import { ScheduleTab } from "./ScheduleTab";
-import TranslationsTab from "./TranslationsTab";
 import {
   BLOCKS_V2_NOTE,
   EDITOR_TABS,
@@ -64,7 +63,6 @@ export function EditorShell({ id }: { id: string }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
-  const [version, setVersion] = useState(0);
   const [tab, setTab] = useState<EditorTab>("content");
   const [confirmArchive, setConfirmArchive] = useState(false);
 
@@ -141,7 +139,6 @@ export function EditorShell({ id }: { id: string }) {
     setRecord(saved);
     // Edits typed while the request was in flight stay marked as unsaved.
     setDirty(draftRef.current !== snapshot);
-    setVersion((current) => current + 1);
     return saved;
   }
 
@@ -179,7 +176,6 @@ export function EditorShell({ id }: { id: string }) {
 
     if (result.ok) {
       setRecord(result.data.eventModal);
-      setVersion((current) => current + 1);
       setNotice("Published.");
     } else {
       setError(splitBackendMessage(result.message));
@@ -383,20 +379,13 @@ export function EditorShell({ id }: { id: string }) {
                     token={token}
                   />
                 </div>
-                <div className="w-full xl:w-[360px] xl:shrink-0">
-                  <PreviewPanel
-                    hasUnsavedChanges={dirty}
-                    modalId={record?.id ?? null}
-                    onUnauthorized={handleUnauthorized}
-                    token={token}
-                    version={version}
-                  />
+                <div className="w-full xl:sticky xl:top-4 xl:w-[360px] xl:shrink-0">
+                  <PreviewPanel draft={draft} onUnauthorized={handleUnauthorized} token={token} />
                 </div>
               </div>
             ) : null}
             {currentTab === "schedule" ? <ScheduleTab draft={draft} onChange={patchDraft} /> : null}
             {currentTab === "audience" ? <AudienceFrequencyTab draft={draft} onChange={patchDraft} /> : null}
-            {currentTab === "translations" ? <TranslationsTab draft={draft} onChange={patchDraft} /> : null}
             {currentTab === "rules" ? <RulesTab draft={draft} onChange={patchDraft} /> : null}
             {currentTab === "results" && record ? (
               <ResultsTab

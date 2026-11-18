@@ -2,6 +2,9 @@
 // builds the payload (single source of truth for phases and sample data); these
 // helpers only shape it for display.
 
+import type { EditorDraft, Phase } from "../eventModal";
+import { draftToRequestBody } from "../eventModal";
+
 export type PreviewBlock = {
   id: string;
   type: string;
@@ -56,4 +59,16 @@ export function describeAction(action: unknown): string {
     return route.includes("[slug]") && typeof slug === "string" ? route.replace("[slug]", slug) : route;
   }
   return "";
+}
+
+/**
+ * Request body for the live draft preview: the draft as the editor would save it, minus the fields the preview does
+ * not need (title, schedule start). Text is English only; the server translates it for the chosen language.
+ */
+export function buildDraftPreviewBody(draft: EditorDraft, phase: Phase, locale: string): Record<string, unknown> {
+  const body = draftToRequestBody(draft);
+  delete body.title;
+  delete body.startsAt;
+  delete body.audience;
+  return { draft: body, phase, locale };
 }

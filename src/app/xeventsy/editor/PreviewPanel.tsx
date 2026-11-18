@@ -1,23 +1,26 @@
 "use client";
 
-import { RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { adminFetch } from "../api";
-import { LOCALES, PHASE_LABELS, PHASES, type Phase } from "../eventModal";
+import { LOCALES, PHASE_LABELS, PHASES, type EditorDraft, type Phase } from "../eventModal";
 import { PhonePreview } from "./PhonePreview";
-import type { PreviewPayload } from "./preview";
+import { buildDraftPreviewBody, type PreviewPayload } from "./preview";
 
 type PreviewPanelProps = {
-  modalId: string | null;
+  draft: EditorDraft;
   token: string;
   onUnauthorized: () => void;
-  version: number;
-  hasUnsavedChanges: boolean;
 };
 
 type PreviewResponse = { payload: PreviewPayload | null };
 
-export function PreviewPanel({ modalId, token, onUnauthorized, version, hasUnsavedChanges }: PreviewPanelProps) {
+export const PREVIEW_DEBOUNCE_MS = 500;
+
+/**
+ * Live phone preview of the unsaved draft. Re-renders ~500ms after the last edit. The server builds the payload
+ * (same code the app uses) and AI-translates it when a non-English language is picked.
+ */
+export function PreviewPanel({ draft, token, onUnauthorized }: PreviewPanelProps) {
   const [phase, setPhase] = useState<Phase>("live");
   const [locale, setLocale] = useState("en");
   const [payload, setPayload] = useState<PreviewPayload | null>(null);
@@ -30,51 +33,39 @@ export function PreviewPanel({ modalId, token, onUnauthorized, version, hasUnsav
     unauthorizedRef.current = onUnauthorized;
   }, [onUnauthorized]);
 
-  const load = useCallback(async () => {
-    if (!modalId) return;
-    const current = ++requestId.current;
-    setLoading(true);
-    setError("");
-    const result = await adminFetch<PreviewResponse>(`/${encodeURIComponent(modalId)}/preview`, {
-      token,
-      method: "POST",
-      body: { phase, locale },
-      onUnauthorized: () => unauthorizedRef.current()
-    });
-    if (current !== requestId.current) return;
-    setLoading(false);
-    if (result.ok) {
-      setPayload(result.data.payload ?? null);
-    } else {
-      setPayload(null);
-      setError(result.message);
-    }
-  }, [modalId, token, phase, locale]);
+  const bodyKey = JSON.stringify(buildDraftPreviewBody(draft, phase, locale));
 
   useEffect(() => {
-    if (!modalId) {
-      setPayload(null);
-      return;
-    }
-    void load();
-  }, [modalId, version, load]);
+    const current = ++requestId.current;
+    setLoading(true);
+    const timer = setTimeout(async () => {
+      const result = await adminFetch<PreviewResponse>("/preview-draft", {
+        token,
+        method: "POST",
+        body: JSON.parse(bodyKey),
+        onUnauthorized: () => unauthorizedRef.current()
+      });
+      if (current !== requestId.current) return;
+      setLoading(false);
+      if (result.ok) {
+        setPayload(result.data.payload ?? null);
+        setError("");
+      } else {
+        // Keep the last good preview while the draft is incomplete (for example an empty heading).
+        setError(result.message);
+      }
+    }, PREVIEW_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [bodyKey, token]);
 
   return (
     <aside className="space-y-4 rounded-2xl border border-line bg-white p-5 shadow-card">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-cyanDeep">Preview</p>
-          <h2 className="text-sm font-black text-midnight">Phone view</h2>
-        </div>
-        <button
-          aria-label="Refresh preview"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line text-midnight transition hover:border-cyan disabled:opacity-50"
-          disabled={!modalId || loading}
-          onClick={() => void load()}
-          type="button"
-        >
-          <RefreshCw aria-hidden="true" size={15} />
-        </button>
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-cyanDeep">Live preview</p>
+        <h2 className="text-sm font-black text-midnight">Phone view {loading ? "· updating..." : ""}</h2>
+        <p className="mt-1 text-[11px] font-semibold text-muted">
+          Write in English only. Other languages are translated by AI for each user.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -93,7 +84,7 @@ export function PreviewPanel({ modalId, token, onUnauthorized, version, hasUnsav
           </select>
         </label>
         <label className="block text-[11px] font-bold text-muted">
-          Locale
+          Language
           <select
             className="mt-1 h-9 w-full rounded-lg border border-line bg-white px-2 text-xs font-semibold text-midnight"
             onChange={(event) => setLocale(event.target.value)}
@@ -108,19 +99,11 @@ export function PreviewPanel({ modalId, token, onUnauthorized, version, hasUnsav
         </label>
       </div>
 
-      {!modalId ? (
-        <p className="text-xs font-semibold text-muted">Save the modal once to see a preview.</p>
-      ) : null}
-      {modalId && hasUnsavedChanges ? (
-        <p className="text-xs font-semibold text-muted">Preview shows the last saved version.</p>
-      ) : null}
-      {error ? <p className="text-xs font-bold text-red-700">{error}</p> : null}
-
-      {modalId && !error && !loading && payload === null ? (
+      {error ? <p className="text-xs font-bold text-amber-700">Preview paused: {error}</p> : null}
+      {!error && !loading && payload === null ? (
         <p className="text-xs font-semibold text-muted">No blocks are visible in this phase.</p>
       ) : null}
-      {modalId && payload ? <PhonePreview payload={payload} /> : null}
-      {modalId && loading && !payload ? <p className="text-xs font-semibold text-muted">Loading preview...</p> : null}
+      {payload ? <PhonePreview payload={payload} /> : null}
     </aside>
   );
 }
