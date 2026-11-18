@@ -99,27 +99,6 @@ export function AudienceFrequencyTab({ draft, onChange }: Props) {
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-bold text-midnight">Presentation</h3>
-        <fieldset className="space-y-2">
-          <legend className="sr-only">Presentation</legend>
-          {(
-            [
-              { value: "sheet", label: "Bottom sheet" },
-              { value: "modal", label: "Centered modal" }
-            ] as const
-          ).map((option) => (
-            <label key={option.value} className="flex items-center gap-2 text-sm text-midnight">
-              <input
-                type="radio"
-                name="presentation"
-                value={option.value}
-                checked={draft.presentation === option.value}
-                onChange={() => onChange({ presentation: option.value })}
-              />
-              {option.label}
-            </label>
-          ))}
-        </fieldset>
         <div className="space-y-1.5">
           <label htmlFor="priority" className="block text-sm font-bold text-midnight">
             Priority

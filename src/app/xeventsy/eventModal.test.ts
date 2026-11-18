@@ -128,7 +128,7 @@ describe("constants", () => {
     expect(BLOCK_DEFS.heading.createProps()).toEqual({ text: { default: "" } });
     expect(BLOCK_DEFS.text.createProps()).toEqual({ text: { default: "" } });
     expect(BLOCK_DEFS.image.createProps()).toEqual({ alt: { default: "" } });
-    expect(BLOCK_DEFS.countdown.createProps()).toEqual({ target: "displayUntil" });
+    expect(BLOCK_DEFS.countdown.createProps()).toEqual({ target: "displayUntil", size: "small" });
     expect(BLOCK_DEFS.button.createProps()).toEqual({
       label: { default: "Open" },
       action: { type: "dismiss" },
@@ -190,11 +190,11 @@ describe("constants", () => {
 });
 
 describe("draft mapping", () => {
-  it("emptyDraft starts blank with the default presentation and visibility", () => {
+  it("emptyDraft starts blank with the centered presentation and default visibility", () => {
     expect(emptyDraft()).toEqual({
       title: "",
       priority: 0,
-      presentation: "sheet",
+      presentation: "modal",
       startsAt: "",
       votingClosesAt: "",
       displayUntil: "",
@@ -230,6 +230,11 @@ describe("draft mapping", () => {
     expect(draft.audience).toEqual({ platforms: [], locales: "" });
     expect(draft.frequency).toEqual({ mode: "daily", n: "", maxImpressions: "2" });
     expect(draft.rulesText).toBe("Rules");
+  });
+
+  it("draftToRequestBody always asks for the centered modal, even for an old sheet record", () => {
+    const draft = validDraft({ presentation: "sheet", blocks: [] });
+    expect(draftToRequestBody(draft).presentation).toBe("modal");
   });
 
   it("draftToRequestBody golden case with all fields set", () => {

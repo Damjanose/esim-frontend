@@ -29,16 +29,13 @@ function matchGiveaway(): EditorDraft {
   const heading = add(blocks, "heading", { visibleIn: [...VOTE_FLOW_PHASES] });
   heading.props = { text: { default: "Guess the result" } };
   const countdown = add(blocks, "countdown", { visibleIn: ["live_unvoted", "live_voted"] });
-  countdown.props = { target: "votingClosesAt" };
+  countdown.props = { target: "votingClosesAt", size: "small" };
   const vote = add(blocks, "vote");
   vote.props = {
-    question: { default: "Who wins?" },
-    questionType: "choice",
-    options: [
-      { id: "home", label: { default: "Home win" } },
-      { id: "draw", label: { default: "Draw" } },
-      { id: "away", label: { default: "Away win" } }
-    ],
+    question: { default: "Guess the exact score" },
+    questionType: "exact_score",
+    homeLabel: { default: "Home" },
+    awayLabel: { default: "Away" },
     points: 1
   };
   const results = add(blocks, "results");
