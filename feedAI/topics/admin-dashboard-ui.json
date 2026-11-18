@@ -1,6 +1,6 @@
 {
   "topic": "admin-dashboard-ui",
-  "covers": "The actual UI/behavior of the hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast + individual notifications, /xactivityy, /xpartnersy, /xsupport) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
+  "covers": "The actual UI/behavior of the hidden admin surfaces (/xloginy purchase dashboard, /xerrors error inbox, /xpricing package pricing, /xversion min-app-version + usage report, /xnotificationy broadcast + individual notifications, /xactivityy, /xpartnersy, /xsupport, /xeventsy event modals) — routing.json only documents that they exist and are unlisted; this covers what they render and how they authenticate.",
   "facts": [
     "f044",
     "f045",
@@ -38,16 +38,22 @@
     "f170",
     "f171",
     "f174",
-    "f330"
+    "f330",
+    "f354",
+    "f355",
+    "f356",
+    "f357",
+    "f358",
+    "f359"
   ],
   "shared_shell": {
     "component": "AdminNav.tsx and AdminLoginCard.tsx provide the shared admin shell; the rail mark is public/app-logo.png (since 2026-11-08, f348) linked to '/'. See f051/f099.",
     "layouts": "src/app/xloginy/layout.tsx, src/app/xerrors/layout.tsx, and src/app/xpricing/layout.tsx all set indexable:false via createMetadata — belt-and-suspenders with the privateRoutePrefixes robots/sitemap exclusion in routing.json"
   },
   "auth_pattern": {
-    "storage": "All three pages store the admin dashboard token in sessionStorage under the SAME key, ADMIN_TOKEN_STORAGE_KEY = 'velocity-admin-dashboard-token' — logging in on one page also authenticates the others on the next load.",
-    "risk": "sessionStorage is JS-readable (unlike the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json) — an XSS on any admin page would be able to read the admin dashboard token directly, a materially different trust model from the regular user session (f044).",
-    "duplication": "RESOLVED (f052): all three pages now use the shared src/app/useAdminSession.ts hook + AdminLoginCard.tsx — xloginy and xerrors were retrofitted onto it during the 2026-08-23 premium redesign, closing out what f045 originally flagged.",
+    "storage": "Admin pages keep the dashboard token in a JS-readable cookie named 'velocity-admin-dashboard-token' (Path=/, SameSite=Strict, Secure on https, Max-Age = seconds until the token's exp), written by src/app/useAdminSession.ts via src/lib/adminTokenCookie.ts. It is NOT sessionStorage (corrected by f182 and f307; the earlier f044 claim is superseded). Because it is a cookie it survives new tabs and browser restarts until expiry, and every admin page on the origin shares it: logging in on one page signs in the others on the next load. Login/logout dispatch an 'admin-session-change' window event so the AdminNav sidebar's own hook instance follows along.",
+    "risk": "The cookie is not httpOnly, so it is readable with document.cookie: an XSS on any admin page can read the admin dashboard token directly, a materially different trust model from the httpOnly esim_at/esim_rt user-session cookies in topics/auth.json.",
+    "duplication": "RESOLVED (f052): all admin pages use the shared src/app/useAdminSession.ts hook + AdminLoginCard.tsx (xloginy, xerrors, xactivityy, xcryptoy, xmailx, xnotificationy, xpartnersy, xpricing, xstreaky, xsupport, xtestimonialsy, xtripplany, xtroubley, xversion, xeventsy), closing out what f045 originally flagged.",
     "backend_note": "the token itself and its issuance are backend concepts (see E-SIM backend feedAI's admin.json topic) — this file only covers how the Next.js pages consume it."
   },
   "xloginy_purchase_dashboard": {
@@ -124,5 +130,14 @@
     "shared_helpers": "Support response types live in src/app/xsupport/support-types.ts; admin BFF request helpers live in src/lib/admin-bff.ts (f116)."
   },
   "notification_open_in_app": "f161/f162: xnotificationy Open in app = continental pass + full advanced filters (MarketplaceOpenActionFields); posts openAction JSON; destinations hybrid catalog+custom slug",
-  "operations_dashboard": "/xloginy now shows UTC daily finances, searchable paginated purchases with expandable package details, and Users/OTP tabs. Read-only Airalo details use the protected /bff/admin/dashboard/purchases/[id]/provider proxy. Currency totals remain separate; missing costs display incomplete profit. Superseded requests are aborted and refresh failures retain existing data. f331: AdminNav uses the dashboard-owned token/logout; request effects are guarded against aborted/superseded sessions. Queue cleanup aborts pending provider checks. Partial provider errors cache for 30 seconds, successful checks for 20 minutes."
+  "operations_dashboard": "/xloginy now shows UTC daily finances, searchable paginated purchases with expandable package details, and Users/OTP tabs. Read-only Airalo details use the protected /bff/admin/dashboard/purchases/[id]/provider proxy. Currency totals remain separate; missing costs display incomplete profit. Superseded requests are aborted and refresh failures retain existing data. f331: AdminNav uses the dashboard-owned token/logout; request effects are guarded against aborted/superseded sessions. Queue cleanup aborts pending provider checks. Partial provider errors cache for 30 seconds, successful checks for 20 minutes.",
+  "xeventsy_event_modals": {
+    "file": "src/app/xeventsy/page.tsx (list), src/app/xeventsy/editor/EditorShell.tsx (create/edit, tabs), src/app/xeventsy/[id]/page.tsx (thin wrapper), src/app/xeventsy/eventModal.ts (types, draft<->record mapping, datetime helpers), src/app/xeventsy/api.ts (adminFetch/adminUpload, never throws)",
+    "registrations": "f354: AdminNav adminLinks + Product group, seo.ts private prefix, layout indexable:false.",
+    "data_source": "Browser -> /bff/admin/event-modals/** only (f355). Preview is backend-rendered (f357). Image upload POST multipart; image display GET /bff/admin/event-modals/images/:id is public.",
+    "editor": "Draft lives in EditorShell React state with a dirty flag, nothing persisted in the browser (f356). Tabs: Content (BlocksTab, BlockInspector, PhonePreview), Schedule, Audience & frequency, Translations, Giveaway rules, Results (only for a saved modal with a vote block). No new npm dependencies.",
+    "schedule_times": "datetime-local is the admin's local time; saved as UTC ISO (f358).",
+    "results": "Scoreboard, entries + CSV download, winners draw/notify. The winners section shows the account-deletion warning (f359).",
+    "dev_gotcha": "next dev targets the production backend unless BACKEND_API_URL is set (f360)."
+  }
 }

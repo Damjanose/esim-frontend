@@ -26,13 +26,13 @@
     "bug|broken|not working|symptom|regression|invalid_client|redirect_uri_mismatch": "topics/troubleshooting.json",
     "No destination found|empty destinations|wizard filters lost|wikimedia hostname|discount badge missing|retailPrice guard": "topics/troubleshooting-destinations.json",
     "landing page|hero|destinations page|seo-pages|guides|use-cases|support page|faq|terms|policy|legal|content/": "topics/public-content-pages.json",
-    "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|xsupport|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|individual notification|UserNotification|activity tracking|inactivity notification|support inbox": "topics/admin-dashboard-ui.json",
     "signin page|checkout page|account page|profile page|my esims page|planCard|activeplancard": "topics/account-profile-pages.json",
     "partner|affiliate|xpartnersy|commission|wallet topup|payout|referral link|promo code|PartnerOrderCredit|QrCodeCard": "topics/partners.json",
     "cookies|consent|privacy choices|Google Consent Mode|Google Ads|GA4|Meta Pixel|tracking": "topics/privacy-consent.json",
     "trip-plan|trip planner|itinerary|itineraries|bff/itineraries|TripPlan": "topics/trip-plan.json",
     "assistant|ai assistant|chatbot|AssistantLauncher|AssistantChat|bff/assistant": "topics/public-content-pages.json",
-    "flights|flight search|bff/flights|FlightSearch|sponsored": "topics/public-content-pages.json"
+    "flights|flight search|bff/flights|FlightSearch|sponsored": "topics/public-content-pages.json",
+    "xloginy|xerrors|xnotificationy|xactivityy|xpartnersy|xsupport|admin dashboard ui|error inbox ui|admin token|adminnav|broadcast notification|NotificationMessage|individual notification|UserNotification|activity tracking|inactivity notification|support inbox|xeventsy|event modal|event-modals|EventModal": "topics/admin-dashboard-ui.json"
   },
   "never": [
     "node_modules",
@@ -71,8 +71,8 @@
   },
   "sync": {
     "commit": "working-tree",
-    "branch": "feat/admin-sidebar-nav",
-    "date": "2026-11-17",
-    "note_latest": "f353: admin nav is a grouped, collapsible fixed sidebar (rail springs open on hover, drawer on mobile); state on <html> attributes."
+    "branch": "feat/event-modals-admin",
+    "date": "2026-11-18",
+    "note_latest": "f354-f360: event modals admin at /xeventsy (3 registrations, BFF pass-through, draft-in-state editor, backend preview, local-time schedule, deletion warning, next dev targets prod backend); f044 token-storage claim fixed in admin-dashboard-ui (cookie, see f182/f307)."
   }
 }
