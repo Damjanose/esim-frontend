@@ -41,7 +41,8 @@ describe("hidden event modals admin list page", () => {
   it("links to the new and edit routes and shows a giveaway badge", () => {
     const pageSource = readFileSync("src/app/xeventsy/page.tsx", "utf8");
 
-    expect(pageSource).toContain("New event modal");
+    expect(pageSource).toContain("New match giveaway");
+    expect(pageSource).toContain("New promo");
     expect(pageSource).toContain('href="/xeventsy/new"');
     expect(pageSource).toContain("href={`/xeventsy/${");
     expect(pageSource).toContain("Giveaway");

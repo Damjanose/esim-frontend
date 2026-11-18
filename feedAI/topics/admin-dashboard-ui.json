@@ -137,7 +137,8 @@
     "data_source": "Browser -> /bff/admin/event-modals/** only (f355). Preview is backend-rendered (f357). Image upload POST multipart; image display GET /bff/admin/event-modals/images/:id is public.",
     "editor": "Draft lives in EditorShell React state with a dirty flag, nothing persisted in the browser (f356). Tabs: Content (BlocksTab, BlockInspector, PhonePreview), Schedule, Audience & frequency, Translations, Giveaway rules, Results (only for a saved modal with a vote block). No new npm dependencies.",
     "schedule_times": "datetime-local is the admin's local time; saved as UTC ISO (f358).",
-    "results": "Scoreboard, entries + CSV download, winners draw/notify. The winners section shows the account-deletion warning (f359).",
-    "dev_gotcha": "next dev targets the production backend unless BACKEND_API_URL is set (f360)."
+    "results": "Scoreboard, entries + CSV download, winners draw/notify. The winners section shows the account-deletion warning (f359). Also reachable without the editor at /xeventsy/[id]/results (ResultsShell reuses ResultsTab; promos show shown/dismissed/CTA cards) via the Results row action on non-draft giveaways (f363).",
+    "dev_gotcha": "next dev targets the production backend unless BACKEND_API_URL is set (f360).",
+    "templates": "New buttons open /xeventsy/new?template=promo|match; pure builders in templates.ts seed the draft for id 'new' only (f363)."
   }
 }
