@@ -14,6 +14,7 @@ import {
   LogOut,
   Mail,
   Map,
+  Megaphone,
   MessageSquareQuote,
   Percent,
   Rocket,
@@ -48,14 +49,15 @@ const adminLinks: Array<{
   { href: "/xtestimonialsy", label: "Quotes", full: "Testimonials", Icon: MessageSquareQuote },
   { href: "/xtripplany", label: "Trips", full: "Trip plans", Icon: Map },
   { href: "/xstreaky", label: "Streak", full: "Games streak promo", Icon: Flame },
-  { href: "/xtroubley", label: "Troubleshooting", full: "Assistant troubleshooting", Icon: HelpCircle }
+  { href: "/xtroubley", label: "Troubleshooting", full: "Assistant troubleshooting", Icon: HelpCircle },
+  { href: "/xeventsy", label: "Modals", full: "Event modals", Icon: Megaphone }
 ];
 
 /** Sidebar sections, named by what an admin is trying to do. Every href in adminLinks belongs to exactly one. */
 export const adminNavGroups: Array<{ title: string; hrefs: string[] }> = [
   { title: "Money", hrefs: ["/xloginy", "/xpricing", "/xcryptoy", "/xpartnersy"] },
   { title: "People", hrefs: ["/xsupport", "/xmailx", "/xactivityy", "/xnotificationy", "/xtestimonialsy"] },
-  { title: "Product", hrefs: ["/xtripplany", "/xstreaky", "/xtroubley"] },
+  { title: "Product", hrefs: ["/xtripplany", "/xstreaky", "/xtroubley", "/xeventsy"] },
   { title: "System", hrefs: ["/xerrors", "/xversion"] }
 ];
 
