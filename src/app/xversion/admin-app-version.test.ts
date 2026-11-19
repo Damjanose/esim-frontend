@@ -80,4 +80,18 @@ describe("hidden admin app version page", () => {
     expect(proxy).toContain("/admin/app-version/check-ins");
     expect(proxy).toContain('method: "DELETE"');
   });
+
+  it("lists users by version with a per-row notify action and no bulk send", () => {
+    expect(existsSync("src/app/bff/admin/app-version/users/route.ts")).toBe(true);
+    expect(existsSync("src/app/xversion/VersionUsersSection.tsx")).toBe(true);
+
+    const section = readFileSync("src/app/xversion/VersionUsersSection.tsx", "utf8");
+    const pageSource = readFileSync("src/app/xversion/page.tsx", "utf8");
+
+    expect(pageSource).toContain("VersionUsersSection");
+    expect(section).toContain("/bff/admin/app-version/users");
+    expect(section).toContain("/notify");
+    expect(section).toContain("response.status === 401");
+    expect(section).not.toMatch(/notify all/i);
+  });
 });

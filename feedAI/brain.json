@@ -71,8 +71,8 @@
   },
   "sync": {
     "commit": "working-tree",
-    "branch": "feat/event-modals-results-and-templates",
-    "date": "2026-11-18",
-    "note_latest": "f363: /xeventsy promo and match templates (?template=), standalone /xeventsy/[id]/results page, Results row action; f354-f360: event modals admin at /xeventsy (3 registrations, BFF pass-through, draft-in-state editor, backend preview, local-time schedule, deletion warning, next dev targets prod backend); f044 token-storage claim fixed in admin-dashboard-ui (cookie, see f182/f307)."
+    "branch": "feat/admin-version-users",
+    "date": "2026-11-19",
+    "note_latest": "f366: /xactivityy email + app version columns; /xversion outdated-users list with per-row Notify (no bulk). f363: /xeventsy promo and match templates (?template=), standalone /xeventsy/[id]/results page, Results row action; f354-f360: event modals admin at /xeventsy (3 registrations, BFF pass-through, draft-in-state editor, backend preview, local-time schedule, deletion warning, next dev targets prod backend); f044 token-storage claim fixed in admin-dashboard-ui (cookie, see f182/f307)."
   }
 }

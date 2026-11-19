@@ -89,7 +89,8 @@
       "src/app/bff/admin/app-version/route.ts",
       "src/app/bff/admin/app-version/report/route.ts",
       "src/app/bff/admin/app-version/check-ins/route.ts"
-    ]
+    ],
+    "users_section": "2026-11-19 (f366): VersionUsersSection lists check-in devices (BFF /bff/admin/app-version/users) with Outdated-only + platform filters and a per-row Notify (no bulk) via /bff/admin/users/[email]/notify; /xactivityy also shows Email + App version."
   },
   "xnotificationy_broadcast_notifications": {
     "file": "src/app/xnotificationy/page.tsx",

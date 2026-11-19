@@ -13,6 +13,10 @@ type ActivityRow = {
   notifyIntervalDays: number;
   nextNotifyAt: string;
   lastNotifiedAt: string | null;
+  email?: string | null;
+  appVersion?: string | null;
+  platform?: string | null;
+  isOutdated?: boolean;
 };
 
 type ListPayload = { status?: string; data?: { activity?: ActivityRow[] }; message?: string };
@@ -254,6 +258,8 @@ export default function AdminActivityPage() {
                   <thead>
                     <tr className="border-b border-line text-xs font-black uppercase tracking-wide text-muted">
                       <th className="px-5 py-3">Identifier</th>
+                      <th className="px-5 py-3">Email</th>
+                      <th className="px-5 py-3">App version</th>
                       <th className="px-5 py-3">Last used</th>
                       <th className="px-5 py-3">Next auto-notify</th>
                     </tr>
@@ -268,6 +274,26 @@ export default function AdminActivityPage() {
                               ? row.identifier
                               : `${row.identifierType === "device" ? "Device" : row.identifierType}: ${row.identifier}`}
                           </div>
+                        </td>
+                        <td className="px-5 py-3 text-midnight">
+                          {row.email ?? <span className="text-muted">Anonymous install</span>}
+                        </td>
+                        <td className="px-5 py-3 text-midnight">
+                          {row.appVersion ? (
+                            <span className="inline-flex items-center gap-2">
+                              <span className="font-semibold">
+                                {row.appVersion}
+                                {row.platform ? <span className="ml-1 text-muted">({row.platform})</span> : null}
+                              </span>
+                              {row.isOutdated ? (
+                                <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-black text-red-700">
+                                  Outdated
+                                </span>
+                              ) : null}
+                            </span>
+                          ) : (
+                            <span className="text-muted">—</span>
+                          )}
                         </td>
                         <td className="px-5 py-3 text-muted">{formatDate(row.lastUsedAt)}</td>
                         <td className="px-5 py-3 text-muted">{formatDate(row.nextNotifyAt)}</td>

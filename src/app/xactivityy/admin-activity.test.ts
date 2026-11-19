@@ -50,4 +50,12 @@ describe("hidden admin activity page", () => {
     expect(existsSync("src/app/bff/admin/activity/settings/route.ts")).toBe(true);
     expect(existsSync("src/app/bff/admin/activity/notify-now/route.ts")).toBe(true);
   });
+
+  it("shows email, app version and outdated badge columns", () => {
+    const pageSource = readFileSync("src/app/xactivityy/page.tsx", "utf8");
+
+    expect(pageSource).toContain("appVersion");
+    expect(pageSource).toContain("isOutdated");
+    expect(pageSource).toContain("Anonymous install");
+  });
 });
