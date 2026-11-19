@@ -37,6 +37,8 @@ export type HeroPackageOption = {
   coveredDestinations?: CoveredDestination[];
   /** Merchandising toggle from admin pricing. */
   trending?: boolean;
+  /** Admin-chosen position among trending packages (lower first). */
+  trendingOrder?: number;
   /** Activation, networks and fair usage. Only present when read from a country-filtered endpoint. */
   planDetails?: PlanDetails;
 };
@@ -65,6 +67,7 @@ export type ApiPackage = ApiPlanDetails & {
   countries?: Array<{ countryCode: string; title: string }>;
   coveredDestinations?: CoveredDestination[];
   trending?: boolean;
+  trendingOrder?: number;
 };
 
 type PackagesResponse = {
@@ -351,6 +354,7 @@ function mapPackageToOption(
     coveredDestinations: pkg.coveredDestinations,
     ...(planDetails ? { planDetails } : {}),
     ...(typeof pkg.trending === "boolean" ? { trending: pkg.trending } : {}),
+    ...(typeof pkg.trendingOrder === "number" ? { trendingOrder: pkg.trendingOrder } : {}),
     // Matches the mobile app's formatRetailPriceLabel (src/currency/formatPrice.ts):
     // trust the backend's hasDiscount flag directly, no magnitude comparison
     // against priceNumeric — an admin discount can also mark a price *up*

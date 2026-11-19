@@ -34,6 +34,8 @@ type PricingRow = {
   discountEnabled: boolean;
   discountLabel: boolean;
   trending: boolean;
+  /** Admin-chosen position among trending packages (lower first); null = unordered. */
+  trendingOrder?: number | null;
   discountType: DiscountType;
   discountValue: number;
   discountDirection: DiscountDirection;
@@ -88,10 +90,20 @@ type Draft = {
   discountEnabled: boolean;
   discountLabel: boolean;
   trending: boolean;
+  trendingOrder: number | null;
   discountType: DiscountType;
   discountValue: string;
   discountDirection: DiscountDirection;
 };
+
+function compareTrendingOrder(drafts: Record<string, Draft>, a: PricingRow, b: PricingRow) {
+  const oa = (drafts[a.packageId] ?? toDraft(a)).trendingOrder;
+  const ob = (drafts[b.packageId] ?? toDraft(b)).trendingOrder;
+  if (oa == null && ob == null) return a.title.localeCompare(b.title);
+  if (oa == null) return 1;
+  if (ob == null) return -1;
+  return oa - ob || a.title.localeCompare(b.title);
+}
 
 function toDraft(row: PricingRow): Draft {
   return {
@@ -99,6 +111,7 @@ function toDraft(row: PricingRow): Draft {
     discountEnabled: row.discountEnabled,
     discountLabel: Boolean(row.discountLabel),
     trending: Boolean(row.trending),
+    trendingOrder: row.trendingOrder ?? null,
     discountType: row.discountType,
     discountValue: String(row.discountValue),
     discountDirection: row.discountDirection
@@ -182,6 +195,7 @@ export default function AdminPricingPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [rowFilter, setRowFilter] = useState<RowFilter>("all");
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -248,7 +262,7 @@ export default function AdminPricingPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return packages.filter((row) => {
+    const rows = packages.filter((row) => {
       const draft = drafts[row.packageId] ?? toDraft(row);
       const matchesSearch =
         !q ||
@@ -268,12 +282,115 @@ export default function AdminPricingPage() {
           return true;
       }
     });
+    // Trending view shows the order the public site uses: your order first, unordered last.
+    return rowFilter === "trending"
+      ? [...rows].sort((a, b) => compareTrendingOrder(drafts, a, b))
+      : rows;
   }, [drafts, packages, rowFilter, search]);
+
+  const isTrendingView = rowFilter === "trending";
+  const orderDirty = useMemo(
+    () =>
+      packages.some((row) => {
+        const draft = drafts[row.packageId];
+        return draft?.trending === true && row.trending && (draft.trendingOrder ?? null) !== (row.trendingOrder ?? null);
+      }),
+    [drafts, packages],
+  );
 
   const discountedCount = useMemo(() => packages.filter((row) => row.discountEnabled).length, [packages]);
 
   function updateDraft(packageId: string, patch: Partial<Draft>) {
     setDrafts((current) => ({ ...current, [packageId]: { ...current[packageId], ...patch } }));
+  }
+
+  /** All trending rows (ignoring search) in their current draft order. */
+  function orderedTrendingRows() {
+    return packages
+      .filter((row) => (drafts[row.packageId] ?? toDraft(row)).trending)
+      .sort((a, b) => compareTrendingOrder(drafts, a, b));
+  }
+
+  function moveTrending(packageId: string, direction: -1 | 1) {
+    const list = orderedTrendingRows();
+    const from = list.findIndex((row) => row.packageId === packageId);
+    const to = from + direction;
+    if (from < 0 || to < 0 || to >= list.length) return;
+    [list[from], list[to]] = [list[to], list[from]];
+    setDrafts((current) => {
+      const next = { ...current };
+      list.forEach((row, index) => {
+        next[row.packageId] = { ...(next[row.packageId] ?? toDraft(row)), trendingOrder: index };
+      });
+      return next;
+    });
+  }
+
+  async function saveTrendingOrder() {
+    const list = orderedTrendingRows();
+    setIsSavingOrder(true);
+    setError("");
+    setNotice("");
+    try {
+      const updatedRows = new Map<string, PricingRow>();
+      for (const [index, row] of list.entries()) {
+        if ((row.trendingOrder ?? null) === index && row.trending) continue;
+        const response = await fetch(`/bff/admin/packages/pricing/${encodeURIComponent(row.packageId)}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ trending: true, trendingOrder: index })
+        });
+        const payload = (await response.json()) as PricingRowPayload;
+        if (response.status === 401) {
+          handleUnauthorized();
+          throw new Error("Session expired. Sign in again.");
+        }
+        if (!response.ok || payload.status !== "success" || !payload.data?.pricing) {
+          throw new Error(payload.message ?? "Could not save trending order");
+        }
+        updatedRows.set(row.packageId, payload.data.pricing);
+      }
+      setPackages((current) => current.map((item) => updatedRows.get(item.packageId) ?? item));
+      setDrafts((current) => {
+        const next = { ...current };
+        for (const [id, updated] of updatedRows) next[id] = { ...next[id], trendingOrder: updated.trendingOrder ?? null };
+        return next;
+      });
+      setNotice("Trending order saved.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save trending order");
+    } finally {
+      setIsSavingOrder(false);
+    }
+  }
+
+  async function removeTrending(packageId: string) {
+    setSavingId(packageId);
+    setError("");
+    setNotice("");
+    try {
+      const response = await fetch(`/bff/admin/packages/pricing/${encodeURIComponent(packageId)}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ trending: false, trendingOrder: null })
+      });
+      const payload = (await response.json()) as PricingRowPayload;
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Session expired. Sign in again.");
+      }
+      if (!response.ok || payload.status !== "success" || !payload.data?.pricing) {
+        throw new Error(payload.message ?? "Could not remove from trending");
+      }
+      const updated = payload.data.pricing;
+      setPackages((current) => current.map((item) => (item.packageId === packageId ? updated : item)));
+      setDrafts((current) => ({ ...current, [packageId]: { ...current[packageId], trending: false, trendingOrder: null } }));
+      setNotice(`Removed ${updated.title} from trending.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not remove from trending");
+    } finally {
+      setSavingId(null);
+    }
   }
 
   function toggleSelected(packageId: string) {
@@ -326,6 +443,7 @@ export default function AdminPricingPage() {
           discountEnabled: draft.discountEnabled,
           discountLabel: draft.discountLabel,
           trending: draft.trending,
+          trendingOrder: draft.trending ? draft.trendingOrder : null,
           discountType: draft.discountType,
           discountValue,
           discountDirection: draft.discountDirection
@@ -831,13 +949,25 @@ export default function AdminPricingPage() {
                   >
                     <option value="all">All rows</option>
                     <option value="adjust">Adjust on</option>
-                    <option value="trending">Trending on</option>
+                    <option value="trending">Trending only (reorder / remove)</option>
                     <option value="discount-label">Discount label on</option>
                   </select>
                 </div>
-                <p className="text-xs font-bold text-muted">
-                  Showing {filtered.length} of {packages.length}
-                </p>
+                <div className="flex items-center gap-3">
+                  {isTrendingView ? (
+                    <button
+                      className="h-10 rounded-xl bg-midnight px-4 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+                      disabled={!orderDirty || isSavingOrder}
+                      onClick={() => void saveTrendingOrder()}
+                      type="button"
+                    >
+                      {isSavingOrder ? "Saving…" : "Save order"}
+                    </button>
+                  ) : null}
+                  <p className="text-xs font-bold text-muted">
+                    Showing {filtered.length} of {packages.length}
+                  </p>
+                </div>
               </div>
               <div className="max-w-full overflow-x-auto overscroll-x-contain">
                 <table className="w-max min-w-full border-collapse text-left text-sm">
@@ -1005,6 +1135,39 @@ export default function AdminPricingPage() {
                               />
                               Trending
                             </label>
+                            {isTrendingView ? (
+                              <div className="mt-1.5 flex items-center gap-1">
+                                <span className="w-6 text-center text-xs font-black text-muted">
+                                  {filtered.findIndex((item) => item.packageId === row.packageId) + 1}
+                                </span>
+                                <button
+                                  aria-label="Move up"
+                                  className="h-8 w-8 rounded-lg border border-line text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                                  disabled={filtered[0]?.packageId === row.packageId}
+                                  onClick={() => moveTrending(row.packageId, -1)}
+                                  type="button"
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  aria-label="Move down"
+                                  className="h-8 w-8 rounded-lg border border-line text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                                  disabled={filtered[filtered.length - 1]?.packageId === row.packageId}
+                                  onClick={() => moveTrending(row.packageId, 1)}
+                                  type="button"
+                                >
+                                  ↓
+                                </button>
+                                <button
+                                  className="h-8 rounded-lg border border-red-200 px-2 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
+                                  disabled={savingId === row.packageId}
+                                  onClick={() => void removeTrending(row.packageId)}
+                                  type="button"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ) : null}
                             <div className="mt-1.5 flex gap-1">
                               <select
                                 className="h-9 rounded-lg border border-line px-1 text-xs disabled:opacity-50"

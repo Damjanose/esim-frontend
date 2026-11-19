@@ -219,8 +219,13 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
           return second.priceNumeric - first.priceNumeric;
         case "duration":
           return second.durationDays - first.durationDays;
-        default:
+        default: {
+          // "Recommended" honours the admin's order from /xpricing first; plans without one follow by value.
+          const a = first.trendingOrder ?? Number.POSITIVE_INFINITY;
+          const b = second.trendingOrder ?? Number.POSITIVE_INFINITY;
+          if (a !== b) return a < b ? -1 : 1;
           return getPlanValueScore(second) - getPlanValueScore(first);
+        }
       }
     });
   }, [filteredPackages, trendingSort]);

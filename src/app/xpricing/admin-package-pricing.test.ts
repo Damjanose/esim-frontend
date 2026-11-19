@@ -131,4 +131,19 @@ describe("hidden admin package pricing page", () => {
     expect(resetProxy).toContain("backendFetch");
     expect(resetProxy).toContain('method: "POST"');
   });
+
+  it("has a trending-only view with custom order, reorder arrows and remove, saved via trendingOrder", () => {
+    const pageSource = readFileSync("src/app/xpricing/page.tsx", "utf8");
+    const browseSource = readFileSync("src/app/destinations/DestinationBrowse.tsx", "utf8");
+
+    expect(pageSource).toContain("Trending only (reorder / remove)");
+    expect(pageSource).toContain("compareTrendingOrder");
+    expect(pageSource).toContain("moveTrending");
+    expect(pageSource).toContain("saveTrendingOrder");
+    expect(pageSource).toContain("removeTrending");
+    expect(pageSource).toContain("trendingOrder: index");
+    expect(pageSource).toContain("trendingOrder: draft.trending ? draft.trendingOrder : null");
+    // The public Trending section's default sort honours the admin order first.
+    expect(browseSource).toContain("first.trendingOrder");
+  });
 });
