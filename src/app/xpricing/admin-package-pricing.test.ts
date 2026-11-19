@@ -132,18 +132,34 @@ describe("hidden admin package pricing page", () => {
     expect(resetProxy).toContain('method: "POST"');
   });
 
-  it("has a trending-only view with custom order, reorder arrows and remove, saved via trendingOrder", () => {
+  it("has a dedicated trending-order table with reorder arrows and remove, saved via trendingOrder", () => {
     const pageSource = readFileSync("src/app/xpricing/page.tsx", "utf8");
     const browseSource = readFileSync("src/app/destinations/DestinationBrowse.tsx", "utf8");
 
-    expect(pageSource).toContain("Trending only (reorder / remove)");
+    expect(pageSource).toContain("Trending order");
+    expect(pageSource).not.toContain("Trending only (reorder / remove)");
     expect(pageSource).toContain("compareTrendingOrder");
     expect(pageSource).toContain("moveTrending");
     expect(pageSource).toContain("saveTrendingOrder");
     expect(pageSource).toContain("removeTrending");
     expect(pageSource).toContain("trendingOrder: index");
+    // Save order must light up when the shown order was never persisted (saved trendingOrder null).
+    expect(pageSource).toContain("(row.trendingOrder ?? null) !== index");
     expect(pageSource).toContain("trendingOrder: draft.trending ? draft.trendingOrder : null");
     // The public Trending section's default sort honours the admin order first.
     expect(browseSource).toContain("first.trendingOrder");
+  });
+
+  it("paginates the packages table at 30 rows and keeps search/filter when the page changes", () => {
+    const pageSource = readFileSync("src/app/xpricing/page.tsx", "utf8");
+
+    expect(pageSource).toContain("const PAGE_SIZE = 30;");
+    expect(pageSource).toContain("filtered.slice(pageStart, pageStart + PAGE_SIZE)");
+    expect(pageSource).toContain("pageRows.map((row)");
+    // Search and filter changes reset to page 1; page buttons only touch `page`.
+    expect(pageSource).toContain("setSearch(event.target.value);\n                      setPage(1);");
+    expect(pageSource).toContain("setRowFilter(event.target.value as RowFilter);\n                      setPage(1);");
+    expect(pageSource).toContain("setPage(safePage + 1)");
+    expect(pageSource).toContain("setPage(safePage - 1)");
   });
 });
