@@ -8,6 +8,8 @@ import { useAdminSession } from "../useAdminSession";
 
 type DiscountType = "percentage" | "flat";
 type DiscountDirection = "decrease" | "increase";
+const PAGE_SIZE = 30;
+
 type RowFilter = "all" | "adjust" | "trending" | "discount-label";
 
 type PricingRow = {
@@ -195,6 +197,7 @@ export default function AdminPricingPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [rowFilter, setRowFilter] = useState<RowFilter>("all");
+  const [page, setPage] = useState(1);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -282,20 +285,29 @@ export default function AdminPricingPage() {
           return true;
       }
     });
-    // Trending view shows the order the public site uses: your order first, unordered last.
-    return rowFilter === "trending"
-      ? [...rows].sort((a, b) => compareTrendingOrder(drafts, a, b))
-      : rows;
+    return rows;
   }, [drafts, packages, rowFilter, search]);
 
-  const isTrendingView = rowFilter === "trending";
-  const orderDirty = useMemo(
+  // Pagination only slices the filtered list; search/filter live in their own state, so changing
+  // page never resets them. Changing search or filter jumps back to page 1.
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageStart = (safePage - 1) * PAGE_SIZE;
+  const pageRows = useMemo(() => filtered.slice(pageStart, pageStart + PAGE_SIZE), [filtered, pageStart]);
+
+  /** All trending rows in their current draft order: the order the public site uses. */
+  const trendingRows = useMemo(
     () =>
-      packages.some((row) => {
-        const draft = drafts[row.packageId];
-        return draft?.trending === true && row.trending && (draft.trendingOrder ?? null) !== (row.trendingOrder ?? null);
-      }),
+      packages
+        .filter((row) => (drafts[row.packageId] ?? toDraft(row)).trending)
+        .sort((a, b) => compareTrendingOrder(drafts, a, b)),
     [drafts, packages],
+  );
+  // Dirty when what the table shows is not what the backend has: an unsaved move, a newly ticked
+  // package, or rows still on the display-only fallback order (saved trendingOrder is null).
+  const orderDirty = useMemo(
+    () => trendingRows.some((row, index) => !row.trending || (row.trendingOrder ?? null) !== index),
+    [trendingRows],
   );
 
   const discountedCount = useMemo(() => packages.filter((row) => row.discountEnabled).length, [packages]);
@@ -304,11 +316,8 @@ export default function AdminPricingPage() {
     setDrafts((current) => ({ ...current, [packageId]: { ...current[packageId], ...patch } }));
   }
 
-  /** All trending rows (ignoring search) in their current draft order. */
   function orderedTrendingRows() {
-    return packages
-      .filter((row) => (drafts[row.packageId] ?? toDraft(row)).trending)
-      .sort((a, b) => compareTrendingOrder(drafts, a, b));
+    return [...trendingRows];
   }
 
   function moveTrending(packageId: string, direction: -1 | 1) {
@@ -404,9 +413,9 @@ export default function AdminPricingPage() {
 
   function toggleSelectAllVisible() {
     setSelectedIds((current) => {
-      const allSelected = filtered.every((row) => current.has(row.packageId));
+      const allSelected = pageRows.every((row) => current.has(row.packageId));
       const next = new Set(current);
-      for (const row of filtered) {
+      for (const row of pageRows) {
         if (allSelected) next.delete(row.packageId);
         else next.add(row.packageId);
       }
@@ -754,6 +763,97 @@ export default function AdminPricingPage() {
               </div>
             </div>
 
+            <section className="rounded-2xl border border-line bg-white shadow-card" id="trending-order">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line/70 px-5 py-3.5">
+                <div>
+                  <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Trending order</h2>
+                  <p className="mt-1 text-xs text-muted">
+                    Row 1 is shown first in &ldquo;Trending now&rdquo; on the public site. Tick Trending on a
+                    package in the table below to add it here.
+                  </p>
+                </div>
+                <button
+                  className="h-10 rounded-xl bg-midnight px-4 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+                  disabled={!orderDirty || isSavingOrder}
+                  onClick={() => void saveTrendingOrder()}
+                  type="button"
+                >
+                  {isSavingOrder ? "Saving…" : "Save order"}
+                </button>
+              </div>
+              <div className="max-w-full overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                  <thead>
+                    <tr className="bg-[#f8fdfe]">
+                      <th className="w-12 px-5 py-3 text-[10px] font-black uppercase tracking-wide text-muted">#</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Coverage</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Package</th>
+                      <th className="px-3 py-3 text-[10px] font-black uppercase tracking-wide text-muted">Validity</th>
+                      <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wide text-muted">
+                        Order
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trendingRows.map((row, index) => (
+                      <tr className="border-t border-line/60" key={row.packageId}>
+                        <td className="px-5 py-3 text-xs font-black text-muted">{index + 1}</td>
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-2">
+                            {row.flagUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img alt="" className="h-4 w-6 rounded-sm object-cover" src={row.flagUrl} />
+                            ) : null}
+                            <p className="font-bold text-midnight">{row.country ?? "N/A"}</p>
+                          </div>
+                          <p className="text-xs text-muted">{row.packageId}</p>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 text-midnight">{row.dataLabel}</td>
+                        <td className="whitespace-nowrap px-3 py-3 text-midnight">{row.durationDays} days</td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              aria-label="Move up"
+                              className="h-8 w-8 rounded-lg border border-line text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                              disabled={index === 0}
+                              onClick={() => moveTrending(row.packageId, -1)}
+                              type="button"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              aria-label="Move down"
+                              className="h-8 w-8 rounded-lg border border-line text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                              disabled={index === trendingRows.length - 1}
+                              onClick={() => moveTrending(row.packageId, 1)}
+                              type="button"
+                            >
+                              ↓
+                            </button>
+                            <button
+                              className="h-8 rounded-lg border border-red-200 px-2 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
+                              disabled={savingId === row.packageId}
+                              onClick={() => void removeTrending(row.packageId)}
+                              type="button"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {trendingRows.length === 0 ? (
+                      <tr>
+                        <td className="px-5 py-6 text-center font-bold text-muted" colSpan={5}>
+                          {isLoading ? "Loading…" : "No trending packages yet"}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
             <section className="rounded-2xl border border-line bg-white p-5 shadow-card">
               <h2 className="text-[11px] font-black uppercase tracking-wide text-muted">Pricing basis</h2>
               <div className="mt-3 grid gap-3 md:grid-cols-6 md:items-end">
@@ -938,34 +1038,31 @@ export default function AdminPricingPage() {
                 <div className="flex w-full max-w-2xl flex-wrap items-center gap-2">
                   <input
                     className="h-10 min-w-[240px] flex-1 rounded-xl border border-line px-3.5 text-sm outline-none transition focus:border-cyan"
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(event) => {
+                      setSearch(event.target.value);
+                      setPage(1);
+                    }}
                     placeholder="Search by title, country, or package id"
                     value={search}
                   />
                   <select
                     className="h-10 rounded-xl border border-line bg-white px-3 text-sm font-semibold text-midnight outline-none transition focus:border-cyan"
-                    onChange={(event) => setRowFilter(event.target.value as RowFilter)}
+                    onChange={(event) => {
+                      setRowFilter(event.target.value as RowFilter);
+                      setPage(1);
+                    }}
                     value={rowFilter}
                   >
                     <option value="all">All rows</option>
                     <option value="adjust">Adjust on</option>
-                    <option value="trending">Trending only (reorder / remove)</option>
+                    <option value="trending">Trending on</option>
                     <option value="discount-label">Discount label on</option>
                   </select>
                 </div>
                 <div className="flex items-center gap-3">
-                  {isTrendingView ? (
-                    <button
-                      className="h-10 rounded-xl bg-midnight px-4 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
-                      disabled={!orderDirty || isSavingOrder}
-                      onClick={() => void saveTrendingOrder()}
-                      type="button"
-                    >
-                      {isSavingOrder ? "Saving…" : "Save order"}
-                    </button>
-                  ) : null}
                   <p className="text-xs font-bold text-muted">
-                    Showing {filtered.length} of {packages.length}
+                    Showing {pageStart + (pageRows.length ? 1 : 0)}–{pageStart + pageRows.length} of {filtered.length}
+                    {filtered.length !== packages.length ? ` (${packages.length} total)` : ""}
                   </p>
                 </div>
               </div>
@@ -975,7 +1072,7 @@ export default function AdminPricingPage() {
                     <tr className="bg-[#f8fdfe]">
                       <th className="px-5 py-3">
                         <input
-                          checked={filtered.length > 0 && filtered.every((row) => selectedIds.has(row.packageId))}
+                          checked={pageRows.length > 0 && pageRows.every((row) => selectedIds.has(row.packageId))}
                           onChange={toggleSelectAllVisible}
                           type="checkbox"
                         />
@@ -1023,7 +1120,7 @@ export default function AdminPricingPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((row) => {
+                    {pageRows.map((row) => {
                       const draft = drafts[row.packageId] ?? toDraft(row);
                       const sell = previewSellPrice(row, draft.markup, defaultMarkupPct);
                       const sellPrice = sell?.sellPrice ?? null;
@@ -1135,39 +1232,6 @@ export default function AdminPricingPage() {
                               />
                               Trending
                             </label>
-                            {isTrendingView ? (
-                              <div className="mt-1.5 flex items-center gap-1">
-                                <span className="w-6 text-center text-xs font-black text-muted">
-                                  {filtered.findIndex((item) => item.packageId === row.packageId) + 1}
-                                </span>
-                                <button
-                                  aria-label="Move up"
-                                  className="h-8 w-8 rounded-lg border border-line text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
-                                  disabled={filtered[0]?.packageId === row.packageId}
-                                  onClick={() => moveTrending(row.packageId, -1)}
-                                  type="button"
-                                >
-                                  ↑
-                                </button>
-                                <button
-                                  aria-label="Move down"
-                                  className="h-8 w-8 rounded-lg border border-line text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
-                                  disabled={filtered[filtered.length - 1]?.packageId === row.packageId}
-                                  onClick={() => moveTrending(row.packageId, 1)}
-                                  type="button"
-                                >
-                                  ↓
-                                </button>
-                                <button
-                                  className="h-8 rounded-lg border border-red-200 px-2 text-xs font-black text-red-700 transition hover:border-red-400 disabled:opacity-50"
-                                  disabled={savingId === row.packageId}
-                                  onClick={() => void removeTrending(row.packageId)}
-                                  type="button"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            ) : null}
                             <div className="mt-1.5 flex gap-1">
                               <select
                                 className="h-9 rounded-lg border border-line px-1 text-xs disabled:opacity-50"
@@ -1248,6 +1312,29 @@ export default function AdminPricingPage() {
                     ) : null}
                   </tbody>
                 </table>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line/70 px-5 py-3">
+                <p className="text-xs font-bold text-muted">
+                  Page {safePage} of {totalPages} · {PAGE_SIZE} per page
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="h-9 rounded-lg border border-line px-3 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                    disabled={safePage <= 1}
+                    onClick={() => setPage(safePage - 1)}
+                    type="button"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="h-9 rounded-lg border border-line px-3 text-xs font-bold text-midnight transition hover:border-cyan disabled:opacity-40"
+                    disabled={safePage >= totalPages}
+                    onClick={() => setPage(safePage + 1)}
+                    type="button"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </section>
           </div>
