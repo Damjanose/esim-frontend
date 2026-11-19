@@ -137,3 +137,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-11-18 | [event modal live preview](2026-11-18_event-modal-live-preview.md) | Live unsaved-draft phone preview with language picker; manual Translations tab removed in favour of backend AI translation (f362) |
 | 2026-11-18 | [event modals results and templates](2026-11-18_event-modals-results-and-templates.md) | One-click promo and match-giveaway templates, standalone `/xeventsy/[id]/results` page and Results row action (f363) |
 | 2026-11-19 | [admin version users](2026-11-19_admin-version-users.md) | /xactivityy email + app version; /xversion outdated-users list with per-row Notify, no bulk (f366) |
+| 2026-11-19 | [xpricing trending order](2026-11-19_xpricing-trending-order.md) | /xpricing Trending-only view with reorder + remove; public Trending honours trendingOrder (f367) |
