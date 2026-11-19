@@ -138,3 +138,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-11-18 | [event modals results and templates](2026-11-18_event-modals-results-and-templates.md) | One-click promo and match-giveaway templates, standalone `/xeventsy/[id]/results` page and Results row action (f363) |
 | 2026-11-19 | [admin version users](2026-11-19_admin-version-users.md) | /xactivityy email + app version; /xversion outdated-users list with per-row Notify, no bulk (f366) |
 | 2026-11-19 | [xpricing trending order](2026-11-19_xpricing-trending-order.md) | /xpricing Trending-only view with reorder + remove; public Trending honours trendingOrder (f367) |
+| 2026-11-19 | [xpricing trending table + pagination](2026-11-19_xpricing-trending-table-pagination.md) | Dedicated Trending order table, 30-row pagination keeping filters, Save order enabled for unsaved fallback order (f368-f369) |

@@ -3,6 +3,11 @@
   "covers": "Symptom -> root cause -> fix history: auth (Google/Apple sign-in), routing/redirects, BFF, env/deploy. See troubleshooting-destinations.json for destinations-page/wizard/pricing-display bugs.",
   "entries": [
     {
+      "symptom": "Admin Trending order table shows UK, US, China, Turkey but mobile Trending rail shows China, Turkey, UK.",
+      "root_cause": "No trendingOrder was ever saved (all null): the admin list used a display-only fallback and Save order stayed disabled until an arrow was clicked. Mobile also ignored trendingOrder.",
+      "fix": "orderDirty now compares shown index to saved trendingOrder so Save order is enabled for unsaved fallback order; mobile sorts by trendingOrder (see velocity-eSim f735)."
+    },
+    {
       "symptom": "Search Console lists /signin, /profile, and /checkout?package= as crawled, then excluded by noindex.",
       "root_cause": "robots.ts disallowed only prefix-plus-slash (/checkout/). That does not match /checkout or /checkout?package=. Google could fetch the URL, then honored the page noindex.",
       "fix": "Disallow each privateRoutePrefixes entry as the prefix itself so /checkout, /signin, and /profile cover the exact path, a trailing slash, and a query string. Keep noindex on those pages.",
