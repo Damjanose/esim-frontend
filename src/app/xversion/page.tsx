@@ -5,6 +5,7 @@ import { LogOut, RefreshCw } from "lucide-react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
+import { VersionUsersSection } from "./VersionUsersSection";
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 
@@ -367,6 +368,8 @@ export default function AdminVersionPage() {
                 })}
               </div>
             </section>
+
+            <VersionUsersSection handleUnauthorized={handleUnauthorized} token={token} />
           </div>
         )}
       </div>
