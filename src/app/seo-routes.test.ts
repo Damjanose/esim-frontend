@@ -37,7 +37,7 @@ describe("Next SEO routes", () => {
       expect(indexXml).toContain(`https://esim.uplisoft.com/sitemaps/${id}.xml`);
     }
     expect(indexXml).toMatch(
-      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-11-10T00:00:00\.000Z<\/lastmod>/
+      /sitemaps\/static\.xml<\/loc>\s*<lastmod>2026-11-24T00:00:00\.000Z<\/lastmod>/
     );
     expect(indexXml).toMatch(
       /sitemaps\/esim\.xml<\/loc>\s*<lastmod>2026-10-30T00:00:00\.000Z<\/lastmod>/
@@ -45,6 +45,11 @@ describe("Next SEO routes", () => {
     expect(indexXml).toMatch(
       /sitemaps\/travel\.xml<\/loc>\s*<lastmod>2026-10-08T00:00:00\.000Z<\/lastmod>/
     );
+
+    // The Soro blog is one client-rendered page, so it sits in the static segment
+    // and the old Holo blog.xml part is gone.
+    expect(indexXml).not.toContain("/sitemaps/blog.xml");
+    expect(sitemapEntriesFor("static").map((entry) => entry.url)).toContain("https://esim.uplisoft.com/blog");
 
     const esim = sitemapEntriesFor("esim");
     const travel = sitemapEntriesFor("travel");

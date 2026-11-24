@@ -139,3 +139,4 @@ Focus for this repo is **web**. Sessions should not load mobile or backend feedA
 | 2026-11-19 | [admin version users](2026-11-19_admin-version-users.md) | /xactivityy email + app version; /xversion outdated-users list with per-row Notify, no bulk (f366) |
 | 2026-11-19 | [xpricing trending order](2026-11-19_xpricing-trending-order.md) | /xpricing Trending-only view with reorder + remove; public Trending honours trendingOrder (f367) |
 | 2026-11-19 | [xpricing trending table + pagination](2026-11-19_xpricing-trending-table-pagination.md) | Dedicated Trending order table, 30-row pagination keeping filters, Save order enabled for unsaved fallback order (f368-f369) |
+| 2026-11-24 | [soro blog](2026-11-24_soro-blog.md) | Blog moved from Holo to the Soro embed on /blog (posts at /blog?post=<slug>); Holo pages, revalidate hook and blog sitemap removed, /blog/:slug 308 -> /blog (f370-f371) |

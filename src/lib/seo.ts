@@ -177,6 +177,15 @@ export const indexableRoutes: IndexableRoute[] = [
     priority: 0.5
   },
   {
+    path: "/blog",
+    url: `${siteUrl}/blog`,
+    title: "Travel eSIM blog",
+    description:
+      "Travel eSIM news, destination tips and guides to staying connected abroad, from the eSIM2you team.",
+    changeFrequency: "monthly",
+    priority: 0.6
+  },
+  {
     path: "/about",
     url: `${siteUrl}/about`,
     title: "About eSIM2you | Travel eSIM Data for 200+ Destinations",

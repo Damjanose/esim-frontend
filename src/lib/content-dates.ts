@@ -29,6 +29,8 @@ const byPath: Record<string, string> = {
   // Link-earning pages launched.
   "/esim-price-index": "2026-10-08",
   "/press": "2026-10-08",
+  // Blog moved from Holo to the Soro embed.
+  "/blog": "2026-11-24",
   // Options table, data, roaming and WhatsApp sections, new FAQs.
   "/travel/internet-abroad": "2026-10-08",
   // SEO content pack: /compare price-per-GB hub, city blocks and city-led titles.
