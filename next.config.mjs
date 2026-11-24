@@ -96,7 +96,8 @@ const nextConfig = {
       // Guessable brand URLs (from the brand SEO plan) point at the pages that
       // already cover them, instead of duplicate pages that would compete.
       { source: "/esim", destination: "/destinations", permanent: true },
-      // /blog was redirected to /travel here until the Holo blog (src/app/blog) shipped.
+      // Holo post URLs; the Soro blog lives on /blog alone (posts at /blog?post=<slug>).
+      { source: "/blog/:slug", destination: "/blog", permanent: true },
       { source: "/how-esim-works", destination: "/travel/what-is-an-esim", permanent: true },
       {
         source: "/esim-compatible-devices",

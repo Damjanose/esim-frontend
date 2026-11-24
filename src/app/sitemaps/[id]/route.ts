@@ -1,10 +1,4 @@
-import {
-  blogSitemapEntries,
-  blogSitemapId,
-  sitemapEntriesFor,
-  sitemapSegmentIds,
-  type SitemapSegmentId
-} from "@/lib/sitemaps";
+import { sitemapEntriesFor, sitemapSegmentIds, type SitemapSegmentId } from "@/lib/sitemaps";
 import { notFound } from "next/navigation";
 
 function escapeXml(value: string) {
@@ -15,11 +9,8 @@ function escapeXml(value: string) {
     .replaceAll('"', "&quot;");
 }
 
-// The blog part reads the backend; /bff/blog/revalidate refreshes it on publish.
-export const revalidate = 3600;
-
 export function generateStaticParams() {
-  return [...sitemapSegmentIds, blogSitemapId].map((id) => ({ id: `${id}.xml` }));
+  return sitemapSegmentIds.map((id) => ({ id: `${id}.xml` }));
 }
 
 export async function GET(
@@ -27,11 +18,11 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const raw = (await context.params).id.replace(/\.xml$/, "");
-  if (raw !== blogSitemapId && !sitemapSegmentIds.includes(raw as SitemapSegmentId)) {
+  if (!sitemapSegmentIds.includes(raw as SitemapSegmentId)) {
     notFound();
   }
 
-  const entries = raw === blogSitemapId ? await blogSitemapEntries() : sitemapEntriesFor(raw as SitemapSegmentId);
+  const entries = sitemapEntriesFor(raw as SitemapSegmentId);
   const urls = entries
     .map((entry) => {
       const lastmod =
