@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { InsightsFilters } from "@/lib/insights/query";
 import type { ChartNote } from "@/lib/insights/types";
 
-export type ChartNotesOptions = { onUnauthorized?: () => void };
+export type ChartNotesOptions = { onUnauthorized?: () => void; refreshKey?: number };
 
 /**
  * Loads the chart notes for the range, including the built-in holidays. Refetches when the range
@@ -19,6 +19,7 @@ export function useChartNotes(token: string, filters: InsightsFilters, options: 
   unauthorized.current = options.onUnauthorized;
 
   const { from, to } = filters;
+  const refreshKey = options.refreshKey;
 
   useEffect(() => {
     if (!token) return;
@@ -52,7 +53,7 @@ export function useChartNotes(token: string, filters: InsightsFilters, options: 
       });
 
     return () => controller.abort();
-  }, [token, from, to, attempt]);
+  }, [token, from, to, attempt, refreshKey]);
 
   return { state, notes, error, retry: () => setAttempt((count) => count + 1) };
 }

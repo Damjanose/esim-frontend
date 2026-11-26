@@ -12,7 +12,8 @@ import {
 
 export type { InsightsFilters };
 
-export type InsightsSectionProps = { token: string; filters: InsightsFilters; onUnauthorized?: () => void };
+/** refreshKey changes after an admin saves data, so the section reloads. */
+export type InsightsSectionProps = { token: string; filters: InsightsFilters; onUnauthorized?: () => void; refreshKey?: number };
 
 const todayUtc = () => new Date().toISOString().slice(0, 10);
 

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { insightsReportUrl, type InsightsExtra, type InsightsFilters } from "@/lib/insights/query";
 import type { ReportName, ReportNameW2, ReportResponse } from "@/lib/insights/types";
 
-export type InsightsReportOptions = InsightsExtra & { onUnauthorized?: () => void };
+export type InsightsReportOptions = InsightsExtra & { onUnauthorized?: () => void; refreshKey?: number };
 
 /**
  * Loads one report from the web BFF. A new filter cancels the request in flight. A 401
@@ -23,7 +23,7 @@ export function useInsightsReport<T>(
   const unauthorized = useRef(options.onUnauthorized);
   unauthorized.current = options.onUnauthorized;
 
-  const { tz, level, basis } = options;
+  const { tz, level, basis, refreshKey } = options;
   const filterKey = JSON.stringify(filters);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function useInsightsReport<T>(
       });
 
     return () => controller.abort();
-  }, [report, token, filterKey, tz, level, basis, attempt]);
+  }, [report, token, filterKey, tz, level, basis, attempt, refreshKey]);
 
   return { state, data, error, retry: () => setAttempt((count) => count + 1) };
 }

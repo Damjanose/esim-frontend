@@ -11,9 +11,9 @@ import { useInsightsReport } from "../useInsightsReport";
 const HEIGHT = 200;
 const PAD = 16;
 
-export function TrendSection({ token, filters, onUnauthorized }: InsightsSectionProps) {
-  const { state, data, retry } = useInsightsReport<DailyData>("daily", token, filters, { onUnauthorized });
-  const notesState = useChartNotes(token, filters, { onUnauthorized });
+export function TrendSection({ token, filters, onUnauthorized, refreshKey }: InsightsSectionProps) {
+  const { state, data, retry } = useInsightsReport<DailyData>("daily", token, filters, { onUnauthorized, refreshKey });
+  const notesState = useChartNotes(token, filters, { onUnauthorized, refreshKey });
   const days = data?.data.days ?? [];
   const status = state === "ready" && days.length === 0 ? "empty" : state;
 

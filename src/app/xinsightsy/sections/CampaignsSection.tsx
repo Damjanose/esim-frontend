@@ -8,8 +8,8 @@ import type { InsightsSectionProps } from "../ui/filters";
 import { useInsightsReport } from "../useInsightsReport";
 import { LinkBuilder } from "./LinkBuilder";
 
-export function CampaignsSection({ token, filters, onUnauthorized }: InsightsSectionProps) {
-  const { state, data, retry } = useInsightsReport<FirstSourceData>("first-source", token, filters, { onUnauthorized });
+export function CampaignsSection({ token, filters, onUnauthorized, refreshKey }: InsightsSectionProps) {
+  const { state, data, retry } = useInsightsReport<FirstSourceData>("first-source", token, filters, { onUnauthorized, refreshKey });
   const ready = data?.data ?? null;
   const status = state === "ready" && !ready ? "empty" : state;
 

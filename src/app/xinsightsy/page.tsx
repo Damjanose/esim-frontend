@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AdminNav } from "../AdminNav";
 import { AdminLoginCard } from "../AdminLoginCard";
 import { useAdminSession } from "../useAdminSession";
@@ -26,6 +27,8 @@ export default function AdminInsightsPage() {
   const session = useAdminSession();
   const [filters, setFilters] = useInsightsFilters();
   const { token, logout } = session;
+  const [refreshKey, setRefreshKey] = useState(0);
+  const onSaved = () => setRefreshKey((count) => count + 1);
 
   if (!token) {
     return (
@@ -52,7 +55,7 @@ export default function AdminInsightsPage() {
         <div className="mt-6 grid gap-8">
           <OpportunitiesSection token={token} filters={filters} onUnauthorized={logout} />
           <OverviewSection token={token} filters={filters} onUnauthorized={logout} />
-          <TrendSection token={token} filters={filters} onUnauthorized={logout} />
+          <TrendSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <LocationsSection token={token} filters={filters} onUnauthorized={logout} />
           <AudienceSection token={token} filters={filters} onUnauthorized={logout} />
           <ScreensSection token={token} filters={filters} onUnauthorized={logout} />
@@ -60,13 +63,13 @@ export default function AdminInsightsPage() {
           <SearchesSection token={token} filters={filters} onUnauthorized={logout} />
           <PeakTimesSection token={token} filters={filters} onUnauthorized={logout} />
           <FunnelSection token={token} filters={filters} onUnauthorized={logout} />
-          <CampaignsSection token={token} filters={filters} onUnauthorized={logout} />
+          <CampaignsSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <PromotionsSection token={token} filters={filters} onUnauthorized={logout} />
           <CustomersSection token={token} filters={filters} onUnauthorized={logout} />
           <SeasonsSection token={token} filters={filters} onUnauthorized={logout} />
           <AcquisitionSection token={token} filters={filters} onUnauthorized={logout} />
           <DataHealthSection token={token} filters={filters} onUnauthorized={logout} />
-          <MarketingToolsSection token={token} filters={filters} onUnauthorized={logout} />
+          <MarketingToolsSection token={token} filters={filters} onUnauthorized={logout} onSaved={onSaved} />
         </div>
       </main>
     </>

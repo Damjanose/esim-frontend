@@ -1,5 +1,6 @@
 /** Ad spend form checks. They mirror the backend rules (plan §1.2), with friendly messages. */
 import { sanitizeUtmValue } from "./linkBuilder";
+import type { AdSpendEntry } from "./types";
 
 export type AdSpendFormInput = {
   source: string;
@@ -90,5 +91,20 @@ export function validateAdSpendForm(input: AdSpendFormInput): AdSpendFormResult 
       currency,
       note: note || null
     }
+  };
+}
+
+/** Turns a saved entry back into the form's strings, so editing starts from the same values. */
+export function entryToFormInput(entry: AdSpendEntry): AdSpendFormInput {
+  const cents = entry.amountCents;
+  return {
+    source: entry.source,
+    medium: entry.medium ?? "",
+    campaign: entry.campaign,
+    from: entry.from,
+    to: entry.to,
+    amount: `${Math.floor(cents / 100)}.${String(cents % 100).padStart(2, "0")}`,
+    currency: entry.currency,
+    note: entry.note ?? ""
   };
 }

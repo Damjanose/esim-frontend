@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseMoneyToCents, validateAdSpendForm, type AdSpendFormInput } from "./adSpendForm";
+import { entryToFormInput, parseMoneyToCents, validateAdSpendForm, type AdSpendFormInput } from "./adSpendForm";
 
 const valid: AdSpendFormInput = {
   source: "Google",
@@ -80,5 +80,31 @@ describe("validateAdSpendForm", () => {
     const result = validateAdSpendForm({ ...valid, amount: "1000001" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.amount).toBeDefined();
+  });
+});
+
+describe("entryToFormInput", () => {
+  it("turns a saved entry back into form strings, so edit starts from the same values", () => {
+    const form = entryToFormInput({
+      id: "e1",
+      source: "google",
+      medium: null,
+      campaign: "fall-sale",
+      from: "2026-11-01",
+      to: "2026-11-10",
+      amountCents: 1250,
+      currency: "usd",
+      note: null
+    });
+    expect(form).toEqual({
+      source: "google",
+      medium: "",
+      campaign: "fall-sale",
+      from: "2026-11-01",
+      to: "2026-11-10",
+      amount: "12.50",
+      currency: "usd",
+      note: ""
+    });
   });
 });
