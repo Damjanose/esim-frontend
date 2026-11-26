@@ -106,6 +106,16 @@ export const policyDocument = {
       ]
     },
     {
+      title: "Usage data and analytics",
+      paragraphs: [
+        "We collect usage data to see which screens are used, which searches people make, where people stop during checkout, and which promotions and notifications work. This covers screens viewed, search text (with personal details removed), checkout steps, payment failures (we record the payment method and a general reason, never card data), promotion views and taps, and notification opens.",
+        "We estimate your location from your network, not GPS. This gives an approximate location (country, region, city) that can be wrong, for example when you are roaming. We do not store your IP address, and we do not store precise coordinates or postal codes.",
+        "When you are signed in, usage data is linked to your account. Otherwise it is linked to a random identifier stored on your device. We keep usage data for 13 months, then delete it. Usage data is deleted with your account.",
+        "On the website, usage data is collected only if you enable Analytics in the Privacy choices dialog. In the app, you control it with the Share usage data switch in Profile.",
+        "Where the law requires consent, we rely on your consent. Otherwise we rely on our legitimate interest in improving the service and its promotions."
+      ]
+    },
+    {
       title: "Sharing",
       paragraphs: [
         "We share information with mobile operators and technical partners as needed to provision data plans; with Pokpay, our payment processor, which encrypts and processes card details to take payment; with infrastructure, analytics, and advertising providers when you enable the relevant optional category and under contracts that limit use; and when required by law, court order, or to protect rights and safety. If eSIM2you is involved in a merger or acquisition, information may transfer subject to this Policy or equivalent protections."

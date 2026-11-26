@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { landingContent } from "@/content/landing";
+import { policyDocument } from "@/content/legal";
 
 describe("legal pages and hydration-safe shell", () => {
   it("publishes footer links for support, contact, policy, and terms", () => {
@@ -36,5 +37,17 @@ describe("legal pages and hydration-safe shell", () => {
 
     expect(legalPage).toContain('src="/app-logo.png"');
     expect(legalPage).not.toContain("Globe2");
+  });
+
+  it("explains usage analytics in the privacy policy", () => {
+    const policyText = JSON.stringify(policyDocument);
+
+    expect(policyText).toContain("usage data");
+    expect(policyText).toContain("approximate location (country, region, city)");
+    expect(policyText).toContain("do not store your IP address");
+    expect(policyText).toContain("13 months");
+    expect(policyText).toContain("search text");
+    expect(policyText).toContain("deleted with your account");
+    expect(policyText).toContain("Share usage data");
   });
 });
