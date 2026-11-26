@@ -22,10 +22,12 @@ describe("hidden admin insights page", () => {
     expect(pageSource).toContain("AdminLoginCard");
   });
 
-  it("renders all ten sections in order", () => {
+  it("renders all Wave 1, 2 and 3 sections in order", () => {
     const pageSource = readFileSync("src/app/xinsightsy/page.tsx", "utf8");
     const names = [
+      "OpportunitiesSection",
       "OverviewSection",
+      "TrendSection",
       "LocationsSection",
       "AudienceSection",
       "ScreensSection",
@@ -34,7 +36,12 @@ describe("hidden admin insights page", () => {
       "PeakTimesSection",
       "FunnelSection",
       "CampaignsSection",
-      "DataHealthSection"
+      "PromotionsSection",
+      "CustomersSection",
+      "SeasonsSection",
+      "AcquisitionSection",
+      "DataHealthSection",
+      "MarketingToolsSection"
     ];
     let last = -1;
     for (const name of names) {

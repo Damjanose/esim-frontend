@@ -1,7 +1,7 @@
 import { proxyAdminJson } from "@/lib/admin-bff";
 import { errorJson } from "@/lib/route-response";
 
-const REPORTS = new Set(["overview", "locations", "audience", "screens", "destinations", "searches", "peak-times", "funnel", "first-source", "data-health"]);
+const REPORTS = new Set(["overview", "locations", "audience", "screens", "destinations", "searches", "peak-times", "funnel", "first-source", "data-health", "daily", "campaign-return", "promotions", "customers", "seasons", "acquisition", "opportunities"]);
 const PARAMS = ["from", "to", "platform", "country", "tz", "compare", "level", "basis"];
 
 export async function GET(request: Request, { params }: { params: Promise<{ report: string }> }) {

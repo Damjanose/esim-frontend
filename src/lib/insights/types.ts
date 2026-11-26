@@ -78,3 +78,75 @@ export type DataHealthData = {
   unknownCostSaleShare: Rate;
   salesWithoutSnapshot: number;
 };
+
+// ── Wave 2 / 3 additions (plan 2026-11-27) ──
+export type ReportNameW2 =
+  | 'daily' | 'campaign-return' | 'promotions' | 'customers' | 'seasons' | 'acquisition' | 'opportunities';
+
+export type DailyData = { days: { date: string; visitors: number; sessions: number; orders: number; revenue: Money }[] };
+
+export type CampaignReturnRow = {
+  source: string; medium: string | null; campaign: string | null;
+  /** Spend entered for this source+campaign, overlapping the range, prorated by days. Per currency. */
+  spend: Cents; spendEntries: number;
+  visitors: number; buyers: number; revenue: Money; profit: Profit;
+  /** Only filled for a currency where both spend and buyers exist. Otherwise empty: never 0. */
+  costPerBuyer: Cents;
+  /** Revenue divided by spend, only when both are in exactly one and the same currency; else null. */
+  revenuePerSpend: number | null;
+  /** profit − spend, per currency, only for currencies present in both; else empty. */
+  profitAfterAds: Cents;
+};
+export type CampaignReturnData = { rows: CampaignReturnRow[]; unmatchedSpend: { source: string; campaign: string; spend: Cents }[] };
+
+export type PromotionRow = {
+  promoKind: 'event_modal' | 'promo_code' | 'notification' | 'game_reward';
+  promoId: string; label: string | null;
+  views: number; viewers: number; taps: number; tappers: number; tapRate: Rate;
+  /** Buyers who tapped and then paid within 7 days of their first tap (same visitor or email). */
+  buyersWithin7d: number; revenueWithin7d: Money;
+  /** promo_code only: paid sales whose salePromoCode equals promoId. */
+  salesWithCode: number; revenueWithCode: Money;
+};
+export type PromotionsData = { rows: PromotionRow[] };
+
+export type CustomersData = {
+  buyers: number; repeatBuyers: number; repeatRate: Rate; topupBuyers: number;
+  medianDaysBetweenPurchases: number | null;
+  /** Grouped by the month of each buyer's first ever purchase (not only in range). */
+  cohorts: { month: string; buyers: number; repeatBuyers: number; spend: Money }[];
+};
+
+export type SeasonsData = { months: { month: string; orders: number; buyers: number; revenue: Money; topDestinations: { destination: string; orders: number }[] }[] };
+
+export const ACQUISITION_ANSWERS = ['search', 'social', 'friend', 'ad', 'app_store', 'blog', 'partner', 'other'] as const;
+export type AcquisitionAnswer = (typeof ACQUISITION_ANSWERS)[number];
+export type AcquisitionData = {
+  rows: { answer: AcquisitionAnswer; count: number; share: Rate }[];
+  /** "other" free texts given by ≥ 3 different people, lower-cased. */
+  otherTexts: { text: string; count: number }[];
+  total: number;
+};
+
+export const OPPORTUNITY_RULES = [
+  'destination_low_conversion', 'region_high_conversion_low_traffic', 'zero_result_search',
+  'payment_method_failing', 'campaign_unprofitable', 'best_hours',
+] as const;
+export type OpportunityRule = (typeof OPPORTUNITY_RULES)[number];
+export type OpportunityCard = {
+  rule: OpportunityRule;
+  /** Stable key, e.g. `destination_low_conversion:turkey`. */
+  key: string;
+  /** Plain text built by the backend, e.g. "Turkey: many views, few sales". */
+  title: string;
+  suggestion: string;
+  /** The numbers behind the card, shown as a small table. */
+  numbers: { label: string; value: string }[];
+};
+export type OpportunitiesData = { minSample: number; cards: OpportunityCard[]; belowSample: boolean };
+
+// Admin CRUD shapes
+export type AdSpendEntry = { id: string; source: string; medium: string | null; campaign: string; from: string; to: string; amountCents: number; currency: string; note: string | null };
+export const CHART_NOTE_KINDS = ['ad', 'promotion', 'release', 'holiday', 'other'] as const;
+export type ChartNoteKind = (typeof CHART_NOTE_KINDS)[number];
+export type ChartNote = { id: string; date: string; kind: ChartNoteKind; title: string; readOnly: boolean };

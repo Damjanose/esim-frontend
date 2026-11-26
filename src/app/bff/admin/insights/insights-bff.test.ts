@@ -42,3 +42,10 @@ describe("GET /bff/admin/insights/[report]", () => {
     expect(path).toBe(`/admin/analytics/overview?tz=${"a".repeat(40)}`);
   });
 });
+
+describe("GET /bff/admin/insights/[report] (Wave 2 and 3 names are not blocked as unknown)", () => {
+  it("still returns 404 for a made-up Wave 2 name", async () => {
+    const response = await call("daily-secret");
+    expect(response.status).toBe(404);
+  });
+});
