@@ -18,6 +18,7 @@ import {
   backendFetchBinary,
   backendFetchFormData,
   getBackendApiUrl,
+  getClientGeo,
   getClientIp,
   getBackendOrigin
 } from "./backend";
@@ -370,5 +371,87 @@ describe("client IP forwarding", () => {
     expect(getClientIp(req({ "x-real-ip": "198.51.100.1", "x-forwarded-for": "1.1.1.1" }))).toBe("198.51.100.1");
     expect(getClientIp(req({ "x-forwarded-for": "6.6.6.6, 203.0.113.9" }))).toBe("203.0.113.9");
     expect(getClientIp(req({}))).toBeUndefined();
+  });
+});
+
+describe("client geo headers", () => {
+  it("sends the x-client-* location headers only together with the BFF key", async () => {
+    process.env.BFF_SHARED_SECRET = "bff-secret";
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await backendFetch("/analytics/events", {
+      method: "POST",
+      body: {},
+      clientGeo: { country: "US", regionCode: "CA", region: "California", city: "Los Angeles" }
+    });
+
+    const headers = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].headers as Headers;
+    expect(headers.get("x-client-country")).toBe("US");
+    expect(headers.get("x-client-region-code")).toBe("CA");
+    expect(headers.get("x-client-region")).toBe("California");
+    expect(headers.get("x-client-city")).toBe("Los Angeles");
+    expect(headers.get("X-BFF-Key")).toBe("bff-secret");
+  });
+
+  it("does not send location headers without the BFF key", async () => {
+    process.env.BFF_SHARED_SECRET = "";
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await backendFetch("/analytics/events", { method: "POST", body: {}, clientGeo: { country: "US", regionCode: null, region: null, city: null } });
+
+    const headers = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].headers as Headers;
+    expect(headers.get("x-client-country")).toBeNull();
+    expect(headers.get("X-BFF-Key")).toBeNull();
+  });
+
+  it("getClientGeo reads the cf-* location headers and never the coordinates", () => {
+    const request = new Request("https://esim.uplisoft.com/bff/events", {
+      headers: {
+        "cf-ipcountry": "US",
+        "cf-region-code": "CA",
+        "cf-region": "California",
+        "cf-ipcity": "Los Angeles",
+        "cf-iplatitude": "34.05",
+        "cf-iplongitude": "-118.24",
+        "cf-postal-code": "90001"
+      }
+    });
+    expect(getClientGeo(request)).toEqual({ country: "US", regionCode: "CA", region: "California", city: "Los%20Angeles" });
+  });
+
+  it("getClientGeo percent-encodes non-ASCII values so they survive as headers", () => {
+    const request = new Request("https://esim.uplisoft.com/bff/events", {
+      headers: { "cf-ipcity": "Tiranë" }
+    });
+    expect(getClientGeo(request).city).toBe("Tiran%C3%AB");
+    expect(decodeURIComponent(getClientGeo(request).city ?? "")).toBe("Tiranë");
+  });
+
+  it("backendFetch sends an encoded city header unchanged", async () => {
+    process.env.BFF_SHARED_SECRET = "bff-secret";
+    const fetchMock = vi.fn(async () => jsonResponse({ status: "success", data: {} }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await backendFetch("/analytics/events", {
+      method: "POST",
+      body: {},
+      clientGeo: { country: "AL", regionCode: null, region: null, city: "Tiran%C3%AB" }
+    });
+
+    const headers = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].headers as Headers;
+    expect(headers.get("x-client-city")).toBe("Tiran%C3%AB");
+  });
+
+  it("repairs a header that arrived as latin1 bytes before encoding it", () => {
+    // UTF-8 "Tiranë" read as latin1 gives "TiranÃ«"; the repair turns it back into "Tiranë".
+    const request = new Request("https://esim.uplisoft.com/bff/events", { headers: { "cf-ipcity": "TiranÃ«" } });
+    expect(getClientGeo(request).city).toBe("Tiran%C3%AB");
+  });
+
+  it("leaves plain ASCII unchanged", () => {
+    const request = new Request("https://esim.uplisoft.com/bff/events", { headers: { "cf-ipcity": "Tirane" } });
+    expect(getClientGeo(request).city).toBe("Tirane");
   });
 });

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Check, Search, X } from "lucide-react";
+import { trackWebEvent } from "@/lib/analytics-events";
 import { filterAirports, filterCountries } from "@/lib/flightPickers";
 import type { FlightAirport, FlightCountry } from "@/lib/flightSearch";
 import { CountryFlag } from "./CountryFlag";
@@ -11,6 +12,8 @@ type Step = "country" | "airport";
 type Props = {
   /** "From" / "To". */
   label: string;
+  /** Which side of the route this picker sets. Only "to" records a flight_search. */
+  role: "from" | "to";
   /** Panel heading, e.g. "Flying from". */
   title: string;
   countries: FlightCountry[];
@@ -29,6 +32,7 @@ type Props = {
  */
 export function PlacePicker({
   label,
+  role,
   title,
   countries,
   country,
@@ -88,6 +92,8 @@ export function PlacePicker({
   };
 
   const chooseAirport = (iata: string) => {
+    // Only the arrival picker (role "to") counts as a flight search.
+    if (role === "to" && /^[A-Z]{3}$/.test(iata)) trackWebEvent({ type: "flight_search", airport: iata });
     onAirport(iata);
     close();
   };

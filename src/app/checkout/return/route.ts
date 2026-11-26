@@ -67,6 +67,7 @@ export async function GET(request: Request) {
     );
     const target = new URL("/checkout/failed", origin);
     target.searchParams.set("reason", reason);
+    target.searchParams.set("method", "card");
     if (paymentId) target.searchParams.set("payment", paymentId);
     target.searchParams.set("ref", referenceId);
     if (reason === "signin" && paymentId) {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Hanken_Grotesk, Inter } from "next/font/google";
 import { createMetadata, siteUrl } from "@/lib/seo";
 import { AhrefsAnalytics } from "./AhrefsAnalytics";
+import { AnalyticsTracker } from "./AnalyticsTracker";
 import { ConsentProvider } from "./ConsentManager";
 import { GoogleTag } from "./GoogleTag";
 import { MetaPixel } from "./MetaPixel";
@@ -72,6 +73,7 @@ export default function RootLayout({
         <AhrefsAnalytics />
         <ConsentProvider>
           <GoogleTag />
+          <AnalyticsTracker />
           <MetaPixel />
           {children}
           <Suspense fallback={null}>

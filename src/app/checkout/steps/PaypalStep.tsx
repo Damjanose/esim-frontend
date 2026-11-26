@@ -14,6 +14,7 @@ export function PaypalStep({
   target,
   signInPath,
   onStarted,
+  onSubmitPress,
   cancelled = false
 }: {
   target: ExternalCheckoutTarget;
@@ -23,6 +24,8 @@ export function PaypalStep({
   onStarted?: (payment: { paymentId: string; amountCents: number; currency: string }) => void;
   /** The buyer came back from PayPal's Cancel link. */
   cancelled?: boolean;
+  /** Called when the pay button is pressed. */
+  onSubmitPress?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +75,10 @@ export function PaypalStep({
         You&apos;ll log in to PayPal to approve the payment, then come straight back here. Your eSIM is ready the
         moment PayPal confirms.
       </p>
-      <Button className="w-full" hero loading={busy} onClick={() => void start()} size="lg" type="button">
+      <Button className="w-full" hero loading={busy} onClick={() => {
+          onSubmitPress?.();
+          void start();
+        }} size="lg" type="button">
         {busy ? null : <Wallet aria-hidden="true" size={18} />}
         Continue to PayPal
       </Button>

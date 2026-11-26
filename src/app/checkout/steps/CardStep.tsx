@@ -52,12 +52,15 @@ export function CardStep({
   paymentId,
   environment,
   billingAddress,
-  onPaid
+  onPaid,
+  onSubmitPress
 }: {
   paymentId: string;
   environment: string;
   billingAddress: BillingAddress;
   onPaid: () => void;
+  /** Called when the pay button is pressed, before validation. */
+  onSubmitPress?: () => void;
 }) {
   const [card, setCard] = useState<CardFormData>(EMPTY_CARD);
   const [fieldErrors, setFieldErrors] = useState<CardFieldErrors>({});
@@ -136,6 +139,7 @@ export function CardStep({
 
   const submit = async () => {
     if (submitting) return;
+    onSubmitPress?.();
 
     const errors = validateCard(card);
     setFieldErrors(errors);

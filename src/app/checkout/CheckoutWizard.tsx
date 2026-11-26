@@ -7,6 +7,7 @@ import { clearChargedPayment, readChargedPayment, saveChargedPayment } from "@/l
 import { reportClientError } from "@/lib/report-client-error";
 import { PAYMENT_TRUST_NOTE } from "@/lib/checkoutSummary";
 import { availableMethods, type PaymentMethod } from "@/lib/externalPayments";
+import { trackWebEvent } from "@/lib/analytics-events";
 import { RecoveryPanel } from "./RecoveryPanel";
 import { PaymentMethodPicker } from "./PaymentMethodPicker";
 import { usePaymentMethods } from "./usePaymentMethods";
@@ -69,6 +70,21 @@ export function CheckoutWizard({
   useEffect(() => {
     setChargedId(readChargedPayment(packageId)?.paymentId ?? null);
   }, [packageId]);
+
+  useEffect(() => {
+    trackWebEvent({ type: "checkout_step", step: "begin", packageId });
+  }, [packageId]);
+
+  useEffect(() => {
+    if (billingAddress) trackWebEvent({ type: "checkout_step", step: "billing", packageId });
+    // Fires once per address the visitor confirms; the address itself is never sent.
+  }, [billingAddress]);
+
+  // Runs for the default method too, so it depends on the selected method as well.
+  useEffect(() => {
+    if (!billingAddress) return;
+    trackWebEvent({ type: "checkout_step", step: "payment_method", paymentMethod: selectedMethod, packageId });
+  }, [billingAddress, selectedMethod]);
 
   useEffect(() => {
     if (disabled || chargedId !== null) return;
@@ -248,6 +264,7 @@ export function CheckoutWizard({
         {selectedMethod === "paypal" && billingAddress && !disabled ? (
           <PaypalStep
             cancelled={paypalCancelled}
+            onSubmitPress={() => trackWebEvent({ type: "checkout_step", step: "pay_submit", paymentMethod: "paypal", packageId })}
             signInPath={`/checkout?package=${packageId}`}
             target={{ kind: "package", packageId, promoCode }}
           />
@@ -256,6 +273,7 @@ export function CheckoutWizard({
         {selectedMethod === "crypto" && billingAddress && !disabled ? (
           <CryptoStep
             networks={paymentMethods.cryptoNetworks}
+            onSubmitPress={() => trackWebEvent({ type: "checkout_step", step: "pay_submit", paymentMethod: "crypto", packageId })}
             signInPath={`/checkout?package=${packageId}`}
             target={{ kind: "package", packageId, promoCode }}
           />
@@ -266,6 +284,7 @@ export function CheckoutWizard({
             billingAddress={billingAddress}
             environment={environment}
             onPaid={() => void handlePaid()}
+            onSubmitPress={() => trackWebEvent({ type: "checkout_step", step: "pay_submit", paymentMethod: "card", packageId })}
             paymentId={paymentId}
           />
         ) : null}

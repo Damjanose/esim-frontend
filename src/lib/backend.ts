@@ -51,6 +51,8 @@ export type BackendRequest = {
   clientIp?: string;
   /** The visitor's browser User-Agent, forwarded as x-client-user-agent (this server's own UA is useless). */
   clientUserAgent?: string;
+  /** The visitor's approximate location (see getClientGeo). Sent only with the BFF key, like clientIp. */
+  clientGeo?: ClientGeo;
   /** Unverified email hint (x-user-email). Defaults to the address inside `token`. */
   userEmail?: string;
 };
@@ -107,6 +109,45 @@ export function getClientUserAgent(request: Request): string | undefined {
   return request.headers.get("user-agent")?.trim() || undefined;
 }
 
+/** Approximate visitor location from Cloudflare's cf-* headers. Never coordinates or postal codes. */
+export type ClientGeo = {
+  country: string | null;
+  regionCode: string | null;
+  region: string | null;
+  city: string | null;
+};
+
+/**
+ * Node reads header bytes as latin1, so UTF-8 "Tiranë" arrives as "TiranÃ«". Turn it back into
+ * UTF-8 when that decodes cleanly. A value that does not decode (already right, or not UTF-8)
+ * is kept as it is.
+ */
+function repairLatin1(value: string): string {
+  const decoded = Buffer.from(value, "latin1").toString("utf8");
+  return decoded.includes("\uFFFD") ? value : decoded;
+}
+
+/** Repairs, trims and caps a location value, then percent-encodes it. The backend decodes the four x-client-* headers. */
+function geoValue(value: string | null, max: number): string | null {
+  const trimmed = value === null ? "" : repairLatin1(value).trim().slice(0, max);
+  return trimmed ? encodeURIComponent(trimmed) : null;
+}
+
+/**
+ * The visitor's location for a BFF request, read from their own cf-* headers. Each value
+ * is percent-encoded (encodeURIComponent), so non-ASCII names such as "Tiranë" survive
+ * as headers. The backend decodes them.
+ */
+export function getClientGeo(request: Request): ClientGeo {
+  const header = (name: string) => request.headers.get(name);
+  return {
+    country: geoValue(header("cf-ipcountry"), 2),
+    regionCode: geoValue(header("cf-region-code"), 10),
+    region: geoValue(header("cf-region"), 80),
+    city: geoValue(header("cf-ipcity"), 80)
+  };
+}
+
 /**
  * The visitor's IP for a BFF request. Production sits behind Cloudflare, which sets
  * CF-Connecting-IP. Otherwise nginx appends the peer address to X-Forwarded-For, so
@@ -151,7 +192,7 @@ const UNREACHABLE_MESSAGE = "We could not reach the eSIM service. Please try aga
 
 export async function backendFetch<T>(
   path: string,
-  { method = "GET", body, token, next, timeoutMs, clientIp, clientUserAgent, userEmail }: BackendRequest = {}
+  { method = "GET", body, token, next, timeoutMs, clientIp, clientUserAgent, userEmail, clientGeo }: BackendRequest = {}
 ): Promise<BackendResult<T>> {
   const headers = new Headers({ Accept: "application/json" });
   if (body !== undefined) {
@@ -162,9 +203,15 @@ export async function backendFetch<T>(
   }
   applyClientMetaHeaders(headers, { token, clientUserAgent, userEmail, cached: Boolean(next) });
   const bffKey = process.env.BFF_SHARED_SECRET?.trim();
-  if (clientIp && bffKey) {
-    headers.set("X-Client-IP", clientIp);
+  if (bffKey && (clientIp || clientGeo)) {
+    if (clientIp) headers.set("X-Client-IP", clientIp);
     headers.set("X-BFF-Key", bffKey);
+  }
+  if (clientGeo && bffKey) {
+    if (clientGeo.country) headers.set("x-client-country", clientGeo.country);
+    if (clientGeo.regionCode) headers.set("x-client-region-code", clientGeo.regionCode);
+    if (clientGeo.region) headers.set("x-client-region", clientGeo.region);
+    if (clientGeo.city) headers.set("x-client-city", clientGeo.city);
   }
 
   let response: Response;
