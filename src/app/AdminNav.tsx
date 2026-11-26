@@ -18,6 +18,7 @@ import {
   MessageSquareQuote,
   Percent,
   Rocket,
+  TrendingUp,
   Users,
   type LucideIcon
 } from "lucide-react";
@@ -36,6 +37,7 @@ const adminLinks: Array<{
   full: string;
   Icon: LucideIcon;
 }> = [
+  { href: "/xinsightsy", label: "Insights", full: "Growth insights", Icon: TrendingUp },
   { href: "/xloginy", label: "Sales", full: "Purchase dashboard", Icon: BarChart3 },
   { href: "/xpricing", label: "Pricing", full: "Price management", Icon: Percent },
   { href: "/xerrors", label: "Errors", full: "Error Inbox", Icon: Bug },
@@ -55,6 +57,7 @@ const adminLinks: Array<{
 
 /** Sidebar sections, named by what an admin is trying to do. Every href in adminLinks belongs to exactly one. */
 export const adminNavGroups: Array<{ title: string; hrefs: string[] }> = [
+  { title: "Growth", hrefs: ["/xinsightsy"] },
   { title: "Money", hrefs: ["/xloginy", "/xpricing", "/xcryptoy", "/xpartnersy"] },
   { title: "People", hrefs: ["/xsupport", "/xmailx", "/xactivityy", "/xnotificationy", "/xtestimonialsy"] },
   { title: "Product", hrefs: ["/xtripplany", "/xstreaky", "/xtroubley", "/xeventsy"] },

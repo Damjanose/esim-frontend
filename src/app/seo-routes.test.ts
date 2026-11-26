@@ -15,7 +15,7 @@ describe("Next SEO routes", () => {
     // Yandex-only directive; it takes a bare hostname, not a URL, so omit it.
     expect(rules).not.toHaveProperty("host");
     expect(privateRoutePrefixes).toEqual(
-      expect.arrayContaining(["/checkout", "/signin", "/profile", "/xpricing", "/xversion", "/xactivityy", "/xpartnersy", "/xnotificationy"])
+      expect.arrayContaining(["/checkout", "/signin", "/profile", "/xpricing", "/xversion", "/xactivityy", "/xinsightsy", "/xpartnersy", "/xnotificationy"])
     );
     const disallow = (rules.rules as { disallow: string[] }).disallow;
     expect(disallow).toEqual(["/api", "/admin", "/auth", "/bff", "/cdn-cgi/"]);
