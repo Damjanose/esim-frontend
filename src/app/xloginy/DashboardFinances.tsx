@@ -3,6 +3,7 @@ import { Button } from "../components/Button";
 import {
   formatAmounts,
   formatDate,
+  isEstimatedProfit,
   profitLabel,
   type Dashboard,
   type Earnings,
@@ -126,6 +127,9 @@ export function PeriodSummary({
         <strong className="ml-1 text-brandInk tabular-nums">
           {summary.purchaseCount === 0 ? "0" : profitLabel(summary)}
         </strong>
+        {isEstimatedProfit(summary) ? (
+          <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">estimated</span>
+        ) : null}
       </p>
     </div>
   );
@@ -241,6 +245,9 @@ export function DailyEarnings({
                     </td>
                     <td className="px-5 py-4 font-semibold tabular-nums">
                       {profitLabel(day)}
+                      {isEstimatedProfit(day) ? (
+                        <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">estimated</span>
+                      ) : null}
                     </td>
                   </tr>
                 ))}
