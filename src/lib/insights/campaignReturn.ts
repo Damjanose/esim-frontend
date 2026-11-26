@@ -1,8 +1,8 @@
 import { formatMoney } from "./format";
 import type { Cents } from "./types";
 
-/** Each currency on its own. Empty means no data, so the screen shows "unknown", never 0. */
-function formatPerCurrency(cents: Cents): string {
+/** Each currency on its own, never added together. Empty means no data, so the screen shows "unknown", never 0. */
+export function formatCents(cents: Cents): string {
   const parts = Object.keys(cents)
     .sort()
     .map((currency) => {
@@ -14,11 +14,11 @@ function formatPerCurrency(cents: Cents): string {
 }
 
 export function formatCostPerBuyer(costPerBuyer: Cents): string {
-  return formatPerCurrency(costPerBuyer);
+  return formatCents(costPerBuyer);
 }
 
 export function formatProfitAfterAds(profitAfterAds: Cents): string {
-  return formatPerCurrency(profitAfterAds);
+  return formatCents(profitAfterAds);
 }
 
 export function formatRevenuePerSpend(revenuePerSpend: number | null): string {

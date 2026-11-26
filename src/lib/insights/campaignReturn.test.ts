@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCostPerBuyer, formatProfitAfterAds, formatRevenuePerSpend } from "./campaignReturn";
+import { formatCents, formatCostPerBuyer, formatProfitAfterAds, formatRevenuePerSpend } from "./campaignReturn";
 
 describe("campaign return formatting", () => {
   it("shows unknown, never 0, when there is no cost per buyer", () => {
@@ -16,5 +16,12 @@ describe("campaign return formatting", () => {
   it("shows profit after ads per currency, with a minus sign for losses", () => {
     expect(formatProfitAfterAds({})).toBe("unknown");
     expect(formatProfitAfterAds({ eur: 1000, usd: -500 })).toBe("€10.00 · −$5.00");
+  });
+});
+
+describe("formatCents", () => {
+  it("shows each currency, and unknown when empty", () => {
+    expect(formatCents({})).toBe("unknown");
+    expect(formatCents({ usd: 1250, eur: 300 })).toBe("€3.00 · $12.50");
   });
 });
