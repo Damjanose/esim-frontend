@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { insightsReportUrl, type InsightsExtra, type InsightsFilters } from "@/lib/insights/query";
-import type { ReportName, ReportResponse } from "@/lib/insights/types";
+import type { ReportName, ReportNameW2, ReportResponse } from "@/lib/insights/types";
 
 export type InsightsReportOptions = InsightsExtra & { onUnauthorized?: () => void };
 
@@ -11,7 +11,7 @@ export type InsightsReportOptions = InsightsExtra & { onUnauthorized?: () => voi
  * calls onUnauthorized (the page signs the admin out). `retry` loads it again.
  */
 export function useInsightsReport<T>(
-  report: ReportName,
+  report: ReportName | ReportNameW2,
   token: string,
   filters: InsightsFilters,
   options: InsightsReportOptions = {}
