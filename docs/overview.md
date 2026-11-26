@@ -37,7 +37,7 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 ## User analytics (first-party)
 
 - Tracker in `src/lib/analytics-events/`, mounted by `src/app/AnalyticsTracker.tsx`. Events go to `POST /bff/events` (`src/app/bff/events/route.ts`), which checks analytics consent, the admin cookie and bots before forwarding to the backend `/analytics/events`.
-- Hidden admin dashboard `/xinsightsy` (`src/app/xinsightsy/`): 10 sections, each reading `/bff/admin/insights/[report]` through `useInsightsReport`. Shared pieces live in `ui/`. Pure logic is in `src/lib/insights/` (query, format, csv, funnel, destinations, linkBuilder).
+- Hidden admin dashboard `/xinsightsy` (`src/app/xinsightsy/`): 17 sections (Waves 2-3 added trend, promotions, customers, seasons, acquisition, opportunities and marketing tools, which save ad spend and chart notes through `/bff/admin/insights/ad-spend` and `chart-notes`). The original 10 sections, each reading `/bff/admin/insights/[report]` through `useInsightsReport`. Shared pieces live in `ui/`. Pure logic is in `src/lib/insights/` (query, format, csv, funnel, destinations, linkBuilder).
 - Sales page `/xloginy` marks estimated profit.
 
 ## Known gaps
