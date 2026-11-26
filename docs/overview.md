@@ -34,5 +34,11 @@ Next.js 15 (App Router, React 19, TypeScript) site serving `https://esim.uplisof
 ## Flight search
 `/flights` (public, in sitemap) is a form + results over `/bff/flights/{countries,airports,search}` (`proxyFlights()` in `src/lib/flightsBff.ts`). Results are cached partner fares; "View deal" links are `rel="sponsored"` and nothing is purchased here. `backendFetch({ clientIp })` forwards the visitor IP so the backend's per-IP rate limit works. See f276.
 
+## User analytics (first-party)
+
+- Tracker in `src/lib/analytics-events/`, mounted by `src/app/AnalyticsTracker.tsx`. Events go to `POST /bff/events` (`src/app/bff/events/route.ts`), which checks analytics consent, the admin cookie and bots before forwarding to the backend `/analytics/events`.
+- Hidden admin dashboard `/xinsightsy` (`src/app/xinsightsy/`): 10 sections, each reading `/bff/admin/insights/[report]` through `useInsightsReport`. Shared pieces live in `ui/`. Pure logic is in `src/lib/insights/` (query, format, csv, funnel, destinations, linkBuilder).
+- Sales page `/xloginy` marks estimated profit.
+
 ## Known gaps
 - No `docs/overview.md` existed for this repo until 2026-09-02 — it was omitted from the root `CLAUDE.md`'s repo list and had no session docs for 21 commits before 2026-08-19 (see `docs/sessions/INDEX.md` and `feedAI/MAINTAIN.md` history). Keep this file current the same way the other two repos' overviews are kept current.
