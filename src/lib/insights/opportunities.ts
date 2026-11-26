@@ -33,3 +33,21 @@ export function sortOpportunityCards(cards: OpportunityCard[]): OpportunityCard[
     .sort((a, b) => RULE_ORDER.indexOf(a.card.rule) - RULE_ORDER.indexOf(b.card.rule) || a.index - b.index)
     .map(({ card }) => card);
 }
+
+export const OPPORTUNITY_FOOTER =
+  "Suggestions from fixed rules. They show a pattern, not a proven cause. Nothing is sent or changed automatically.";
+
+export function belowSampleText(minSample: number): string {
+  return `Not enough data yet (needs ${minSample} visitors)`;
+}
+
+/** Text colour per tone, from the shared palette tokens. */
+export function opportunityToneClass(tone: OpportunityTone): string {
+  const classes: Record<OpportunityTone, string> = {
+    money: "text-red-700",
+    conversion: "text-brandBlue",
+    risk: "text-amber-700",
+    timing: "text-brandTeal"
+  };
+  return classes[tone];
+}

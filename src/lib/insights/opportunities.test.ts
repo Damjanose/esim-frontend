@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OPPORTUNITY_RULES, type OpportunityCard } from "./types";
-import { opportunityStyle, sortOpportunityCards } from "./opportunities";
+import { belowSampleText, OPPORTUNITY_FOOTER, opportunityStyle, opportunityToneClass, sortOpportunityCards } from "./opportunities";
 
 const card = (rule: OpportunityCard["rule"], key: string): OpportunityCard => ({
   rule,
@@ -36,5 +36,26 @@ describe("sortOpportunityCards", () => {
       card("payment_method_failing", "p")
     ]);
     expect(sorted.map((c) => c.key)).toEqual(["c", "p", "d2", "d1", "z", "h"]);
+  });
+});
+
+describe("belowSampleText", () => {
+  it("says how many visitors are needed", () => {
+    expect(belowSampleText(100)).toBe("Not enough data yet (needs 100 visitors)");
+  });
+});
+
+describe("OPPORTUNITY_FOOTER", () => {
+  it("states that the cards are patterns, not proven causes, and nothing is changed", () => {
+    expect(OPPORTUNITY_FOOTER).toBe(
+      "Suggestions from fixed rules. They show a pattern, not a proven cause. Nothing is sent or changed automatically."
+    );
+  });
+});
+
+describe("opportunityToneClass", () => {
+  it("gives every tone a text colour class from the shared tokens", () => {
+    expect(opportunityToneClass("money")).toContain("text-");
+    expect(opportunityToneClass("conversion")).not.toBe(opportunityToneClass("money"));
   });
 });
