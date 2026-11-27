@@ -512,6 +512,11 @@
       "root_cause": "The sections sit in `grid gap-8`. An implicit grid track sizes to its widest child's min-content, and an overflow-x-auto box does not shrink its content's min-content, so min-w-[640px] tables widened the whole column. Seasons also used items-end, so months with note chips floated their bars higher.",
       "fix": "page.tsx: grid-cols-[minmax(0,1fr)] on the section grid and min-w-0 on <main>; SeasonsSection: items-start. Checked headless at 375 and 1280px (doc width equals viewport).",
       "fact": "f380"
+    },
+    {
+      "symptom": "/xinsightsy Data health shows red 'No data' for iOS, Android and web right after ANALYTICS_COLLECTION_ENABLED=true",
+      "cause": "Not a fault: the admin's own browser is excluded (admin token cookie), only analytics-consenting visitors count, and store app 1.2.5 only sends app_open on cold start. The cards used red for 'never had an event'.",
+      "fix": "Cards now say 'No events yet' in neutral grey with a hint per platform (f382). To test, browse in a private window without the admin login and accept analytics cookies."
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",

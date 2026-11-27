@@ -62,12 +62,13 @@ describe("sections", () => {
     expect(text).toContain("<Heatmap");
   });
 
-  it("Data health warns when collection is off and marks stale platforms in red", () => {
+  it("Data health warns when collection is off, marks only stale platforms in red and says what each counts", () => {
     const text = read("sections/DataHealthSection.tsx");
     expect(text).toContain('useInsightsReport<DataHealthData>("data-health"');
     expect(text).toContain("ANALYTICS_COLLECTION_ENABLED=true");
-    expect(text).toContain("No data");
+    expect(text).toContain("platformHealth(");
+    expect(text).toContain('health.tone === "stale"');
     expect(text).toContain("text-red-700");
-    expect(text).toContain("24 * 60 * 60 * 1000");
+    expect(text).toContain("PLATFORM_HINTS[platform]");
   });
 });
