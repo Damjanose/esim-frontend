@@ -149,4 +149,12 @@ export type OpportunitiesData = { minSample: number; cards: OpportunityCard[]; b
 export type AdSpendEntry = { id: string; source: string; medium: string | null; campaign: string; from: string; to: string; amountCents: number; currency: string; note: string | null };
 export const CHART_NOTE_KINDS = ['ad', 'promotion', 'release', 'holiday', 'other'] as const;
 export type ChartNoteKind = (typeof CHART_NOTE_KINDS)[number];
-export type ChartNote = { id: string; date: string; kind: ChartNoteKind; title: string; readOnly: boolean };
+export type ChartNote = {
+  id: string;
+  date: string;
+  kind: ChartNoteKind;
+  title: string;
+  readOnly: boolean;
+  /** Built-in holidays only: country names to plan a discount for. Empty means worldwide. */
+  markets?: string[];
+};

@@ -197,6 +197,12 @@ export default function AdminPricingPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [rowFilter, setRowFilter] = useState<RowFilter>("all");
+
+  // "Plan discount" on the insights holidays links here as /xpricing?q=<country>.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setSearch(q);
+  }, []);
   const [page, setPage] = useState(1);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
