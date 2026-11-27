@@ -7,6 +7,9 @@ export type Earnings = {
   costByCurrency: Amounts;
   profitByCurrency: Amounts;
   missingCostCount: number;
+  /** Sales whose cost is an estimate (BA-4). Older responses omit it. */
+  estimatedProfitCount?: number;
+  profitStatus?: "recorded" | "estimated";
 };
 export type Purchase = {
   id: string;
@@ -53,6 +56,7 @@ export type Dashboard = {
     costByCurrency: Amounts;
     profitByCurrency: Amounts;
     missingCostCount?: number;
+    estimatedProfitCount?: number;
     latestPurchaseAt: string | null;
   };
   purchases: Purchase[];
@@ -117,6 +121,10 @@ export function profitLabel(earnings: {
   return (earnings.missingCostCount ?? 0) > 0
     ? "Incomplete"
     : formatAmounts(earnings.profitByCurrency);
+}
+/** Profit is labelled "estimated" when some sales use an estimated cost (summary count or row status). */
+export function isEstimatedProfit(earnings: { estimatedProfitCount?: number; profitStatus?: string }) {
+  return (earnings.estimatedProfitCount ?? 0) > 0 || earnings.profitStatus === "estimated";
 }
 export function formatDate(value: string | null | undefined, dateOnly = false) {
   if (!value) return "—";

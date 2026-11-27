@@ -31,7 +31,8 @@ export function CryptoStep({
   networks,
   signInPath,
   onStarted,
-  onSettled
+  onSettled,
+  onSubmitPress
 }: {
   target: ExternalCheckoutTarget;
   networks: Array<{ id: CryptoNetwork; label: string }>;
@@ -39,6 +40,8 @@ export function CryptoStep({
   onStarted?: (payment: ExternalPayment) => void;
   /** The eSIM / top-up exists; called just before navigating to it. */
   onSettled?: (payment: ExternalPayment) => void;
+  /** Called when the pay button is pressed. */
+  onSubmitPress?: () => void;
 }) {
   const router = useRouter();
   const [network, setNetwork] = useState<CryptoNetwork>(networks[0]?.id ?? "tron-usdt");
@@ -141,7 +144,10 @@ export function CryptoStep({
           We&apos;ll show an exact USDT amount and a wallet address. Send it from any wallet or exchange, and
           your eSIM is set up automatically once the transfer confirms (usually about a minute).
         </p>
-        <Button className="w-full" hero loading={busy} onClick={() => void createInvoice()} size="lg" type="button">
+        <Button className="w-full" hero loading={busy} onClick={() => {
+          onSubmitPress?.();
+          void createInvoice();
+        }} size="lg" type="button">
           Pay with USDT
         </Button>
         {error ? <p className="text-sm font-semibold text-error">{error}</p> : null}

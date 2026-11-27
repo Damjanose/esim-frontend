@@ -18,6 +18,8 @@ import {
   type DestinationBrowseFilters,
 } from "@/services/destinationFilters";
 import { destinationBrowseHref } from "@/lib/esim-routes";
+import { trackWebEvent } from "@/lib/analytics-events";
+import { screenTemplate } from "@/lib/analytics-events/screen";
 import { Button } from "../components/Button";
 import { useConsent } from "../ConsentManager";
 import { BrowseSkeleton } from "./BrowseSkeleton";
@@ -208,6 +210,21 @@ export function DestinationBrowse({ urlFilters, autoOpenWizard = false }: Destin
       normalizeDestinationValue(`${c.country} ${c.countryCode}`).includes(q),
     );
   }, [filteredPackages, gridSearch]);
+
+  // A search counts once the visitor has stopped typing for 800 ms.
+  useEffect(() => {
+    const q = normalizeDestinationValue(gridSearch);
+    if (q.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackWebEvent({
+        type: "search",
+        screen: screenTemplate(window.location.pathname) ?? "/other",
+        searchTerm: q,
+        resultCount: filteredCountries.length,
+      });
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [gridSearch, filteredCountries.length]);
 
   const trendingPackages = useMemo(() => {
     const plans = filteredPackages.filter((pkg) => pkg.trending === true);

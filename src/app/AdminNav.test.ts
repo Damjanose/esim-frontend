@@ -17,6 +17,6 @@ describe("admin sidebar groups", () => {
   });
 
   it("names the groups by what an admin is doing", () => {
-    expect(adminNavGroups.map((group) => group.title)).toEqual(["Money", "People", "Product", "System"]);
+    expect(adminNavGroups.map((group) => group.title)).toEqual(["Growth", "Money", "People", "Product", "System"]);
   });
 });

@@ -144,6 +144,7 @@ export function FlightSearchForm() {
             countries={countries}
             country={from.country}
             label="From"
+            role="from"
             loadingAirports={from.loading}
             onAirport={(iata) => set("origin", iata)}
             onCountry={(code) => pickCountry("from", code)}
@@ -183,6 +184,7 @@ export function FlightSearchForm() {
             countries={countries}
             country={to.country}
             label="To"
+            role="to"
             loadingAirports={to.loading}
             onAirport={(iata) => set("destination", iata)}
             onCountry={(code) => pickCountry("to", code)}

@@ -6,6 +6,7 @@ import { createMetadata } from "@/lib/seo";
 import { Navbar } from "../../components/Navbar";
 import { LinkButton } from "../../components/Button";
 import { SiteFooter } from "../../SiteFooter";
+import { FailureEvent } from "./FailureEvent";
 
 export const metadata: Metadata = createMetadata({
   path: "/checkout/failed",
@@ -121,9 +122,9 @@ function copyFor(reason: string): FailureCopy {
 export default async function CheckoutFailedPage({
   searchParams
 }: {
-  searchParams: Promise<{ reason?: string; package?: string; payment?: string; ref?: string; resume?: string; kind?: string }>;
+  searchParams: Promise<{ reason?: string; package?: string; payment?: string; ref?: string; resume?: string; kind?: string; method?: string }>;
 }) {
-  const { reason = "provisioning", package: packageId, payment, ref, resume, kind } = await searchParams;
+  const { reason = "provisioning", package: packageId, payment, ref, resume, kind, method } = await searchParams;
   const isWallet = kind === "wallet";
   // Only our own return routes: signing in then re-runs that exact payment's return.
   const resumePath = reason === "signin" ? safeResumePath(resume) : null;
@@ -133,6 +134,7 @@ export default async function CheckoutFailedPage({
 
   return (
     <main className="min-h-screen bg-surfaceBright text-onSurface">
+      <FailureEvent kind={kind} method={method} paymentRef={payment ?? ref} reason={reason} />
       <Navbar />
 
       <section className="mx-auto flex w-full max-w-[1440px] justify-center px-4 pb-16 pt-[92px] sm:px-6 lg:px-10 lg:pb-24 lg:pt-28">

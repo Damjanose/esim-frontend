@@ -12,6 +12,8 @@ import {
 import { createPortal } from "react-dom";
 import { ChevronRight, Clock3, Globe2, Search, X } from "lucide-react";
 import { normalizeDestinationValue } from "@/services/packages";
+import { trackWebEvent } from "@/lib/analytics-events";
+import { screenTemplate } from "@/lib/analytics-events/screen";
 import { FlagImage } from "./components/FlagImage";
 
 export type CountryOption = {
@@ -169,6 +171,20 @@ export function HeroSearchDialog({
       )
       .slice(0, RESULTS_LIMIT);
   }, [countries, normalizedQuery]);
+
+  // A search counts once the visitor has stopped typing for 800 ms.
+  useEffect(() => {
+    if (normalizedQuery.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackWebEvent({
+        type: "search",
+        screen: screenTemplate(window.location.pathname) ?? "/other",
+        searchTerm: normalizedQuery,
+        resultCount: matches.length,
+      });
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [normalizedQuery, matches.length]);
 
   function select(country: CountryOption) {
     if (navigating) return;

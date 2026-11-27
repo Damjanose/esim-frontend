@@ -59,6 +59,7 @@ describe("SEO route contract", () => {
       "/profile",
       "/signin",
       "/xactivityy",
+      "/xinsightsy",
       "/xcryptoy",
       "/xerrors",
       "/xeventsy",

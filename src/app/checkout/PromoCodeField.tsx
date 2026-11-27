@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/Button";
+import { trackWebEvent } from "@/lib/analytics-events";
 import { FIELD_CONTROL_CLASSES, FIELD_LABEL_CLASSES, FIELD_TEXT_CLASSES } from "@/app/components/fieldClasses";
 
 export const PROMO_STORAGE_KEY = "esim2you.checkout.promo";
@@ -132,6 +133,7 @@ export function PromoCodeField({
           : {})
       };
       writeStoredPromo(packageId, promoCode);
+      if (!silent) trackWebEvent({ type: "promo_tap", promoKind: "promo_code", promoId: promoCode.toUpperCase() });
       setApplied(next);
       setError(null);
       onChange(next);
