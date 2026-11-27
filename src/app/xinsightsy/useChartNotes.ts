@@ -10,7 +10,7 @@ export type ChartNotesOptions = { onUnauthorized?: () => void; refreshKey?: numb
  * Loads the chart notes for the range, including the built-in holidays. Refetches when the range
  * changes or when `retry` is called (the marketing tools bump it after a save).
  */
-export function useChartNotes(token: string, filters: InsightsFilters, options: ChartNotesOptions = {}) {
+export function useChartNotes(token: string, filters: Pick<InsightsFilters, "from" | "to">, options: ChartNotesOptions = {}) {
   const [state, setState] = useState<"loading" | "error" | "ready">("loading");
   const [notes, setNotes] = useState<ChartNote[]>([]);
   const [error, setError] = useState<string | null>(null);

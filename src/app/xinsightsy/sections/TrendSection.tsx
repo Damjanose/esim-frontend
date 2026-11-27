@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDaysAway, pricingHref, upcomingHolidayRange, upcomingHolidays } from "@/lib/insights/holidays";
 import { noteMarkers } from "@/lib/insights/notes";
 import { chartWidth, linePath, trendGeometry } from "@/lib/insights/trend";
 import type { ChartNote, DailyData } from "@/lib/insights/types";
@@ -69,7 +70,73 @@ export function TrendSection({ token, filters, onUnauthorized, refreshKey }: Ins
           </div>
         ) : null}
       </SectionState>
+      <UpcomingHolidays token={token} onUnauthorized={onUnauthorized} refreshKey={refreshKey} />
     </section>
+  );
+}
+
+/** Holidays worldwide in the next 90 days, whatever range the chart shows, to time discounts. */
+function UpcomingHolidays({ token, onUnauthorized, refreshKey }: Pick<InsightsSectionProps, "token" | "onUnauthorized" | "refreshKey">) {
+  const today = new Date().toISOString().slice(0, 10);
+  const range = upcomingHolidayRange(today);
+  const notesState = useChartNotes(token, range, { onUnauthorized, refreshKey });
+  const holidays = upcomingHolidays(notesState.notes, today);
+
+  return (
+    <div className="space-y-3 rounded-2xl border border-midnight/10 p-4">
+      <div>
+        <h3 className="font-display text-base font-black text-midnight">Upcoming holidays</h3>
+        <p className="text-sm text-midnight/60">The next 90 days worldwide. Plan a discount opens pricing for that country.</p>
+      </div>
+      {notesState.state === "loading" ? <p className="text-sm text-midnight/60">Loading holidays…</p> : null}
+      {notesState.state === "error" ? (
+        <p className="text-sm text-midnight/60">
+          Holidays could not load. {notesState.error}{" "}
+          <button type="button" onClick={notesState.retry} className="font-bold text-brandBlue underline">
+            Try again
+          </button>
+        </p>
+      ) : null}
+      {notesState.state === "ready" && holidays.length === 0 ? (
+        <p className="text-sm text-midnight/60">No holidays in the next 90 days.</p>
+      ) : null}
+      {notesState.state === "ready" && holidays.length > 0 ? (
+        <ul className="divide-y divide-midnight/10">
+          {holidays.map((holiday) => (
+            <li key={holiday.id} className="flex flex-col gap-2 py-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-midnight">{holiday.title}</p>
+                <p className="text-xs text-midnight/60">
+                  <span className="tabular-nums">{holiday.date}</span> · {formatDaysAway(holiday.daysAway)}
+                  {holiday.markets.length === 0 ? " · Worldwide" : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {holiday.markets.length === 0 ? (
+                  <PlanDiscountLink href={pricingHref()} label="Plan discount" />
+                ) : (
+                  holiday.markets.map((market) => (
+                    <PlanDiscountLink key={market} href={pricingHref(market)} label={market} />
+                  ))
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+function PlanDiscountLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      title={`Plan a discount: ${label}`}
+      className="rounded-full border border-brandTeal px-2.5 py-1 text-xs font-bold text-midnight hover:bg-brandTeal/10"
+    >
+      {label}
+    </a>
   );
 }
 
