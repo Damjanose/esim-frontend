@@ -46,11 +46,11 @@ export function MarketingToolsSection({
 type ToolProps = { token: string; from: string; to: string; onSaved: SaveHandler; onUnauthorized: () => void };
 
 /** Asks for confirmation inline, with no browser dialog. */
-function DeleteButton({ onConfirm, label }: { onConfirm: () => void; label: string }) {
+function DeleteButton({ onConfirm, label, disabled = false }: { onConfirm: () => void; label: string; disabled?: boolean }) {
   const [asking, setAsking] = useState(false);
   if (!asking) {
     return (
-      <button type="button" className={BUTTON} onClick={() => setAsking(true)} aria-label={`Delete ${label}`}>
+      <button type="button" className={BUTTON} onClick={() => setAsking(true)} aria-label={`Delete ${label}`} disabled={disabled}>
         Delete
       </button>
     );
@@ -58,7 +58,7 @@ function DeleteButton({ onConfirm, label }: { onConfirm: () => void; label: stri
   return (
     <span className="inline-flex items-center gap-2 text-sm">
       <span className="font-bold text-midnight">Delete?</span>
-      <button type="button" className={BUTTON} onClick={onConfirm}>Yes</button>
+      <button type="button" className={BUTTON} onClick={onConfirm} disabled={disabled}>Yes</button>
       <button type="button" className={BUTTON} onClick={() => setAsking(false)}>No</button>
     </span>
   );
@@ -74,6 +74,7 @@ function AdSpendTools({ token, from, to, onSaved, onUnauthorized }: ToolProps) {
   const [errors, setErrors] = useState<Partial<Record<AdSpendFormField, string>>>({});
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -132,8 +133,11 @@ function AdSpendTools({ token, from, to, onSaved, onUnauthorized }: ToolProps) {
   }
 
   async function remove(id: string) {
+    setDeletingId(id);
     const result = await marketingRequest(token, "DELETE", `/bff/admin/insights/ad-spend/${encodeURIComponent(id)}`);
-    if (result.ok) {
+    setDeletingId(null);
+    if (result.ok || result.code === "not_found") {
+      if (editingId === id) reset();
       setAttempt((count) => count + 1);
       onSaved();
     } else if (result.unauthorized) {
@@ -211,7 +215,7 @@ function AdSpendTools({ token, from, to, onSaved, onUnauthorized }: ToolProps) {
                     <td>{entry.note ?? "—"}</td>
                     <td className="space-x-2 whitespace-nowrap text-right">
                       <button type="button" className={BUTTON} onClick={() => startEdit(entry)} aria-label={`Edit ${entry.campaign}`}>Edit</button>
-                      <DeleteButton label={entry.campaign} onConfirm={() => remove(entry.id)} />
+                      <DeleteButton label={entry.campaign} disabled={deletingId !== null} onConfirm={() => remove(entry.id)} />
                     </td>
                   </tr>
                 ))}
@@ -234,6 +238,7 @@ function ChartNoteTools({ token, from, to, onSaved, onUnauthorized }: ToolProps)
   const [errors, setErrors] = useState<Partial<Record<"date" | "kind" | "title", string>>>({});
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -283,8 +288,10 @@ function ChartNoteTools({ token, from, to, onSaved, onUnauthorized }: ToolProps)
   }
 
   async function remove(id: string) {
+    setDeletingId(id);
     const result = await marketingRequest(token, "DELETE", `/bff/admin/insights/chart-notes/${encodeURIComponent(id)}`);
-    if (result.ok) {
+    setDeletingId(null);
+    if (result.ok || result.code === "not_found") {
       setAttempt((count) => count + 1);
       onSaved();
     } else if (result.unauthorized) {
@@ -331,7 +338,7 @@ function ChartNoteTools({ token, from, to, onSaved, onUnauthorized }: ToolProps)
                 <span>
                   <span className="tabular-nums">{note.date}</span> · {note.readOnly ? "Holiday (built in)" : note.kind} · {note.title}
                 </span>
-                {!note.readOnly ? <DeleteButton label={note.title} onConfirm={() => remove(note.id)} /> : null}
+                {!note.readOnly ? <DeleteButton label={note.title} disabled={deletingId !== null} onConfirm={() => remove(note.id)} /> : null}
               </li>
             ))}
           </ul>

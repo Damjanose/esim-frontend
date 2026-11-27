@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChartNote } from "./types";
-import { notePositions, notesByDate } from "./notes";
+import { noteMarkers, notePositions, notesByDate } from "./notes";
 
 const note = (id: string, date: string, readOnly = false): ChartNote => ({ id, date, kind: "ad", title: id, readOnly });
 
@@ -20,5 +20,19 @@ describe("notePositions", () => {
       ["a", 2],
       ["c", 0]
     ]);
+  });
+});
+
+describe("noteMarkers", () => {
+  it("gives one marker per date that has notes, with every note for that date", () => {
+    const days = ["2026-11-26", "2026-11-27"];
+    const markers = noteMarkers(
+      [note("a", "2026-11-27"), note("b", "2026-11-27", true), note("c", "2026-12-01")],
+      days
+    );
+    expect(markers).toHaveLength(1);
+    expect(markers[0].date).toBe("2026-11-27");
+    expect(markers[0].index).toBe(1);
+    expect(markers[0].notes.map((n) => n.id)).toEqual(["a", "b"]);
   });
 });

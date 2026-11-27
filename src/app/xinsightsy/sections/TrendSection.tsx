@@ -1,6 +1,6 @@
 "use client";
 
-import { notePositions } from "@/lib/insights/notes";
+import { noteMarkers } from "@/lib/insights/notes";
 import { chartWidth, linePath, trendGeometry } from "@/lib/insights/trend";
 import type { ChartNote, DailyData } from "@/lib/insights/types";
 import { SectionState } from "../ui/SectionState";
@@ -19,7 +19,7 @@ export function TrendSection({ token, filters, onUnauthorized, refreshKey }: Ins
 
   const width = chartWidth(days.length);
   const geometry = trendGeometry(days, { width, height: HEIGHT, pad: PAD });
-  const markers = notePositions(notesState.notes, days.map((day) => day.date));
+  const markers = noteMarkers(notesState.notes, days.map((day) => day.date));
 
   return (
     <section aria-labelledby="insights-trend" className="space-y-4">
@@ -43,11 +43,15 @@ export function TrendSection({ token, filters, onUnauthorized, refreshKey }: Ins
                       <title>{`${bar.date}: ${bar.value} orders`}</title>
                     </rect>
                   ))}
-                  <path d={linePath(geometry.line)} fill="none" strokeWidth={2} strokeLinejoin="round" className="stroke-brandBlue" />
+                  {days.length === 1 ? (
+                    <circle cx={geometry.line[0].x} cy={geometry.line[0].y} r={3} className="fill-brandBlue" />
+                  ) : (
+                    <path d={linePath(geometry.line)} fill="none" strokeWidth={2} strokeLinejoin="round" className="stroke-brandBlue" />
+                  )}
                 </svg>
                 <div className="relative h-8">
-                  {markers.map(({ note, index }) => (
-                    <NoteMarker key={note.id} note={note} x={geometry.line[index].x} />
+                  {markers.map(({ date, index, notes }) => (
+                    <NoteMarker key={date} notes={notes} x={geometry.line[index].x} />
                   ))}
                 </div>
               </div>
@@ -61,11 +65,7 @@ export function TrendSection({ token, filters, onUnauthorized, refreshKey }: Ins
             {notesState.state === "error" ? (
               <p className="text-sm text-midnight/60">Notes could not load. {notesState.error}</p>
             ) : null}
-            {days.length > 0 ? (
-              <p className="text-xs text-midnight/50">
-                Busiest day: {geometry.maxVisitors.toLocaleString("en-GB")} visitors
-              </p>
-            ) : null}
+            <p className="text-xs text-midnight/50">Busiest day: {geometry.maxVisitors.toLocaleString("en-GB")} visitors</p>
           </div>
         ) : null}
       </SectionState>
@@ -73,26 +73,32 @@ export function TrendSection({ token, filters, onUnauthorized, refreshKey }: Ins
   );
 }
 
-function NoteMarker({ note, x }: { note: ChartNote; x: number }) {
-  const label = `${note.title}, ${note.date}`;
+/** One marker per date. Holiday styling when every note on that date is a holiday. */
+function NoteMarker({ notes, x }: { notes: ChartNote[]; x: number }) {
+  const holiday = notes.every((note) => note.readOnly);
+  const label = notes.map((note) => `${note.readOnly ? "Holiday: " : ""}${note.title}`).join("; ");
   return (
     <span className="group absolute top-0 -translate-x-1/2" style={{ left: x }}>
       <button
         type="button"
-        aria-label={label}
+        aria-label={`${notes[0].date}: ${label}`}
         title={label}
         className={
-          note.readOnly
+          holiday
             ? "block h-3 w-3 rounded-full border-2 border-dashed border-brandTeal bg-white"
             : "block h-3 w-3 rounded-full bg-midnight"
         }
       />
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden w-max max-w-[200px] -translate-x-1/2 rounded-md bg-midnight px-2 py-1 text-xs text-white group-hover:block group-focus-within:block"
+        className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden w-max max-w-[220px] -translate-x-1/2 rounded-md bg-midnight px-2 py-1 text-xs text-white group-hover:block group-focus-within:block"
       >
-        {note.readOnly ? "Holiday: " : ""}
-        {note.title}
+        {notes.map((note) => (
+          <span key={note.id} className="block">
+            {note.readOnly ? "Holiday: " : ""}
+            {note.title}
+          </span>
+        ))}
       </span>
     </span>
   );

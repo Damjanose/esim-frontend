@@ -2,6 +2,7 @@
 
 import { formatMoney, formatRate } from "@/lib/insights/format";
 import { groupPromotionsByKind } from "@/lib/insights/promotions";
+import { singleCurrencyValue } from "@/lib/insights/singleCurrency";
 import type { PromotionRow, PromotionsData } from "@/lib/insights/types";
 import { DataTable } from "../ui/DataTable";
 import { SectionState } from "../ui/SectionState";
@@ -34,7 +35,7 @@ export function PromotionsSection({ token, filters, onUnauthorized, refreshKey }
                 { key: "taps", label: "Taps", value: (row) => row.taps, numeric: true },
                 { key: "tapRate", label: "Tap rate", value: (row) => formatRate(row.tapRate), sortValue: (row) => row.tapRate, numeric: true },
                 { key: "buyers7", label: "Buyers within 7 days", value: (row) => row.buyersWithin7d, numeric: true },
-                { key: "revenue7", label: "Revenue within 7 days", value: (row) => formatMoney(row.revenueWithin7d), numeric: true },
+                { key: "revenue7", label: "Revenue within 7 days", value: (row) => formatMoney(row.revenueWithin7d), sortValue: (row) => singleCurrencyValue(row.revenueWithin7d.byCurrency), numeric: true },
                 ...(group.kind === "promo_code"
                   ? [{ key: "codeSales", label: "Sales with code", value: (row: PromotionRow) => row.salesWithCode, numeric: true }]
                   : [])

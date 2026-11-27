@@ -64,3 +64,22 @@ describe("shared refresh counter", () => {
     expect(read("useChartNotes.ts")).toContain("refreshKey");
   });
 });
+
+describe("marketing tools: delete in flight and not_found", () => {
+  it("disables the delete buttons while a delete is in flight", () => {
+    const text = read("sections/MarketingToolsSection.tsx");
+    expect(text).toContain("deletingId");
+    expect(text).toContain("disabled={disabled}");
+    expect(text).toContain("disabled={deletingId !== null}");
+  });
+
+  it("treats not_found on delete as done: refresh and onSaved", () => {
+    const text = read("sections/MarketingToolsSection.tsx");
+    expect(text).toContain('result.code === "not_found"');
+  });
+
+  it("resets the form when the deleted entry is the one being edited", () => {
+    const text = read("sections/MarketingToolsSection.tsx");
+    expect(text).toContain("if (editingId === id) reset();");
+  });
+});

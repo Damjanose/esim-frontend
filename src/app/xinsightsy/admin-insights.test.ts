@@ -52,6 +52,13 @@ describe("hidden admin insights page", () => {
     }
   });
 
+  it("passes the refresh counter to every section that shows saved data", () => {
+    const pageSource = readFileSync("src/app/xinsightsy/page.tsx", "utf8");
+    for (const name of ["TrendSection", "CampaignsSection", "OpportunitiesSection", "SeasonsSection"]) {
+      expect(pageSource).toMatch(new RegExp(`<${name} [^>]*refreshKey=\\{refreshKey\\}`));
+    }
+  });
+
   it("is listed in the admin navigation under Growth", () => {
     const navSource = readFileSync("src/app/AdminNav.tsx", "utf8");
     expect(navSource).toContain('{ href: "/xinsightsy"');

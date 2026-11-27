@@ -26,9 +26,21 @@ describe("daily trend", () => {
     expect(hook).toContain("unauthorized.current?.()");
     const text = read("sections/TrendSection.tsx");
     expect(text).toContain("useChartNotes(");
-    expect(text).toContain("notePositions(");
+    expect(text).toContain("noteMarkers(");
     expect(text).toContain("group-focus-within:block");
     expect(text).toContain("group-hover:block");
+  });
+
+  it("draws a visible point when there is only one day", () => {
+    const text = read("sections/TrendSection.tsx");
+    expect(text).toContain("<circle");
+    expect(text).toContain("days.length === 1");
+  });
+
+  it("gives one marker per date, using noteMarkers", () => {
+    const text = read("sections/TrendSection.tsx");
+    expect(text).toContain("noteMarkers(");
+    expect(text).not.toContain("notePositions(");
   });
 
   it("makes holidays look different from admin notes", () => {

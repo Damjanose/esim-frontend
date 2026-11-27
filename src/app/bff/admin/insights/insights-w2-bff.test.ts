@@ -89,3 +89,26 @@ describe("report allowlist (Wave 2 and 3)", () => {
     }
   );
 });
+
+describe("malformed JSON bodies are rejected before reaching the backend", () => {
+  it("ad-spend POST returns 400 invalid_body", async () => {
+    const response = await adSpendPost(req("/ad-spend", { method: "POST", body: "not json" }));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ status: "error", message: "invalid_body" });
+    expect(backendFetch).not.toHaveBeenCalled();
+  });
+
+  it("ad-spend PUT returns 400 invalid_body", async () => {
+    const response = await adSpendPut(req("/ad-spend/abc", { method: "PUT", body: "{" }), { params: Promise.resolve({ id: "abc" }) });
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ status: "error", message: "invalid_body" });
+    expect(backendFetch).not.toHaveBeenCalled();
+  });
+
+  it("chart-notes POST returns 400 invalid_body", async () => {
+    const response = await notesPost(req("/chart-notes", { method: "POST", body: "" }));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ status: "error", message: "invalid_body" });
+    expect(backendFetch).not.toHaveBeenCalled();
+  });
+});

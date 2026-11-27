@@ -2,6 +2,7 @@
 
 import { formatCents, formatCostPerBuyer, formatProfitAfterAds, formatRevenuePerSpend } from "@/lib/insights/campaignReturn";
 import { formatMoney } from "@/lib/insights/format";
+import { singleCurrencyValue } from "@/lib/insights/singleCurrency";
 import type { CampaignReturnData, CampaignReturnRow, FirstSourceData, FirstSourceRow } from "@/lib/insights/types";
 import { DataTable } from "../ui/DataTable";
 import { SectionState } from "../ui/SectionState";
@@ -56,11 +57,11 @@ export function CampaignsSection({ token, filters, onUnauthorized, refreshKey }:
               columns={[
                 { key: "source", label: "Source", value: (row) => row.source },
                 { key: "campaign", label: "Campaign", value: (row) => row.campaign },
-                { key: "spend", label: "Spend", value: (row) => formatCents(row.spend), numeric: true },
+                { key: "spend", label: "Spend", value: (row) => formatCents(row.spend), sortValue: (row) => singleCurrencyValue(row.spend), numeric: true },
                 { key: "buyers", label: "Buyers", value: (row) => row.buyers, numeric: true },
-                { key: "costPerBuyer", label: "Cost per buyer", value: (row) => formatCostPerBuyer(row.costPerBuyer), numeric: true },
-                { key: "revenuePerSpend", label: "Revenue per spend", value: (row) => formatRevenuePerSpend(row.revenuePerSpend), numeric: true },
-                { key: "profitAfterAds", label: "Profit after ads", value: (row) => formatProfitAfterAds(row.profitAfterAds), numeric: true }
+                { key: "costPerBuyer", label: "Cost per buyer", value: (row) => formatCostPerBuyer(row.costPerBuyer), sortValue: (row) => singleCurrencyValue(row.costPerBuyer), numeric: true },
+                { key: "revenuePerSpend", label: "Revenue per spend", value: (row) => formatRevenuePerSpend(row.revenuePerSpend), sortValue: (row) => row.revenuePerSpend, numeric: true },
+                { key: "profitAfterAds", label: "Profit after ads", value: (row) => formatProfitAfterAds(row.profitAfterAds), sortValue: (row) => singleCurrencyValue(row.profitAfterAds), numeric: true }
               ]}
             />
           ) : null}
@@ -71,7 +72,7 @@ export function CampaignsSection({ token, filters, onUnauthorized, refreshKey }:
             <p className="text-xs text-midnight/60">These entries match no campaign visit in this range, so they have no return yet.</p>
             <ul className="mt-2 space-y-1 text-sm text-midnight/80">
               {returns.unmatchedSpend.map((item) => (
-                <li key={`${item.source}-${item.campaign}`}>
+                <li key={`${item.source}|${item.campaign}`}>
                   {item.source} / {item.campaign}: {formatCents(item.spend)}
                 </li>
               ))}

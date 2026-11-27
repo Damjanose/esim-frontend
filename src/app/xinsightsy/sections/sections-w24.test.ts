@@ -15,6 +15,18 @@ describe("campaigns: return on ad spend", () => {
     expect(text).toContain("formatCents(");
   });
 
+  it("sorts the numeric columns by number, not by their formatted text", () => {
+    const text = read("CampaignsSection.tsx");
+    expect(text).toContain("singleCurrencyValue(row.spend)");
+    expect(text).toContain("singleCurrencyValue(row.costPerBuyer)");
+    expect(text).toContain("sortValue: (row) => row.revenuePerSpend");
+    expect(text).toContain("singleCurrencyValue(row.profitAfterAds)");
+  });
+
+  it("keys unmatched spend by source and campaign", () => {
+    expect(read("CampaignsSection.tsx")).toContain("key={`${item.source}|${item.campaign}`}");
+  });
+
   it("lists unmatched spend", () => {
     const text = read("CampaignsSection.tsx");
     expect(text).toContain("Unmatched spend");
@@ -29,6 +41,7 @@ describe("promotions", () => {
     expect(text).toContain("groupPromotionsByKind(");
     expect(text).toContain("formatRate(");
     expect(text).toContain("buyersWithin7d");
+    expect(text).toContain("sortValue: (row) => singleCurrencyValue(row.revenueWithin7d.byCurrency)");
     expect(text).toContain("Sales with code");
     expect(text).toContain("<DataTable");
   });

@@ -53,7 +53,7 @@ export default function AdminInsightsPage() {
         <h1 className="font-display text-[26px] font-black tracking-tight text-midnight md:text-[30px]">Growth insights</h1>
         <InsightsFilterBar filters={filters} onChange={setFilters} />
         <div className="mt-6 grid gap-8">
-          <OpportunitiesSection token={token} filters={filters} onUnauthorized={logout} />
+          <OpportunitiesSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <OverviewSection token={token} filters={filters} onUnauthorized={logout} />
           <TrendSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <LocationsSection token={token} filters={filters} onUnauthorized={logout} />
@@ -66,7 +66,7 @@ export default function AdminInsightsPage() {
           <CampaignsSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <PromotionsSection token={token} filters={filters} onUnauthorized={logout} />
           <CustomersSection token={token} filters={filters} onUnauthorized={logout} />
-          <SeasonsSection token={token} filters={filters} onUnauthorized={logout} />
+          <SeasonsSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <AcquisitionSection token={token} filters={filters} onUnauthorized={logout} />
           <DataHealthSection token={token} filters={filters} onUnauthorized={logout} />
           <MarketingToolsSection token={token} filters={filters} onUnauthorized={logout} onSaved={onSaved} />

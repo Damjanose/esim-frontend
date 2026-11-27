@@ -16,3 +16,9 @@ export function notePositions(notes: ChartNote[], days: string[]): { note: Chart
     return index === -1 ? [] : [{ note, index }];
   });
 }
+
+/** One marker per date that has notes, with every note for that date. Dates outside `days` are left out. */
+export function noteMarkers(notes: ChartNote[], days: string[]): { date: string; index: number; notes: ChartNote[] }[] {
+  const grouped = notesByDate(notes);
+  return days.flatMap((date, index) => (grouped[date] ? [{ date, index, notes: grouped[date] }] : []));
+}

@@ -1,5 +1,5 @@
 import { proxyAdminJson } from "@/lib/admin-bff";
-import { readInsightsJsonBody } from "../json-body";
+import { invalidBody, readInsightsJsonBody } from "../json-body";
 
 const PARAMS = ["from", "to"];
 
@@ -16,6 +16,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const body = await readInsightsJsonBody(request);
-  if (body === null) return proxyAdminJson(request, "/admin/analytics/ad-spend", { method: "POST" });
+  if (body === null) return invalidBody();
   return proxyAdminJson(request, "/admin/analytics/ad-spend", { method: "POST", body });
 }
