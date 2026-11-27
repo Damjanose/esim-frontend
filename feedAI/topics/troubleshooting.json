@@ -506,6 +506,12 @@
       "symptom": "Creating an event modal in /xeventsy fails with a null/missing title error, but the editor has no title input.",
       "root_cause": "The editor draft starts with title '' and nothing in the editor edited it (the visible 'Title' fields are block props for winner/results). The backend and client validation both require title 1-120 chars.",
       "fix": "Added TitleField ('Name') above the editor tabs in EditorShell, bound to patchDraft({ title }). See f361."
+    },
+    {
+      "symptom": "/xinsightsy at 375px is 651px wide: every section stretches past the screen and the page scrolls sideways, although each wide table has its own overflow-x-auto box.",
+      "root_cause": "The sections sit in `grid gap-8`. An implicit grid track sizes to its widest child's min-content, and an overflow-x-auto box does not shrink its content's min-content, so min-w-[640px] tables widened the whole column. Seasons also used items-end, so months with note chips floated their bars higher.",
+      "fix": "page.tsx: grid-cols-[minmax(0,1fr)] on the section grid and min-w-0 on <main>; SeasonsSection: items-start. Checked headless at 375 and 1280px (doc width equals viewport).",
+      "fact": "f380"
     }
   ],
   "how_to_use": "Grep symptom text or facts ids here before re-diagnosing an auth/routing/env issue on this app — several past incidents look like 'X is broken' but were single mis-set env values, not code bugs.",
@@ -526,6 +532,7 @@
     "f174",
     "f175",
     "f177",
-    "f178"
+    "f178",
+    "f380"
   ]
 }

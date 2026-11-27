@@ -22,6 +22,15 @@ describe("hidden admin insights page", () => {
     expect(pageSource).toContain("AdminLoginCard");
   });
 
+  it("keeps wide tables from widening the page on phones", () => {
+    const pageSource = readFileSync("src/app/xinsightsy/page.tsx", "utf8");
+    // A plain grid track grows to its widest child (651px at a 375px viewport, seen in a headless check).
+    expect(pageSource).toContain("grid-cols-[minmax(0,1fr)]");
+    expect(pageSource).toMatch(/<main className="[^"]*min-w-0/);
+    const seasonsSource = readFileSync("src/app/xinsightsy/sections/SeasonsSection.tsx", "utf8");
+    expect(seasonsSource).toContain("items-start");
+  });
+
   it("renders all Wave 1, 2 and 3 sections in order", () => {
     const pageSource = readFileSync("src/app/xinsightsy/page.tsx", "utf8");
     const names = [

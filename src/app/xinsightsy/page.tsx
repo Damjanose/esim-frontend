@@ -49,10 +49,11 @@ export default function AdminInsightsPage() {
   return (
     <>
       <AdminNav session={session} />
-      <main className="min-h-screen bg-cloud px-6 py-7 md:px-9">
+      <main className="min-h-screen min-w-0 bg-cloud px-6 py-7 md:px-9">
         <h1 className="font-display text-[26px] font-black tracking-tight text-midnight md:text-[30px]">Growth insights</h1>
         <InsightsFilterBar filters={filters} onChange={setFilters} />
-        <div className="mt-6 grid gap-8">
+        {/* minmax(0,1fr): wide tables scroll inside their own box instead of widening the page on phones. */}
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-8">
           <OpportunitiesSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />
           <OverviewSection token={token} filters={filters} onUnauthorized={logout} />
           <TrendSection token={token} filters={filters} onUnauthorized={logout} refreshKey={refreshKey} />

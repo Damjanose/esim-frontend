@@ -23,7 +23,8 @@ export function SeasonsSection({ token, filters, onUnauthorized, refreshKey }: I
       <SectionState state={status} onRetry={retry} emptyText="No orders in this range">
         {months.length > 0 ? (
           <div className="overflow-x-auto pb-2">
-            <ol className="flex min-w-[480px] items-end gap-3">
+            {/* items-start: months with note chips below are taller; top alignment keeps every bar area level. */}
+            <ol className="flex min-w-[480px] items-start gap-3">
               {months.map((month, index) => (
                 <li key={month.month} className="flex min-w-[64px] flex-1 flex-col items-center gap-2 text-center">
                   <span className="text-xs font-bold tabular-nums text-midnight">{month.orders}</span>
